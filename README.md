@@ -7,8 +7,10 @@ DittNAV (frontend).
 # Kom i gang
 1. Start en lokal instans av Kafka f.eks. 
 `docker run -e ADV_HOST=127.0.0.1 --rm -p 3030:3030 -p 9092:9092 -p 8081:8081 -p 8083:8083 -p 8082:8082 -p 2181:2181 landoop/fast-data-dev`
-2. Start konsumenten ved å kjøre filen App.
-3. Produser noen eventer ved å kjøre filen AppProducer.
+2. Last ned og bygg repo-et https://github.com/navikt/dittnav-event-schemas
+3. Bygg dittnav-event-aggregator ved å kjøre `gradle build`
+4. Start konsumenten ved å kjøre filen App.
+5. Produser noen eventer ved å kjøre filen AppProducer.
 
 # Henvendelser
 
