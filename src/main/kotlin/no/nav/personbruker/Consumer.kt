@@ -53,7 +53,7 @@ object Consumer : CoroutineScope {
                     val records = consumer.poll(Duration.of(100, ChronoUnit.MILLIS))
 
                     if (counter++ % 50 == 0 && records.isEmpty) {
-                        log.info("Ingen nye eventer ble funnet")
+                        log.info("Ingen nye eventer ble funnet på topic-en: " + topics.get(0))
                     }
 
                     transformRecords<T>(records)

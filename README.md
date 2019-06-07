@@ -10,7 +10,8 @@ DittNAV (frontend).
 2. Last ned og bygg repo-et https://github.com/navikt/dittnav-event-schemas
 3. Bygg dittnav-event-aggregator ved å kjøre `gradle build`
 4. Start konsumenten ved å kjøre filen App.
-5. Produser noen eventer ved å kjøre filen AppProducer.
+5. Produser et informasjonsevent ved å gjøre en `post` mot endepunktet `http://localhost:8080/produce/informasjon`, 
+f.eks. ´curl -X POST -v http://localhost:8080/produce/informasjon´
 
 # Henvendelser
 

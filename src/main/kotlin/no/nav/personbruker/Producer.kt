@@ -14,19 +14,23 @@ object Producer {
     val meldingTopicName = "${topicBaseName}.melding"
     val informasjonTopicName = "${topicBaseName}.informasjon"
 
-    fun produce(messagesCount: Int = 2) {
+    fun produceInformasjonEvent(messagesCount: Int = 1) {
         KafkaProducer<String, Informasjon>(Config.producerProps(Environment())).use { producer ->
             for (i in 0 until messagesCount) {
                 producer.send(ProducerRecord(informasjonTopicName, createInformasjon(i)))
             }
         }
+    }
 
+    fun produceOppgaveEvent(messagesCount: Int = 1) {
         KafkaProducer<String, Oppgave>(Config.producerProps(Environment())).use { producer ->
             for (i in 0 until messagesCount) {
                 producer.send(ProducerRecord(oppgaveTopicName, createOppgave(i)))
             }
         }
+    }
 
+    fun produceMeldingEvent(messagesCount: Int = 1) {
         KafkaProducer<String, Melding>(Config.producerProps(Environment())).use { producer ->
             for (i in 0 until messagesCount) {
                 producer.send(ProducerRecord(meldingTopicName, createMelding(i)))
