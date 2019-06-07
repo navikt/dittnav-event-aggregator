@@ -1,4 +1,4 @@
-package no.nav.personbruker
+package no.nav.personbruker.dittnav.eventaggregator
 
 import org.junit.jupiter.api.Test
 

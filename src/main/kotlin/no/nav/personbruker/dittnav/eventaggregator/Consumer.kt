@@ -1,4 +1,4 @@
-package no.nav.personbruker
+package no.nav.personbruker.dittnav.eventaggregator
 
 import io.prometheus.client.Counter
 import kotlinx.coroutines.CoroutineScope
@@ -38,9 +38,9 @@ object Consumer : CoroutineScope {
     fun isRunning() = job.isActive
 
     fun create(topics: List<String>, kafkaProps: Properties) {
-        this.job = Job()
-        this.kafkaProps = kafkaProps
-        this.topics = topics
+        job = Job()
+        Consumer.kafkaProps = kafkaProps
+        Consumer.topics = topics
     }
 
 

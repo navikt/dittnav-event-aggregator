@@ -1,4 +1,4 @@
-package no.nav.personbruker
+package no.nav.personbruker.dittnav.eventaggregator
 
 import io.ktor.application.call
 import io.ktor.application.install
@@ -14,8 +14,8 @@ import io.ktor.server.netty.NettyApplicationEngine
 import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.exporter.common.TextFormat
 import io.prometheus.client.hotspot.DefaultExports
-import no.nav.personbruker.api.healthApi
-import no.nav.personbruker.api.produceEventsApi
+import no.nav.personbruker.dittnav.eventaggregator.api.healthApi
+import no.nav.personbruker.dittnav.eventaggregator.api.produceEventsApi
 
 object Server {
 

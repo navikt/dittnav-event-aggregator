@@ -1,4 +1,4 @@
-package no.nav.personbruker
+package no.nav.personbruker.dittnav.eventaggregator
 
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.skjema.Informasjon

@@ -1,11 +1,11 @@
-package no.nav.personbruker.api
+package no.nav.personbruker.dittnav.eventaggregator.api
 
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.routing.Routing
 import io.ktor.routing.post
-import no.nav.personbruker.Server
+import no.nav.personbruker.dittnav.eventaggregator.Server
 
 fun Routing.produceEventsApi() {
 

@@ -1,4 +1,4 @@
-package no.nav.personbruker.api
+package no.nav.personbruker.dittnav.eventaggregator.api
 
 import io.ktor.application.call
 import io.ktor.http.ContentType
@@ -6,7 +6,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.response.respondText
 import io.ktor.routing.Routing
 import io.ktor.routing.get
-import no.nav.personbruker.Consumer
+import no.nav.personbruker.dittnav.eventaggregator.Consumer
 
 fun Routing.healthApi() {
 

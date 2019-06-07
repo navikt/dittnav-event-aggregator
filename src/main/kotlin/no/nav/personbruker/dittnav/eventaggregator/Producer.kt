@@ -1,4 +1,4 @@
-package no.nav.personbruker
+package no.nav.personbruker.dittnav.eventaggregator
 
 import no.nav.personbruker.dittnav.skjema.Informasjon
 import no.nav.personbruker.dittnav.skjema.Melding
@@ -10,9 +10,9 @@ import java.time.Instant
 object Producer {
 
     val topicBaseName = "example.topic.dittnav"
-    val oppgaveTopicName = "${topicBaseName}.oppgave"
-    val meldingTopicName = "${topicBaseName}.melding"
-    val informasjonTopicName = "${topicBaseName}.informasjon"
+    val oppgaveTopicName = "$topicBaseName.oppgave"
+    val meldingTopicName = "$topicBaseName.melding"
+    val informasjonTopicName = "$topicBaseName.informasjon"
 
     fun produceInformasjonEvent(messagesCount: Int = 1) {
         KafkaProducer<String, Informasjon>(Config.producerProps(Environment())).use { producer ->
