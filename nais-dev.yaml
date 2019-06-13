@@ -1,0 +1,33 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: dittnav-event-aggregator
+  namespace: default
+  labels:
+    team: personbruker
+spec:
+  image: navikt/dittnav-event-aggregator:0.0.4
+  team: personbruker
+  port: 8080
+  liveness:
+    path: /isAlive
+    initialDelay: 10
+  readiness:
+    path: /isReady
+    initialDelay: 10
+  prometheus:
+    path: /metrics
+  replicas:
+    min: 2
+    max: 4
+  ingresses:
+    - "https://dittnav-event-aggregator.nais.oera-q.local"
+  vault:
+    enabled: true
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 200m
+      memory: 256Mi
