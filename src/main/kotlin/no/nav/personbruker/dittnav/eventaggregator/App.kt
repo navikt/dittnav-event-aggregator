@@ -1,7 +1,8 @@
 package no.nav.personbruker.dittnav.eventaggregator
 
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.skjema.Informasjon
+import no.nav.personbruker.dittnav.event.schemas.Informasjon
+
 
 fun main(args: Array<String>) {
 

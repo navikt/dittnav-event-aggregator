@@ -1,8 +1,8 @@
 package no.nav.personbruker.dittnav.eventaggregator
 
-import no.nav.personbruker.dittnav.skjema.Informasjon
-import no.nav.personbruker.dittnav.skjema.Melding
-import no.nav.personbruker.dittnav.skjema.Oppgave
+import no.nav.personbruker.dittnav.event.schemas.Informasjon
+import no.nav.personbruker.dittnav.event.schemas.Melding
+import no.nav.personbruker.dittnav.event.schemas.Oppgave
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.time.Instant
