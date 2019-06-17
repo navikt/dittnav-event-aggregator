@@ -6,24 +6,27 @@ metadata:
   labels:
     team: personbruker
 spec:
-  image: navikt/dittnav-event-aggregator:0.0.4
+  image: navikt/dittnav-event-aggregator:0.0.12
   team: personbruker
   port: 8080
   liveness:
     path: /isAlive
-    initialDelay: 10
+    initialDelay: 5
   readiness:
-    path: /isReady
-    initialDelay: 10
+    path: /isAlive
+    initialDelay: 5
   prometheus:
     path: /metrics
   replicas:
     min: 2
     max: 4
   ingresses:
-    - "https://dittnav-event-aggregator.nais.oera-q.local"
+    - "https://dittnav-event-aggregator.dev-sbs.nais.io"
   vault:
     enabled: true
+  env:
+    - name: IKKE_SENSITIV_PROPERTY
+      value: uniktPerNaisManifest
   resources:
     limits:
       cpu: 500m
