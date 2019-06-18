@@ -6,27 +6,31 @@ metadata:
   labels:
     team: personbruker
 spec:
-  image: navikt/dittnav-event-aggregator:0.0.12
+  image: navikt/dittnav-event-aggregator:0.0.14
   team: personbruker
   port: 8080
   liveness:
     path: /isAlive
     initialDelay: 5
   readiness:
-    path: /isAlive
+    path: /isReady
     initialDelay: 5
   prometheus:
     path: /metrics
   replicas:
-    min: 2
-    max: 4
+    min: 1
+    max: 2
   ingresses:
     - "https://dittnav-event-aggregator.dev-sbs.nais.io"
   vault:
     enabled: true
   env:
-    - name: IKKE_SENSITIV_PROPERTY
-      value: uniktPerNaisManifest
+    - name: KAFKA_BOOTSTRAP_SERVERS
+      value: "SSL://b27apvl00045.preprod.local:8443,SSL://b27apvl00046.preprod.local:8443,SSL://b27apvl00047.preprod.local:8443"
+    - name: KAFKA_SCHEMAREGISTRY_SERVERS
+      value: "https://kafka-schema-registry.nais-q.adeo.no"
+    - name: GROUP_ID
+      value: "dittnav-aggregator-alpha-001"
   resources:
     limits:
       cpu: 500m
