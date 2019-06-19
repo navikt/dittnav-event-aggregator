@@ -44,30 +44,28 @@ object Consumer : CoroutineScope {
     }
 
 
-    fun <T> fetchFromKafka() {
+    fun <T> pollContinuouslyForEvents() {
         KafkaConsumer<String, T>(kafkaProps).use { consumer ->
             consumer.subscribe(topics)
-            var counter = 0
+
             while (job.isActive) {
-                try {
-                    val records = consumer.poll(Duration.of(100, ChronoUnit.MILLIS))
-
-                    if (counter++ % 50 == 0 && records.isEmpty) {
-                        log.info("Ingen nye eventer ble funnet på topic-en: " + topics.get(0))
-                    }
-
-                    transformRecords<T>(records)
-
-//                    consumer.commitSync()
-
-                } catch (e: RetriableException) {
-                    log.warn("Failed to poll, but with a retriable exception so will continue to next loop", e)
-
-                } catch (e: Exception) {
-                    log.error("Something unrecoverable happened", e)
-                    cancel()
-                }
+                processBatchOfEvents(consumer)
             }
+        }
+    }
+
+    private fun <T> processBatchOfEvents(consumer: KafkaConsumer<String, T>) {
+        try {
+            val records = consumer.poll(Duration.of(100, ChronoUnit.MILLIS))
+            transformRecords<T>(records)
+            consumer.commitSync()
+
+        } catch (e: RetriableException) {
+            log.warn("Failed to poll, but with a retriable exception so will continue to next loop", e)
+
+        } catch (e: Exception) {
+            log.error("Something unrecoverable happened", e)
+            cancel()
         }
     }
 

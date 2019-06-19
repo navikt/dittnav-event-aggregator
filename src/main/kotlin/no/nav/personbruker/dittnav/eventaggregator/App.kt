@@ -19,6 +19,6 @@ fun main(args: Array<String>) {
 private fun startInformasjonConsumer() {
     Consumer.apply {
         create(topics = listOf(informasjonTopicName), kafkaProps = Config.consumerProps(Environment()))
-        fetchFromKafka<Informasjon>()
+        pollContinuouslyForEvents<Informasjon>()
     }
 }
