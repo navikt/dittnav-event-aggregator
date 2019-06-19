@@ -6,7 +6,7 @@ metadata:
   labels:
     team: personbruker
 spec:
-  image: navikt/dittnav-event-aggregator:0.0.14
+  image: navikt/dittnav-event-aggregator:0.0.16
   team: personbruker
   port: 8080
   liveness:

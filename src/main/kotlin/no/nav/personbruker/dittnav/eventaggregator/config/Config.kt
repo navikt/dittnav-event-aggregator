@@ -24,7 +24,7 @@ object Config {
     val meldingTopicName = "aapen-brukernotifikasjon-nyMelding-v1-testing"
     val informasjonTopicName = "aapen-brukernotifikasjon-nyInformasjon-v1-testing" // Kun denne topic-en som foreløpig er opprettet
 
-    fun credentialProps(env: Environment): Properties {
+    private fun credentialProps(env: Environment): Properties {
         return Properties().apply {
             put(SaslConfigs.SASL_MECHANISM, "PLAIN")
             put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT")
@@ -49,7 +49,9 @@ object Config {
             put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer::class.java)
             put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaAvroDeserializer::class.java)
             put(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, true)
-            putAll(credentialProps(env))
+            if (isCurrentlyRunningOnNais()) {
+                putAll(credentialProps(env))
+            }
         }
     }
 
@@ -60,8 +62,14 @@ object Config {
             put(ConsumerConfig.CLIENT_ID_CONFIG, env.groupId + getHostname(InetSocketAddress(0)))
             put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
             put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer::class.java)
-            putAll(credentialProps(env))
+            if (isCurrentlyRunningOnNais()) {
+                putAll(credentialProps(env))
+            }
         }
+    }
+
+    private fun isCurrentlyRunningOnNais(): Boolean {
+        return System.getenv("NAIS_APP_NAME") != null
     }
 
     val log = LoggerFactory.getLogger(Config::class.java)
