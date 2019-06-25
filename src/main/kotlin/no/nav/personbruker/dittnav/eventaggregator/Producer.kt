@@ -1,18 +1,18 @@
 package no.nav.personbruker.dittnav.eventaggregator
 
-import no.nav.personbruker.dittnav.event.schemas.Informasjon
-import no.nav.personbruker.dittnav.event.schemas.Melding
-import no.nav.personbruker.dittnav.event.schemas.Oppgave
+import no.nav.personbruker.dittnav.eventaggregator.config.Config
+import no.nav.personbruker.dittnav.eventaggregator.config.Config.informasjonTopicName
+import no.nav.personbruker.dittnav.eventaggregator.config.Config.meldingTopicName
+import no.nav.personbruker.dittnav.eventaggregator.config.Config.oppgaveTopicName
+import no.nav.personbruker.dittnav.eventaggregator.config.Environment
+import no.nav.personbruker.dittnav.skjema.Informasjon
+import no.nav.personbruker.dittnav.skjema.Melding
+import no.nav.personbruker.dittnav.skjema.Oppgave
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.time.Instant
 
 object Producer {
-
-    val topicBaseName = "example.topic.dittnav"
-    val oppgaveTopicName = "$topicBaseName.oppgave"
-    val meldingTopicName = "$topicBaseName.melding"
-    val informasjonTopicName = "$topicBaseName.informasjon"
 
     fun produceInformasjonEvent(messagesCount: Int = 1) {
         KafkaProducer<String, Informasjon>(Config.producerProps(Environment())).use { producer ->

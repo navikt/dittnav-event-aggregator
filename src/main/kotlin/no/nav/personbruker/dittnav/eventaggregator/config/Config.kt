@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator
+package no.nav.personbruker.dittnav.eventaggregator.config
 
 import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
@@ -16,16 +16,15 @@ import java.io.File
 import java.net.InetSocketAddress
 import java.util.*
 
-data class Environment(val bootstrapServers: String = getEnvVar("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092"),
-                       val schemaRegistryUrl: String = getEnvVar("KAFKA_SCHEMAREGISTRY_SERVERS", "http://localhost:8081"),
-                       val username: String = getEnvVar("USERNAME", "username"),
-                       val password: String = getEnvVar("PASSWORD", "password"),
-                       val groupId: String = getEnvVar("GROUP_ID", "dittnav_events")
-)
-
 object Config {
 
-    fun credentialProps(env: Environment): Properties {
+    // Har midlertidig lag på et -testing postfix på topic-navene, slik at vi ikke ved et uhell kludrer til de reelle topic-ene.
+    val doneTopicName = "aapen-brukernotifikasjon-done-v1-testing"
+    val oppgaveTopicName = "aapen-brukernotifikasjon-nyOppgave-v1-testing"
+    val meldingTopicName = "aapen-brukernotifikasjon-nyMelding-v1-testing"
+    val informasjonTopicName = "aapen-brukernotifikasjon-nyInformasjon-v1-testing" // Kun denne topic-en som foreløpig er opprettet
+
+    private fun credentialProps(env: Environment): Properties {
         return Properties().apply {
             put(SaslConfigs.SASL_MECHANISM, "PLAIN")
             put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT")
@@ -50,6 +49,9 @@ object Config {
             put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer::class.java)
             put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaAvroDeserializer::class.java)
             put(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, true)
+            if (isCurrentlyRunningOnNais()) {
+                putAll(credentialProps(env))
+            }
         }
     }
 
@@ -60,16 +62,15 @@ object Config {
             put(ConsumerConfig.CLIENT_ID_CONFIG, env.groupId + getHostname(InetSocketAddress(0)))
             put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
             put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer::class.java)
-
-            // putAll(credentialProps(env))
+            if (isCurrentlyRunningOnNais()) {
+                putAll(credentialProps(env))
+            }
         }
     }
 
+    private fun isCurrentlyRunningOnNais(): Boolean {
+        return System.getenv("NAIS_APP_NAME") != null
+    }
 
     val log = LoggerFactory.getLogger(Config::class.java)
-}
-
-fun getEnvVar(varName: String, defaultValue: String? = null): String {
-    return System.getenv(varName) ?: defaultValue
-    ?: throw IllegalArgumentException("Variable $varName cannot be empty")
 }

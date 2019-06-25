@@ -39,7 +39,7 @@ dependencies {
     compile("io.ktor:ktor-server-netty:$ktorVersion")
     compile("org.apache.kafka:kafka-clients:$kafkaVersion")
     compile("io.confluent:kafka-avro-serializer:$confluentVersion")
-    compile("no.nav.personbruker.dittnav:event-schemas:$dittNavSkjemaVersion")
+    compile("no.nav.personbruker.dittnav:skjema:$dittNavSkjemaVersion")
     testCompile("org.junit.jupiter:junit-jupiter-api:$junitVersion")
     testCompile("org.assertj:assertj-core:3.12.1")
     testCompile(kotlin("test-junit5"))
