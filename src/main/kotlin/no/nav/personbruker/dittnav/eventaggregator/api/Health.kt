@@ -6,7 +6,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.response.respondText
 import io.ktor.routing.Routing
 import io.ktor.routing.get
-import no.nav.personbruker.dittnav.eventaggregator.Consumer
+import no.nav.personbruker.dittnav.eventaggregator.kafka.Consumer
 
 fun Routing.healthApi() {
 

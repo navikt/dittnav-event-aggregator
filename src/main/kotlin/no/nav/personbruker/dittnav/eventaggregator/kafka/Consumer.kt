@@ -1,9 +1,11 @@
-package no.nav.personbruker.dittnav.eventaggregator
+package no.nav.personbruker.dittnav.eventaggregator.kafka
 
 import io.prometheus.client.Counter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import no.nav.personbruker.dittnav.eventaggregator.service.InformasjonEventService
+import no.nav.personbruker.dittnav.skjema.Informasjon
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.errors.RetriableException
@@ -18,6 +20,7 @@ object Consumer : CoroutineScope {
     lateinit var job: Job
     lateinit var topics: List<String>
     lateinit var kafkaProps: Properties
+    lateinit var informasjonEventService: InformasjonEventService
 
     val log = LoggerFactory.getLogger(Consumer::class.java)
 
@@ -41,11 +44,12 @@ object Consumer : CoroutineScope {
         job = Job()
         Consumer.kafkaProps = kafkaProps
         Consumer.topics = topics
+        this.informasjonEventService = InformasjonEventService()
     }
 
 
-    fun <T> pollContinuouslyForEvents() {
-        KafkaConsumer<String, T>(kafkaProps).use { consumer ->
+    fun pollContinuouslyForEvents() {
+        KafkaConsumer<String, Informasjon>(kafkaProps).use { consumer ->
             consumer.subscribe(topics)
 
             while (job.isActive) {
@@ -54,10 +58,10 @@ object Consumer : CoroutineScope {
         }
     }
 
-    private fun <T> processBatchOfEvents(consumer: KafkaConsumer<String, T>) {
+    private fun processBatchOfEvents(consumer: KafkaConsumer<String, Informasjon>) {
         try {
             val records = consumer.poll(Duration.of(100, ChronoUnit.MILLIS))
-            transformRecords<T>(records)
+            transformRecords(records)
             consumer.commitSync()
 
         } catch (e: RetriableException) {
@@ -69,13 +73,13 @@ object Consumer : CoroutineScope {
         }
     }
 
-    private fun <T> transformRecords(records: ConsumerRecords<String, T>) {
-        val transformed = mutableListOf<T>()
+    private fun transformRecords(records: ConsumerRecords<String, Informasjon>) {
         records.forEach { record ->
             MESSAGES_SEEN.labels(record.topic(), record.partition().toString()).inc()
             val info = record.value()
             log.info("Event funnet: $info")
-            transformed.add(info)
+
+            informasjonEventService.storeEventInCache(info)
         }
     }
 

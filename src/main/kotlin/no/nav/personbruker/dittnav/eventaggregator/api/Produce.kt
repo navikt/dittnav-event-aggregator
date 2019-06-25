@@ -5,7 +5,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.routing.Routing
 import io.ktor.routing.post
-import no.nav.personbruker.dittnav.eventaggregator.Server
+import no.nav.personbruker.dittnav.eventaggregator.config.Server
 
 fun Routing.produceEventsApi() {
 

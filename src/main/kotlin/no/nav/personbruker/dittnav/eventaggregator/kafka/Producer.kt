@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator
+package no.nav.personbruker.dittnav.eventaggregator.kafka
 
 import no.nav.personbruker.dittnav.eventaggregator.config.Config
 import no.nav.personbruker.dittnav.eventaggregator.config.Config.informasjonTopicName

@@ -1,0 +1,31 @@
+version: '2'
+services:
+
+  # SQL database
+  postgres:
+    image: "postgres:11"
+    restart: "always"
+    volumes:
+      - "ktor-starter-data:/var/lib/postgresql/data"
+    ports:
+      - "54321:5432"
+    environment:
+      POSTGRES_USER: "testuser"
+      POSTGRES_PASSWORD: "mpassword"
+      POSTGRES_DB: "ktor-starter"
+    mem_limit: "8g"
+
+  kafka:
+    image: landoop/fast-data-dev:2.2.0
+    ports:
+      - "3030:3030"
+      - "9092:9092"
+      - "8081:8081"
+      - "8083:8083"
+      - "8082:8082"
+      - "2181:2181"
+    environment:
+      - "ADV_HOST=127.0.0.1"
+
+volumes:
+  ktor-starter-data:

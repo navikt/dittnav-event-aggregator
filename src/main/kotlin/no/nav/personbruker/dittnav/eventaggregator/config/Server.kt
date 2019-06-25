@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator
+package no.nav.personbruker.dittnav.eventaggregator.config
 
 import io.ktor.application.call
 import io.ktor.application.install
@@ -16,6 +16,7 @@ import io.prometheus.client.exporter.common.TextFormat
 import io.prometheus.client.hotspot.DefaultExports
 import no.nav.personbruker.dittnav.eventaggregator.api.healthApi
 import no.nav.personbruker.dittnav.eventaggregator.api.produceEventsApi
+import no.nav.personbruker.dittnav.eventaggregator.kafka.Producer
 
 object Server {
 
