@@ -9,8 +9,8 @@ DittNAV (frontend).
 2. Bygg dittnav-event-aggregator ved å kjøre `gradle clean build`
 3. Start lokal instans av Kafka og Postgres ved å kjøre `docker-compose up -d`
 4. Start konsumenten ved å kjøre filen App.
-5. Produser et informasjonsevent ved å gjøre en `post` mot endepunktet `http://localhost:8080/produce/informasjonDTO`, 
-f.eks. ´curl -X POST -v http://localhost:8080/produce/informasjonDTO´
+5. Produser et informasjonsevent ved å gjøre en `post` mot endepunktet `http://localhost:8080/produce/informasjon`, 
+f.eks. ´curl -X POST -v http://localhost:8080/produce/informasjon´
 
 # Henvendelser
 
