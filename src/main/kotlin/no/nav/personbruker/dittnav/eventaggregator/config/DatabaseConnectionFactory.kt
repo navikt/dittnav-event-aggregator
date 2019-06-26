@@ -9,14 +9,14 @@ import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
 
-object DatabaseFactory {
+object DatabaseConnectionFactory {
 
 //    private val appConfig = HoconApplicationConfig(ConfigFactory.load())
-    private val dbUrl =  "jdbc:postgresql://localhost:54321/ktor-starter" //appConfig.property("db.jdbcUrl").getString()
+    private val dbUrl =  "jdbc:postgresql://localhost:5432/dittnav-event-cache" //appConfig.property("db.jdbcUrl").getString()
     private val dbUser = "testuser" // appConfig.property("db.dbUser").getString()
-    private val dbPassword = "mpassword" // appConfig.property("db.dbPassword").getString()
+    private val dbPassword = "testpassword" // appConfig.property("db.dbPassword").getString()
 
-    fun init(): Database {
+    fun runFlywayMigrations(): Database {
         val connection = Database.connect(hikariFromLocalDb())
         val flyway = Flyway.configure().dataSource(dbUrl, dbUser, dbPassword).load()
         flyway.migrate()

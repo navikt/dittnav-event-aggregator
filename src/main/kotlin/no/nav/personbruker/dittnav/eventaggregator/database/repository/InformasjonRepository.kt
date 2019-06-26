@@ -2,7 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.database.repository
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import no.nav.personbruker.dittnav.eventaggregator.config.DatabaseFactory.dbQuery
+import no.nav.personbruker.dittnav.eventaggregator.config.DatabaseConnectionFactory.dbQuery
 import no.nav.personbruker.dittnav.eventaggregator.database.entity.Informasjon
 import no.nav.personbruker.dittnav.eventaggregator.database.tables.InformasjonTable
 import org.jetbrains.exposed.dao.EntityID

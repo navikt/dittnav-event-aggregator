@@ -1,4 +1,4 @@
-version: '2'
+version: '3.7'
 services:
 
   # SQL database
@@ -6,14 +6,13 @@ services:
     image: "postgres:11"
     restart: "always"
     volumes:
-      - "ktor-starter-data:/var/lib/postgresql/data"
+      - "dittnav-event-cache-data:/var/lib/postgresql/data"
     ports:
-      - "54321:5432"
+      - "5432:5432"
     environment:
       POSTGRES_USER: "testuser"
-      POSTGRES_PASSWORD: "mpassword"
-      POSTGRES_DB: "ktor-starter"
-    mem_limit: "8g"
+      POSTGRES_PASSWORD: "testpassword"
+      POSTGRES_DB: "dittnav-event-cache"
 
   kafka:
     image: landoop/fast-data-dev:2.2.0
@@ -28,4 +27,4 @@ services:
       - "ADV_HOST=127.0.0.1"
 
 volumes:
-  ktor-starter-data:
+  dittnav-event-cache-data:

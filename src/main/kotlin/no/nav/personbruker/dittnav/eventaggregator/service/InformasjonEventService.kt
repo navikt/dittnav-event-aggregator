@@ -16,11 +16,11 @@ class InformasjonEventService(
 
     fun storeEventInCache(event: Informasjon) {
         val entity = transformer.toInternal(event)
-        Consumer.log.info("Skal skrive entitet til db: $entity")
+        Consumer.log.info("Skal skrive entitet til databasen: $entity")
         runBlocking {
             val entityID = repository.createInfo(entity)
             val fetchedRow = repository.getInformasjonById(entityID)
-            log.info("Ny rad hetet fra databasen: $fetchedRow")
+            log.info("Ny rad hentet fra databasen: $fetchedRow")
         }
     }
 
