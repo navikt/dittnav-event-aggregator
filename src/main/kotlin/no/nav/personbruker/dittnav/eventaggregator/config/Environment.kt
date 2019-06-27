@@ -7,7 +7,8 @@ data class Environment(val bootstrapServers: String = getEnvVar("KAFKA_BOOTSTRAP
                        val groupId: String = getEnvVar("GROUP_ID", "dittnav_events"),
                        val dbUrl: String = getEnvVar("DB_URL", "jdbc:postgresql://localhost:5432/dittnav-event-cache"),
                        val dbUser: String = getEnvVar("DB_USER", "testuser"),
-                       val dbPassword: String = getEnvVar("DB_PASSWORD", "testpassword")
+                       val dbPassword: String = getEnvVar("DB_PASSWORD", "testpassword"),
+                       val dbMountPath: String = getEnvVar("DB_MOUNT_PATH", "notUsedOnLocalhost")
 )
 
 fun getEnvVar(varName: String, defaultValue: String? = null): String {

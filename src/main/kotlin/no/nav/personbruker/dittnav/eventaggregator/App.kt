@@ -2,7 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator
 
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.config.*
-import no.nav.personbruker.dittnav.eventaggregator.config.Config.informasjonTopicName
+import no.nav.personbruker.dittnav.eventaggregator.config.Kafka.informasjonTopicName
 import no.nav.personbruker.dittnav.eventaggregator.kafka.Consumer
 
 fun main(args: Array<String>) {
@@ -11,18 +11,23 @@ fun main(args: Array<String>) {
     runBlocking {
         Server.startServer(System.getenv("PORT")?.toInt() ?: 8080).start()
 
-        DatabaseConnectionFactory.initDatabase(environment)
+        if (databaseFungerKunLokaltForelopig()) {
+            Flyway.runFlywayMigrations(environment)
 
-        Flyway.runFlywayMigrations(environment)
+            DatabaseConnectionFactory.initDatabase(environment)
+        }
 
         startInformasjonConsumer(environment)
     }
 
 }
 
+// TODO: Fjern denne metoden når databasen fungerer på Nais
+fun databaseFungerKunLokaltForelopig() = !ConfigUtil.isCurrentlyRunningOnNais()
+
 private fun startInformasjonConsumer(env: Environment) {
     Consumer.apply {
-        create(topics = listOf(informasjonTopicName), kafkaProps = Config.consumerProps(env))
+        create(topics = listOf(informasjonTopicName), kafkaProps = Kafka.consumerProps(env))
         pollContinuouslyForEvents()
     }
 }

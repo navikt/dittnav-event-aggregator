@@ -1,12 +1,25 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
 import org.flywaydb.core.Flyway
+import org.flywaydb.core.api.configuration.FluentConfiguration
 
 object Flyway {
 
     fun runFlywayMigrations(env: Environment) {
-        val flyway = Flyway.configure().dataSource(env.dbUrl, env.dbUser, env.dbPassword).load()
+        val flyway = configure(env).load()
         flyway.migrate()
+    }
+
+    private fun configure(env: Environment): FluentConfiguration {
+        val dbUser = "dittnav-event-cache-admin"
+        val configBuilder = Flyway.configure()
+        val dataSource = DatabaseConnectionFactory.createCorrectDatasourceForEnvironment(env)
+        configBuilder.dataSource(dataSource)
+
+        if (ConfigUtil.isCurrentlyRunningOnNais()) {
+            configBuilder.initSql("SET ROLE \"$dbUser\"")
+        }
+        return configBuilder
     }
 
 }

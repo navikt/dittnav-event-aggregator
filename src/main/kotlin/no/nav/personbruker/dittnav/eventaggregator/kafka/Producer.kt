@@ -1,10 +1,10 @@
 package no.nav.personbruker.dittnav.eventaggregator.kafka
 
-import no.nav.personbruker.dittnav.eventaggregator.config.Config
-import no.nav.personbruker.dittnav.eventaggregator.config.Config.informasjonTopicName
-import no.nav.personbruker.dittnav.eventaggregator.config.Config.meldingTopicName
-import no.nav.personbruker.dittnav.eventaggregator.config.Config.oppgaveTopicName
 import no.nav.personbruker.dittnav.eventaggregator.config.Environment
+import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
+import no.nav.personbruker.dittnav.eventaggregator.config.Kafka.informasjonTopicName
+import no.nav.personbruker.dittnav.eventaggregator.config.Kafka.meldingTopicName
+import no.nav.personbruker.dittnav.eventaggregator.config.Kafka.oppgaveTopicName
 import no.nav.personbruker.dittnav.skjema.Informasjon
 import no.nav.personbruker.dittnav.skjema.Melding
 import no.nav.personbruker.dittnav.skjema.Oppgave
@@ -15,7 +15,7 @@ import java.time.Instant
 object Producer {
 
     fun produceInformasjonEvent(messagesCount: Int = 1) {
-        KafkaProducer<String, Informasjon>(Config.producerProps(Environment())).use { producer ->
+        KafkaProducer<String, Informasjon>(Kafka.producerProps(Environment())).use { producer ->
             for (i in 0 until messagesCount) {
                 producer.send(ProducerRecord(informasjonTopicName, createInformasjon(i)))
             }
@@ -23,7 +23,7 @@ object Producer {
     }
 
     fun produceOppgaveEvent(messagesCount: Int = 1) {
-        KafkaProducer<String, Oppgave>(Config.producerProps(Environment())).use { producer ->
+        KafkaProducer<String, Oppgave>(Kafka.producerProps(Environment())).use { producer ->
             for (i in 0 until messagesCount) {
                 producer.send(ProducerRecord(oppgaveTopicName, createOppgave(i)))
             }
@@ -31,7 +31,7 @@ object Producer {
     }
 
     fun produceMeldingEvent(messagesCount: Int = 1) {
-        KafkaProducer<String, Melding>(Config.producerProps(Environment())).use { producer ->
+        KafkaProducer<String, Melding>(Kafka.producerProps(Environment())).use { producer ->
             for (i in 0 until messagesCount) {
                 producer.send(ProducerRecord(meldingTopicName, createMelding(i)))
             }

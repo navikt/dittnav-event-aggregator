@@ -4,6 +4,7 @@ import io.prometheus.client.Counter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import no.nav.personbruker.dittnav.eventaggregator.databaseFungerKunLokaltForelopig
 import no.nav.personbruker.dittnav.eventaggregator.service.InformasjonEventService
 import no.nav.personbruker.dittnav.skjema.Informasjon
 import org.apache.kafka.clients.consumer.ConsumerRecords
@@ -79,7 +80,9 @@ object Consumer : CoroutineScope {
             val info = record.value()
             log.info("Event funnet: $info")
 
-            informasjonEventService.storeEventInCache(info)
+            if (databaseFungerKunLokaltForelopig()) {
+                informasjonEventService.storeEventInCache(info)
+            }
         }
     }
 
