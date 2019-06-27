@@ -26,21 +26,22 @@ object DatabaseConnectionFactory {
 
     private fun hikariDatasourceViaVault(env: Environment): HikariDataSource {
         val config = HikariConfig()
+        config.driverClassName = "org.postgresql.Driver"
         config.jdbcUrl = env.dbUrl
         config.minimumIdle = 0
         config.maxLifetime = 30001
         config.maximumPoolSize = 2
         config.connectionTimeout = 250
         config.idleTimeout = 10001
-        // TODO: Kun bruke dittnav-event-cache-admin for Flyway, og heller bruke dittnav-event-cache-user ellers
-        return HikariCPVaultUtil.createHikariDataSourceWithVaultIntegration(config, env.dbMountPath, "dittnav-event-cache-admin")
+        // TODO: Kun bruke dittnav-event-cache-preprod-admin for Flyway, og heller bruke dittnav-event-cache-preprod-user ellers
+        return HikariCPVaultUtil.createHikariDataSourceWithVaultIntegration(config, env.dbMountPath, env.dbAdmin)
     }
 
     private fun hikariFromLocalDb(env: Environment): HikariDataSource {
         val config = HikariConfig()
         config.driverClassName = "org.postgresql.Driver"
         config.jdbcUrl = env.dbUrl
-        config.username = env.dbUser
+        config.username = env.dbAdmin
         config.password = env.dbPassword
         config.maximumPoolSize = 3
         config.isAutoCommit = false

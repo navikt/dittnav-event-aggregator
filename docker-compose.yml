@@ -9,9 +9,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: "testuser"
+      POSTGRES_USER: "test-admin"
       POSTGRES_PASSWORD: "testpassword"
-      POSTGRES_DB: "dittnav-event-cache"
+      POSTGRES_DB: "dittnav-event-cache-preprod"
 
   kafka:
     image: landoop/fast-data-dev:2.2.0

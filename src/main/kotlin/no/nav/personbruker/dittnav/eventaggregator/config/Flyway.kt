@@ -11,13 +11,12 @@ object Flyway {
     }
 
     private fun configure(env: Environment): FluentConfiguration {
-        val dbUser = "dittnav-event-cache-admin"
         val configBuilder = Flyway.configure()
         val dataSource = DatabaseConnectionFactory.createCorrectDatasourceForEnvironment(env)
         configBuilder.dataSource(dataSource)
 
         if (ConfigUtil.isCurrentlyRunningOnNais()) {
-            configBuilder.initSql("SET ROLE \"$dbUser\"")
+            configBuilder.initSql("SET ROLE \"${env.dbAdmin}\"")
         }
         return configBuilder
     }

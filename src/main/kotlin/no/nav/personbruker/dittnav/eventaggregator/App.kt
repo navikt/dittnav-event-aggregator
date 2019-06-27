@@ -11,19 +11,14 @@ fun main(args: Array<String>) {
     runBlocking {
         Server.startServer(System.getenv("PORT")?.toInt() ?: 8080).start()
 
-        if (databaseFungerKunLokaltForelopig()) {
-            Flyway.runFlywayMigrations(environment)
+        Flyway.runFlywayMigrations(environment)
 
-            DatabaseConnectionFactory.initDatabase(environment)
-        }
+        DatabaseConnectionFactory.initDatabase(environment)
 
         startInformasjonConsumer(environment)
     }
 
 }
-
-// TODO: Fjern denne metoden når databasen fungerer på Nais
-fun databaseFungerKunLokaltForelopig() = !ConfigUtil.isCurrentlyRunningOnNais()
 
 private fun startInformasjonConsumer(env: Environment) {
     Consumer.apply {
