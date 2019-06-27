@@ -5,22 +5,13 @@ import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import no.nav.vault.jdbc.hikaricp.HikariCPVaultUtil
-import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object DatabaseConnectionFactory {
 
-//    private val appConfig = HoconApplicationConfig(ConfigFactory.load())
-    private val dbUrl =  "jdbc:postgresql://localhost:5432/dittnav-event-cache" //appConfig.property("db.jdbcUrl").getString()
-    private val dbUser = "testuser" // appConfig.property("db.dbUser").getString()
-    private val dbPassword = "testpassword" // appConfig.property("db.dbPassword").getString()
-
-    fun runFlywayMigrations(): Database {
-        val connection = Database.connect(hikariFromLocalDb())
-        val flyway = Flyway.configure().dataSource(dbUrl, dbUser, dbPassword).load()
-        flyway.migrate()
-        return connection
+    fun initDatabase(env: Environment) {
+        Database.connect(hikariFromLocalDb(env))
     }
 
     fun hikariDatasourceViaVault(): HikariDataSource? {
@@ -34,12 +25,12 @@ object DatabaseConnectionFactory {
         return HikariCPVaultUtil.createHikariDataSourceWithVaultIntegration(config, "postgresql/preprod", "testdb-user")
     }
 
-    private fun hikariFromLocalDb(): HikariDataSource {
+    fun hikariFromLocalDb(env: Environment): HikariDataSource {
         val config = HikariConfig()
         config.driverClassName = "org.postgresql.Driver"
-        config.jdbcUrl = dbUrl
-        config.username = dbUser
-        config.password = dbPassword
+        config.jdbcUrl = env.dbUrl
+        config.username = env.dbUser
+        config.password = env.dbPassword
         config.maximumPoolSize = 3
         config.isAutoCommit = false
         config.transactionIsolation = "TRANSACTION_REPEATABLE_READ"
