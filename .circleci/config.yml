@@ -13,24 +13,31 @@ jobs:
             - v1-dependencies-{{ checksum "build.gradle.kts" }}
             - v1-dependencies-
       - run: gradle build
-      - nais/docker-deploy:
-          image: navikt/dittnav-event-aggregator
       - save_cache:
           paths:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle.kts" }}
+      - nais/docker-deploy:
+          image: navikt/dittnav-event-aggregator
 
 workflows:
-  deploy-dev:
+  build-and-deploy-dev:
     jobs:
-      - build
+      - build:
+          context: NAIS deployment
+      - bekreft-til-dev:
+          type: approval
+          requires:
+            - build
       - nais/deploy:
-          build-and-push-docker-image: false
+          name: deploy-dev
+          context: NAIS deployment
           image: navikt/dittnav-event-aggregator
           nais-template: nais-dev.yaml
+          build-and-push-docker-image: false
           github-app-id: 34043
           repo: navikt/dittnav-event-aggregator
           team: personbruker
           environment: dev-sbs
           requires:
-            - build
+            - bekreft-til-dev
