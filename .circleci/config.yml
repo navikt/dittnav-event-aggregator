@@ -1,0 +1,36 @@
+version: 2.1
+orbs:
+  nais: 'navikt/nais-deployment@1.1.1'
+
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:12-jdk
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "build.gradle.kts" }}
+            - v1-dependencies-
+      - run: gradle build
+      - nais/docker-deploy:
+          image: navikt/dittnav-event-aggregator
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: v1-dependencies-{{ checksum "build.gradle.kts" }}
+
+workflows:
+  deploy-dev:
+    jobs:
+      - build
+      - nais/deploy:
+          build-and-push-docker-image: false
+          image: navikt/dittnav-event-aggregator
+          nais-template: nais-dev.yaml
+          github-app-id: 34043
+          repo: navikt/dittnav-event-aggregator
+          team: personbruker
+          environment: dev-sbs
+          requires:
+            - build
