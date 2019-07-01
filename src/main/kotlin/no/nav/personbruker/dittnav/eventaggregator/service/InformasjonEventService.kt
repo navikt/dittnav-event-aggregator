@@ -1,10 +1,10 @@
 package no.nav.personbruker.dittnav.eventaggregator.service
 
 import kotlinx.coroutines.runBlocking
+import no.nav.personbruker.dittnav.event.schemas.Informasjon
 import no.nav.personbruker.dittnav.eventaggregator.database.repository.InformasjonRepository
 import no.nav.personbruker.dittnav.eventaggregator.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.transformer.InformasjonTransformer
-import no.nav.personbruker.dittnav.skjema.Informasjon
 import org.slf4j.LoggerFactory
 
 class InformasjonEventService(
