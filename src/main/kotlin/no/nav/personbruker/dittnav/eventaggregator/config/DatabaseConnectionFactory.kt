@@ -7,7 +7,6 @@ import kotlinx.coroutines.withContext
 import no.nav.vault.jdbc.hikaricp.HikariCPVaultUtil
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
-import javax.sql.DataSource
 
 object DatabaseConnectionFactory {
 
@@ -15,16 +14,36 @@ object DatabaseConnectionFactory {
         Database.connect(createCorrectDatasourceForEnvironment(env))
     }
 
-    fun createCorrectDatasourceForEnvironment(env: Environment): DataSource {
-        if (ConfigUtil.isCurrentlyRunningOnNais()) {
-            return hikariDatasourceViaVault(env)
-
-        } else {
-            return hikariFromLocalDb(env)
+    private fun createCorrectDatasourceForEnvironment(env: Environment) : HikariDataSource {
+        return when (ConfigUtil.isCurrentlyRunningOnNais()) {
+            true -> createDataSourceViaVaultWithDbUser(env)
+            false -> createDataSourceForLocalDbWithDbUser(env)
         }
     }
 
-    private fun hikariDatasourceViaVault(env: Environment): HikariDataSource {
+    private fun createDataSourceForLocalDbWithDbUser(env: Environment): HikariDataSource {
+        return hikariFromLocalDb(env, env.dbUser)
+    }
+
+    private fun createDataSourceViaVaultWithDbUser(env: Environment): HikariDataSource {
+        return hikariDatasourceViaVault(env, env.dbUser)
+    }
+
+    fun hikariFromLocalDb(env: Environment, dbUser: String): HikariDataSource {
+        val config = hikariCommonConfig(env)
+        config.username = dbUser
+        config.password = env.dbPassword
+        config.validate()
+        return HikariDataSource(config)
+    }
+
+    fun hikariDatasourceViaVault(env: Environment, dbUser: String): HikariDataSource {
+        var config = hikariCommonConfig(env)
+        config.validate()
+        return HikariCPVaultUtil.createHikariDataSourceWithVaultIntegration(config, env.dbMountPath, dbUser)
+    }
+
+    private fun hikariCommonConfig(env: Environment): HikariConfig {
         val config = HikariConfig()
         config.driverClassName = "org.postgresql.Driver"
         config.jdbcUrl = env.dbUrl
@@ -33,21 +52,9 @@ object DatabaseConnectionFactory {
         config.maximumPoolSize = 2
         config.connectionTimeout = 250
         config.idleTimeout = 10001
-        // TODO: Kun bruke dittnav-event-cache-preprod-admin for Flyway, og heller bruke dittnav-event-cache-preprod-user ellers
-        return HikariCPVaultUtil.createHikariDataSourceWithVaultIntegration(config, env.dbMountPath, env.dbAdmin)
-    }
-
-    private fun hikariFromLocalDb(env: Environment): HikariDataSource {
-        val config = HikariConfig()
-        config.driverClassName = "org.postgresql.Driver"
-        config.jdbcUrl = env.dbUrl
-        config.username = env.dbAdmin
-        config.password = env.dbPassword
-        config.maximumPoolSize = 3
         config.isAutoCommit = false
         config.transactionIsolation = "TRANSACTION_REPEATABLE_READ"
-        config.validate()
-        return HikariDataSource(config)
+        return config
     }
 
     suspend fun <T> dbQuery(block: () -> T): T =

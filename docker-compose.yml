@@ -9,7 +9,7 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: "test-admin"
+      POSTGRES_USER: "test-user"
       POSTGRES_PASSWORD: "testpassword"
       POSTGRES_DB: "dittnav-event-cache-preprod"
 

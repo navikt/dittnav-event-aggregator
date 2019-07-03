@@ -1,7 +1,9 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
+import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.configuration.FluentConfiguration
+import javax.sql.DataSource
 
 object Flyway {
 
@@ -12,13 +14,28 @@ object Flyway {
 
     private fun configure(env: Environment): FluentConfiguration {
         val configBuilder = Flyway.configure()
-        val dataSource = DatabaseConnectionFactory.createCorrectDatasourceForEnvironment(env)
+        val dataSource = createCorrectAdminDatasourceForEnvironment(env)
         configBuilder.dataSource(dataSource)
 
         if (ConfigUtil.isCurrentlyRunningOnNais()) {
             configBuilder.initSql("SET ROLE \"${env.dbAdmin}\"")
         }
         return configBuilder
+    }
+
+    private fun createCorrectAdminDatasourceForEnvironment(env: Environment): DataSource {
+        return when (ConfigUtil.isCurrentlyRunningOnNais()) {
+            true -> createDataSourceViaVaultWithAdminUser(env)
+            false -> createDataSourceForLocalDbWithAdminUser(env)
+        }
+    }
+
+    private fun createDataSourceViaVaultWithAdminUser(env: Environment): HikariDataSource {
+        return DatabaseConnectionFactory.hikariDatasourceViaVault(env, env.dbAdmin)
+    }
+
+    private fun createDataSourceForLocalDbWithAdminUser(env: Environment): HikariDataSource {
+        return DatabaseConnectionFactory.hikariFromLocalDb(env, env.dbUser)
     }
 
 }
