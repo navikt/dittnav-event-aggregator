@@ -33,7 +33,7 @@ spec:
     - name: DB_NAME
       value: "dittnav-event-cache-preprod"
     - name: DB_HOST
-      value: "b27dbvl008.preprod.local"
+      value: "b27dbvl008.preprod.local:5432"
     - name: DB_MOUNT_PATH
       value: "postgresql/preprod-fss"
   resources:
