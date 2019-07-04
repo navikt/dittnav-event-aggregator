@@ -9,7 +9,7 @@ fun main(args: Array<String>) {
     val environment = Environment()
 
     runBlocking {
-        Server.startServer(System.getenv("PORT")?.toInt() ?: 8080).start()
+        Server.configure().start()
 
         Flyway.runFlywayMigrations(environment)
 

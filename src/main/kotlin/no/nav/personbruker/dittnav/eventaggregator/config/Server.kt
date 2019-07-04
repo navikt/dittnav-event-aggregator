@@ -16,15 +16,14 @@ import io.prometheus.client.exporter.common.TextFormat
 import io.prometheus.client.hotspot.DefaultExports
 import no.nav.personbruker.dittnav.eventaggregator.api.healthApi
 import no.nav.personbruker.dittnav.eventaggregator.api.produceEventsApi
-import no.nav.personbruker.dittnav.eventaggregator.kafka.Producer
 
 object Server {
 
-    val producer: Producer = Producer
+    const val portNumber = 8080
 
-    fun startServer(port: Int): NettyApplicationEngine {
+    fun configure(): NettyApplicationEngine {
         DefaultExports.initialize()
-        return embeddedServer(Netty, port = port) {
+        return embeddedServer(Netty, port = portNumber) {
             install(DefaultHeaders)
             routing {
                 healthApi()
