@@ -1,9 +1,25 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+val prometheusVersion = "0.6.0"
+val ktorVersion = "1.1.3"
+val junitVersion = "5.4.1"
+val kafkaVersion = "2.2.0"
+val confluentVersion = "5.2.0"
+val dittNavSkjemaVersion = "1.2019.06.24-11.58-2bb2160a8909"
+val logstashVersion = 5.2
+val logbackVersion = "1.2.3"
+val vaultJdbcVersion = "1.3.1"
+val flywayVersion = "5.2.4"
+val exposedVersion = "0.14.1"
+val hikariCPVersion = "3.2.0"
+val postgresVersion = "42.2.5"
+
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin on the JVM.
     kotlin("jvm").version("1.3.31")
     kotlin("plugin.allopen").version("1.3.31")
+
+    id("org.flywaydb.flyway") version("5.2.4")
 
     // Apply the application plugin to add support for building a CLI application.
     application
@@ -21,17 +37,14 @@ repositories {
     mavenLocal()
 }
 
-val prometheusVersion = "0.6.0"
-val ktorVersion = "1.1.3"
-val junitVersion = "5.4.1"
-val kafkaVersion = "2.2.0"
-val confluentVersion = "5.2.0"
-val dittNavSkjemaVersion = "1.2019.06.24-11.58-2bb2160a8909"
-val logstashVersion = 5.2
-val logbackVersion = "1.2.3"
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
+    compile("no.nav:vault-jdbc:$vaultJdbcVersion")
+    compile("com.zaxxer:HikariCP:$hikariCPVersion")
+    compile("org.postgresql:postgresql:$postgresVersion")
+    compile("org.jetbrains.exposed:exposed:$exposedVersion")
+    compile("org.flywaydb:flyway-core:$flywayVersion")
     compile("ch.qos.logback:logback-classic:$logbackVersion")
     compile("net.logstash.logback:logstash-logback-encoder:$logstashVersion")
     compile("io.prometheus:simpleclient_common:$prometheusVersion")
@@ -46,7 +59,6 @@ dependencies {
     testImplementation("no.nav:kafka-embedded-env:2.1.1")
     testImplementation("org.apache.kafka:kafka_2.12:$kafkaVersion")
     testImplementation("org.apache.kafka:kafka-streams:$kafkaVersion")
-    testImplementation("org.apache.kafka:kafka-streams:$kafkaVersion")
     testImplementation("io.confluent:kafka-schema-registry:$confluentVersion")
 }
 
@@ -59,5 +71,13 @@ tasks.withType<Jar> {
         attributes["Main-Class"] = application.mainClassName
     }
 
-    from(configurations.runtime.get().map {if (it.isDirectory) it else zipTree(it)})
+    from(configurations.runtime.get().map { if (it.isDirectory) it else zipTree(it) })
+}
+
+flyway {
+    url = System.getenv("DB_URL")
+    user = System.getenv("DB_USER")
+    password = System.getenv("DB_PASSWORD")
+    baselineOnMigrate=true
+    locations = arrayOf("filesystem:src/main/resources/db/migration")
 }
