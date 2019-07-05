@@ -73,11 +73,3 @@ tasks.withType<Jar> {
 
     from(configurations.runtime.get().map { if (it.isDirectory) it else zipTree(it) })
 }
-
-flyway {
-    url = System.getenv("DB_URL")
-    user = System.getenv("DB_USER")
-    password = System.getenv("DB_PASSWORD")
-    baselineOnMigrate=true
-    locations = arrayOf("filesystem:src/main/resources/db/migration")
-}
