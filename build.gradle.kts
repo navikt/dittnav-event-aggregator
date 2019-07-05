@@ -73,3 +73,8 @@ tasks.withType<Jar> {
 
     from(configurations.runtime.get().map { if (it.isDirectory) it else zipTree(it) })
 }
+
+tasks.register("runServer", JavaExec::class) {
+    main = "no.nav.personbruker.dittnav.eventaggregator.AppKt"
+    classpath = sourceSets["main"].runtimeClasspath
+}
