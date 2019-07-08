@@ -7,7 +7,7 @@ import org.joda.time.DateTime
 object InformasjonTable : IntIdTable() {
     val produsent: Column<String> = varchar("produsent", 100)
     val eventTidspunkt: Column<DateTime> = datetime("eventtidspunkt")
-    val aktorid: Column<String> = varchar("aktorid", 50)
+    val aktorId: Column<String> = varchar("aktorid", 50)
     val eventId: Column<String> = varchar("eventid", 50)
     val dokumentId: Column<String> = varchar("dokumentid", 100)
     val tekst: Column<String> = varchar("tekst", 500)

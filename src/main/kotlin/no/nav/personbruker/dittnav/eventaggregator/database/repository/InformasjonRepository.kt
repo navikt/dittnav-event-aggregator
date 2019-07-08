@@ -20,9 +20,9 @@ class InformasjonRepository {
         }
     }
 
-    suspend fun getInformasjonByAktorid(aktorid: String): Informasjon? = dbQuery {
+    suspend fun getInformasjonByAktorid(aktorId: String): Informasjon? = dbQuery {
         InformasjonTable.select {
-            (InformasjonTable.aktorid eq aktorid)
+            (InformasjonTable.aktorId eq aktorId)
         }.mapNotNull { toInformasjon(it) }
                 .singleOrNull()
     }
@@ -32,7 +32,7 @@ class InformasjonRepository {
                     id = row[InformasjonTable.id],
                     produsent = row[InformasjonTable.produsent],
                     eventTidspunkt = row[InformasjonTable.eventTidspunkt],
-                    aktorid = row[InformasjonTable.aktorid],
+                    aktorId = row[InformasjonTable.aktorId],
                     eventId = row[InformasjonTable.eventId],
                     dokumentId = row[InformasjonTable.dokumentId],
                     tekst = row[InformasjonTable.tekst],
@@ -48,7 +48,7 @@ class InformasjonRepository {
                 val generatedId = InformasjonTable.insertAndGetId {
                     it[produsent] = info.produsent
                     it[eventTidspunkt] = info.eventTidspunkt
-                    it[aktorid] = info.aktorid
+                    it[aktorId] = info.aktorId
                     it[eventId] = info.eventId
                     it[dokumentId] = info.dokumentId
                     it[tekst] = info.tekst
