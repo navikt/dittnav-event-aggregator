@@ -31,11 +31,11 @@ object Flyway {
     }
 
     private fun createDataSourceViaVaultWithAdminUser(env: Environment): HikariDataSource {
-        return DatabaseConnectionFactory.hikariDatasourceViaVault(env, env.dbAdmin)
+        return Database.hikariDatasourceViaVault(env, env.dbAdmin)
     }
 
     private fun createDataSourceForLocalDbWithAdminUser(env: Environment): HikariDataSource {
-        return DatabaseConnectionFactory.hikariFromLocalDb(env, env.dbUser)
+        return Database.hikariFromLocalDb(env, env.dbUser)
     }
 
 }

@@ -5,11 +5,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import no.nav.personbruker.dittnav.event.schemas.Informasjon
+import no.nav.personbruker.dittnav.eventaggregator.config.Database
 import no.nav.personbruker.dittnav.eventaggregator.service.InformasjonEventService
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.errors.RetriableException
 import org.slf4j.LoggerFactory
+import java.sql.Connection
 import java.time.Duration
 import java.time.temporal.ChronoUnit
 import java.util.*
@@ -40,11 +42,11 @@ object Consumer : CoroutineScope {
 
     fun isRunning() = job.isActive
 
-    fun create(topics: List<String>, kafkaProps: Properties) {
+    fun create(topics: List<String>, kafkaProps: Properties, database: Database) {
         job = Job()
         Consumer.kafkaProps = kafkaProps
         Consumer.topics = topics
-        this.informasjonEventService = InformasjonEventService()
+        this.informasjonEventService = InformasjonEventService(database)
     }
 
 

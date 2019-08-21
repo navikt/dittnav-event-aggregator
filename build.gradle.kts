@@ -10,7 +10,6 @@ val logstashVersion = 5.2
 val logbackVersion = "1.2.3"
 val vaultJdbcVersion = "1.3.1"
 val flywayVersion = "5.2.4"
-val exposedVersion = "0.14.1"
 val hikariCPVersion = "3.2.0"
 val postgresVersion = "42.2.5"
 
@@ -43,7 +42,6 @@ dependencies {
     compile("no.nav:vault-jdbc:$vaultJdbcVersion")
     compile("com.zaxxer:HikariCP:$hikariCPVersion")
     compile("org.postgresql:postgresql:$postgresVersion")
-    compile("org.jetbrains.exposed:exposed:$exposedVersion")
     compile("org.flywaydb:flyway-core:$flywayVersion")
     compile("ch.qos.logback:logback-classic:$logbackVersion")
     compile("net.logstash.logback:logstash-logback-encoder:$logstashVersion")
