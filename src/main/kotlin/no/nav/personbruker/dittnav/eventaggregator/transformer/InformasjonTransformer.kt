@@ -5,7 +5,7 @@ import org.joda.time.DateTime
 
 class InformasjonTransformer {
 
-    fun toInternal(external: no.nav.personbruker.dittnav.event.schemas.Informasjon) : Informasjon {
+    fun toInternal(external: no.nav.brukernotifikasjon.schemas.Informasjon) : Informasjon {
         val newRecordsAreActiveByDefault = true
         val internal = Informasjon(external.getProdusent(),
                 DateTime(external.getTidspunkt()),

@@ -1,9 +1,8 @@
 package no.nav.personbruker.dittnav.eventaggregator.kafka
 
-
-import no.nav.personbruker.dittnav.event.schemas.Informasjon
-import no.nav.personbruker.dittnav.event.schemas.Melding
-import no.nav.personbruker.dittnav.event.schemas.Oppgave
+import no.nav.brukernotifikasjon.schemas.Informasjon
+import no.nav.brukernotifikasjon.schemas.Melding
+import no.nav.brukernotifikasjon.schemas.Oppgave
 
 import no.nav.personbruker.dittnav.eventaggregator.config.Environment
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka

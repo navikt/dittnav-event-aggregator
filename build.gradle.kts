@@ -5,7 +5,7 @@ val ktorVersion = "1.1.3"
 val junitVersion = "5.4.1"
 val kafkaVersion = "2.2.0"
 val confluentVersion = "5.2.0"
-val dittNavSkjemaVersion = "1.2019.06.24-11.58-2bb2160a8909"
+val brukernotifikasjonSchemaVersion = "1.2019.08.22-13.39-d4273d3247a3"
 val logstashVersion = 5.2
 val logbackVersion = "1.2.3"
 val vaultJdbcVersion = "1.3.1"
@@ -52,7 +52,7 @@ dependencies {
     compile("io.ktor:ktor-server-netty:$ktorVersion")
     compile("org.apache.kafka:kafka-clients:$kafkaVersion")
     compile("io.confluent:kafka-avro-serializer:$confluentVersion")
-    compile("no.nav.personbruker.dittnav:event-schemas:$dittNavSkjemaVersion")
+    compile("no.nav:brukernotifikasjon-schemas:$brukernotifikasjonSchemaVersion")
     testCompile("org.junit.jupiter:junit-jupiter-api:$junitVersion")
     testCompile("org.assertj:assertj-core:3.12.1")
     testCompile(kotlin("test-junit5"))
