@@ -4,7 +4,6 @@ import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.config.*
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka.informasjonTopicName
 import no.nav.personbruker.dittnav.eventaggregator.kafka.Consumer
-import java.sql.Connection
 
 fun main() {
 
