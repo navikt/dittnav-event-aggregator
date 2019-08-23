@@ -1,10 +1,11 @@
-package no.nav.personbruker.dittnav.eventaggregator.database.query
+package no.nav.personbruker.dittnav.eventaggregator.database.entity
 
-import no.nav.personbruker.dittnav.eventaggregator.database.entity.Informasjon
 import java.sql.*
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 
-fun Connection.getAllInfo() =
+fun Connection.getAllInformasjon(): List<Informasjon> =
         prepareStatement("""SELECT * FROM INFORMASJON""")
                 .use {
                     it.executeQuery().list {
@@ -12,29 +13,29 @@ fun Connection.getAllInfo() =
                     }
                 }
 
-fun Connection.createInfo(informasjon: Informasjon): Int =
+fun Connection.createInformasjon(informasjon: Informasjon): Int =
         prepareStatement("""INSERT INTO INFORMASJON (produsent, eventTidspunkt, aktorid, eventId, dokumentId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", Statement.RETURN_GENERATED_KEYS).use {
             it.setString(1, informasjon.produsent)
-            it.setObject(2, informasjon.eventTidspunkt, Types.DATE)
+            it.setObject(2, informasjon.eventTidspunkt, Types.TIMESTAMP_WITH_TIMEZONE)
             it.setString(3, informasjon.aktorId)
             it.setString(4, informasjon.eventId)
             it.setString(5, informasjon.dokumentId)
             it.setString(6, informasjon.tekst)
             it.setString(7, informasjon.link)
             it.setInt(8, informasjon.sikkerhetsnivaa)
-            it.setObject(9, informasjon.sistOppdatert, Types.DATE)
+            it.setObject(9, informasjon.sistOppdatert, Types.TIMESTAMP_WITH_TIMEZONE)
             it.setBoolean(10, informasjon.aktiv)
             it.executeUpdate()
             it.generatedKeys.next()
             it.generatedKeys.getInt("id")
         }
 
-fun Connection.getInformasjonByAktorid(aktorid: String): Informasjon? =
+fun Connection.getInformasjonByAktorid(aktorid: String): List<Informasjon> =
         prepareStatement("""SELECT * FROM INFORMASJON WHERE aktorid = ?""")
                 .use {
                     it.setString(1, aktorid)
-                    it.executeQuery().singleResult {
+                    it.executeQuery().list {
                         toInformasjon()
                     }
                 }
@@ -52,14 +53,14 @@ private fun ResultSet.toInformasjon(): Informasjon {
     return Informasjon(
             id = getInt("id"),
             produsent = getString("produsent"),
-            eventTidspunkt = getDate("eventTidspunkt"),
+            eventTidspunkt = LocalDateTime.ofInstant(getTimestamp("eventTidspunkt").toInstant(), ZoneId.systemDefault()),
             aktorId = getString("aktorId"),
             eventId = getString("eventId"),
             dokumentId = getString("dokumentId"),
             tekst = getString("tekst"),
             link = getString("link"),
             sikkerhetsnivaa = getInt("sikkerhetsnivaa"),
-            sistOppdatert = getDate("sistOppdatert"),
+            sistOppdatert = LocalDateTime.ofInstant(getTimestamp("sistOppdatert").toInstant(), ZoneId.systemDefault()),
             aktiv = getBoolean("aktiv")
     )
 }

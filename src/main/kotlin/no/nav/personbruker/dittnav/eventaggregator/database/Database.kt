@@ -1,33 +1,44 @@
-package no.nav.personbruker.dittnav.eventaggregator.config
+package no.nav.personbruker.dittnav.eventaggregator.database
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import no.nav.personbruker.dittnav.eventaggregator.config.ConfigUtil
+import no.nav.personbruker.dittnav.eventaggregator.config.Environment
 import no.nav.vault.jdbc.hikaricp.HikariCPVaultUtil
 import java.lang.Exception
 import java.sql.Connection
 import javax.sql.DataSource
 
-class Database(env: Environment) {
+interface IDatabase {
 
-    private val dataSource: DataSource
+    val dataSource: DataSource
 
-    init {
-        dataSource = createCorrectConnectionForEnvironment(env)
-    }
-
-    fun <T> dbQuery(block: Connection.() -> T): T =
+    suspend fun <T> dbQuery(block: Connection.() -> T): T =
             dataSource.connection.use {
                 try {
                     it.block().apply { it.commit() }
                 } catch (e: Exception) {
                     try {
-                       it.rollback()
+                        it.rollback()
                     } catch (rollbackException: Exception) {
                         e.addSuppressed(rollbackException)
                     }
                     throw e
                 }
             }
+}
+
+class Database(env: Environment) : IDatabase {
+
+    private val envDataSource: DataSource
+
+    init {
+        envDataSource = createCorrectConnectionForEnvironment(env)
+    }
+
+    override val dataSource: DataSource
+        get() = envDataSource
+
 
     private fun createCorrectConnectionForEnvironment(env: Environment) : HikariDataSource {
         return when (ConfigUtil.isCurrentlyRunningOnNais()) {
@@ -47,10 +58,11 @@ class Database(env: Environment) {
     companion object {
 
         fun hikariFromLocalDb(env: Environment, dbUser: String): HikariDataSource {
-            val config = hikariCommonConfig(env)
-            config.username = dbUser
-            config.password = env.dbPassword
-            config.validate()
+            val config = hikariCommonConfig(env).apply {
+                username = dbUser
+                password = env.dbPassword
+                validate()
+            }
             return HikariDataSource(config)
         }
 
@@ -61,16 +73,17 @@ class Database(env: Environment) {
         }
 
         private fun hikariCommonConfig(env: Environment): HikariConfig {
-            val config = HikariConfig()
-            config.driverClassName = "org.postgresql.Driver"
-            config.jdbcUrl = env.dbUrl
-            config.minimumIdle = 0
-            config.maxLifetime = 30001
-            config.maximumPoolSize = 2
-            config.connectionTimeout = 250
-            config.idleTimeout = 10001
-            config.isAutoCommit = false
-            config.transactionIsolation = "TRANSACTION_REPEATABLE_READ"
+            val config = HikariConfig().apply {
+                driverClassName = "org.postgresql.Driver"
+                jdbcUrl = env.dbUrl
+                minimumIdle = 0
+                maxLifetime = 30001
+                maximumPoolSize = 2
+                connectionTimeout = 250
+                idleTimeout = 10001
+                isAutoCommit = false
+                transactionIsolation = "TRANSACTION_REPEATABLE_READ"
+            }
             return config
         }
     }

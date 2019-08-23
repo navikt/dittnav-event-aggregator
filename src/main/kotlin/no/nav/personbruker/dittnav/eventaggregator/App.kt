@@ -3,6 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.config.*
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka.informasjonTopicName
+import no.nav.personbruker.dittnav.eventaggregator.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.kafka.Consumer
 
 fun main() {
