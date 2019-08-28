@@ -1,7 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.service
 
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.event.schemas.Informasjon
+import no.nav.brukernotifikasjon.schemas.Informasjon
 import no.nav.personbruker.dittnav.eventaggregator.database.repository.InformasjonRepository
 import no.nav.personbruker.dittnav.eventaggregator.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.transformer.InformasjonTransformer
