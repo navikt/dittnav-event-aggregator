@@ -3,26 +3,24 @@ package no.nav.personbruker.dittnav.eventaggregator
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.config.*
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka.informasjonTopicName
+import no.nav.personbruker.dittnav.eventaggregator.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.kafka.Consumer
 
-fun main(args: Array<String>) {
+fun main() {
+
     val environment = Environment()
 
     runBlocking {
         Server.configure().start()
-
         Flyway.runFlywayMigrations(environment)
-
-        DatabaseConnectionFactory.initDatabase(environment)
-
-        startInformasjonConsumer(environment)
+        val database = Database(environment)
+        startInformasjonConsumer(environment, database)
     }
-
 }
 
-private fun startInformasjonConsumer(env: Environment) {
+private fun startInformasjonConsumer(env: Environment, database: Database) {
     Consumer.apply {
-        create(topics = listOf(informasjonTopicName), kafkaProps = Kafka.consumerProps(env))
+        create(topics = listOf(informasjonTopicName), kafkaProps = Kafka.consumerProps(env), database = database)
         pollContinuouslyForEvents()
     }
 }

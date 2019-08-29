@@ -43,10 +43,10 @@ object Producer {
     private fun createInformasjon(i: Int): Informasjon {
         val build = Informasjon.newBuilder()
                 .setAktorId("12345")
-                .setDokumentId("100" + i)
-                .setEventId("" + i)
+                .setDokumentId("100$i")
+                .setEventId("$i")
                 .setProdusent("DittNAV")
-                .setLink("https://nav.no/systemX/" + i)
+                .setLink("https://nav.no/systemX/$i")
                 .setTekst("Dette er informasjon til brukeren")
                 .setTidspunkt(Instant.now().toEpochMilli())
                 .setSikkerhetsniva(4)
@@ -56,10 +56,10 @@ object Producer {
     private fun createOppgave(i: Int): Oppgave {
         val build = Oppgave.newBuilder()
                 .setAktorId("12345")
-                .setDokumentId("200" + i)
-                .setEventId("" + i)
+                .setDokumentId("200$i")
+                .setEventId("$i")
                 .setProdusent("DittNAV")
-                .setLink("https://nav.no/systemX/" + i)
+                .setLink("https://nav.no/systemX/$i")
                 .setTekst("Dette er noe en bruker må gjøre")
                 .setTidspunkt(Instant.now().toEpochMilli())
                 .setSikkerhetsniva(4)
@@ -69,14 +69,13 @@ object Producer {
     private fun createMelding(i: Int): Melding {
         val build = Melding.newBuilder()
                 .setAktorId("12345")
-                .setDokumentId("300" + i)
-                .setEventId("" + i)
+                .setDokumentId("300$i")
+                .setEventId("$i")
                 .setProdusent("DittNAV")
-                .setLink("https://nav.no/systemX/" + i)
+                .setLink("https://nav.no/systemX/$i")
                 .setTekst("Du har fått en ny melding")
                 .setTidspunkt(Instant.now().toEpochMilli())
                 .setSikkerhetsniva(4)
         return build.build()
     }
-
 }

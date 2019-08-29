@@ -6,6 +6,8 @@ jobs:
   build:
     docker:
       - image: circleci/openjdk:11-jdk
+        environment:
+          TZ: "Europe/Oslo"
     steps:
       - checkout
       - restore_cache:
