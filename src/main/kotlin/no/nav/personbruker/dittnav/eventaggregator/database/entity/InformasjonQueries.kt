@@ -53,14 +53,14 @@ private fun ResultSet.toInformasjon(): Informasjon {
     return Informasjon(
             id = getInt("id"),
             produsent = getString("produsent"),
-            eventTidspunkt = LocalDateTime.ofInstant(getTimestamp("eventTidspunkt").toInstant(), ZoneId.systemDefault()),
+            eventTidspunkt = LocalDateTime.ofInstant(getTimestamp("eventTidspunkt").toInstant(), ZoneId.of("Europe/Oslo")),
             aktorId = getString("aktorId"),
             eventId = getString("eventId"),
             dokumentId = getString("dokumentId"),
             tekst = getString("tekst"),
             link = getString("link"),
             sikkerhetsnivaa = getInt("sikkerhetsnivaa"),
-            sistOppdatert = LocalDateTime.ofInstant(getTimestamp("sistOppdatert").toInstant(), ZoneId.systemDefault()),
+            sistOppdatert = LocalDateTime.ofInstant(getTimestamp("sistOppdatert").toInstant(), ZoneId.of("Europe/Oslo")),
             aktiv = getBoolean("aktiv")
     )
 }
