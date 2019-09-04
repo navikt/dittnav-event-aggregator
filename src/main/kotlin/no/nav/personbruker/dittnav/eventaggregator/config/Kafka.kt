@@ -12,12 +12,15 @@ import org.apache.kafka.common.config.SaslConfigs
 import org.apache.kafka.common.config.SslConfigs
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.kafka.common.serialization.StringSerializer
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.net.InetSocketAddress
 import java.util.*
 
 object Kafka {
+
+    private val log: Logger = LoggerFactory.getLogger(Kafka::class.java)
 
     // Har midlertidig lag på et -testing postfix på topic-navene, slik at vi ikke ved et uhell kludrer til de reelle topic-ene.
     val doneTopicName = "aapen-brukernotifikasjon-done-v1-testing"
@@ -40,12 +43,13 @@ object Kafka {
         }
     }
 
-    fun consumerProps(env: Environment): Properties {
+    fun consumerProps(env: Environment, eventTypeToConsume : String): Properties {
+        val groupIdAndEventType = env.groupId + eventTypeToConsume
         return Properties().apply {
             put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, env.bootstrapServers)
             put(KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG, env.schemaRegistryUrl)
-            put(ConsumerConfig.GROUP_ID_CONFIG, env.groupId)
-            put(ConsumerConfig.CLIENT_ID_CONFIG, env.groupId + getHostname(InetSocketAddress(0)))
+            put(ConsumerConfig.GROUP_ID_CONFIG, groupIdAndEventType)
+            put(ConsumerConfig.CLIENT_ID_CONFIG, groupIdAndEventType + getHostname(InetSocketAddress(0)))
             put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false)
             put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer::class.java)
             put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaAvroDeserializer::class.java)
@@ -69,5 +73,4 @@ object Kafka {
         }
     }
 
-    val log = LoggerFactory.getLogger(Kafka::class.java)
 }
