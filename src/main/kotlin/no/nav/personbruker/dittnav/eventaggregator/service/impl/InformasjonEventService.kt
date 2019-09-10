@@ -32,10 +32,4 @@ class InformasjonEventService(
         }
     }
 
-    override fun processEvents(batchOfEvents: List<Informasjon>) {
-        for (info in batchOfEvents) {
-            storeEventInCache(info)
-        }
-    }
-
 }

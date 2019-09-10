@@ -53,7 +53,7 @@ object Server {
         database = Database(environment)
         Flyway.runFlywayMigrations(environment)
 
-        KafkaConsumerSetup.initializeTheKafkaConsumers()
+        KafkaConsumerSetup.initializeTheKafkaConsumers(environment)
 
         addGraceTimeAtShutdownToAllowRunningRequestsToComplete(app)
         return app

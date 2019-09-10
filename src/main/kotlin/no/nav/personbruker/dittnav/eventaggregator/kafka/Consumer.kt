@@ -43,7 +43,7 @@ class Consumer<T>(
                 consumer.subscribe(listOf(topic))
 
                 while (job.isActive) {
-                    processBatchOfEvents(consumer)
+                    processBatchOfEvents()
                     progressOutput()
                 }
             }
@@ -57,11 +57,11 @@ class Consumer<T>(
         }
     }
 
-    private fun <T> processBatchOfEvents(consumer: KafkaConsumer<String, T>) {
+    private fun processBatchOfEvents() {
         try {
-            val records = consumer.poll(Duration.of(100, ChronoUnit.MILLIS))
+            val records = kafkaConsumer.poll(Duration.of(100, ChronoUnit.MILLIS))
             processRecords(records)
-            consumer.commitSync()
+            kafkaConsumer.commitSync()
 
         } catch (e: RetriableException) {
             log.warn("Failed to poll, but with a retryable exception so will continue to next loop", e)
@@ -75,7 +75,7 @@ class Consumer<T>(
     private fun <T> processRecords(records: ConsumerRecords<String, T>) {
         records.forEach { record ->
             MESSAGES_SEEN.labels(record.topic(), record.partition().toString()).inc()
-            log.info("Event funnet på $topic:")
+            log.info("Event funnet på topic-en: $topic.")
 
             eventBatchProcessorService.processEvent(record)
         }
@@ -83,7 +83,7 @@ class Consumer<T>(
 
 }
 
-private fun initPrometheousMessageCounter(topic: String) : Counter {
+private fun initPrometheousMessageCounter(topic: String): Counter {
     var topicNameWithoutDashes = topic.replace("-", "_")
     return Counter.build()
             .name("${topicNameWithoutDashes}_messages_seen")

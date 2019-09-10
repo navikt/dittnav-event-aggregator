@@ -13,9 +13,4 @@ class EventToConsoleBatchProcessorService<T> : EventBatchProcessorService<T> {
         log.info("Fant følgende event: $event")
     }
 
-    override fun processEvents(batchOfEvents: List<T>) {
-        for (event in batchOfEvents) {
-            log.info("Fant følgende event: $event")
-        }
-    }
 }

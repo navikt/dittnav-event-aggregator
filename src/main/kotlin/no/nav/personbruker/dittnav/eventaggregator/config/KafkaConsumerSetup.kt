@@ -15,15 +15,15 @@ object KafkaConsumerSetup {
 
     private val log : Logger = LoggerFactory.getLogger(KafkaConsumerSetup::class.java)
 
-    fun initializeTheKafkaConsumers() {
-        initKafkaConsumers()
+    fun initializeTheKafkaConsumers(environment: Environment) {
+        initKafkaConsumers(environment)
         startAllKafkaPollers()
     }
 
-    fun initKafkaConsumers() {
-        Server.infoConsumer = setupConsumerForTheInformasjonTopic()
-        Server.oppgaveConsumer = setupConsumerForTheOppgaveTopic()
-        Server.meldingConsumer = setupConsumerForTheMeldingTopic()
+    fun initKafkaConsumers(environment: Environment) {
+        Server.infoConsumer = setupConsumerForTheInformasjonTopic(environment)
+        Server.oppgaveConsumer = setupConsumerForTheOppgaveTopic(environment)
+        Server.meldingConsumer = setupConsumerForTheMeldingTopic(environment)
     }
 
     fun startAllKafkaPollers() {
@@ -40,23 +40,23 @@ object KafkaConsumerSetup {
         log.info("...ferdig med å stoppe kafka-pollerne.")
     }
 
-    fun setupConsumerForTheInformasjonTopic(): Consumer<Informasjon> {
+    fun setupConsumerForTheInformasjonTopic(environment: Environment): Consumer<Informasjon> {
         val eventProcessor = InformasjonEventService(Server.database)
-        val kafkaProps = Kafka.consumerProps(Server.environment, "informasjon")
+        val kafkaProps = Kafka.consumerProps(environment, "informasjon")
         val kafkaConsumer = KafkaConsumer<String, Informasjon>(kafkaProps)
         return Consumer(Kafka.informasjonTopicName, kafkaConsumer, eventProcessor)
     }
 
-    fun setupConsumerForTheOppgaveTopic(): Consumer<Oppgave> {
+    fun setupConsumerForTheOppgaveTopic(environment: Environment): Consumer<Oppgave> {
         val eventProcessor = EventToConsoleBatchProcessorService<Oppgave>()
-        val kafkaProps = Kafka.consumerProps(Server.environment, "oppgave")
+        val kafkaProps = Kafka.consumerProps(environment, "oppgave")
         val kafkaConsumer = KafkaConsumer<String, Oppgave>(kafkaProps)
         return Consumer(Kafka.oppgaveTopicName, kafkaConsumer, eventProcessor)
     }
 
-    fun setupConsumerForTheMeldingTopic(): Consumer<Melding> {
+    fun setupConsumerForTheMeldingTopic(environment: Environment): Consumer<Melding> {
         val eventProcessor = EventToConsoleBatchProcessorService<Melding>()
-        val kafkaProps = Kafka.consumerProps(Server.environment, "melding")
+        val kafkaProps = Kafka.consumerProps(environment, "melding")
         val kafkaConsumer = KafkaConsumer<String, Melding>(kafkaProps)
         return Consumer(Kafka.meldingTopicName, kafkaConsumer, eventProcessor)
     }

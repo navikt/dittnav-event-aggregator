@@ -6,6 +6,4 @@ interface EventBatchProcessorService<T> {
 
     fun <T> processEvent(event: ConsumerRecord<String, T>)
 
-    fun processEvents(batchOfEvents: List<T>)
-
 }

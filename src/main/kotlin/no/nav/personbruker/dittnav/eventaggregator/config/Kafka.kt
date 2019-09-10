@@ -43,8 +43,8 @@ object Kafka {
         }
     }
 
-    fun consumerProps(env: Environment, eventTypeToConsume : String): Properties {
-        val groupIdAndEventType = env.groupId + eventTypeToConsume
+    fun consumerProps(env: Environment, eventTypeToConsume: String, enableSecurity : Boolean = isCurrentlyRunningOnNais()): Properties {
+        val groupIdAndEventType = buildGroupIdIncludingEventType(env, eventTypeToConsume)
         return Properties().apply {
             put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, env.bootstrapServers)
             put(KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG, env.schemaRegistryUrl)
@@ -54,20 +54,25 @@ object Kafka {
             put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer::class.java)
             put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaAvroDeserializer::class.java)
             put(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, true)
-            if (isCurrentlyRunningOnNais()) {
+            put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
+            if (enableSecurity) {
                 putAll(credentialProps(env))
             }
         }
     }
 
-    fun producerProps(env: Environment): Properties {
+    private fun buildGroupIdIncludingEventType(env: Environment, eventTypeToConsume: String) =
+            env.groupId + eventTypeToConsume
+
+    fun producerProps(env: Environment, eventTypeToConsume: String, enableSecurity : Boolean = isCurrentlyRunningOnNais()): Properties {
+        val groupIdAndEventType = buildGroupIdIncludingEventType(env, eventTypeToConsume)
         return Properties().apply {
             put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, env.bootstrapServers)
             put(KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG, env.schemaRegistryUrl)
-            put(ConsumerConfig.CLIENT_ID_CONFIG, env.groupId + getHostname(InetSocketAddress(0)))
+            put(ConsumerConfig.CLIENT_ID_CONFIG, groupIdAndEventType + getHostname(InetSocketAddress(0)))
             put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
             put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer::class.java)
-            if (isCurrentlyRunningOnNais()) {
+            if (enableSecurity) {
                 putAll(credentialProps(env))
             }
         }
