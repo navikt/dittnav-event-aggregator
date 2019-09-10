@@ -3,8 +3,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 val prometheusVersion = "0.6.0"
 val ktorVersion = "1.1.3"
 val junitVersion = "5.4.1"
-val kafkaVersion = "2.2.0"
-val confluentVersion = "5.2.0"
+val kafkaVersion = "2.3.0"
+val confluentVersion = "5.3.0"
 val brukernotifikasjonSchemaVersion = "1.2019.08.22-13.39-d4273d3247a3"
 val logstashVersion = 5.2
 val logbackVersion = "1.2.3"
@@ -15,6 +15,7 @@ val postgresVersion = "42.2.5"
 val h2Version = "1.4.199"
 val spekVersion = "2.0.6"
 val assertJVersion = "3.12.2"
+val kafkaEmvededVersion = "2.2.1"
 
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin on the JVM.
@@ -38,7 +39,6 @@ repositories {
     maven("http://packages.confluent.io/maven")
     mavenLocal()
 }
-
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
@@ -64,6 +64,8 @@ dependencies {
     testImplementation("com.h2database:h2:$h2Version")
     testImplementation("org.spekframework.spek2:spek-dsl-jvm:$spekVersion")
     testImplementation("org.assertj:assertj-core:$assertJVersion")
+    testImplementation("no.nav:kafka-embedded-env:$kafkaEmvededVersion")
+    testImplementation("org.amshove.kluent:kluent:1.52")
     testRuntimeOnly("org.spekframework.spek2:spek-runner-junit5:$spekVersion")
 }
 
