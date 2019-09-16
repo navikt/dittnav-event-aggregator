@@ -5,11 +5,13 @@ import no.nav.brukernotifikasjon.schemas.Informasjon
 import no.nav.brukernotifikasjon.schemas.Melding
 import no.nav.brukernotifikasjon.schemas.Oppgave
 import no.nav.personbruker.dittnav.eventaggregator.kafka.Consumer
+import no.nav.personbruker.dittnav.eventaggregator.service.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.service.impl.EventToConsoleBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.service.impl.InformasjonEventService
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.*
 
 object KafkaConsumerSetup {
 
@@ -43,6 +45,10 @@ object KafkaConsumerSetup {
     fun setupConsumerForTheInformasjonTopic(environment: Environment): Consumer<Informasjon> {
         val eventProcessor = InformasjonEventService(Server.database)
         val kafkaProps = Kafka.consumerProps(environment, "informasjon")
+        return setupConsumerForTheInformasjonTopic(kafkaProps, eventProcessor)
+    }
+
+    fun setupConsumerForTheInformasjonTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<Informasjon>): Consumer<Informasjon> {
         val kafkaConsumer = KafkaConsumer<String, Informasjon>(kafkaProps)
         return Consumer(Kafka.informasjonTopicName, kafkaConsumer, eventProcessor)
     }
@@ -50,6 +56,10 @@ object KafkaConsumerSetup {
     fun setupConsumerForTheOppgaveTopic(environment: Environment): Consumer<Oppgave> {
         val eventProcessor = EventToConsoleBatchProcessorService<Oppgave>()
         val kafkaProps = Kafka.consumerProps(environment, "oppgave")
+        return setupConsumerForTheOppgaveTopic(kafkaProps, eventProcessor)
+    }
+
+    fun setupConsumerForTheOppgaveTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<Oppgave>): Consumer<Oppgave> {
         val kafkaConsumer = KafkaConsumer<String, Oppgave>(kafkaProps)
         return Consumer(Kafka.oppgaveTopicName, kafkaConsumer, eventProcessor)
     }
@@ -57,6 +67,10 @@ object KafkaConsumerSetup {
     fun setupConsumerForTheMeldingTopic(environment: Environment): Consumer<Melding> {
         val eventProcessor = EventToConsoleBatchProcessorService<Melding>()
         val kafkaProps = Kafka.consumerProps(environment, "melding")
+        return setupConsumerForTheMeldingTopic(kafkaProps, eventProcessor)
+    }
+
+    fun setupConsumerForTheMeldingTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<Melding>): Consumer<Melding> {
         val kafkaConsumer = KafkaConsumer<String, Melding>(kafkaProps)
         return Consumer(Kafka.meldingTopicName, kafkaConsumer, eventProcessor)
     }

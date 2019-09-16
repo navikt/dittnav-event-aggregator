@@ -20,7 +20,7 @@ import org.spekframework.spek2.style.specification.describe
  * Dette er gjort for å kunne demonstrere hvordan man bruker kafka-embedded-env uten å forholde seg til kafka-properties
  * som er satt opp i dette prosjeket.
  */
-object BasicKafkaEmbeddedTesting : Spek({
+object BasicKafkaEmbeddedTestingIT : Spek({
 
     describe("Skal produsere og konsumere en meldinger som kun er en string") {
         val topicen = "kafka.topic"

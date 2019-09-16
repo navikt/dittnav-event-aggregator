@@ -18,10 +18,10 @@ import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import kotlin.test.assertEquals
 
-object ConsumerTest : Spek({
+object SingleTopicConsumerIT : Spek({
 
     describe("Skal kunne konsumere Informasjon-eventer som er på avro-format fra Kafka, vha coroutines") {
-        val topicen = Kafka.informasjonTopicName
+        val topicen = "singleTopicConsumerTestInformasjon"
         val username = "srvkafkaclient"
         val password = "kafkaclient"
         val embeddedEnv = KafkaEnvironment(
@@ -58,7 +58,6 @@ object ConsumerTest : Spek({
         it("Lese inn alle testeventene fra Kafka") {
             val eventProcessor = SimpleEventCounterService<Informasjon>()
             val consumerProps = Kafka.consumerProps(env, "informasjon", true)
-
             val kafkaConsumer = KafkaConsumer<String, Informasjon>(consumerProps)
             val consumer = Consumer(topicen, kafkaConsumer, eventProcessor)
 
