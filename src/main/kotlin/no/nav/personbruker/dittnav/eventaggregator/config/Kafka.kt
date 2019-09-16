@@ -23,10 +23,10 @@ object Kafka {
     private val log: Logger = LoggerFactory.getLogger(Kafka::class.java)
 
     // Har midlertidig lag på et -testing postfix på topic-navene, slik at vi ikke ved et uhell kludrer til de reelle topic-ene.
-    val doneTopicName = "aapen-brukernotifikasjon-done-v1-testing"
+    val doneTopicName = "aapen-brukernotifikasjon-done-v1-testing" // Ikke opprettet enda.
     val oppgaveTopicName = "aapen-brukernotifikasjon-nyOppgave-v1-testing"
     val meldingTopicName = "aapen-brukernotifikasjon-nyMelding-v1-testing"
-    val informasjonTopicName = "aapen-brukernotifikasjon-nyInformasjon-v1-testing" // Kun denne topic-en som foreløpig er opprettet
+    val informasjonTopicName = "aapen-brukernotifikasjon-nyInformasjon-v1-testing"
 
     private fun credentialProps(env: Environment): Properties {
         return Properties().apply {
