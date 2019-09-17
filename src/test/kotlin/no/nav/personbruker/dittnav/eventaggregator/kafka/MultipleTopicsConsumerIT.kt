@@ -48,14 +48,12 @@ object MultipleTopicsConsumerIT : Spek({
         )
         val adminClient = embeddedEnv.adminClient
 
-        val env1 = Environment().copy(
+        val env = Environment().copy(
             bootstrapServers = embeddedEnv.brokersURL.substringAfterLast("/"),
             schemaRegistryUrl = embeddedEnv.schemaRegistry!!.url,
             username = username,
             password = password
     )
-        val env = env1
-
         before {
             embeddedEnv.start()
         }
