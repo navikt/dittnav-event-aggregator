@@ -31,8 +31,8 @@ object MultipleTopicsConsumerIT : Spek({
     val meldingEventProcessor = SimpleEventCounterService<Melding>()
 
     val informasjonEvents = (1..10).map { "$it" to InformasjonObjectMother.createInformasjon(it) }.toMap()
-    val oppgaveEvents = (1..10).map { "$it" to OppgaveObjectMother.createOppgave(it) }.toMap()
-    val meldingEvents = (1..10).map { "$it" to MeldingObjectMother.createMelding(it) }.toMap()
+    val oppgaveEvents = (1..11).map { "$it" to OppgaveObjectMother.createOppgave(it) }.toMap()
+    val meldingEvents = (1..12).map { "$it" to MeldingObjectMother.createMelding(it) }.toMap()
 
     describe("Skal kunne konsumere fra flere topics i parallell") {
         val informasjonTopic = Kafka.informasjonTopicName
@@ -93,7 +93,7 @@ object MultipleTopicsConsumerIT : Spek({
                 meldingConsumer.cancel()
 
                 assertEquals(informasjonEvents.size, informasjonEventProcessor.eventCounter)
-                assertEquals(meldingEvents.size, meldingEventProcessor.eventCounter)
+                assertEquals(oppgaveEvents.size, oppgaveEventProcessor.eventCounter)
                 assertEquals(meldingEvents.size, meldingEventProcessor.eventCounter)
             }
         }
