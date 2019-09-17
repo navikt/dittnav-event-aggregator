@@ -1,15 +1,13 @@
-package no.nav.personbruker.dittnav.eventaggregator.util
+package no.nav.personbruker.dittnav.eventaggregator.database.entity
 
-import no.nav.personbruker.dittnav.eventaggregator.database.entity.Informasjon
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.util.*
 
 object InformasjonObjectMother {
 
     fun createInformasjon(i: Int): Informasjon {
         return Informasjon(
-                id=i,
+                id = i,
                 produsent = "DittNAV",
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("Europe/Oslo")),
                 aktorId = "12345",
