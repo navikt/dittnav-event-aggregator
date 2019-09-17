@@ -36,7 +36,6 @@ class Consumer<T>(
         job.cancel()
     }
 
-    private var counter = 0
     fun poll() {
         launch {
             kafkaConsumer.use { consumer ->
@@ -44,16 +43,8 @@ class Consumer<T>(
 
                 while (job.isActive) {
                     processBatchOfEvents()
-                    progressOutput()
                 }
             }
-        }
-    }
-
-    private fun progressOutput() {
-        counter++
-        if (counter % 1000 == 0) {
-            log.info("Poller på topic-en: $topic")
         }
     }
 
@@ -84,7 +75,7 @@ class Consumer<T>(
 }
 
 private fun initPrometheousMessageCounter(topic: String): Counter {
-    var topicNameWithoutDashes = topic.replace("-", "_")
+    val topicNameWithoutDashes = topic.replace("-", "_")
     return Counter.build()
             .name("${topicNameWithoutDashes}_messages_seen")
             .namespace("dittnav_consumer")
