@@ -16,6 +16,8 @@ val h2Version = "1.4.199"
 val spekVersion = "2.0.6"
 val assertJVersion = "3.12.2"
 val kafkaEmvededVersion = "2.2.1"
+val kluentVersion = "1.52"
+val kafkaEmbeddedEnvVersion = "2.1.1"
 
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin on the JVM.
@@ -55,17 +57,16 @@ dependencies {
     compile("io.confluent:kafka-avro-serializer:$confluentVersion")
     compile("no.nav:brukernotifikasjon-schemas:$brukernotifikasjonSchemaVersion")
     testCompile("org.junit.jupiter:junit-jupiter-api:$junitVersion")
-    testCompile("org.assertj:assertj-core:3.12.1")
+    testCompile("org.assertj:assertj-core:$assertJVersion")
     testCompile(kotlin("test-junit5"))
-    testImplementation("no.nav:kafka-embedded-env:2.1.1")
+    testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedEnvVersion")
     testImplementation("org.apache.kafka:kafka_2.12:$kafkaVersion")
     testImplementation("org.apache.kafka:kafka-streams:$kafkaVersion")
     testImplementation("io.confluent:kafka-schema-registry:$confluentVersion")
     testImplementation("com.h2database:h2:$h2Version")
     testImplementation("org.spekframework.spek2:spek-dsl-jvm:$spekVersion")
     testImplementation("org.assertj:assertj-core:$assertJVersion")
-    testImplementation("no.nav:kafka-embedded-env:$kafkaEmvededVersion")
-    testImplementation("org.amshove.kluent:kluent:1.52")
+    testImplementation("org.amshove.kluent:kluent:$kluentVersion")
     testRuntimeOnly("org.spekframework.spek2:spek-runner-junit5:$spekVersion")
 }
 
