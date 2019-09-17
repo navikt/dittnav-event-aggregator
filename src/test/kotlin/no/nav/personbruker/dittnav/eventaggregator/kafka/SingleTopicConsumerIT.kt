@@ -16,7 +16,6 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.junit.jupiter.api.Assertions
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
-import kotlin.test.assertEquals
 
 object SingleTopicConsumerIT : Spek({
 
@@ -69,7 +68,6 @@ object SingleTopicConsumerIT : Spek({
                 }
                 consumer.cancel()
 
-                assertEquals(events.size, eventProcessor.eventCounter)
                 eventProcessor.eventCounter
             } `should be equal to` events.size
         }
