@@ -13,13 +13,14 @@ import no.nav.personbruker.dittnav.eventaggregator.util.KafkaProducerUtil
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldEqualTo
 import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions
-import org.spekframework.spek2.Spek
-import org.spekframework.spek2.style.specification.describe
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Test
 
-object SingleTopicConsumerIT : Spek({
+class SingleTopicConsumerTest {
 
-    describe("Skal kunne konsumere Informasjon-eventer som er på avro-format fra Kafka, vha coroutines") {
+    companion object {
         val topicen = "singleTopicConsumerTestInformasjon"
         val username = "srvkafkaclient"
         val password = "kafkaclient"
@@ -40,45 +41,53 @@ object SingleTopicConsumerIT : Spek({
 
         val events = (1..10).map { "$it" to InformasjonObjectMother.createInformasjon(it) }.toMap()
 
-        before {
+        @BeforeAll
+        @JvmStatic
+        fun setup() {
             embeddedEnv.start()
         }
 
-        it("Kafka instansen i minnet har blitt staret") {
-            Assertions.assertEquals(embeddedEnv.serverPark.status, KafkaEnvironment.ServerParkStatus.Started)
-        }
-
-        it("Produserer noen testeventer") {
-            runBlocking {
-                KafkaProducerUtil.kafkaAvroProduce(env.bootstrapServers, env.schemaRegistryUrl, topicen, env.username, env.password, events)
-            } shouldEqualTo true
-        }
-
-        it("Lese inn alle testeventene fra Kafka") {
-            val eventProcessor = SimpleEventCounterService<Informasjon>()
-            val consumerProps = Kafka.consumerProps(env, "informasjon", true)
-            val kafkaConsumer = KafkaConsumer<String, Informasjon>(consumerProps)
-            val consumer = Consumer(topicen, kafkaConsumer, eventProcessor)
-
-            runBlocking {
-                consumer.poll()
-
-                while (haveAllEventsBeenConsumed(eventProcessor, events)) {
-                    delay(100)
-                }
-                consumer.cancel()
-
-                eventProcessor.eventCounter
-            } `should be equal to` events.size
-        }
-
-        after {
+        @AfterAll
+        @JvmStatic
+        fun testDown() {
             adminClient?.close()
             embeddedEnv.tearDown()
         }
+
     }
 
-})
+    @Test
+    fun `Kafka instansen i minnet har blitt staret`() {
+        Assertions.assertEquals(embeddedEnv.serverPark.status, KafkaEnvironment.ServerParkStatus.Started)
+    }
+
+    @Test
+    fun `Lese inn alle testeventene fra Kafka`() {
+        `Produserer noen testeventer`()
+        val eventProcessor = SimpleEventCounterService<Informasjon>()
+        val consumerProps = Kafka.consumerProps(env, "informasjon", true)
+        val kafkaConsumer = KafkaConsumer<String, Informasjon>(consumerProps)
+        val consumer = Consumer(topicen, kafkaConsumer, eventProcessor)
+
+        runBlocking {
+            consumer.poll()
+
+            while (haveAllEventsBeenConsumed(eventProcessor, events)) {
+                delay(100)
+            }
+            consumer.cancel()
+
+            eventProcessor.eventCounter
+        } `should be equal to` events.size
+    }
+
+    fun `Produserer noen testeventer`() {
+        runBlocking {
+            KafkaProducerUtil.kafkaAvroProduce(env.bootstrapServers, env.schemaRegistryUrl, topicen, env.username, env.password, events)
+        } shouldEqualTo true
+    }
+
+}
 
 private fun haveAllEventsBeenConsumed(eventProcessor: SimpleEventCounterService<Informasjon>, events: Map<String, Informasjon>) =
         eventProcessor.eventCounter < events.size
