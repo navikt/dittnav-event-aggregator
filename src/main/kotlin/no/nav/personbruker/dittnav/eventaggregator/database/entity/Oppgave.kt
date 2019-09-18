@@ -2,7 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.database.entity
 
 import java.time.LocalDateTime
 
-data class Oppgave (
+data class Oppgave(
         val id: Int?,
         val produsent: String,
         val eventTidspunkt: LocalDateTime,
@@ -22,5 +22,5 @@ data class Oppgave (
             tekst: String,
             link: String,
             sikkerhetsinvaa: Int
-    ) : this(null,produsent,eventTidspunkt,aktoerId,eventId,dokumentId,tekst,link,sikkerhetsinvaa)
+    ) : this(null, produsent, eventTidspunkt, aktoerId, eventId, dokumentId, tekst, link, sikkerhetsinvaa)
 }

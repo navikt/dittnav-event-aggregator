@@ -11,12 +11,12 @@ import no.nav.personbruker.dittnav.eventaggregator.transformer.OppgaveTransforme
 import org.slf4j.LoggerFactory
 
 class OppgaveEventService(
-        val database : Database,
-        val transformer : OppgaveTransformer = OppgaveTransformer()
+        val database: Database,
+        val transformer: OppgaveTransformer = OppgaveTransformer()
 ) {
     val log = LoggerFactory.getLogger(OppgaveEventService::class.java)
 
-    fun storeInEventCache(event : Oppgave){
+    fun storeInEventCache(event: Oppgave) {
         val entity = transformer.toInternal(event)
         Consumer.log.info("Skal skrive entitet til databasen: $entity")
         runBlocking {
