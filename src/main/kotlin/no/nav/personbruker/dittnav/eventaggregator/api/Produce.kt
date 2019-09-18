@@ -18,13 +18,13 @@ fun Routing.produceEventsApi() {
     }
 
     post("/produce/oppgave") {
-        //        Server.producer.produceOppgaveEvent() // Midlertidig kommetert ut, fram til topic-en er tilgjengelig
+        producer.produceOppgaveEvent()
         val msg = "Produced Oppgave-event"
         call.respond(HttpStatusCode.OK, msg)
     }
 
     post("/produce/melding") {
-        //        Server.producer.produceMeldingEvent() // Midlertidig kommetert ut, fram til topic-en er tilgjengelig
+        producer.produceMeldingEvent()
         val msg = "Produced Melding-event"
         call.respond(HttpStatusCode.OK, msg)
     }

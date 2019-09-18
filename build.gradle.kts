@@ -3,8 +3,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 val prometheusVersion = "0.6.0"
 val ktorVersion = "1.1.3"
 val junitVersion = "5.4.1"
-val kafkaVersion = "2.2.0"
-val confluentVersion = "5.2.0"
+val kafkaVersion = "2.3.0"
+val confluentVersion = "5.3.0"
 val brukernotifikasjonSchemaVersion = "1.2019.08.22-13.39-d4273d3247a3"
 val logstashVersion = 5.2
 val logbackVersion = "1.2.3"
@@ -15,6 +15,9 @@ val postgresVersion = "42.2.5"
 val h2Version = "1.4.199"
 val spekVersion = "2.0.6"
 val assertJVersion = "3.12.2"
+val kafkaEmvededVersion = "2.2.1"
+val kluentVersion = "1.52"
+val kafkaEmbeddedEnvVersion = "2.1.1"
 
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin on the JVM.
@@ -39,7 +42,6 @@ repositories {
     mavenLocal()
 }
 
-
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     compile("no.nav:vault-jdbc:$vaultJdbcVersion")
@@ -55,15 +57,16 @@ dependencies {
     compile("io.confluent:kafka-avro-serializer:$confluentVersion")
     compile("no.nav:brukernotifikasjon-schemas:$brukernotifikasjonSchemaVersion")
     testCompile("org.junit.jupiter:junit-jupiter-api:$junitVersion")
-    testCompile("org.assertj:assertj-core:3.12.1")
+    testCompile("org.assertj:assertj-core:$assertJVersion")
     testCompile(kotlin("test-junit5"))
-    testImplementation("no.nav:kafka-embedded-env:2.1.1")
+    testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedEnvVersion")
     testImplementation("org.apache.kafka:kafka_2.12:$kafkaVersion")
     testImplementation("org.apache.kafka:kafka-streams:$kafkaVersion")
     testImplementation("io.confluent:kafka-schema-registry:$confluentVersion")
     testImplementation("com.h2database:h2:$h2Version")
     testImplementation("org.spekframework.spek2:spek-dsl-jvm:$spekVersion")
     testImplementation("org.assertj:assertj-core:$assertJVersion")
+    testImplementation("org.amshove.kluent:kluent:$kluentVersion")
     testRuntimeOnly("org.spekframework.spek2:spek-runner-junit5:$spekVersion")
 }
 

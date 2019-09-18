@@ -6,7 +6,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.response.respondText
 import io.ktor.routing.Routing
 import io.ktor.routing.get
-import no.nav.personbruker.dittnav.eventaggregator.kafka.Consumer
+import no.nav.personbruker.dittnav.eventaggregator.config.Server
 
 fun Routing.healthApi() {
 
@@ -15,11 +15,18 @@ fun Routing.healthApi() {
     }
 
     get("/isReady") {
-        if (Consumer.isRunning()) {
+        if (isAllConsumersRunning()) {
             call.respondText(text = "READY", contentType = ContentType.Text.Plain)
         } else {
             call.respondText(text = "NOTREADY", contentType = ContentType.Text.Plain, status = HttpStatusCode.FailedDependency)
         }
     }
 
+}
+
+private fun isAllConsumersRunning(): Boolean {
+    val allConsumersRunning = Server.infoConsumer.isRunning() &&
+            Server.oppgaveConsumer.isRunning() &&
+            Server.meldingConsumer.isRunning()
+    return allConsumersRunning
 }

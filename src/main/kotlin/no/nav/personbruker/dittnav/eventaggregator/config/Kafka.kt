@@ -12,6 +12,7 @@ import org.apache.kafka.common.config.SaslConfigs
 import org.apache.kafka.common.config.SslConfigs
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.kafka.common.serialization.StringSerializer
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.net.InetSocketAddress
@@ -19,11 +20,13 @@ import java.util.*
 
 object Kafka {
 
+    private val log: Logger = LoggerFactory.getLogger(Kafka::class.java)
+
     // Har midlertidig lag på et -testing postfix på topic-navene, slik at vi ikke ved et uhell kludrer til de reelle topic-ene.
-    val doneTopicName = "aapen-brukernotifikasjon-done-v1-testing"
+    val doneTopicName = "aapen-brukernotifikasjon-done-v1-testing" // Ikke opprettet enda.
     val oppgaveTopicName = "aapen-brukernotifikasjon-nyOppgave-v1-testing"
     val meldingTopicName = "aapen-brukernotifikasjon-nyMelding-v1-testing"
-    val informasjonTopicName = "aapen-brukernotifikasjon-nyInformasjon-v1-testing" // Kun denne topic-en som foreløpig er opprettet
+    val informasjonTopicName = "aapen-brukernotifikasjon-nyInformasjon-v1-testing"
 
     private fun credentialProps(env: Environment): Properties {
         return Properties().apply {
@@ -40,34 +43,39 @@ object Kafka {
         }
     }
 
-    fun consumerProps(env: Environment): Properties {
+    fun consumerProps(env: Environment, eventTypeToConsume: String, enableSecurity : Boolean = isCurrentlyRunningOnNais()): Properties {
+        val groupIdAndEventType = buildGroupIdIncludingEventType(env, eventTypeToConsume)
         return Properties().apply {
             put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, env.bootstrapServers)
             put(KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG, env.schemaRegistryUrl)
-            put(ConsumerConfig.GROUP_ID_CONFIG, env.groupId)
-            put(ConsumerConfig.CLIENT_ID_CONFIG, env.groupId + getHostname(InetSocketAddress(0)))
+            put(ConsumerConfig.GROUP_ID_CONFIG, groupIdAndEventType)
+            put(ConsumerConfig.CLIENT_ID_CONFIG, groupIdAndEventType + getHostname(InetSocketAddress(0)))
             put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false)
             put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer::class.java)
             put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaAvroDeserializer::class.java)
             put(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, true)
-            if (isCurrentlyRunningOnNais()) {
+            put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
+            if (enableSecurity) {
                 putAll(credentialProps(env))
             }
         }
     }
 
-    fun producerProps(env: Environment): Properties {
+    private fun buildGroupIdIncludingEventType(env: Environment, eventTypeToConsume: String) =
+            env.groupId + eventTypeToConsume
+
+    fun producerProps(env: Environment, eventTypeToConsume: String, enableSecurity : Boolean = isCurrentlyRunningOnNais()): Properties {
+        val groupIdAndEventType = buildGroupIdIncludingEventType(env, eventTypeToConsume)
         return Properties().apply {
             put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, env.bootstrapServers)
             put(KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG, env.schemaRegistryUrl)
-            put(ConsumerConfig.CLIENT_ID_CONFIG, env.groupId + getHostname(InetSocketAddress(0)))
+            put(ConsumerConfig.CLIENT_ID_CONFIG, groupIdAndEventType + getHostname(InetSocketAddress(0)))
             put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
             put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer::class.java)
-            if (isCurrentlyRunningOnNais()) {
+            if (enableSecurity) {
                 putAll(credentialProps(env))
             }
         }
     }
 
-    val log = LoggerFactory.getLogger(Kafka::class.java)
 }

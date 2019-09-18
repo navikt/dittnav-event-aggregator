@@ -17,7 +17,7 @@ import java.time.Instant
 object Producer {
 
     fun produceInformasjonEvent(messagesCount: Int = 1) {
-        KafkaProducer<String, Informasjon>(Kafka.producerProps(Environment())).use { producer ->
+        KafkaProducer<String, Informasjon>(Kafka.producerProps(Environment(), "informasjon")).use { producer ->
             for (i in 0 until messagesCount) {
                 producer.send(ProducerRecord(informasjonTopicName, createInformasjon(i)))
             }
@@ -25,7 +25,7 @@ object Producer {
     }
 
     fun produceOppgaveEvent(messagesCount: Int = 1) {
-        KafkaProducer<String, Oppgave>(Kafka.producerProps(Environment())).use { producer ->
+        KafkaProducer<String, Oppgave>(Kafka.producerProps(Environment(), "oppgave")).use { producer ->
             for (i in 0 until messagesCount) {
                 producer.send(ProducerRecord(oppgaveTopicName, createOppgave(i)))
             }
@@ -33,7 +33,7 @@ object Producer {
     }
 
     fun produceMeldingEvent(messagesCount: Int = 1) {
-        KafkaProducer<String, Melding>(Kafka.producerProps(Environment())).use { producer ->
+        KafkaProducer<String, Melding>(Kafka.producerProps(Environment(), "melding")).use { producer ->
             for (i in 0 until messagesCount) {
                 producer.send(ProducerRecord(meldingTopicName, createMelding(i)))
             }
