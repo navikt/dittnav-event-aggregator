@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.util
+package no.nav.personbruker.dittnav.eventaggregator.database.entity
 
 import no.nav.personbruker.dittnav.eventaggregator.database.entity.Oppgave
 import java.time.LocalDateTime

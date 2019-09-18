@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.service
+package no.nav.personbruker.dittnav.eventaggregator.service.impl
 
 import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.Oppgave
@@ -18,7 +18,7 @@ class OppgaveEventService(
 
     fun storeInEventCache(event: Oppgave) {
         val entity = transformer.toInternal(event)
-        Consumer.log.info("Skal skrive entitet til databasen: $entity")
+        log.info("Skal skrive entitet til databasen: $entity")
         runBlocking {
             val entityId = database.dbQuery { createOppgave(entity) }
             val fetchedRow = database.dbQuery { getOppgaveById(entityId) }

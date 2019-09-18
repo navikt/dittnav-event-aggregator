@@ -2,7 +2,6 @@ package no.nav.personbruker.dittnav.eventaggregator.database.entity
 
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.database.H2Database
-import no.nav.personbruker.dittnav.eventaggregator.util.OppgaveObjectMother
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.spekframework.spek2.Spek
