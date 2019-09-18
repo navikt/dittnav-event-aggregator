@@ -14,6 +14,7 @@ import io.ktor.server.netty.NettyApplicationEngine
 import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.exporter.common.TextFormat
 import io.prometheus.client.hotspot.DefaultExports
+import no.nav.brukernotifikasjon.schemas.BrukernotifikasjonDone
 import no.nav.brukernotifikasjon.schemas.Informasjon
 import no.nav.brukernotifikasjon.schemas.Melding
 import no.nav.brukernotifikasjon.schemas.Oppgave
@@ -34,6 +35,7 @@ object Server {
     lateinit var infoConsumer: Consumer<Informasjon>
     lateinit var meldingConsumer: Consumer<Melding>
     lateinit var oppgaveConsumer: Consumer<Oppgave>
+    lateinit var doneConsumer: Consumer<BrukernotifikasjonDone>
 
     fun configure(): NettyApplicationEngine {
         DefaultExports.initialize()

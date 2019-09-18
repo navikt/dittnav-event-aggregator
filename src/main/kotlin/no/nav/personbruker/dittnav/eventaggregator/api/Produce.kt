@@ -29,4 +29,10 @@ fun Routing.produceEventsApi() {
         call.respond(HttpStatusCode.OK, msg)
     }
 
+    post("/produce/done") {
+        producer.produceDoneEvent()
+        val msg = "Produced Done-event"
+        call.respond(HttpStatusCode.OK, msg)
+    }
+
 }
