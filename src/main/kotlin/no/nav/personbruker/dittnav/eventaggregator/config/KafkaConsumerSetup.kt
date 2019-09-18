@@ -1,11 +1,13 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
 import kotlinx.coroutines.runBlocking
+import no.nav.brukernotifikasjon.schemas.BrukernotifikasjonDone
 import no.nav.brukernotifikasjon.schemas.Informasjon
 import no.nav.brukernotifikasjon.schemas.Melding
 import no.nav.brukernotifikasjon.schemas.Oppgave
 import no.nav.personbruker.dittnav.eventaggregator.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.service.EventBatchProcessorService
+import no.nav.personbruker.dittnav.eventaggregator.service.impl.DoneEventService
 import no.nav.personbruker.dittnav.eventaggregator.service.impl.EventToConsoleBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.service.impl.InformasjonEventService
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -26,12 +28,14 @@ object KafkaConsumerSetup {
         Server.infoConsumer = setupConsumerForTheInformasjonTopic(environment)
         Server.oppgaveConsumer = setupConsumerForTheOppgaveTopic(environment)
         Server.meldingConsumer = setupConsumerForTheMeldingTopic(environment)
+        Server.doneConsumer = setupConsumerForTheDoneTopic(environment)
     }
 
     fun startAllKafkaPollers() {
         Server.infoConsumer.poll()
         Server.oppgaveConsumer.poll()
         Server.meldingConsumer.poll()
+        Server.doneConsumer.poll()
     }
 
     fun stopAllKafkaConsumers() = runBlocking {
@@ -39,6 +43,7 @@ object KafkaConsumerSetup {
         Server.infoConsumer.cancel()
         Server.oppgaveConsumer.cancel()
         Server.meldingConsumer.cancel()
+        Server.doneConsumer.cancel()
         log.info("...ferdig med å stoppe kafka-pollerne.")
     }
 
@@ -73,6 +78,17 @@ object KafkaConsumerSetup {
     fun setupConsumerForTheMeldingTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<Melding>): Consumer<Melding> {
         val kafkaConsumer = KafkaConsumer<String, Melding>(kafkaProps)
         return Consumer(Kafka.meldingTopicName, kafkaConsumer, eventProcessor)
+    }
+
+    fun setupConsumerForTheDoneTopic(environment: Environment): Consumer<BrukernotifikasjonDone> {
+        val eventProcessor = DoneEventService(Server.database)
+        val kafkaProps = Kafka.consumerProps(environment, "done")
+        return setupConsumerForTheDoneTopic(kafkaProps, eventProcessor)
+    }
+
+    fun setupConsumerForTheDoneTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<BrukernotifikasjonDone>): Consumer<BrukernotifikasjonDone> {
+        val kafkaConsumer = KafkaConsumer<String, BrukernotifikasjonDone>(kafkaProps)
+        return Consumer(Kafka.doneTopicName, kafkaConsumer, eventProcessor)
     }
 
 }
