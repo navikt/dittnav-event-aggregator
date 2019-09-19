@@ -1,7 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
 import kotlinx.coroutines.runBlocking
-import no.nav.brukernotifikasjon.schemas.BrukernotifikasjonDone
+import no.nav.brukernotifikasjon.schemas.Done
 import no.nav.brukernotifikasjon.schemas.Informasjon
 import no.nav.brukernotifikasjon.schemas.Melding
 import no.nav.brukernotifikasjon.schemas.Oppgave
@@ -81,14 +81,14 @@ object KafkaConsumerSetup {
         return Consumer(Kafka.meldingTopicName, kafkaConsumer, eventProcessor)
     }
 
-    fun setupConsumerForTheDoneTopic(environment: Environment): Consumer<BrukernotifikasjonDone> {
+    fun setupConsumerForTheDoneTopic(environment: Environment): Consumer<Done> {
         val eventProcessor = DoneEventService(Server.database)
         val kafkaProps = Kafka.consumerProps(environment, "done")
         return setupConsumerForTheDoneTopic(kafkaProps, eventProcessor)
     }
 
-    fun setupConsumerForTheDoneTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<BrukernotifikasjonDone>): Consumer<BrukernotifikasjonDone> {
-        val kafkaConsumer = KafkaConsumer<String, BrukernotifikasjonDone>(kafkaProps)
+    fun setupConsumerForTheDoneTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<Done>): Consumer<Done> {
+        val kafkaConsumer = KafkaConsumer<String, Done>(kafkaProps)
         return Consumer(Kafka.doneTopicName, kafkaConsumer, eventProcessor)
     }
 
