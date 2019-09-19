@@ -1,9 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.kafka
 
-import no.nav.brukernotifikasjon.schemas.BrukernotifikasjonDone
-import no.nav.brukernotifikasjon.schemas.Informasjon
-import no.nav.brukernotifikasjon.schemas.Melding
-import no.nav.brukernotifikasjon.schemas.Oppgave
+import no.nav.brukernotifikasjon.schemas.*
 
 import no.nav.personbruker.dittnav.eventaggregator.config.Environment
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
@@ -43,7 +40,7 @@ object Producer {
     }
 
     fun produceDoneEvent(messagesCount: Int = 1) {
-        KafkaProducer<String, BrukernotifikasjonDone>(Kafka.producerProps(Environment(), "done")).use { producer ->
+        KafkaProducer<String, Done>(Kafka.producerProps(Environment(), "done")).use { producer ->
             for (i in 0 until messagesCount) {
                 producer.send(ProducerRecord(doneTopicName, createDone(i)))
             }
@@ -89,8 +86,8 @@ object Producer {
         return build.build()
     }
 
-    private fun createDone(i: Int): BrukernotifikasjonDone {
-        val build = BrukernotifikasjonDone.newBuilder()
+    private fun createDone(i: Int): Done {
+        val build = Done.newBuilder()
                 .setAktorId("12345")
                 .setDokumentId("300$i")
                 .setEventId("$i")
