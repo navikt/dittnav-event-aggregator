@@ -21,13 +21,11 @@ import org.amshove.kluent.shouldEqualTo
 import org.apache.avro.generic.GenericRecord
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class MultipleTopicsConsumerTest {
 
-    companion object {
         val informasjonEventProcessor = SimpleEventCounterService<Informasjon>()
         val oppgaveEventProcessor = SimpleEventCounterService<Oppgave>()
         val meldingEventProcessor = SimpleEventCounterService<Melding>()
@@ -56,19 +54,15 @@ class MultipleTopicsConsumerTest {
                 password = password
         )
 
-        @BeforeAll
-        @JvmStatic
-        fun setup() {
+        init {
             embeddedEnv.start()
         }
 
         @AfterAll
-        @JvmStatic
         fun tearDown() {
             adminClient?.close()
             embeddedEnv.tearDown()
         }
-    }
 
     @Test
     fun `Kafka instansen i minnet har blitt staret`() {

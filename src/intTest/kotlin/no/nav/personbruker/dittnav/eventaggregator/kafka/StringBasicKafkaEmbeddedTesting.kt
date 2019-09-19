@@ -9,7 +9,6 @@ import org.amshove.kluent.shouldContainAll
 import org.amshove.kluent.shouldEqualTo
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
 /**
@@ -21,31 +20,25 @@ import org.junit.jupiter.api.Test
  */
 class StringBasicKafkaEmbeddedTesting {
 
-    companion object {
-        val topicen = "kafka.topic"
-        val username = "srvkafkaclient"
-        val password = "kafkaclient"
-        val embeddedEnv = KafkaEnvironment(
-                topicNames = listOf(topicen),
-                withSecurity = true,
-                users = listOf(JAASCredential(username, password))
-        )
-        val kafkaBrokerUrl = embeddedEnv.brokersURL.substringAfterLast("/")
+    val topicen = "kafka.topic"
+    val username = "srvkafkaclient"
+    val password = "kafkaclient"
+    val embeddedEnv = KafkaEnvironment(
+            topicNames = listOf(topicen),
+            withSecurity = true,
+            users = listOf(JAASCredential(username, password))
+    )
+    val kafkaBrokerUrl = embeddedEnv.brokersURL.substringAfterLast("/")
 
-        val events = (1..9).map { "$it" to "event$it" }.toMap()
+    val events = (1..9).map { "$it" to "event$it" }.toMap()
 
-        @BeforeAll
-        @JvmStatic
-        fun setup() {
-            embeddedEnv.start()
-        }
+    init {
+        embeddedEnv.start()
+    }
 
-        @AfterAll
-        @JvmStatic
-        fun `tear down`() {
-            embeddedEnv.tearDown()
-        }
-
+    @AfterAll
+    fun tearDown() {
+        embeddedEnv.tearDown()
     }
 
     @Test

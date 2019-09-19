@@ -15,46 +15,40 @@ import org.amshove.kluent.shouldEqualTo
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
 class SingleTopicConsumerTest {
 
-    companion object {
-        val topicen = "singleTopicConsumerTestInformasjon"
-        val username = "srvkafkaclient"
-        val password = "kafkaclient"
-        val embeddedEnv = KafkaEnvironment(
-                topicNames = listOf(topicen),
-                withSecurity = true,
-                withSchemaRegistry = true,
-                users = listOf(JAASCredential(username, password))
-        )
-        val adminClient = embeddedEnv.adminClient
+    val topicen = "singleTopicConsumerTestInformasjon"
+    val username = "srvkafkaclient"
+    val password = "kafkaclient"
+    val embeddedEnv = KafkaEnvironment(
+            topicNames = listOf(topicen),
+            withSecurity = true,
+            withSchemaRegistry = true,
+            users = listOf(JAASCredential(username, password))
+    )
+    val adminClient = embeddedEnv.adminClient
 
-        val env = Environment().copy(
-                bootstrapServers = embeddedEnv.brokersURL.substringAfterLast("/"),
-                schemaRegistryUrl = embeddedEnv.schemaRegistry!!.url,
-                username = username,
-                password = password
-        )
+    val env = Environment().copy(
+            bootstrapServers = embeddedEnv.brokersURL.substringAfterLast("/"),
+            schemaRegistryUrl = embeddedEnv.schemaRegistry!!.url,
+            username = username,
+            password = password
+    )
 
-        val events = (1..10).map { "$it" to InformasjonObjectMother.createInformasjon(it) }.toMap()
+    val events = (1..10).map { "$it" to InformasjonObjectMother.createInformasjon(it) }.toMap()
 
-        @BeforeAll
-        @JvmStatic
-        fun setup() {
-            embeddedEnv.start()
-        }
-
-        @AfterAll
-        @JvmStatic
-        fun testDown() {
-            adminClient?.close()
-            embeddedEnv.tearDown()
-        }
-
+    init {
+        embeddedEnv.start()
     }
+
+    @AfterAll
+    fun tearDown() {
+        adminClient?.close()
+        embeddedEnv.tearDown()
+    }
+
 
     @Test
     fun `Kafka instansen i minnet har blitt staret`() {

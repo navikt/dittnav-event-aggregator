@@ -4,32 +4,27 @@ import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.database.H2Database
 import no.nav.personbruker.dittnav.eventaggregator.entity.objectmother.InformasjonObjectMother
 import org.amshove.kluent.*
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
 
 class InformasjonQueriesTest {
 
-    companion object {
-        val database = H2Database()
+    val database = H2Database()
 
-        val informasjon1 = InformasjonObjectMother.createInformasjon(1, "12345")
-        val informasjon2 = InformasjonObjectMother.createInformasjon(2, "12345")
-        val informasjon3 = InformasjonObjectMother.createInformasjon(3, "12345")
-        val informasjon4 = InformasjonObjectMother.createInformasjon(4, "6789")
-        val allEvents = listOf(informasjon1, informasjon2, informasjon3, informasjon4)
-        val allEventsForSingleUser = listOf(informasjon1, informasjon2, informasjon3)
+    val informasjon1 = InformasjonObjectMother.createInformasjon(1, "12345")
+    val informasjon2 = InformasjonObjectMother.createInformasjon(2, "12345")
+    val informasjon3 = InformasjonObjectMother.createInformasjon(3, "12345")
+    val informasjon4 = InformasjonObjectMother.createInformasjon(4, "6789")
+    val allEvents = listOf(informasjon1, informasjon2, informasjon3, informasjon4)
+    val allEventsForSingleUser = listOf(informasjon1, informasjon2, informasjon3)
 
-        @BeforeAll
-        @JvmStatic
-        fun setup() {
-            runBlocking {
-                database.dbQuery {
-                    createInformasjon(informasjon1)
-                    createInformasjon(informasjon2)
-                    createInformasjon(informasjon3)
-                    createInformasjon(informasjon4)
-                }
+    init {
+        runBlocking {
+            database.dbQuery {
+                createInformasjon(informasjon1)
+                createInformasjon(informasjon2)
+                createInformasjon(informasjon3)
+                createInformasjon(informasjon4)
             }
         }
     }
