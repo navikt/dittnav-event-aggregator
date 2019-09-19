@@ -1,7 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
 import com.zaxxer.hikari.HikariDataSource
-import no.nav.personbruker.dittnav.eventaggregator.database.Database
+import no.nav.personbruker.dittnav.eventaggregator.database.PostgresDatabase
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.configuration.FluentConfiguration
 import javax.sql.DataSource
@@ -32,11 +32,11 @@ object Flyway {
     }
 
     private fun createDataSourceViaVaultWithAdminUser(env: Environment): HikariDataSource {
-        return Database.hikariDatasourceViaVault(env, env.dbAdmin)
+        return PostgresDatabase.hikariDatasourceViaVault(env, env.dbAdmin)
     }
 
     private fun createDataSourceForLocalDbWithAdminUser(env: Environment): HikariDataSource {
-        return Database.hikariFromLocalDb(env, env.dbUser)
+        return PostgresDatabase.hikariFromLocalDb(env, env.dbUser)
     }
 
 }
