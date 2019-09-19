@@ -19,22 +19,21 @@ import no.nav.personbruker.dittnav.eventaggregator.service.impl.SimpleEventCount
 import no.nav.personbruker.dittnav.eventaggregator.util.KafkaProducerUtil
 import org.amshove.kluent.shouldEqualTo
 import org.apache.avro.generic.GenericRecord
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions
-import org.spekframework.spek2.Spek
-import org.spekframework.spek2.style.specification.describe
+import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-object MultipleTopicsConsumerIT : Spek({
+class MultipleTopicsConsumerTest {
 
-    val informasjonEventProcessor = SimpleEventCounterService<Informasjon>()
-    val oppgaveEventProcessor = SimpleEventCounterService<Oppgave>()
-    val meldingEventProcessor = SimpleEventCounterService<Melding>()
+        val informasjonEventProcessor = SimpleEventCounterService<Informasjon>()
+        val oppgaveEventProcessor = SimpleEventCounterService<Oppgave>()
+        val meldingEventProcessor = SimpleEventCounterService<Melding>()
 
-    val informasjonEvents = (1..10).map { "$it" to InformasjonObjectMother.createInformasjon(it) }.toMap()
-    val oppgaveEvents = (1..11).map { "$it" to OppgaveObjectMother.createOppgave(it) }.toMap()
-    val meldingEvents = (1..12).map { "$it" to MeldingObjectMother.createMelding(it) }.toMap()
+        val informasjonEvents = (1..10).map { "$it" to InformasjonObjectMother.createInformasjon(it) }.toMap()
+        val oppgaveEvents = (1..11).map { "$it" to OppgaveObjectMother.createOppgave(it) }.toMap()
+        val meldingEvents = (1..12).map { "$it" to MeldingObjectMother.createMelding(it) }.toMap()
 
-    describe("Skal kunne konsumere fra flere topics i parallell") {
         val informasjonTopic = Kafka.informasjonTopicName
         val oppgaveTopic = Kafka.oppgaveTopicName
         val meldingTopic = Kafka.meldingTopicName
@@ -49,60 +48,66 @@ object MultipleTopicsConsumerIT : Spek({
         val adminClient = embeddedEnv.adminClient
 
         val env = Environment().copy(
-            bootstrapServers = embeddedEnv.brokersURL.substringAfterLast("/"),
-            schemaRegistryUrl = embeddedEnv.schemaRegistry!!.url,
-            username = username,
-            password = password
-    )
-        before {
+                bootstrapServers = embeddedEnv.brokersURL.substringAfterLast("/"),
+                schemaRegistryUrl = embeddedEnv.schemaRegistry!!.url,
+                username = username,
+                password = password
+        )
+
+        init {
             embeddedEnv.start()
         }
 
-        it("Kafka instansen i minnet har blitt staret") {
-            Assertions.assertEquals(embeddedEnv.serverPark.status, KafkaEnvironment.ServerParkStatus.Started)
-        }
-
-        it("Produserer testeventer for alle topics") {
-            runBlocking {
-                val producedAllInformasjon = produceEvents(env, informasjonTopic, informasjonEvents)
-                val producedAllOppgave = produceEvents(env, oppgaveTopic, oppgaveEvents)
-                val producedAllMelding = produceEvents(env, meldingTopic, meldingEvents)
-                producedAllInformasjon && producedAllOppgave && producedAllMelding
-            } shouldEqualTo true
-        }
-
-        it("Lese inn alle testeventene fra alle topic-ene på Kafka") {
-            val informasjonConsumer = createInfoConsumer(env, informasjonEventProcessor)
-            val oppgaveConsumer = createOppgaveConsumer(env, oppgaveEventProcessor)
-            val meldingConsumer = createMeldingConsumer(env, meldingEventProcessor)
-
-            runBlocking {
-                informasjonConsumer.poll()
-                oppgaveConsumer.poll()
-                meldingConsumer.poll()
-
-                while (harAlleEventerBlittLest(informasjonEventProcessor, informasjonEvents,
-                                oppgaveEventProcessor, oppgaveEvents,
-                                meldingEventProcessor, meldingEvents)) {
-                    delay(100)
-                }
-                informasjonConsumer.cancel()
-                oppgaveConsumer.cancel()
-                meldingConsumer.cancel()
-
-                assertEquals(informasjonEvents.size, informasjonEventProcessor.eventCounter)
-                assertEquals(oppgaveEvents.size, oppgaveEventProcessor.eventCounter)
-                assertEquals(meldingEvents.size, meldingEventProcessor.eventCounter)
-            }
-        }
-
-        after {
+        @AfterAll
+        fun tearDown() {
             adminClient?.close()
             embeddedEnv.tearDown()
         }
+
+    @Test
+    fun `Kafka instansen i minnet har blitt staret`() {
+        Assertions.assertEquals(embeddedEnv.serverPark.status, KafkaEnvironment.ServerParkStatus.Started)
     }
 
-})
+    fun `Produserer testeventer for alle topics`() {
+        runBlocking {
+            val producedAllInformasjon = produceEvents(env, informasjonTopic, informasjonEvents)
+            val producedAllOppgave = produceEvents(env, oppgaveTopic, oppgaveEvents)
+            val producedAllMelding = produceEvents(env, meldingTopic, meldingEvents)
+            producedAllInformasjon && producedAllOppgave && producedAllMelding
+        } shouldEqualTo true
+    }
+
+    @Test
+    fun `Skal kunne konsumere fra flere topics i parallell`() {
+        `Produserer testeventer for alle topics`()
+
+        val informasjonConsumer = createInfoConsumer(env, informasjonEventProcessor)
+        val oppgaveConsumer = createOppgaveConsumer(env, oppgaveEventProcessor)
+        val meldingConsumer = createMeldingConsumer(env, meldingEventProcessor)
+
+        runBlocking {
+            informasjonConsumer.poll()
+            oppgaveConsumer.poll()
+            meldingConsumer.poll()
+
+            while (harAlleEventerBlittLest(informasjonEventProcessor, informasjonEvents,
+                            oppgaveEventProcessor, oppgaveEvents,
+                            meldingEventProcessor, meldingEvents)) {
+                delay(100)
+            }
+            informasjonConsumer.cancel()
+            oppgaveConsumer.cancel()
+            meldingConsumer.cancel()
+
+            assertEquals(informasjonEvents.size, informasjonEventProcessor.eventCounter)
+            assertEquals(oppgaveEvents.size, oppgaveEventProcessor.eventCounter)
+            assertEquals(meldingEvents.size, meldingEventProcessor.eventCounter)
+        }
+    }
+
+
+}
 
 private suspend fun produceEvents(env: Environment, informasjonTopic: String, informasjonEvents: Map<String, GenericRecord>): Boolean {
     val producedAllInformasjon = KafkaProducerUtil.kafkaAvroProduce(

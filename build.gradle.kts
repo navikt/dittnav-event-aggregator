@@ -13,7 +13,6 @@ val flywayVersion = "5.2.4"
 val hikariCPVersion = "3.2.0"
 val postgresVersion = "42.2.5"
 val h2Version = "1.4.199"
-val spekVersion = "2.0.6"
 val assertJVersion = "3.12.2"
 val kafkaEmvededVersion = "2.2.1"
 val kluentVersion = "1.52"
@@ -35,12 +34,22 @@ tasks.withType<KotlinCompile> {
 }
 
 repositories {
-    // Use jcenter for resolving your dependencies.
-    // You can declare any Maven/Ivy/file repository here.
     jcenter()
     maven("http://packages.confluent.io/maven")
     mavenLocal()
 }
+
+sourceSets {
+    create("intTest") {
+        compileClasspath += sourceSets.main.get().output + sourceSets.test.get().output
+        runtimeClasspath += sourceSets.main.get().output + sourceSets.test.get().output
+    }
+}
+
+val intTestImplementation by configurations.getting {
+    extendsFrom(configurations.testImplementation.get())
+}
+configurations["intTestRuntimeOnly"].extendsFrom(configurations.testRuntimeOnly.get())
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
@@ -57,17 +66,16 @@ dependencies {
     compile("io.confluent:kafka-avro-serializer:$confluentVersion")
     compile("no.nav:brukernotifikasjon-schemas:$brukernotifikasjonSchemaVersion")
     testCompile("org.junit.jupiter:junit-jupiter-api:$junitVersion")
-    testCompile("org.assertj:assertj-core:$assertJVersion")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
     testCompile(kotlin("test-junit5"))
     testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedEnvVersion")
     testImplementation("org.apache.kafka:kafka_2.12:$kafkaVersion")
     testImplementation("org.apache.kafka:kafka-streams:$kafkaVersion")
     testImplementation("io.confluent:kafka-schema-registry:$confluentVersion")
     testImplementation("com.h2database:h2:$h2Version")
-    testImplementation("org.spekframework.spek2:spek-dsl-jvm:$spekVersion")
-    testImplementation("org.assertj:assertj-core:$assertJVersion")
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
-    testRuntimeOnly("org.spekframework.spek2:spek-runner-junit5:$spekVersion")
+
+    intTestImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
 }
 
 application {
@@ -83,8 +91,9 @@ tasks {
     }
 
     withType<Test> {
-        useJUnitPlatform {
-            includeEngines("spek2")
+        useJUnitPlatform()
+        testLogging {
+            events("passed", "skipped", "failed")
         }
     }
 
@@ -93,3 +102,14 @@ tasks {
         classpath = sourceSets["main"].runtimeClasspath
     }
 }
+
+val integrationTest = task<Test>("integrationTest") {
+    description = "Runs integration tests."
+    group = "verification"
+
+    testClassesDirs = sourceSets["intTest"].output.classesDirs
+    classpath = sourceSets["intTest"].runtimeClasspath
+    shouldRunAfter("test")
+}
+
+tasks.check { dependsOn(integrationTest) }
