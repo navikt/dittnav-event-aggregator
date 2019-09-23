@@ -12,12 +12,12 @@ object OppgaveQueriesTest : Spek({
     val database = H2Database()
 
     describe("Returnerer cachede Oppgave-eventer") {
-        val aktoerId1 = "12345"
-        val aktoerId2 = "54321"
+        val aktorId1 = "12345"
+        val aktorId2 = "54321"
 
-        val oppgave1 = OppgaveObjectMother.createOppgave(1, aktoerId1)
-        val oppgave2 = OppgaveObjectMother.createOppgave(2, aktoerId2)
-        val oppgave3 = OppgaveObjectMother.createOppgave(3, aktoerId1)
+        val oppgave1 = OppgaveObjectMother.createOppgave(1, aktorId1)
+        val oppgave2 = OppgaveObjectMother.createOppgave(2, aktorId2)
+        val oppgave3 = OppgaveObjectMother.createOppgave(3, aktorId1)
 
         before {
             runBlocking {
@@ -35,17 +35,17 @@ object OppgaveQueriesTest : Spek({
                         .containsAll(listOf(oppgave1, oppgave2, oppgave3))
             }
         }
-        it("Finner cachede Oppgave-eventer for aktoerID") {
+        it("Finner cachede Oppgave-eventer for aktorId") {
             runBlocking {
-                assertThat(database.dbQuery { getOppgaveByAktoerId(aktoerId1) })
+                assertThat(database.dbQuery { getOppgaveByAktorId(aktorId1) })
                         .hasSize(2)
                         .containsAll(listOf(oppgave1, oppgave3))
                         .doesNotContain(oppgave2)
             }
         }
-        it("Gir tom liste dersom Oppgave-event med gitt aktoerId ikke finnes") {
+        it("Gir tom liste dersom Oppgave-event med gitt aktorId ikke finnes") {
             runBlocking {
-                assertThat(database.dbQuery { getOppgaveByAktoerId("-1") })
+                assertThat(database.dbQuery { getOppgaveByAktorId("-1") })
                         .hasSize(0)
             }
         }

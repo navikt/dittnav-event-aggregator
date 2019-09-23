@@ -6,21 +6,25 @@ data class Oppgave(
         val id: Int?,
         val produsent: String,
         val eventTidspunkt: LocalDateTime,
-        val aktoerId: String,
+        val aktorId: String,
         val eventId: String,
         val dokumentId: String,
         val tekst: String,
         val link: String,
-        val sikkerhetsinvaa: Int
+        val sikkerhetsinvaa: Int,
+        val sistOppdatert: LocalDateTime,
+        val aktiv: Boolean
 ) {
     constructor(
             produsent: String,
             eventTidspunkt: LocalDateTime,
-            aktoerId: String,
+            aktorId: String,
             eventId: String,
             dokumentId: String,
             tekst: String,
             link: String,
-            sikkerhetsinvaa: Int
-    ) : this(null, produsent, eventTidspunkt, aktoerId, eventId, dokumentId, tekst, link, sikkerhetsinvaa)
+            sikkerhetsinvaa: Int,
+            sistOppdatert: LocalDateTime,
+            aktiv: Boolean
+    ) : this(null, produsent, eventTidspunkt, aktorId, eventId, dokumentId, tekst, link, sikkerhetsinvaa, sistOppdatert, aktiv)
 }

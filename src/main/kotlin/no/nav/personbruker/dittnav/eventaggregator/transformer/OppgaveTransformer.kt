@@ -8,6 +8,7 @@ import java.time.ZoneId
 class OppgaveTransformer {
 
     fun toInternal(external : no.nav.brukernotifikasjon.schemas.Oppgave) : Oppgave {
+        val newRecordsAreActiveByDefault = true
         val internal = Oppgave(
                 external.getProdusent(),
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(external.getTidspunkt()), ZoneId.of("Europe/Oslo")),
@@ -16,7 +17,9 @@ class OppgaveTransformer {
                 external.getDokumentId(),
                 external.getTekst(),
                 external.getLink(),
-                external.getSikkerhetsniva()
+                external.getSikkerhetsniva(),
+                LocalDateTime.now(),
+                newRecordsAreActiveByDefault
                 )
         return internal
     }

@@ -13,26 +13,28 @@ fun Connection.getAllOppgave(): List<Oppgave> =
                 }
 
 fun Connection.createOppgave(oppgave: Oppgave): Int =
-        prepareStatement("""INSERT INTO OPPGAVE (produsent, eventTidspunkt, aktoerId, eventId, dokumentId, tekst, link, sikkerhetsnivaa) VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+        prepareStatement("""INSERT INTO OPPGAVE (produsent, eventTidspunkt, aktorId, eventId, dokumentId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?)""",
                 Statement.RETURN_GENERATED_KEYS)
                 .use {
                     it.setString(1, oppgave.produsent)
                     it.setObject(2, oppgave.eventTidspunkt, Types.TIMESTAMP)
-                    it.setString(3, oppgave.aktoerId)
+                    it.setString(3, oppgave.aktorId)
                     it.setString(4, oppgave.eventId)
                     it.setString(5, oppgave.dokumentId)
                     it.setString(6, oppgave.tekst)
                     it.setString(7, oppgave.link)
                     it.setInt(8, oppgave.sikkerhetsinvaa)
+                    it.setObject(9, oppgave.sistOppdatert, Types.TIMESTAMP)
+                    it.setBoolean(10, oppgave.aktiv)
                     it.executeUpdate()
                     it.generatedKeys.next()
                     it.generatedKeys.getInt("id")
                 }
 
-fun Connection.getOppgaveByAktoerId(aktoerId: String): List<Oppgave> =
-        prepareStatement("""SELECT * FROM OPPGAVE WHERE aktoerId = ?""")
+fun Connection.getOppgaveByAktorId(aktorId: String): List<Oppgave> =
+        prepareStatement("""SELECT * FROM OPPGAVE WHERE aktorId = ?""")
                 .use {
-                    it.setString(1, aktoerId)
+                    it.setString(1, aktorId)
                     it.executeQuery().list {
                         toOppgave()
                     }
@@ -52,12 +54,14 @@ private fun ResultSet.toOppgave(): Oppgave {
             id = getInt("id"),
             produsent = getString("produsent"),
             eventTidspunkt = LocalDateTime.ofInstant(getTimestamp("eventTidspunkt").toInstant(), ZoneId.of("Europe/Oslo")),
-            aktoerId = getString("aktoerId"),
+            aktorId = getString("aktorId"),
             eventId = getString("eventId"),
             dokumentId = getString("dokumentId"),
             tekst = getString("tekst"),
             link = getString("link"),
-            sikkerhetsinvaa = getInt("sikkerhetsnivaa")
+            sikkerhetsinvaa = getInt("sikkerhetsnivaa"),
+            sistOppdatert = LocalDateTime.ofInstant(getTimestamp("sistOppdatert").toInstant(), ZoneId.of("Europe/Oslo")),
+            aktiv = getBoolean("aktiv")
     )
 }
 

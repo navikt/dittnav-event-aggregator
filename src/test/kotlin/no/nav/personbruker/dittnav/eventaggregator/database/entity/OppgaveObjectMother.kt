@@ -1,6 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.database.entity
 
-import no.nav.personbruker.dittnav.eventaggregator.database.entity.Oppgave
 import java.time.LocalDateTime
 import java.time.ZoneId
 
@@ -11,26 +10,30 @@ object OppgaveObjectMother {
                 id = i,
                 produsent = "DittNav",
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("Europe/Oslo")),
-                aktoerId = "12345",
+                aktorId = "12345",
                 eventId = i.toString(),
                 dokumentId = "Dok12345",
                 tekst = "Dette er en oppgave til brukeren",
                 link = "https://nav.no/systemX/$i",
-                sikkerhetsinvaa = 4
+                sikkerhetsinvaa = 4,
+                sistOppdatert = LocalDateTime.now(ZoneId.of("Europe/Oslo")),
+                aktiv = true
         )
     }
 
-    fun createOppgave(i: Int, aktoerId: String): Oppgave {
+    fun createOppgave(i: Int, aktorId: String): Oppgave {
         return Oppgave(
                 id = i,
                 produsent = "DittNav",
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("Europe/Oslo")),
-                aktoerId = aktoerId,
+                aktorId = aktorId,
                 eventId = i.toString(),
                 dokumentId = "Dok12345",
                 tekst = "Dette er en oppgave til brukeren",
                 link = "https://nav.no/systemX/$i",
-                sikkerhetsinvaa = 4
+                sikkerhetsinvaa = 4,
+                sistOppdatert = LocalDateTime.now(ZoneId.of("Europe/Oslo")),
+                aktiv = true
         )
     }
 }

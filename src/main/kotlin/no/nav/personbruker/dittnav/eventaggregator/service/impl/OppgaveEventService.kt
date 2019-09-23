@@ -5,18 +5,24 @@ import no.nav.brukernotifikasjon.schemas.Oppgave
 import no.nav.personbruker.dittnav.eventaggregator.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.database.entity.createOppgave
 import no.nav.personbruker.dittnav.eventaggregator.database.entity.getOppgaveById
-import no.nav.personbruker.dittnav.eventaggregator.kafka.Consumer
+import no.nav.personbruker.dittnav.eventaggregator.service.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.transformer.OppgaveTransformer
+import org.apache.kafka.clients.consumer.ConsumerRecord
 
 import org.slf4j.LoggerFactory
 
 class OppgaveEventService(
         val database: Database,
         val transformer: OppgaveTransformer = OppgaveTransformer()
-) {
+) : EventBatchProcessorService<Oppgave> {
+
     val log = LoggerFactory.getLogger(OppgaveEventService::class.java)
 
-    fun storeInEventCache(event: Oppgave) {
+    override fun <T> processEvent(event: ConsumerRecord<String, T>) {
+        storeEventInCache(event.value() as Oppgave)
+    }
+
+    fun storeEventInCache(event: Oppgave) {
         val entity = transformer.toInternal(event)
         log.info("Skal skrive entitet til databasen: $entity")
         runBlocking {
