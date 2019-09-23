@@ -4,8 +4,6 @@ import no.nav.personbruker.dittnav.eventaggregator.database.entity.Informasjon
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.ZoneOffset
-import java.util.*
 
 class InformasjonTransformer {
 
