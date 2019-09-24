@@ -1,9 +1,8 @@
-create TABLE OPPGAVE
-(
+create TABLE OPPGAVE(
     id              serial primary key,
     produsent       varchar(100),
     eventTidspunkt  timestamp,
-    aktorid         varchar(50),
+    aktorId         varchar(50),
     eventId         varchar(50),
     dokumentId      varchar(100),
     tekst           varchar(500),
