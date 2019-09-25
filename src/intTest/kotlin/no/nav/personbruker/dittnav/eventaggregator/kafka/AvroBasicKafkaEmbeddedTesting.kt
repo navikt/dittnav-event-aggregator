@@ -1,16 +1,16 @@
 package no.nav.personbruker.dittnav.eventaggregator.kafka
 
 import kotlinx.coroutines.runBlocking
-import no.nav.common.JAASCredential
 import no.nav.common.KafkaEnvironment
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
 import no.nav.personbruker.dittnav.eventaggregator.schema.objectmother.InformasjonObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.util.KafkaConsumerUtil
 import no.nav.personbruker.dittnav.eventaggregator.util.KafkaProducerUtil
+import no.nav.personbruker.dittnav.eventaggregator.util.KafkaTestUtil
+import org.amshove.kluent.`should equal`
 import org.amshove.kluent.shouldContainAll
 import org.amshove.kluent.shouldEqualTo
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 /**
@@ -22,30 +22,25 @@ import org.junit.jupiter.api.Test
  */
 class AvroBasicKafkaEmbeddedTesting {
 
-    val topicen = Kafka.informasjonTopicName
-    val username = "srvkafkaclient"
-    val password = "kafkaclient"
-    val embeddedEnv = KafkaEnvironment(
-            topicNames = listOf(topicen),
-            withSecurity = true,
-            withSchemaRegistry = true,
-            users = listOf(JAASCredential(username, password))
-    )
+    private val topicen = Kafka.informasjonTopicName
+    private val username = "srvkafkaclient"
+    private val password = "kafkaclient"
+    private val embeddedEnv = KafkaTestUtil.createDefaultKafkaEmbeddedInstance(listOf(topicen))
 
-    val events = (1..9).map { "$it" to InformasjonObjectMother.createInformasjon(it) }.toMap()
+    private val events = (1..9).map { "$it" to InformasjonObjectMother.createInformasjon(it) }.toMap()
 
     init {
         embeddedEnv.start()
     }
 
     @AfterAll
-    fun tearDown() {
+    fun `tear down`() {
         embeddedEnv.tearDown()
     }
 
     @Test
     fun `Kafka instansen i minnet har blitt staret`() {
-        Assertions.assertEquals(embeddedEnv.serverPark.status, KafkaEnvironment.ServerParkStatus.Started)
+        embeddedEnv.serverPark.status `should equal` KafkaEnvironment.ServerParkStatus.Started
     }
 
     @Test

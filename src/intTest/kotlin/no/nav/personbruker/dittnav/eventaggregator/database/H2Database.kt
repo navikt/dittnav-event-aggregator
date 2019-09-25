@@ -4,7 +4,7 @@ import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway
 import javax.sql.DataSource
 
-class H2Database : IDatabase {
+class H2Database : Database {
 
     private val memDataSource: DataSource
 
