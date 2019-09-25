@@ -5,7 +5,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-class InformasjonTransformer {
+object InformasjonTransformer {
 
     fun toInternal(external: no.nav.brukernotifikasjon.schemas.Informasjon) : Informasjon {
         val newRecordsAreActiveByDefault = true

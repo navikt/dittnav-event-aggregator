@@ -5,7 +5,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-class OppgaveTransformer {
+object OppgaveTransformer {
 
     fun toInternal(external : no.nav.brukernotifikasjon.schemas.Oppgave) : Oppgave {
         val newRecordsAreActiveByDefault = true

@@ -12,8 +12,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 
 class OppgaveEventService(
-        val database: Database,
-        val transformer: OppgaveTransformer = OppgaveTransformer()
+        val database: Database
 ) : EventBatchProcessorService<Oppgave> {
 
     val log = LoggerFactory.getLogger(OppgaveEventService::class.java)
@@ -23,7 +22,7 @@ class OppgaveEventService(
     }
 
     fun storeEventInCache(event: Oppgave) {
-        val entity = transformer.toInternal(event)
+        val entity = OppgaveTransformer.toInternal(event)
         log.info("Skal skrive entitet til databasen: $entity")
         runBlocking {
             val entityId = database.dbQuery { createOppgave(entity) }
