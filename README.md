@@ -5,7 +5,9 @@ event-cache (database). DittNAV-api henter ut eventer per bruker fra denne event
 DittNAV (frontend).
 
 # Kom i gang
-1. Bygg dittnav-event-aggregator ved å kjøre `gradle clean build`
+1. Bygge dittnav-event-aggregator:
+    * bygge og kjøre enhetstester: `gradle clean test`
+    * bygge og kjøre integrasjonstester: `gradle clean build`
 2. Start lokal instans av Kafka og Postgres ved å kjøre `docker-compose up -d`
 3. Start konsumenten ved å kjøre kommandoen `gradle runServer`.
 4. Produser et informasjonsevent ved å gjøre en `post` mot endepunktet `http://localhost:8080/produce/informasjon`, 

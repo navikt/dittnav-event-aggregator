@@ -12,8 +12,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class InformasjonEventService(
-        val database: Database,
-        val transformer: InformasjonTransformer = InformasjonTransformer()
+        val database: Database
 ) : EventBatchProcessorService<Informasjon> {
 
     private val log : Logger = LoggerFactory.getLogger(InformasjonEventService::class.java)
@@ -23,7 +22,7 @@ class InformasjonEventService(
     }
 
     fun storeEventInCache(event: Informasjon) {
-        val entity = transformer.toInternal(event)
+        val entity = InformasjonTransformer.toInternal(event)
         log.info("Skal skrive entitet til databasen: $entity")
         runBlocking {
             val entityID = database.dbQuery { createInformasjon(entity) }

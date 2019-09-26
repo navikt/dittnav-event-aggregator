@@ -10,6 +10,7 @@ import no.nav.personbruker.dittnav.eventaggregator.service.EventBatchProcessorSe
 import no.nav.personbruker.dittnav.eventaggregator.service.impl.DoneEventService
 import no.nav.personbruker.dittnav.eventaggregator.service.impl.EventToConsoleBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.service.impl.InformasjonEventService
+import no.nav.personbruker.dittnav.eventaggregator.service.impl.OppgaveEventService
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -59,7 +60,7 @@ object KafkaConsumerSetup {
     }
 
     fun setupConsumerForTheOppgaveTopic(environment: Environment): Consumer<Oppgave> {
-        val eventProcessor = EventToConsoleBatchProcessorService<Oppgave>()
+        val eventProcessor = OppgaveEventService(Server.database)
         val kafkaProps = Kafka.consumerProps(environment, "oppgave")
         return setupConsumerForTheOppgaveTopic(kafkaProps, eventProcessor)
     }

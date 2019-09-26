@@ -21,6 +21,7 @@ import no.nav.brukernotifikasjon.schemas.Oppgave
 import no.nav.personbruker.dittnav.eventaggregator.api.healthApi
 import no.nav.personbruker.dittnav.eventaggregator.api.produceEventsApi
 import no.nav.personbruker.dittnav.eventaggregator.database.Database
+import no.nav.personbruker.dittnav.eventaggregator.database.PostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.kafka.Consumer
 import java.util.concurrent.TimeUnit
 
@@ -52,7 +53,7 @@ object Server {
             }
         }
 
-        database = Database(environment)
+        database = PostgresDatabase(environment)
         Flyway.runFlywayMigrations(environment)
 
         KafkaConsumerSetup.initializeTheKafkaConsumers(environment)

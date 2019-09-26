@@ -3,21 +3,21 @@ package no.nav.personbruker.dittnav.eventaggregator.database.entity
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-object InformasjonObjectMother {
+object OppgaveObjectMother {
 
-    fun createInformasjon(i: Int): Informasjon {
-        return Informasjon(
+    fun createOppgave(i: Int, aktorId: String): Oppgave {
+        return Oppgave(
                 id = i,
-                produsent = "DittNAV",
+                produsent = "DittNav",
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("Europe/Oslo")),
-                aktorId = "12345",
+                aktorId = aktorId,
                 eventId = i.toString(),
-                dokumentId = "100$i",
-                tekst = "Dette er informasjon til brukeren",
+                dokumentId = "Dok12345",
+                tekst = "Dette er en oppgave til brukeren",
                 link = "https://nav.no/systemX/$i",
+                sikkerhetsinvaa = 4,
                 sistOppdatert = LocalDateTime.now(ZoneId.of("Europe/Oslo")),
-                sikkerhetsnivaa = 4,
-                aktiv = true)
+                aktiv = true
+        )
     }
-
 }
