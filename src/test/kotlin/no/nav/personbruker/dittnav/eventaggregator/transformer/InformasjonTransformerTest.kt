@@ -7,15 +7,13 @@ import org.amshove.kluent.`should not be null`
 import org.junit.jupiter.api.Test
 import java.time.ZoneId
 
-internal class InformasjonTransformerTest {
+class InformasjonTransformerTest {
 
     @Test
     fun `should transform form external to internal`() {
         val original = InformasjonObjectMother.createInformasjon(1)
 
-        val transformer = InformasjonTransformer()
-
-        val transformed = transformer.toInternal(original)
+        val transformed = InformasjonTransformer.toInternal(original)
 
         transformed.aktorId `should be equal to` original.getAktorId()
         transformed.dokumentId `should be equal to` original.getDokumentId()
