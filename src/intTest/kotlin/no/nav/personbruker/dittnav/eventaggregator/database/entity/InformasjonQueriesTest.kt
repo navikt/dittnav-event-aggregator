@@ -2,8 +2,10 @@ package no.nav.personbruker.dittnav.eventaggregator.database.entity
 
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.database.H2Database
+import no.nav.personbruker.dittnav.eventaggregator.entity.deleteAllRowsInInformasjon
 import no.nav.personbruker.dittnav.eventaggregator.entity.objectmother.InformasjonObjectMother
 import org.amshove.kluent.*
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
 
@@ -25,6 +27,15 @@ class InformasjonQueriesTest {
                 createInformasjon(informasjon2)
                 createInformasjon(informasjon3)
                 createInformasjon(informasjon4)
+            }
+        }
+    }
+
+    @AfterAll
+    fun `tear down`() {
+        runBlocking {
+            database.dbQuery {
+                deleteAllRowsInInformasjon()
             }
         }
     }
