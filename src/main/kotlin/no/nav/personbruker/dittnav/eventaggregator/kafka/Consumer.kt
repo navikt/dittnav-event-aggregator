@@ -20,7 +20,7 @@ class Consumer<T>(
         val kafkaConsumer: KafkaConsumer<String, T>,
         val eventBatchProcessorService: EventBatchProcessorService<T>,
         val job: Job = Job(),
-        val MESSAGES_SEEN: Counter = initPrometheousMessageCounter(topic)
+        val MESSAGES_SEEN: Counter = initPrometheusMessageCounter(topic)
 ) : CoroutineScope {
 
     private val log: Logger = LoggerFactory.getLogger(Consumer::class.java)
@@ -55,7 +55,7 @@ class Consumer<T>(
             kafkaConsumer.commitSync()
 
         } catch (e: RetriableException) {
-            log.warn("Failed to poll, but with a retryable exception so will continue to next loop", e)
+            log.warn("Failed to poll, but with a retriable exception so will continue to next loop", e)
 
         } catch (e: Exception) {
             log.error("Something unrecoverable happened", e)
@@ -74,7 +74,7 @@ class Consumer<T>(
 
 }
 
-private fun initPrometheousMessageCounter(topic: String): Counter {
+private fun initPrometheusMessageCounter(topic: String): Counter {
     val topicNameWithoutDashes = topic.replace("-", "_")
     return Counter.build()
             .name("${topicNameWithoutDashes}_messages_seen")
