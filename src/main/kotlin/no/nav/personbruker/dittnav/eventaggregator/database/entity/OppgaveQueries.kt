@@ -3,6 +3,8 @@ package no.nav.personbruker.dittnav.eventaggregator.database.entity
 import java.sql.*
 import java.time.LocalDateTime
 import java.time.ZoneId
+import no.nav.personbruker.dittnav.eventaggregator.database.util.list
+import no.nav.personbruker.dittnav.eventaggregator.database.util.singleResult
 
 fun Connection.getAllOppgave(): List<Oppgave> =
         prepareStatement("""SELECT * FROM OPPGAVE""")
@@ -30,6 +32,16 @@ fun Connection.createOppgave(oppgave: Oppgave): Int =
                     it.generatedKeys.next()
                     it.generatedKeys.getInt("id")
                 }
+
+fun Connection.setOppgaveAktiv(eventId: String, aktiv: Boolean): Int =
+        prepareStatement("""UPDATE OPPGAVE SET aktiv = ? WHERE eventId = ?""",
+                Statement.RETURN_GENERATED_KEYS).use {
+            it.setBoolean(1, aktiv)
+            it.setString(2, eventId)
+            it.executeUpdate()
+            it.generatedKeys.next()
+            it.generatedKeys.getInt("id")
+        }
 
 fun Connection.getOppgaveByAktorId(aktorId: String): List<Oppgave> =
         prepareStatement("""SELECT * FROM OPPGAVE WHERE aktorId = ?""")
@@ -64,18 +76,3 @@ private fun ResultSet.toOppgave(): Oppgave {
             aktiv = getBoolean("aktiv")
     )
 }
-
-private fun <T> ResultSet.singleResult(result: ResultSet.() -> T): T =
-        if (next()) {
-            result()
-        } else {
-            throw SQLException("Found no rows")
-        }
-
-private fun <T> ResultSet.list(result: ResultSet.() -> T): List<T> =
-        mutableListOf<T>().apply {
-            while (next()) {
-                add(result())
-            }
-        }
-

@@ -21,7 +21,7 @@ class InformasjonEventService(
         storeEventInCache(event.value() as Informasjon)
     }
 
-    fun storeEventInCache(event: Informasjon) {
+    private fun storeEventInCache(event: Informasjon) {
         val entity = InformasjonTransformer.toInternal(event)
         log.info("Skal skrive entitet til databasen: $entity")
         runBlocking {
