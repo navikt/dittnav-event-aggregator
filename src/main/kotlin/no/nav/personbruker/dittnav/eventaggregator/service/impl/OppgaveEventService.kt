@@ -21,7 +21,7 @@ class OppgaveEventService(
         storeEventInCache(event.value() as Oppgave)
     }
 
-    fun storeEventInCache(event: Oppgave) {
+    private fun storeEventInCache(event: Oppgave) {
         val entity = OppgaveTransformer.toInternal(event)
         log.info("Skal skrive entitet til databasen: $entity")
         runBlocking {

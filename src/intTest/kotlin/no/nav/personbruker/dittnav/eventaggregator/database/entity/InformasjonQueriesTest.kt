@@ -60,7 +60,7 @@ class InformasjonQueriesTest {
     @Test
     fun `Finner cachede Informasjons-eventer for aktorID`() {
         runBlocking {
-            val result = database.dbQuery { getInformasjonByAktorid("12345") }
+            val result = database.dbQuery { getInformasjonByAktorId("12345") }
 
             result.size `should be equal to` 3
             result `should contain all` allEventsForSingleUser
@@ -70,7 +70,7 @@ class InformasjonQueriesTest {
     @Test
     fun `Returnerer tom liste hvis Informasjons-eventer for aktorID ikke finnes`() {
         runBlocking {
-            val result = database.dbQuery { getInformasjonByAktorid("-1") }
+            val result = database.dbQuery { getInformasjonByAktorId("-1") }
             result.isEmpty() `should be equal to` true
         }
     }
