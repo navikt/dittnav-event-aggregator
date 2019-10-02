@@ -9,7 +9,7 @@ object InformasjonObjectMother {
     fun createInformasjon(id : Int, aktorId: String): Informasjon {
         return Informasjon(
                 id = id,
-                produsent = "DittNAV",
+                produsent = "DittNav",
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("Europe/Oslo")),
                 aktorId = aktorId,
                 eventId = "$id",
