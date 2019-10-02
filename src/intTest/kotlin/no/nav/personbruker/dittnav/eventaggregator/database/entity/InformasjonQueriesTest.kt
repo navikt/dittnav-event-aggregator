@@ -2,8 +2,10 @@ package no.nav.personbruker.dittnav.eventaggregator.database.entity
 
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.database.H2Database
+import no.nav.personbruker.dittnav.eventaggregator.entity.deleteAllInformasjon
 import no.nav.personbruker.dittnav.eventaggregator.entity.objectmother.InformasjonObjectMother
 import org.amshove.kluent.*
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
 
@@ -29,10 +31,16 @@ class InformasjonQueriesTest {
         }
     }
 
-    @Test
-    fun `Finner alle cachede Informasjons-eventer`() {
+    @AfterAll
+    fun tearDown() {
         runBlocking {
+            database.dbQuery { deleteAllInformasjon() }
+        }
+    }
 
+    @Test
+    fun `Finner alle cachede Informasjon-eventer`() {
+        runBlocking {
             val result = database.dbQuery { getAllInformasjon() }
 
             result.size `should be equal to` allEvents.size
@@ -44,6 +52,7 @@ class InformasjonQueriesTest {
     fun `Finner cachet Informasjon-event med ID`() {
         runBlocking {
             val result = database.dbQuery { getInformasjonById(2) }
+            
             result `should equal` informasjon2
         }
     }
@@ -74,5 +83,4 @@ class InformasjonQueriesTest {
             result.isEmpty() `should be equal to` true
         }
     }
-
 }

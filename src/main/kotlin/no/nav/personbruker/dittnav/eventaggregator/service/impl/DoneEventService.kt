@@ -12,8 +12,7 @@ import org.slf4j.LoggerFactory
 import java.sql.Connection
 
 class DoneEventService(
-        val database: Database,
-        val transformer: DoneTransformer = DoneTransformer()
+        val database: Database
 ) : EventBatchProcessorService<Done> {
 
     private val log : Logger = LoggerFactory.getLogger(DoneEventService::class.java)
@@ -23,9 +22,9 @@ class DoneEventService(
     }
 
     private fun processDoneEvent(event: Done) {
-        val entity = transformer.toInternal(event)
+        val entity = DoneTransformer.toInternal(event)
         runBlocking {
-            val brukernotifikasjoner = database.dbQuery { getBrukernotifikasjonerFraView() }
+            val brukernotifikasjoner = database.dbQuery { getAllBrukernotifikasjonerFromView() }
             val foundEvent: Brukernotifikasjon? = brukernotifikasjoner.find { it.id == entity.eventId }
             if (foundEvent != null) {
                 log.info("Fant matchende event for Done-event med ${foundEvent.id}")

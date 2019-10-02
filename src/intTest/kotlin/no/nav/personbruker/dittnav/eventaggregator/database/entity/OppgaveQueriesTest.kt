@@ -2,7 +2,9 @@ package no.nav.personbruker.dittnav.eventaggregator.database.entity
 
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.database.H2Database
+import no.nav.personbruker.dittnav.eventaggregator.entity.deleteAllOppgave
 import org.amshove.kluent.*
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
 
@@ -26,6 +28,13 @@ class OppgaveQueriesTest {
                 createOppgave(oppgave2)
                 createOppgave(oppgave3)
             }
+        }
+    }
+
+    @AfterAll
+    fun tearDown() {
+        runBlocking {
+            database.dbQuery { deleteAllOppgave() }
         }
     }
 
