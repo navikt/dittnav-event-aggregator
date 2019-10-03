@@ -50,7 +50,7 @@ object KafkaConsumerSetup {
 
     fun setupConsumerForTheInformasjonTopic(environment: Environment): Consumer<Informasjon> {
         val eventProcessor = InformasjonEventService(Server.database)
-        val kafkaProps = Kafka.consumerProps(environment, "informasjon")
+        val kafkaProps = Kafka.consumerProps(environment, INFORMASJON)
         return setupConsumerForTheInformasjonTopic(kafkaProps, eventProcessor)
     }
 
@@ -61,7 +61,7 @@ object KafkaConsumerSetup {
 
     fun setupConsumerForTheOppgaveTopic(environment: Environment): Consumer<Oppgave> {
         val eventProcessor = OppgaveEventService(Server.database)
-        val kafkaProps = Kafka.consumerProps(environment, "oppgave")
+        val kafkaProps = Kafka.consumerProps(environment, OPPGAVE)
         return setupConsumerForTheOppgaveTopic(kafkaProps, eventProcessor)
     }
 
@@ -72,7 +72,7 @@ object KafkaConsumerSetup {
 
     fun setupConsumerForTheMeldingTopic(environment: Environment): Consumer<Melding> {
         val eventProcessor = EventToConsoleBatchProcessorService<Melding>()
-        val kafkaProps = Kafka.consumerProps(environment, "melding")
+        val kafkaProps = Kafka.consumerProps(environment, MELDING)
         return setupConsumerForTheMeldingTopic(kafkaProps, eventProcessor)
     }
 
@@ -83,7 +83,7 @@ object KafkaConsumerSetup {
 
     fun setupConsumerForTheDoneTopic(environment: Environment): Consumer<Done> {
         val eventProcessor = DoneEventService(Server.database)
-        val kafkaProps = Kafka.consumerProps(environment, "done")
+        val kafkaProps = Kafka.consumerProps(environment, DONE)
         return setupConsumerForTheDoneTopic(kafkaProps, eventProcessor)
     }
 
@@ -91,5 +91,4 @@ object KafkaConsumerSetup {
         val kafkaConsumer = KafkaConsumer<String, Done>(kafkaProps)
         return Consumer(Kafka.doneTopicName, kafkaConsumer, eventProcessor)
     }
-
 }

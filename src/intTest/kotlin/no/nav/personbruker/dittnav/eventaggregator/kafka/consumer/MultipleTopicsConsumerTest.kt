@@ -6,8 +6,7 @@ import no.nav.brukernotifikasjon.schemas.Informasjon
 import no.nav.brukernotifikasjon.schemas.Melding
 import no.nav.brukernotifikasjon.schemas.Oppgave
 import no.nav.common.KafkaEnvironment
-import no.nav.personbruker.dittnav.eventaggregator.config.Environment
-import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
+import no.nav.personbruker.dittnav.eventaggregator.config.*
 import no.nav.personbruker.dittnav.eventaggregator.config.KafkaConsumerSetup.setupConsumerForTheInformasjonTopic
 import no.nav.personbruker.dittnav.eventaggregator.config.KafkaConsumerSetup.setupConsumerForTheMeldingTopic
 import no.nav.personbruker.dittnav.eventaggregator.config.KafkaConsumerSetup.setupConsumerForTheOppgaveTopic
@@ -105,17 +104,17 @@ class MultipleTopicsConsumerTest {
     }
 
     private fun createInfoConsumer(env: Environment, informasjonEventProcessor: SimpleEventCounterService<Informasjon>): Consumer<Informasjon> {
-        val kafkaProps = Kafka.consumerProps(env, "informasjon", true)
+        val kafkaProps = Kafka.consumerProps(env, INFORMASJON, true)
         return setupConsumerForTheInformasjonTopic(kafkaProps, informasjonEventProcessor)
     }
 
     private fun createOppgaveConsumer(env: Environment, oppgaveEventProcessor: SimpleEventCounterService<Oppgave>): Consumer<Oppgave> {
-        val kafkaProps = Kafka.consumerProps(env, "oppgave", true)
+        val kafkaProps = Kafka.consumerProps(env, OPPGAVE, true)
         return setupConsumerForTheOppgaveTopic(kafkaProps, oppgaveEventProcessor)
     }
 
     private fun createMeldingConsumer(env: Environment, meldingEventProcessor: SimpleEventCounterService<Melding>): Consumer<Melding> {
-        val kafkaProps = Kafka.consumerProps(env, "melding", true)
+        val kafkaProps = Kafka.consumerProps(env, MELDING, true)
         return setupConsumerForTheMeldingTopic(kafkaProps, meldingEventProcessor)
     }
 
