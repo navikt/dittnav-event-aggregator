@@ -33,13 +33,10 @@ fun Connection.createInformasjon(informasjon: Informasjon): Int =
         }
 
 fun Connection.setInformasjonAktiv(eventId: String, aktiv: Boolean): Int =
-        prepareStatement("""UPDATE INFORMASJON SET aktiv = ? WHERE eventId = ?""",
-                Statement.RETURN_GENERATED_KEYS).use {
+        prepareStatement("""UPDATE INFORMASJON SET aktiv = ? WHERE eventId = ?""").use {
             it.setBoolean(1, aktiv)
             it.setString(2, eventId)
             it.executeUpdate()
-            it.generatedKeys.next()
-            it.generatedKeys.getInt("id")
         }
 
 fun Connection.getInformasjonByAktorId(aktorId: String): List<Informasjon> =
