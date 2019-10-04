@@ -1,11 +1,11 @@
 package no.nav.personbruker.dittnav.eventaggregator.database
 
+import com.zaxxer.hikari.HikariDataSource
 import java.sql.Connection
-import javax.sql.DataSource
 
 interface Database {
 
-    val dataSource: DataSource
+    val dataSource: HikariDataSource
 
     suspend fun <T> dbQuery(block: Connection.() -> T): T =
             dataSource.connection.use {

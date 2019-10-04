@@ -5,17 +5,16 @@ import com.zaxxer.hikari.HikariDataSource
 import no.nav.personbruker.dittnav.eventaggregator.config.ConfigUtil
 import no.nav.personbruker.dittnav.eventaggregator.config.Environment
 import no.nav.vault.jdbc.hikaricp.HikariCPVaultUtil
-import javax.sql.DataSource
 
 class PostgresDatabase(env: Environment) : Database {
 
-    private val envDataSource: DataSource
+    private val envDataSource: HikariDataSource
 
     init {
         envDataSource = createCorrectConnectionForEnvironment(env)
     }
 
-    override val dataSource: DataSource
+    override val dataSource: HikariDataSource
         get() = envDataSource
 
 

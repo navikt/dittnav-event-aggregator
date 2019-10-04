@@ -15,7 +15,7 @@ fun Routing.healthApi() {
     }
 
     get("/isReady") {
-        if (isAllConsumersRunning()) {
+        if (isAllConsumersRunning() && isDataSourceRunning()) {
             call.respondText(text = "READY", contentType = ContentType.Text.Plain)
         } else {
             call.respondText(text = "NOTREADY", contentType = ContentType.Text.Plain, status = HttpStatusCode.FailedDependency)
@@ -25,8 +25,13 @@ fun Routing.healthApi() {
 }
 
 private fun isAllConsumersRunning(): Boolean {
-    val allConsumersRunning = Server.infoConsumer.isRunning() &&
+    val allConsumersRunning =
+            Server.infoConsumer.isRunning() &&
             Server.oppgaveConsumer.isRunning() &&
             Server.meldingConsumer.isRunning()
     return allConsumersRunning
+}
+
+fun isDataSourceRunning(): Boolean {
+    return Server.database.dataSource.isRunning
 }
