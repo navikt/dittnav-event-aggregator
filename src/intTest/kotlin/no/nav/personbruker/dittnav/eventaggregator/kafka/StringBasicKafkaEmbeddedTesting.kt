@@ -20,17 +20,17 @@ import org.junit.jupiter.api.Test
  */
 class StringBasicKafkaEmbeddedTesting {
 
-    val topicen = "kafka.topic"
-    val username = "srvkafkaclient"
-    val password = "kafkaclient"
-    val embeddedEnv = KafkaEnvironment(
+    private val topicen = "kafka.topic"
+    private val username = "srvkafkaclient"
+    private val password = "kafkaclient"
+    private val embeddedEnv = KafkaEnvironment(
             topicNames = listOf(topicen),
             withSecurity = true,
             users = listOf(JAASCredential(username, password))
     )
-    val kafkaBrokerUrl = embeddedEnv.brokersURL.substringAfterLast("/")
+    private val kafkaBrokerUrl = embeddedEnv.brokersURL.substringAfterLast("/")
 
-    val events = (1..9).map { "$it" to "event$it" }.toMap()
+    private val events = (1..9).map { "$it" to "event$it" }.toMap()
 
     init {
         embeddedEnv.start()

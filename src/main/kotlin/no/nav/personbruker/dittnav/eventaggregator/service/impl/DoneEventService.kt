@@ -38,15 +38,15 @@ class DoneEventService(
     }
 
     private suspend fun setEventActive(event: Brukernotifikasjon) {
-            when (event.type.toLowerCase()) {
-                OPPGAVE -> {
-                    database.dbQuery { setOppgaveAktiv(event.id, false) }
-                    log.info("Satte Oppgave-event med eventId ${event.id} inaktivt")
-                }
-                INFORMASJON -> {
-                    database.dbQuery{ setInformasjonAktiv(event.id, false) }
-                    log.info("Satte Informasjon-event med eventId ${event.id} inaktivt")
-                }
+        when (event.type.toLowerCase()) {
+            OPPGAVE -> {
+                database.dbQuery { setOppgaveAktiv(event.id, false) }
+                log.info("Satte Oppgave-event med eventId ${event.id} inaktivt")
             }
+            INFORMASJON -> {
+                database.dbQuery{ setInformasjonAktiv(event.id, false) }
+                log.info("Satte Informasjon-event med eventId ${event.id} inaktivt")
+            }
+        }
     }
 }

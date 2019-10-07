@@ -20,6 +20,7 @@ import no.nav.brukernotifikasjon.schemas.Melding
 import no.nav.brukernotifikasjon.schemas.Oppgave
 import no.nav.personbruker.dittnav.eventaggregator.api.healthApi
 import no.nav.personbruker.dittnav.eventaggregator.api.produceEventsApi
+import no.nav.personbruker.dittnav.eventaggregator.database.consumer.CachedDoneEventConsumer
 import no.nav.personbruker.dittnav.eventaggregator.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.database.PostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.kafka.Consumer
@@ -36,6 +37,7 @@ object Server {
     lateinit var meldingConsumer: Consumer<Melding>
     lateinit var oppgaveConsumer: Consumer<Oppgave>
     lateinit var doneConsumer: Consumer<Done>
+    lateinit var cachedDoneEventConsumer: CachedDoneEventConsumer
 
     fun configure(): NettyApplicationEngine {
         DefaultExports.initialize()
@@ -57,6 +59,8 @@ object Server {
         Flyway.runFlywayMigrations(environment)
 
         KafkaConsumerSetup.initializeTheKafkaConsumers(environment)
+        cachedDoneEventConsumer = CachedDoneEventConsumer(database = database)
+        cachedDoneEventConsumer.poll()
 
         addGraceTimeAtShutdownToAllowRunningRequestsToComplete(app)
         return app
@@ -65,6 +69,7 @@ object Server {
     private fun addGraceTimeAtShutdownToAllowRunningRequestsToComplete(app: NettyApplicationEngine) {
         Runtime.getRuntime().addShutdownHook(Thread {
             KafkaConsumerSetup.stopAllKafkaConsumers()
+            cachedDoneEventConsumer.cancel()
             app.stop(5, 60, TimeUnit.SECONDS)
         })
     }

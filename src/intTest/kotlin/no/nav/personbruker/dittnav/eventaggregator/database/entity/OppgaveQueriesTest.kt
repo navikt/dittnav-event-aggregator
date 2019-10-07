@@ -3,23 +3,25 @@ package no.nav.personbruker.dittnav.eventaggregator.database.entity
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.database.H2Database
 import no.nav.personbruker.dittnav.eventaggregator.entity.deleteAllOppgave
+import no.nav.personbruker.dittnav.eventaggregator.entity.deleteOppgaveWithEventId
 import org.amshove.kluent.*
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
 
 class OppgaveQueriesTest {
-    val database = H2Database()
 
-    val aktorId1 = "12345"
-    val aktorId2 = "54321"
+    private val database = H2Database()
 
-    val oppgave1 = OppgaveObjectMother.createOppgave(1, aktorId1)
-    val oppgave2 = OppgaveObjectMother.createOppgave(2, aktorId2)
-    val oppgave3 = OppgaveObjectMother.createOppgave(3, aktorId1)
+    private val aktorId1 = "12345"
+    private val aktorId2 = "54321"
 
-    val allEvents = listOf(oppgave1, oppgave2, oppgave3)
-    val allEventsForSingleUser = listOf(oppgave1, oppgave3)
+    private val oppgave1 = OppgaveObjectMother.createOppgave(1, aktorId1)
+    private val oppgave2 = OppgaveObjectMother.createOppgave(2, aktorId2)
+    private val oppgave3 = OppgaveObjectMother.createOppgave(3, aktorId1)
+
+    private val allEvents = listOf(oppgave1, oppgave2, oppgave3)
+    private val allEventsForSingleUser = listOf(oppgave1, oppgave3)
 
     init {
         runBlocking {
@@ -49,6 +51,18 @@ class OppgaveQueriesTest {
     }
 
     @Test
+    fun `Finner alle aktive cachede Oppgave-eventer`() {
+        runBlocking {
+            val inaktivOppgave = OppgaveObjectMother.createOppgave(5, "12345", false)
+            database.dbQuery { createOppgave(inaktivOppgave) }
+            val result = database.dbQuery { getAllOppgaveByAktiv(true) }
+            result `should contain all` allEvents
+            result `should not contain` inaktivOppgave
+            database.dbQuery { deleteOppgaveWithEventId(inaktivOppgave.eventId) }
+        }
+    }
+
+    @Test
     fun `Finner alle cachede Oppgave-event for aktorId`() {
         runBlocking {
             val result = database.dbQuery { getOppgaveByAktorId(aktorId1) }
@@ -66,7 +80,7 @@ class OppgaveQueriesTest {
     }
 
     @Test
-    fun `Finner cachet Oppgave-event for id`() {
+    fun `Finner cachet Oppgave-event for Id`() {
         runBlocking {
             val result = database.dbQuery { getOppgaveById(2) }
             result `should not be` oppgave2
@@ -74,10 +88,27 @@ class OppgaveQueriesTest {
     }
 
     @Test
-    fun `Kaster exception dersom Oppgave-event med id ikke finnes`() {
+    fun `Kaster exception dersom Oppgave-event med Id ikke finnes`() {
         invoking {
             runBlocking {
                 database.dbQuery { getOppgaveById(-1) }
+            }
+        } shouldThrow SQLException::class `with message` "Found no rows"
+    }
+
+    @Test
+    fun `Finner cachet Oppgave-event med eventId`() {
+        runBlocking {
+            val result = database.dbQuery { getOppgaveByEventId(2) }
+            result `should not be` oppgave2
+        }
+    }
+
+    @Test
+    fun `Kaster exception dersom Oppgave-event med eventId ikke finnes`() {
+        invoking {
+            runBlocking {
+                database.dbQuery { getOppgaveByEventId(-1) }
             }
         } shouldThrow SQLException::class `with message` "Found no rows"
     }

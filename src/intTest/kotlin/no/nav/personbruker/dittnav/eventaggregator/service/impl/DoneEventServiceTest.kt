@@ -17,10 +17,10 @@ import org.junit.jupiter.api.Test
 
 class DoneEventServiceTest {
 
-    val database = H2Database()
-    val doneEventService = DoneEventService(database)
-    val informasjon = InformasjonObjectMother.createInformasjon(1, "12345")
-    val oppgave = OppgaveObjectMother.createOppgave(2, "12345")
+    private val database = H2Database()
+    private val doneEventService = DoneEventService(database)
+    private val informasjon = InformasjonObjectMother.createInformasjon(1, "12345")
+    private val oppgave = OppgaveObjectMother.createOppgave(2, "12345")
 
     init {
         runBlocking {

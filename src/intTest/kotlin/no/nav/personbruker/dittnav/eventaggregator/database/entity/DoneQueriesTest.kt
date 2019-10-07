@@ -11,11 +11,11 @@ import org.junit.jupiter.api.Test
 
 class DoneQueriesTest {
 
-    val database = H2Database()
-    val done1 = DoneObjectMother.createDone("1")
-    val done2 = DoneObjectMother.createDone("2")
-    val done3 = DoneObjectMother.createDone("3")
-    val allEvents = listOf(done1, done2, done3)
+    private val database = H2Database()
+    private val done1 = DoneObjectMother.createDone("1")
+    private val done2 = DoneObjectMother.createDone("2")
+    private val done3 = DoneObjectMother.createDone("3")
+    private val allEvents = listOf(done1, done2, done3)
 
     init {
         runBlocking {

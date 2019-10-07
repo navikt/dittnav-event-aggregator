@@ -40,6 +40,15 @@ fun Connection.setOppgaveAktiv(eventId: String, aktiv: Boolean): Int =
             it.executeUpdate()
         }
 
+fun Connection.getAllOppgaveByAktiv(aktiv: Boolean): List<Oppgave> =
+        prepareStatement("""SELECT * FROM OPPGAVE WHERE aktiv = ?""")
+                .use {
+                    it.setBoolean(1, aktiv)
+                    it.executeQuery().list {
+                        toOppgave()
+                    }
+                }
+
 fun Connection.getOppgaveByAktorId(aktorId: String): List<Oppgave> =
         prepareStatement("""SELECT * FROM OPPGAVE WHERE aktorId = ?""")
                 .use {
@@ -53,6 +62,15 @@ fun Connection.getOppgaveById(id: Int): Oppgave =
         prepareStatement("""SELECT * FROM OPPGAVE WHERE id = ?""")
                 .use {
                     it.setInt(1, id)
+                    it.executeQuery().singleResult {
+                        toOppgave()
+                    }
+                }
+
+fun Connection.getOppgaveByEventId(eventId: Int): Oppgave =
+        prepareStatement("""SELECT * FROM OPPGAVE WHERE eventId = ?""")
+                .use {
+                    it.setInt(1, eventId)
                     it.executeQuery().singleResult {
                         toOppgave()
                     }

@@ -14,12 +14,12 @@ import org.junit.jupiter.api.Test
 
 class BrukernotifikasjonQueriesTest {
 
-    val database = H2Database()
-    val oppgave1 = OppgaveObjectMother.createOppgave(1, "12")
-    val informasjon1 = InformasjonObjectMother.createInformasjon(2, "12")
-    val brukernotifikasjon1 = Brukernotifikasjon("1", "DittNav", OPPGAVE)
-    val brukernotifikasjon2 = Brukernotifikasjon("2", "DittNav", INFORMASJON)
-    val allBrukernotifikasjonEvents = listOf(brukernotifikasjon1, brukernotifikasjon2)
+    private val database = H2Database()
+    private val oppgave1 = OppgaveObjectMother.createOppgave(1, "12")
+    private val informasjon1 = InformasjonObjectMother.createInformasjon(2, "12")
+    private val brukernotifikasjon1 = Brukernotifikasjon("1", "DittNav", OPPGAVE)
+    private val brukernotifikasjon2 = Brukernotifikasjon("2", "DittNav", INFORMASJON)
+    private val allBrukernotifikasjonEvents = listOf(brukernotifikasjon1, brukernotifikasjon2)
 
     init {
         runBlocking {
