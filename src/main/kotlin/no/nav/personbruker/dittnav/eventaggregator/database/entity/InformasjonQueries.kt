@@ -57,7 +57,7 @@ fun Connection.getInformasjonByAktorId(aktorId: String): List<Informasjon> =
                     }
                 }
 
-fun Connection.getInformasjonById(id: Int): Informasjon? =
+fun Connection.getInformasjonById(id: Int): Informasjon =
         prepareStatement("""SELECT * FROM INFORMASJON WHERE id = ?""")
                 .use {
                     it.setInt(1, id)
@@ -66,10 +66,10 @@ fun Connection.getInformasjonById(id: Int): Informasjon? =
                     }
                 }
 
-fun Connection.getInformasjonByEventId(eventId: Int): Informasjon? =
+fun Connection.getInformasjonByEventId(eventId: String): Informasjon =
         prepareStatement("""SELECT * FROM INFORMASJON WHERE eventId = ?""")
                 .use {
-                    it.setInt(1, eventId)
+                    it.setString(1, eventId)
                     it.executeQuery().singleResult() {
                         toInformasjon()
                     }

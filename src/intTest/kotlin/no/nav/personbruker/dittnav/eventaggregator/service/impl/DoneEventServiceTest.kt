@@ -8,9 +8,10 @@ import no.nav.personbruker.dittnav.eventaggregator.database.entity.*
 import no.nav.personbruker.dittnav.eventaggregator.entity.deleteAllInformasjon
 import no.nav.personbruker.dittnav.eventaggregator.entity.deleteAllOppgave
 import no.nav.personbruker.dittnav.eventaggregator.entity.objectmother.InformasjonObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.entity.objectmother.OppgaveObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.schema.objectmother.DoneObjectMother
 import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.shouldBeFalse
+import org.amshove.kluent.`should be false`
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
@@ -19,8 +20,8 @@ class DoneEventServiceTest {
 
     private val database = H2Database()
     private val doneEventService = DoneEventService(database)
-    private val informasjon = InformasjonObjectMother.createInformasjon(1, "12345")
-    private val oppgave = OppgaveObjectMother.createOppgave(2, "12345")
+    private val informasjon = InformasjonObjectMother.createInformasjon("1", "12345")
+    private val oppgave = OppgaveObjectMother.createOppgave("2", "12345")
 
     init {
         runBlocking {
@@ -48,7 +49,7 @@ class DoneEventServiceTest {
         runBlocking {
             val allInformasjon = database.dbQuery { getAllInformasjon() }
             val foundInformasjon = allInformasjon.first { it.eventId == "1" }
-            foundInformasjon.aktiv.`shouldBeFalse`()
+            foundInformasjon.aktiv.`should be false`()
         }
     }
 
@@ -59,7 +60,7 @@ class DoneEventServiceTest {
         runBlocking {
             val allOppgave = database.dbQuery { getAllOppgave() }
             val foundOppgave = allOppgave.first { it.eventId == "2" }
-            foundOppgave.aktiv.`shouldBeFalse`()
+            foundOppgave.aktiv.`should be false`()
         }
     }
 
@@ -68,7 +69,7 @@ class DoneEventServiceTest {
         val record =  ConsumerRecord<String, Done>(Kafka.informasjonTopicName, 1, 1, null, DoneObjectMother.createDone("3"));
         doneEventService.processEvent(record)
         runBlocking {
-            val allDone = database.dbQuery { getAllDone() }
+            val allDone = database.dbQuery { getAllDoneEvent() }
             allDone.size `should be equal to` 1
             allDone.first().eventId `should be equal to` "3"
         }
