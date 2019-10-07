@@ -20,9 +20,9 @@ class DoneQueriesTest {
     init {
         runBlocking {
             database.dbQuery {
-                createDone(done1)
-                createDone(done2)
-                createDone(done3)
+                createDoneEvent(done1)
+                createDoneEvent(done2)
+                createDoneEvent(done3)
             }
         }
     }
@@ -37,7 +37,7 @@ class DoneQueriesTest {
     @Test
     fun `Finner alle cachede Done-eventer`() {
         runBlocking {
-            val result = database.dbQuery { getAllDone() }
+            val result = database.dbQuery { getAllDoneEvent() }
             result.size `should be equal to` 3
             result `should contain all` allEvents
         }

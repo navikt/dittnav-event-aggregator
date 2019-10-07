@@ -104,17 +104,17 @@ class MultipleTopicsConsumerTest {
     }
 
     private fun createInfoConsumer(env: Environment, informasjonEventProcessor: SimpleEventCounterService<Informasjon>): Consumer<Informasjon> {
-        val kafkaProps = Kafka.consumerProps(env, INFORMASJON, true)
+        val kafkaProps = Kafka.consumerProps(env, EventType.INFORMASJON, true)
         return setupConsumerForTheInformasjonTopic(kafkaProps, informasjonEventProcessor)
     }
 
     private fun createOppgaveConsumer(env: Environment, oppgaveEventProcessor: SimpleEventCounterService<Oppgave>): Consumer<Oppgave> {
-        val kafkaProps = Kafka.consumerProps(env, OPPGAVE, true)
+        val kafkaProps = Kafka.consumerProps(env, EventType.OPPGAVE, true)
         return setupConsumerForTheOppgaveTopic(kafkaProps, oppgaveEventProcessor)
     }
 
     private fun createMeldingConsumer(env: Environment, meldingEventProcessor: SimpleEventCounterService<Melding>): Consumer<Melding> {
-        val kafkaProps = Kafka.consumerProps(env, MELDING, true)
+        val kafkaProps = Kafka.consumerProps(env, EventType.MELDING, true)
         return setupConsumerForTheMeldingTopic(kafkaProps, meldingEventProcessor)
     }
 

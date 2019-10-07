@@ -43,7 +43,7 @@ object Kafka {
         }
     }
 
-    fun consumerProps(env: Environment, eventTypeToConsume: String, enableSecurity : Boolean = isCurrentlyRunningOnNais()): Properties {
+    fun consumerProps(env: Environment, eventTypeToConsume: EventType, enableSecurity : Boolean = isCurrentlyRunningOnNais()): Properties {
         val groupIdAndEventType = buildGroupIdIncludingEventType(env, eventTypeToConsume)
         return Properties().apply {
             put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, env.bootstrapServers)
@@ -61,10 +61,10 @@ object Kafka {
         }
     }
 
-    private fun buildGroupIdIncludingEventType(env: Environment, eventTypeToConsume: String) =
-            env.groupId + eventTypeToConsume
+    private fun buildGroupIdIncludingEventType(env: Environment, eventTypeToConsume: EventType) =
+            env.groupId + eventTypeToConsume.eventType
 
-    fun producerProps(env: Environment, eventTypeToConsume: String, enableSecurity : Boolean = isCurrentlyRunningOnNais()): Properties {
+    fun producerProps(env: Environment, eventTypeToConsume: EventType, enableSecurity : Boolean = isCurrentlyRunningOnNais()): Properties {
         val groupIdAndEventType = buildGroupIdIncludingEventType(env, eventTypeToConsume)
         return Properties().apply {
             put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, env.bootstrapServers)

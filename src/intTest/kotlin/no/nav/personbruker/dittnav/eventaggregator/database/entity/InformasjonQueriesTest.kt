@@ -3,7 +3,6 @@ package no.nav.personbruker.dittnav.eventaggregator.database.entity
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.database.H2Database
 import no.nav.personbruker.dittnav.eventaggregator.entity.deleteAllInformasjon
-import no.nav.personbruker.dittnav.eventaggregator.entity.deleteInformasjonWithEventId
 import no.nav.personbruker.dittnav.eventaggregator.entity.objectmother.InformasjonObjectMother
 import org.amshove.kluent.*
 import org.junit.jupiter.api.AfterAll
@@ -14,22 +13,32 @@ class InformasjonQueriesTest {
 
     private val database = H2Database()
 
-    private val informasjon1 = InformasjonObjectMother.createInformasjon(1, "12345")
-    private val informasjon2 = InformasjonObjectMother.createInformasjon(2, "12345")
-    private val informasjon3 = InformasjonObjectMother.createInformasjon(3, "12345")
-    private val informasjon4 = InformasjonObjectMother.createInformasjon(4, "6789")
-    private val allEvents = listOf(informasjon1, informasjon2, informasjon3, informasjon4)
-    private val allEventsForSingleUser = listOf(informasjon1, informasjon2, informasjon3)
+    private val informasjon1: Informasjon
+    private val informasjon2: Informasjon
+    private val informasjon3: Informasjon
+    private val informasjon4: Informasjon
+
+    private val allEvents: List<Informasjon>
+    private val allEventsForSingleUser: List<Informasjon>
 
     init {
+        informasjon1 = createInformasjon("1", "12345")
+        informasjon2 = createInformasjon("2", "12345")
+        informasjon3 = createInformasjon("3", "12345")
+        informasjon4 = createInformasjon("4", "6789")
+        allEvents = listOf(informasjon1, informasjon2, informasjon3, informasjon4)
+        allEventsForSingleUser = listOf(informasjon1, informasjon2, informasjon3)
+    }
+
+    private fun createInformasjon(eventId: String, aktorId: String): Informasjon {
+        var informasjon = InformasjonObjectMother.createInformasjon(eventId, aktorId)
         runBlocking {
             database.dbQuery {
-                createInformasjon(informasjon1)
-                createInformasjon(informasjon2)
-                createInformasjon(informasjon3)
-                createInformasjon(informasjon4)
+                var generatedId = createInformasjon(informasjon)
+                informasjon = informasjon.copy(id=generatedId)
             }
         }
+        return informasjon
     }
 
     @AfterAll
@@ -51,12 +60,11 @@ class InformasjonQueriesTest {
     @Test
     fun `Finner alle aktive cachede Informasjon-eventer`() {
         runBlocking {
-            val inaktivInformasjon = InformasjonObjectMother.createInformasjon(5, "12345", false)
-            database.dbQuery { createInformasjon(inaktivInformasjon) }
+            database.dbQuery { setInformasjonAktiv("2", false) }
             val result = database.dbQuery { getAllInformasjonByAktiv(true) }
-            result `should contain all` allEvents
-            result `should not contain` inaktivInformasjon
-            database.dbQuery { deleteInformasjonWithEventId(inaktivInformasjon.eventId) }
+            result `should contain all` listOf(informasjon1, informasjon3, informasjon4)
+            result `should not contain` informasjon2
+            database.dbQuery { setInformasjonAktiv("2", true) }
         }
     }
 
@@ -97,7 +105,7 @@ class InformasjonQueriesTest {
     @Test
     fun `Finner cachet Informasjon-event med eventId`() {
         runBlocking {
-            val result = database.dbQuery { getInformasjonByEventId(2) }
+            val result = database.dbQuery { getInformasjonByEventId("2") }
             result `should equal` informasjon2
         }
     }
@@ -106,7 +114,7 @@ class InformasjonQueriesTest {
     fun `Kaster Exception hvis Informasjon-event med eventId ikke finnes`() {
         invoking {
             runBlocking {
-                database.dbQuery { getInformasjonByEventId(-1) }
+                database.dbQuery { getInformasjonByEventId("-1") }
             }
         } shouldThrow SQLException::class `with message` "Found no rows"
     }

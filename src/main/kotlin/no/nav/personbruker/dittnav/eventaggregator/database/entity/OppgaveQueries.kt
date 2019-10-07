@@ -67,10 +67,10 @@ fun Connection.getOppgaveById(id: Int): Oppgave =
                     }
                 }
 
-fun Connection.getOppgaveByEventId(eventId: Int): Oppgave =
+fun Connection.getOppgaveByEventId(eventId: String): Oppgave =
         prepareStatement("""SELECT * FROM OPPGAVE WHERE eventId = ?""")
                 .use {
-                    it.setInt(1, eventId)
+                    it.setString(1, eventId)
                     it.executeQuery().singleResult {
                         toOppgave()
                     }

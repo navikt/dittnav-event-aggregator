@@ -8,15 +8,15 @@ import java.sql.Types
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-fun Connection.getAllDone(): List<Done> =
+fun Connection.getAllDoneEvent(): List<Done> =
         prepareStatement("""SELECT * FROM Done""")
                 .use {
                     it.executeQuery().list {
-                        toDone()
+                        toDoneEvent()
                     }
                 }
 
-fun Connection.createDone(done: Done): Int =
+fun Connection.createDoneEvent(done: Done): Int =
         prepareStatement("""INSERT INTO DONE(produsent, eventTidspunkt, aktorid, eventId, dokumentId)
             VALUES (?, ?, ?, ?, ?)""", Statement.RETURN_GENERATED_KEYS).use {
             it.setString(1, done.produsent)
@@ -29,7 +29,7 @@ fun Connection.createDone(done: Done): Int =
             it.generatedKeys.getInt("id")
         }
 
-private fun ResultSet.toDone(): Done {
+private fun ResultSet.toDoneEvent(): Done {
     return Done(
             eventId = getString("eventId"),
             produsent = getString("produsent"),

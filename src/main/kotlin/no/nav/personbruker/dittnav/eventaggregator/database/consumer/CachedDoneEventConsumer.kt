@@ -40,7 +40,7 @@ class CachedDoneEventConsumer(
 
     fun processDoneEvents() {
         runBlocking {
-            val allDone = database.dbQuery { getAllDone() }
+            val allDone = database.dbQuery { getAllDoneEvent() }
             val allAktivInformasjon = database.dbQuery { getAllInformasjonByAktiv(true) }
             val allOppgave = database.dbQuery { getAllOppgave() }
             allDone.forEach { done ->
