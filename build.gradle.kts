@@ -1,3 +1,4 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val prometheusVersion = "0.6.0"
@@ -93,6 +94,7 @@ tasks {
     withType<Test> {
         useJUnitPlatform()
         testLogging {
+            exceptionFormat = TestExceptionFormat.FULL
             events("passed", "skipped", "failed")
         }
     }
