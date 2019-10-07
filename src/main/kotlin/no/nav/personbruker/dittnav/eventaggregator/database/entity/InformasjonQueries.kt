@@ -39,6 +39,15 @@ fun Connection.setInformasjonAktiv(eventId: String, aktiv: Boolean): Int =
             it.executeUpdate()
         }
 
+fun Connection.getAllInformasjonByAktiv(aktiv: Boolean): List<Informasjon> =
+        prepareStatement("""SELECT * FROM INFORMASJON WHERE aktiv = ?""")
+                .use {
+                    it.setBoolean(1,aktiv)
+                    it.executeQuery().list {
+                        toInformasjon()
+                    }
+                }
+
 fun Connection.getInformasjonByAktorId(aktorId: String): List<Informasjon> =
         prepareStatement("""SELECT * FROM INFORMASJON WHERE aktorId = ?""")
                 .use {
@@ -52,6 +61,15 @@ fun Connection.getInformasjonById(id: Int): Informasjon? =
         prepareStatement("""SELECT * FROM INFORMASJON WHERE id = ?""")
                 .use {
                     it.setInt(1, id)
+                    it.executeQuery().singleResult() {
+                        toInformasjon()
+                    }
+                }
+
+fun Connection.getInformasjonByEventId(eventId: Int): Informasjon? =
+        prepareStatement("""SELECT * FROM INFORMASJON WHERE eventId = ?""")
+                .use {
+                    it.setInt(1, eventId)
                     it.executeQuery().singleResult() {
                         toInformasjon()
                     }

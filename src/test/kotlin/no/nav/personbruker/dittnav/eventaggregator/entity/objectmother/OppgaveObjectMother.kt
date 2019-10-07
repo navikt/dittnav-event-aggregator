@@ -6,6 +6,10 @@ import java.time.ZoneId
 object OppgaveObjectMother {
 
     fun createOppgave(i: Int, aktorId: String): Oppgave {
+        return createOppgave(i, aktorId, true)
+    }
+
+    fun createOppgave(i: Int, aktorId: String, aktiv: Boolean): Oppgave {
         return Oppgave(
                 id = i,
                 produsent = "DittNav",
@@ -17,7 +21,7 @@ object OppgaveObjectMother {
                 link = "https://nav.no/systemX/$i",
                 sikkerhetsinvaa = 4,
                 sistOppdatert = LocalDateTime.now(ZoneId.of("Europe/Oslo")),
-                aktiv = true
+                aktiv = aktiv
         )
     }
 }

@@ -7,6 +7,10 @@ import java.time.ZoneId
 object InformasjonObjectMother {
 
     fun createInformasjon(id : Int, aktorId: String): Informasjon {
+        return createInformasjon(id, aktorId, true)
+    }
+
+    fun createInformasjon(id: Int, aktorId: String, aktiv: Boolean): Informasjon {
         return Informasjon(
                 id = id,
                 produsent = "DittNav",
@@ -18,7 +22,6 @@ object InformasjonObjectMother {
                 link = "https://nav.no/systemX/$aktorId",
                 sistOppdatert = LocalDateTime.now(ZoneId.of("Europe/Oslo")),
                 sikkerhetsnivaa = 4,
-                aktiv = true)
+                aktiv = aktiv)
     }
-
 }
