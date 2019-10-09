@@ -6,7 +6,9 @@ import no.nav.brukernotifikasjon.schemas.Informasjon
 import no.nav.brukernotifikasjon.schemas.Melding
 import no.nav.brukernotifikasjon.schemas.Oppgave
 import no.nav.common.KafkaEnvironment
-import no.nav.personbruker.dittnav.eventaggregator.config.*
+import no.nav.personbruker.dittnav.eventaggregator.config.Environment
+import no.nav.personbruker.dittnav.eventaggregator.config.EventType
+import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
 import no.nav.personbruker.dittnav.eventaggregator.config.KafkaConsumerSetup.setupConsumerForTheInformasjonTopic
 import no.nav.personbruker.dittnav.eventaggregator.config.KafkaConsumerSetup.setupConsumerForTheMeldingTopic
 import no.nav.personbruker.dittnav.eventaggregator.config.KafkaConsumerSetup.setupConsumerForTheOppgaveTopic
@@ -71,15 +73,15 @@ class MultipleTopicsConsumerTest {
         val meldingConsumer = createMeldingConsumer(testEnvironment, meldingEventProcessor)
 
         runBlocking {
-            informasjonConsumer.poll()
-            oppgaveConsumer.poll()
-            meldingConsumer.poll()
+            informasjonConsumer.startPolling()
+            oppgaveConsumer.startPolling()
+            meldingConsumer.startPolling()
 
             `Vent til alle eventer har blitt konsumert`()
 
-            informasjonConsumer.cancel()
-            oppgaveConsumer.cancel()
-            meldingConsumer.cancel()
+            informasjonConsumer.stopPolling()
+            oppgaveConsumer.stopPolling()
+            meldingConsumer.stopPolling()
 
             informasjonEvents.size `should be equal to` informasjonEventProcessor.eventCounter
             oppgaveEvents.size `should be equal to` oppgaveEventProcessor.eventCounter

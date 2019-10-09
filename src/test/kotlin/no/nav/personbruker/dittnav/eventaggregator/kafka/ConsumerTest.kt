@@ -34,11 +34,11 @@ class ConsumerTest {
         val consumer: Consumer<Informasjon> = Consumer(topic, kafkaConsumer, eventBatchProcessorService)
 
         runBlocking {
-            consumer.poll()
+            consumer.startPolling()
             delay(30)
         }
         consumer.isRunning() `should be equal to` true
-        consumer.cancel()
+        consumer.stopPolling()
         verify(atLeast = 1) { kafkaConsumer.commitSync() }
     }
 
@@ -51,7 +51,7 @@ class ConsumerTest {
         val consumer: Consumer<Informasjon> = Consumer(topic, kafkaConsumer, eventBatchProcessorService)
 
         runBlocking {
-            consumer.poll()
+            consumer.startPolling()
             delay(10)
             consumer.job.join()
         }
@@ -68,7 +68,7 @@ class ConsumerTest {
         val consumer: Consumer<Informasjon> = Consumer(topic, kafkaConsumer, eventBatchProcessorService)
 
         runBlocking {
-            consumer.poll()
+            consumer.startPolling()
             delay(10)
             consumer.job.join()
         }
@@ -85,7 +85,7 @@ class ConsumerTest {
         val consumer: Consumer<Informasjon> = Consumer(topic, kafkaConsumer, eventBatchProcessorService)
 
         runBlocking {
-            consumer.poll()
+            consumer.startPolling()
             delay(10)
             consumer.job.join()
         }
@@ -101,11 +101,11 @@ class ConsumerTest {
         val consumer: Consumer<Informasjon> = Consumer(topic, kafkaConsumer, eventBatchProcessorService)
 
         runBlocking {
-            consumer.poll()
+            consumer.startPolling()
             `Vent litt for aa bevise at det fortsettes aa polle`()
         }
         consumer.isRunning() `should be equal to` true
-        consumer.cancel()
+        consumer.stopPolling()
         verify(exactly = 0) { kafkaConsumer.commitSync() }
     }
 
@@ -118,11 +118,11 @@ class ConsumerTest {
         val consumer: Consumer<Informasjon> = Consumer(topic, kafkaConsumer, eventBatchProcessorService)
 
         runBlocking {
-            consumer.poll()
+            consumer.startPolling()
             `Vent litt for aa bevise at det fortsettes aa polle`()
         }
         consumer.isRunning() `should be equal to` true
-        consumer.cancel()
+        consumer.stopPolling()
         verify(exactly = 0) { kafkaConsumer.commitSync() }
     }
 

@@ -79,11 +79,11 @@ class EndToEndTestIT {
         val consumer = Consumer(topicen, kafkaConsumer, eventProcessor)
 
         runBlocking {
-            consumer.poll()
+            consumer.startPolling()
 
             `Wait until all events have been written to the database`()
 
-            consumer.cancel()
+            consumer.stopPolling()
         }
     }
 

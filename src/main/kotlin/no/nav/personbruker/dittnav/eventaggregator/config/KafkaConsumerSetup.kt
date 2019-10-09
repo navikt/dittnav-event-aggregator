@@ -34,18 +34,18 @@ object KafkaConsumerSetup {
     }
 
     fun startAllKafkaPollers() {
-        Server.infoConsumer.poll()
-        Server.oppgaveConsumer.poll()
-        Server.meldingConsumer.poll()
-        Server.doneConsumer.poll()
+        Server.infoConsumer.startPolling()
+        Server.oppgaveConsumer.startPolling()
+        Server.meldingConsumer.startPolling()
+        Server.doneConsumer.startPolling()
     }
 
     fun stopAllKafkaConsumers() = runBlocking {
         log.info("Begynner å stoppe kafka-pollerne...")
-        Server.infoConsumer.cancel()
-        Server.oppgaveConsumer.cancel()
-        Server.meldingConsumer.cancel()
-        Server.doneConsumer.cancel()
+        Server.infoConsumer.stopPolling()
+        Server.oppgaveConsumer.stopPolling()
+        Server.meldingConsumer.stopPolling()
+        Server.doneConsumer.stopPolling()
         log.info("...ferdig med å stoppe kafka-pollerne.")
     }
 

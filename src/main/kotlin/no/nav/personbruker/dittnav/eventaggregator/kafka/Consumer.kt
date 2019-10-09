@@ -34,11 +34,11 @@ class Consumer<T>(
         return job.isActive
     }
 
-    fun cancel() {
+    fun stopPolling() {
         job.cancel()
     }
 
-    fun poll() {
+    fun startPolling() {
         launch {
             kafkaConsumer.use { consumer ->
                 consumer.subscribe(listOf(topic))
@@ -67,15 +67,15 @@ class Consumer<T>(
         } catch (ure: UntransformableRecordException) {
             val msg = "Et eller flere eventer kunne ikke transformeres, stopper videre polling. Topic: $topic. \n Bruker appen sisteversjon av brukernotifikasjon-schemas?"
             log.error(msg, ure)
-            cancel()
+            stopPolling()
 
         } catch (ude: UnretriableDatabaseException) {
             log.error("Det skjedde en alvorlig feil mot databasen, stopper videre polling. Topic: $topic", ude)
-            cancel()
+            stopPolling()
 
         } catch (e: Exception) {
             log.error("Noe uventet feilet, stopper polling. Topic: $topic", e)
-            cancel()
+            stopPolling()
         }
     }
 

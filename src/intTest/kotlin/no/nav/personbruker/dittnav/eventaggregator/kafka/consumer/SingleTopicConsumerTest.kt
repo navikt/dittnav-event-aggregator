@@ -51,11 +51,11 @@ class SingleTopicConsumerTest {
         val consumer = Consumer(topicen, kafkaConsumer, eventProcessor)
 
         runBlocking {
-            consumer.poll()
+            consumer.startPolling()
 
             `Vent til alle eventer har blitt konsumert`(eventProcessor)
 
-            consumer.cancel()
+            consumer.stopPolling()
 
             eventProcessor.eventCounter
         } `should be equal to` events.size
