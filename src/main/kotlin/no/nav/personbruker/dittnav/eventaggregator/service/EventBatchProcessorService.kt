@@ -1,9 +1,9 @@
 package no.nav.personbruker.dittnav.eventaggregator.service
 
-import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.apache.kafka.clients.consumer.ConsumerRecords
 
 interface EventBatchProcessorService<T> {
 
-    fun <T> processEvent(event: ConsumerRecord<String, T>)
+    suspend fun processEvents(events: ConsumerRecords<String, T>)
 
 }

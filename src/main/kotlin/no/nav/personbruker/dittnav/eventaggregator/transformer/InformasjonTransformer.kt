@@ -7,7 +7,7 @@ import java.time.ZoneId
 
 class InformasjonTransformer {
 
-    fun toInternal(external: no.nav.brukernotifikasjon.schemas.Informasjon) : Informasjon {
+    fun toInternal(external: no.nav.brukernotifikasjon.schemas.Informasjon): Informasjon {
         val newRecordsAreActiveByDefault = true
         val internal = Informasjon(external.getProdusent(),
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(external.getTidspunkt()), ZoneId.of("Europe/Oslo")),

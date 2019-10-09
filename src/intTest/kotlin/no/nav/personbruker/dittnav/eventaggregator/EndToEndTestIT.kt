@@ -8,6 +8,7 @@ import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
 import no.nav.personbruker.dittnav.eventaggregator.database.H2Database
 import no.nav.personbruker.dittnav.eventaggregator.database.entity.getAllInformasjon
 import no.nav.personbruker.dittnav.eventaggregator.entity.deleteAllRowsInInformasjon
+import no.nav.personbruker.dittnav.eventaggregator.informasjon.InformasjonRepository
 import no.nav.personbruker.dittnav.eventaggregator.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.schema.objectmother.InformasjonObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.service.impl.InformasjonEventService
@@ -70,7 +71,8 @@ class EndToEndTestIT {
     }
 
     fun `Les inn alle eventene og verifiser at de har blitt lagt til i databasen`() {
-        val eventProcessor = InformasjonEventService(database)
+        val informasjonRepository = InformasjonRepository(database)
+        val eventProcessor = InformasjonEventService(informasjonRepository)
         val consumerProps = Kafka.consumerProps(testEnvironment, "informasjon", true)
         val kafkaConsumer = KafkaConsumer<String, Informasjon>(consumerProps)
         val consumer = Consumer(topicen, kafkaConsumer, eventProcessor)

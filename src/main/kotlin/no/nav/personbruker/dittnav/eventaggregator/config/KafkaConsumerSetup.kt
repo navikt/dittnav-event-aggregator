@@ -4,6 +4,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.Informasjon
 import no.nav.brukernotifikasjon.schemas.Melding
 import no.nav.brukernotifikasjon.schemas.Oppgave
+import no.nav.personbruker.dittnav.eventaggregator.informasjon.InformasjonRepository
 import no.nav.personbruker.dittnav.eventaggregator.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.service.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.service.impl.EventToConsoleBatchProcessorService
@@ -43,7 +44,8 @@ object KafkaConsumerSetup {
     }
 
     fun setupConsumerForTheInformasjonTopic(environment: Environment): Consumer<Informasjon> {
-        val eventProcessor = InformasjonEventService(Server.database)
+        val informasjonRepository = InformasjonRepository(Server.database)
+        val eventProcessor = InformasjonEventService(informasjonRepository)
         val kafkaProps = Kafka.consumerProps(environment, "informasjon")
         return setupConsumerForTheInformasjonTopic(kafkaProps, eventProcessor)
     }
