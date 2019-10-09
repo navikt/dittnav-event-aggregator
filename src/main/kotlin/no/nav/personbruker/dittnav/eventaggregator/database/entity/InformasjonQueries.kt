@@ -3,7 +3,8 @@ package no.nav.personbruker.dittnav.eventaggregator.database.entity
 import java.sql.*
 import java.time.LocalDateTime
 import java.time.ZoneId
-
+import no.nav.personbruker.dittnav.eventaggregator.database.util.list
+import no.nav.personbruker.dittnav.eventaggregator.database.util.singleResult
 
 fun Connection.getAllInformasjon(): List<Informasjon> =
         prepareStatement("""SELECT * FROM INFORMASJON""")
@@ -31,19 +32,44 @@ fun Connection.createInformasjon(informasjon: Informasjon): Int =
             it.generatedKeys.getInt("id")
         }
 
-fun Connection.getInformasjonByAktorid(aktorid: String): List<Informasjon> =
-        prepareStatement("""SELECT * FROM INFORMASJON WHERE aktorid = ?""")
+fun Connection.setInformasjonAktiv(eventId: String, aktiv: Boolean): Int =
+        prepareStatement("""UPDATE INFORMASJON SET aktiv = ? WHERE eventId = ?""").use {
+            it.setBoolean(1, aktiv)
+            it.setString(2, eventId)
+            it.executeUpdate()
+        }
+
+fun Connection.getAllInformasjonByAktiv(aktiv: Boolean): List<Informasjon> =
+        prepareStatement("""SELECT * FROM INFORMASJON WHERE aktiv = ?""")
                 .use {
-                    it.setString(1, aktorid)
+                    it.setBoolean(1,aktiv)
                     it.executeQuery().list {
                         toInformasjon()
                     }
                 }
 
-fun Connection.getInformasjonById(id: Int): Informasjon? =
+fun Connection.getInformasjonByAktorId(aktorId: String): List<Informasjon> =
+        prepareStatement("""SELECT * FROM INFORMASJON WHERE aktorId = ?""")
+                .use {
+                    it.setString(1, aktorId)
+                    it.executeQuery().list {
+                        toInformasjon()
+                    }
+                }
+
+fun Connection.getInformasjonById(id: Int): Informasjon =
         prepareStatement("""SELECT * FROM INFORMASJON WHERE id = ?""")
                 .use {
                     it.setInt(1, id)
+                    it.executeQuery().singleResult() {
+                        toInformasjon()
+                    }
+                }
+
+fun Connection.getInformasjonByEventId(eventId: String): Informasjon =
+        prepareStatement("""SELECT * FROM INFORMASJON WHERE eventId = ?""")
+                .use {
+                    it.setString(1, eventId)
                     it.executeQuery().singleResult() {
                         toInformasjon()
                     }
@@ -64,17 +90,3 @@ private fun ResultSet.toInformasjon(): Informasjon {
             aktiv = getBoolean("aktiv")
     )
 }
-
-private fun <T> ResultSet.singleResult(result: ResultSet.() -> T): T =
-        if (next()) {
-            result()
-        } else {
-            throw SQLException("Found no rows")
-        }
-
-private fun <T> ResultSet.list(result: ResultSet.() -> T): List<T> =
-        mutableListOf<T>().apply {
-            while (next()) {
-                add(result())
-            }
-        }

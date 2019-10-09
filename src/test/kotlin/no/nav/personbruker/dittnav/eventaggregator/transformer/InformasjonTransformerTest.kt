@@ -7,7 +7,7 @@ import org.amshove.kluent.`should not be null`
 import org.junit.jupiter.api.Test
 import java.time.ZoneId
 
-internal class InformasjonTransformerTest {
+class InformasjonTransformerTest {
 
     @Test
     fun `should transform form external to internal`() {

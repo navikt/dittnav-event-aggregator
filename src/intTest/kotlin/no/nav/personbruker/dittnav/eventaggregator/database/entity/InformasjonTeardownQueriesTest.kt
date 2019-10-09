@@ -12,9 +12,9 @@ class InformasjonTeardownQueriesTest {
 
     val database = H2Database()
 
-    val informasjon1 = InformasjonObjectMother.createInformasjon(1, "12345")
-    val informasjon2 = InformasjonObjectMother.createInformasjon(2, "12345")
-    val informasjon3 = InformasjonObjectMother.createInformasjon(3, "12345")
+    val informasjon1 = InformasjonObjectMother.createInformasjon("1", "12345")
+    val informasjon2 = InformasjonObjectMother.createInformasjon("2", "12345")
+    val informasjon3 = InformasjonObjectMother.createInformasjon("3", "12345")
 
     @Test
     fun `Verifiser at alle rader i informasjonstabellen slettes`() {

@@ -1,11 +1,9 @@
 package no.nav.personbruker.dittnav.eventaggregator.kafka
 
-import no.nav.brukernotifikasjon.schemas.Informasjon
-import no.nav.brukernotifikasjon.schemas.Melding
-import no.nav.brukernotifikasjon.schemas.Oppgave
+import no.nav.brukernotifikasjon.schemas.*
+import no.nav.personbruker.dittnav.eventaggregator.config.*
 
-import no.nav.personbruker.dittnav.eventaggregator.config.Environment
-import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
+import no.nav.personbruker.dittnav.eventaggregator.config.Kafka.doneTopicName
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka.informasjonTopicName
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka.meldingTopicName
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka.oppgaveTopicName
@@ -17,7 +15,7 @@ import java.time.Instant
 object Producer {
 
     fun produceInformasjonEvent(messagesCount: Int = 1) {
-        KafkaProducer<String, Informasjon>(Kafka.producerProps(Environment(), "informasjon")).use { producer ->
+        KafkaProducer<String, Informasjon>(Kafka.producerProps(Environment(), EventType.INFORMASJON)).use { producer ->
             for (i in 0 until messagesCount) {
                 producer.send(ProducerRecord(informasjonTopicName, createInformasjon(i)))
             }
@@ -25,7 +23,7 @@ object Producer {
     }
 
     fun produceOppgaveEvent(messagesCount: Int = 1) {
-        KafkaProducer<String, Oppgave>(Kafka.producerProps(Environment(), "oppgave")).use { producer ->
+        KafkaProducer<String, Oppgave>(Kafka.producerProps(Environment(), EventType.OPPGAVE)).use { producer ->
             for (i in 0 until messagesCount) {
                 producer.send(ProducerRecord(oppgaveTopicName, createOppgave(i)))
             }
@@ -33,9 +31,17 @@ object Producer {
     }
 
     fun produceMeldingEvent(messagesCount: Int = 1) {
-        KafkaProducer<String, Melding>(Kafka.producerProps(Environment(), "melding")).use { producer ->
+        KafkaProducer<String, Melding>(Kafka.producerProps(Environment(), EventType.MELDING)).use { producer ->
             for (i in 0 until messagesCount) {
                 producer.send(ProducerRecord(meldingTopicName, createMelding(i)))
+            }
+        }
+    }
+
+    fun produceDoneEvent(messagesCount: Int = 1) {
+        KafkaProducer<String, Done>(Kafka.producerProps(Environment(), EventType.DONE)).use { producer ->
+            for (i in 0 until messagesCount) {
+                producer.send(ProducerRecord(doneTopicName, createDone(i)))
             }
         }
     }
@@ -76,6 +82,16 @@ object Producer {
                 .setTekst("Du har fått en ny melding")
                 .setTidspunkt(Instant.now().toEpochMilli())
                 .setSikkerhetsniva(4)
+        return build.build()
+    }
+
+    private fun createDone(i: Int): Done {
+        val build = Done.newBuilder()
+                .setAktorId("12345")
+                .setDokumentId("300$i")
+                .setEventId("$i")
+                .setProdusent("DittNAV")
+                .setTidspunkt(Instant.now().toEpochMilli())
         return build.build()
     }
 }

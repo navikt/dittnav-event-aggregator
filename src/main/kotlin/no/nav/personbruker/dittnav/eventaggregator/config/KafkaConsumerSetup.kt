@@ -1,14 +1,17 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
 import kotlinx.coroutines.runBlocking
+import no.nav.brukernotifikasjon.schemas.Done
 import no.nav.brukernotifikasjon.schemas.Informasjon
 import no.nav.brukernotifikasjon.schemas.Melding
 import no.nav.brukernotifikasjon.schemas.Oppgave
 import no.nav.personbruker.dittnav.eventaggregator.informasjon.InformasjonRepository
 import no.nav.personbruker.dittnav.eventaggregator.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.service.EventBatchProcessorService
+import no.nav.personbruker.dittnav.eventaggregator.service.impl.DoneEventService
 import no.nav.personbruker.dittnav.eventaggregator.service.impl.EventToConsoleBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.service.impl.InformasjonEventService
+import no.nav.personbruker.dittnav.eventaggregator.service.impl.OppgaveEventService
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -27,12 +30,14 @@ object KafkaConsumerSetup {
         Server.infoConsumer = setupConsumerForTheInformasjonTopic(environment)
         Server.oppgaveConsumer = setupConsumerForTheOppgaveTopic(environment)
         Server.meldingConsumer = setupConsumerForTheMeldingTopic(environment)
+        Server.doneConsumer = setupConsumerForTheDoneTopic(environment)
     }
 
     fun startAllKafkaPollers() {
         Server.infoConsumer.poll()
         Server.oppgaveConsumer.poll()
         Server.meldingConsumer.poll()
+        Server.doneConsumer.poll()
     }
 
     fun stopAllKafkaConsumers() = runBlocking {
@@ -40,13 +45,14 @@ object KafkaConsumerSetup {
         Server.infoConsumer.cancel()
         Server.oppgaveConsumer.cancel()
         Server.meldingConsumer.cancel()
+        Server.doneConsumer.cancel()
         log.info("...ferdig med å stoppe kafka-pollerne.")
     }
 
     fun setupConsumerForTheInformasjonTopic(environment: Environment): Consumer<Informasjon> {
         val informasjonRepository = InformasjonRepository(Server.database)
         val eventProcessor = InformasjonEventService(informasjonRepository)
-        val kafkaProps = Kafka.consumerProps(environment, "informasjon")
+        val kafkaProps = Kafka.consumerProps(environment, EventType.INFORMASJON)
         return setupConsumerForTheInformasjonTopic(kafkaProps, eventProcessor)
     }
 
@@ -56,8 +62,8 @@ object KafkaConsumerSetup {
     }
 
     fun setupConsumerForTheOppgaveTopic(environment: Environment): Consumer<Oppgave> {
-        val eventProcessor = EventToConsoleBatchProcessorService<Oppgave>()
-        val kafkaProps = Kafka.consumerProps(environment, "oppgave")
+        val eventProcessor = OppgaveEventService(Server.database)
+        val kafkaProps = Kafka.consumerProps(environment, EventType.OPPGAVE)
         return setupConsumerForTheOppgaveTopic(kafkaProps, eventProcessor)
     }
 
@@ -68,7 +74,7 @@ object KafkaConsumerSetup {
 
     fun setupConsumerForTheMeldingTopic(environment: Environment): Consumer<Melding> {
         val eventProcessor = EventToConsoleBatchProcessorService<Melding>()
-        val kafkaProps = Kafka.consumerProps(environment, "melding")
+        val kafkaProps = Kafka.consumerProps(environment, EventType.MELDING)
         return setupConsumerForTheMeldingTopic(kafkaProps, eventProcessor)
     }
 
@@ -77,4 +83,14 @@ object KafkaConsumerSetup {
         return Consumer(Kafka.meldingTopicName, kafkaConsumer, eventProcessor)
     }
 
+    fun setupConsumerForTheDoneTopic(environment: Environment): Consumer<Done> {
+        val eventProcessor = DoneEventService(Server.database)
+        val kafkaProps = Kafka.consumerProps(environment, EventType.DONE)
+        return setupConsumerForTheDoneTopic(kafkaProps, eventProcessor)
+    }
+
+    fun setupConsumerForTheDoneTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<Done>): Consumer<Done> {
+        val kafkaConsumer = KafkaConsumer<String, Done>(kafkaProps)
+        return Consumer(Kafka.doneTopicName, kafkaConsumer, eventProcessor)
+    }
 }

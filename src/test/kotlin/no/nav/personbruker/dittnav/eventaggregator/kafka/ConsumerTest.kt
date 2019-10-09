@@ -4,10 +4,10 @@ import io.mockk.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.Informasjon
-import no.nav.personbruker.dittnav.eventaggregator.entity.objectmother.ConsumerRecordsObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.exceptions.UnretriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.exceptions.UntransformableRecordException
+import no.nav.personbruker.dittnav.eventaggregator.schema.objectmother.ConsumerRecordsObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.service.EventBatchProcessorService
 import org.amshove.kluent.`should be equal to`
 import org.apache.kafka.clients.consumer.KafkaConsumer

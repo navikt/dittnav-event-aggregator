@@ -23,7 +23,7 @@ object Kafka {
     private val log: Logger = LoggerFactory.getLogger(Kafka::class.java)
 
     // Har midlertidig lag på et -testing postfix på topic-navene, slik at vi ikke ved et uhell kludrer til de reelle topic-ene.
-    val doneTopicName = "aapen-brukernotifikasjon-done-v1-testing" // Ikke opprettet enda.
+    val doneTopicName = "aapen-brukernotifikasjon-done-v1-testing"
     val oppgaveTopicName = "aapen-brukernotifikasjon-nyOppgave-v1-testing"
     val meldingTopicName = "aapen-brukernotifikasjon-nyMelding-v1-testing"
     val informasjonTopicName = "aapen-brukernotifikasjon-nyInformasjon-v1-testing"
@@ -43,7 +43,7 @@ object Kafka {
         }
     }
 
-    fun consumerProps(env: Environment, eventTypeToConsume: String, enableSecurity : Boolean = isCurrentlyRunningOnNais()): Properties {
+    fun consumerProps(env: Environment, eventTypeToConsume: EventType, enableSecurity : Boolean = isCurrentlyRunningOnNais()): Properties {
         val groupIdAndEventType = buildGroupIdIncludingEventType(env, eventTypeToConsume)
         return Properties().apply {
             put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, env.bootstrapServers)
@@ -61,10 +61,10 @@ object Kafka {
         }
     }
 
-    private fun buildGroupIdIncludingEventType(env: Environment, eventTypeToConsume: String) =
-            env.groupId + eventTypeToConsume
+    private fun buildGroupIdIncludingEventType(env: Environment, eventTypeToConsume: EventType) =
+            env.groupId + eventTypeToConsume.eventType
 
-    fun producerProps(env: Environment, eventTypeToConsume: String, enableSecurity : Boolean = isCurrentlyRunningOnNais()): Properties {
+    fun producerProps(env: Environment, eventTypeToConsume: EventType, enableSecurity : Boolean = isCurrentlyRunningOnNais()): Properties {
         val groupIdAndEventType = buildGroupIdIncludingEventType(env, eventTypeToConsume)
         return Properties().apply {
             put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, env.bootstrapServers)

@@ -3,10 +3,10 @@ package no.nav.personbruker.dittnav.eventaggregator.service.impl
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.database.entity.Informasjon
-import no.nav.personbruker.dittnav.eventaggregator.entity.objectmother.ConsumerRecordsObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.entity.objectmother.InformasjonObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.informasjon.InformasjonRepository
+import no.nav.personbruker.dittnav.eventaggregator.schema.objectmother.ConsumerRecordsObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.transformer.InformasjonTransformer
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should throw`
@@ -76,7 +76,7 @@ class InformasjonEventServiceTest {
     private fun createANumberOfTransformedRecords(numberOfRecords: Int): MutableList<Informasjon> {
         val transformedRecords = mutableListOf<Informasjon>()
         for (i in 0 until numberOfRecords) {
-            transformedRecords.add(InformasjonObjectMother.createInformasjon(i, "{$i}12345"))
+            transformedRecords.add(InformasjonObjectMother.createInformasjon("$i", "{$i}12345"))
         }
         return transformedRecords
     }

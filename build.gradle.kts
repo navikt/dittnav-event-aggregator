@@ -1,3 +1,4 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val prometheusVersion = "0.6.0"
@@ -5,7 +6,7 @@ val ktorVersion = "1.1.3"
 val junitVersion = "5.4.1"
 val kafkaVersion = "2.3.0"
 val confluentVersion = "5.3.0"
-val brukernotifikasjonSchemaVersion = "1.2019.08.22-13.39-d4273d3247a3"
+val brukernotifikasjonSchemaVersion = "1.2019.09.18-15.40-702bf58f3569"
 val logstashVersion = 5.2
 val logbackVersion = "1.2.3"
 val vaultJdbcVersion = "1.3.1"
@@ -95,6 +96,7 @@ tasks {
     withType<Test> {
         useJUnitPlatform()
         testLogging {
+            exceptionFormat = TestExceptionFormat.FULL
             events("passed", "skipped", "failed")
         }
     }

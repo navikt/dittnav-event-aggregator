@@ -4,6 +4,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.Informasjon
 import no.nav.common.KafkaEnvironment
+import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
 import no.nav.personbruker.dittnav.eventaggregator.database.H2Database
 import no.nav.personbruker.dittnav.eventaggregator.database.entity.getAllInformasjon
@@ -73,7 +74,7 @@ class EndToEndTestIT {
     fun `Les inn alle eventene og verifiser at de har blitt lagt til i databasen`() {
         val informasjonRepository = InformasjonRepository(database)
         val eventProcessor = InformasjonEventService(informasjonRepository)
-        val consumerProps = Kafka.consumerProps(testEnvironment, "informasjon", true)
+        val consumerProps = Kafka.consumerProps(testEnvironment, EventType.INFORMASJON, true)
         val kafkaConsumer = KafkaConsumer<String, Informasjon>(consumerProps)
         val consumer = Consumer(topicen, kafkaConsumer, eventProcessor)
 
