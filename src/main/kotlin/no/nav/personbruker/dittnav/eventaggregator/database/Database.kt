@@ -12,13 +12,16 @@ interface Database {
 
     val dataSource: HikariDataSource
 
-    suspend fun <T> dbQuery(block: Connection.() -> T): T =
-            dataSource.connection.use {
+    suspend fun <T> dbQuery(operationToExecute: Connection.() -> T): T =
+            dataSource.connection.use { openConnection ->
                 try {
-                    it.block().apply { it.commit() }
+                    openConnection.operationToExecute().apply {
+                        openConnection.commit()
+                    }
+
                 } catch (e: Exception) {
                     try {
-                        it.rollback()
+                        openConnection.rollback()
                     } catch (rollbackException: Exception) {
                         e.addSuppressed(rollbackException)
                     }
@@ -43,7 +46,6 @@ interface Database {
             throw UnretriableDatabaseException(message, se)
 
         } catch (e: Exception) {
-            // Stop alle polle-jobber (disse vil starte igjen nå databasen er tilgjengelig igjen)
             val message = "Det skjedde en ukjent feil ved skriving til databasen."
             throw UnretriableDatabaseException(message, e)
         }
