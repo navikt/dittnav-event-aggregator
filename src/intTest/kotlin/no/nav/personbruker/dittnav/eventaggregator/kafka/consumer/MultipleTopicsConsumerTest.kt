@@ -49,7 +49,7 @@ class MultipleTopicsConsumerTest {
     }
 
     @Test
-    fun `Kafka instansen i minnet har blitt staret`() {
+    fun `Kafka instansen i minnet har blitt startet`() {
         embeddedEnv.serverPark.status `should equal` KafkaEnvironment.ServerParkStatus.Started
     }
 
