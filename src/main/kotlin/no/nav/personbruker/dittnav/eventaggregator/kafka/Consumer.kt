@@ -9,6 +9,7 @@ import no.nav.personbruker.dittnav.eventaggregator.exceptions.RetriableDatabaseE
 import no.nav.personbruker.dittnav.eventaggregator.exceptions.UnretriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.service.EventBatchProcessorService
+import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.errors.RetriableException
 import org.slf4j.Logger
@@ -54,8 +55,8 @@ class Consumer<T>(
         try {
             val records = kafkaConsumer.poll(Duration.of(100, ChronoUnit.MILLIS))
             MESSAGES_SEEN.labels(topic).inc(records.count().toDouble())
-            log.info("Eventer funnet på topic-en: $topic.")
             eventBatchProcessorService.processEvents(records)
+            logDebugOutput(records)
             kafkaConsumer.commitSync()
 
         } catch (rde: RetriableDatabaseException) {
@@ -76,6 +77,12 @@ class Consumer<T>(
         } catch (e: Exception) {
             log.error("Noe uventet feilet, stopper polling. Topic: $topic", e)
             stopPolling()
+        }
+    }
+
+    private fun logDebugOutput(records: ConsumerRecords<String, T>) {
+        if (!records.isEmpty) {
+            log.info("Fant ${records.count()} eventer funnet på topic-en: $topic.")
         }
     }
 
