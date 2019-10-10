@@ -38,7 +38,7 @@ class SingleTopicConsumerTest {
     }
 
     @Test
-    fun `Kafka instansen i minnet har blitt staret`() {
+    fun `Kafka instansen i minnet har blitt startet`() {
         embeddedEnv.serverPark.status `should equal` KafkaEnvironment.ServerParkStatus.Started
     }
 
@@ -51,11 +51,11 @@ class SingleTopicConsumerTest {
         val consumer = Consumer(topicen, kafkaConsumer, eventProcessor)
 
         runBlocking {
-            consumer.poll()
+            consumer.startPolling()
 
             `Vent til alle eventer har blitt konsumert`(eventProcessor)
 
-            consumer.cancel()
+            consumer.stopPolling()
 
             eventProcessor.eventCounter
         } `should be equal to` events.size

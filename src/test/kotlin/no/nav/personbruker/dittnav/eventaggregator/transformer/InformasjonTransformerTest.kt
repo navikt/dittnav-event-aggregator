@@ -13,7 +13,9 @@ class InformasjonTransformerTest {
     fun `should transform form external to internal`() {
         val original = InformasjonObjectMother.createInformasjon(1)
 
-        val transformed = InformasjonTransformer.toInternal(original)
+        val transformer = InformasjonTransformer()
+
+        val transformed = transformer.toInternal(original)
 
         transformed.aktorId `should be equal to` original.getAktorId()
         transformed.dokumentId `should be equal to` original.getDokumentId()

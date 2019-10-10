@@ -18,6 +18,7 @@ val assertJVersion = "3.12.2"
 val kafkaEmvededVersion = "2.2.1"
 val kluentVersion = "1.52"
 val kafkaEmbeddedEnvVersion = "2.1.1"
+val mockkVersion = "1.9.3"
 
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin on the JVM.
@@ -75,6 +76,7 @@ dependencies {
     testImplementation("io.confluent:kafka-schema-registry:$confluentVersion")
     testImplementation("com.h2database:h2:$h2Version")
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
+    testImplementation("io.mockk:mockk:$mockkVersion")
 
     intTestImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
 }

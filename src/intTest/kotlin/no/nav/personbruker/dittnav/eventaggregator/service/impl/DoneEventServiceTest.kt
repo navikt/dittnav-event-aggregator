@@ -9,6 +9,7 @@ import no.nav.personbruker.dittnav.eventaggregator.entity.deleteAllInformasjon
 import no.nav.personbruker.dittnav.eventaggregator.entity.deleteAllOppgave
 import no.nav.personbruker.dittnav.eventaggregator.entity.objectmother.InformasjonObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.entity.objectmother.OppgaveObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.schema.objectmother.ConsumerRecordsObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.schema.objectmother.DoneObjectMother
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be false`
@@ -44,9 +45,10 @@ class DoneEventServiceTest {
 
     @Test
     fun `Setter Informasjon-event inaktivt hvis Done-event mottas`() {
-        val record =  ConsumerRecord<String, Done>(Kafka.informasjonTopicName, 1, 1, null, DoneObjectMother.createDone("1"));
-        doneEventService.processEvent(record)
+        val record = ConsumerRecord<String, Done>(Kafka.informasjonTopicName, 1, 1, null, DoneObjectMother.createDone("1"))
+        val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(record)
         runBlocking {
+            doneEventService.processEvents(records)
             val allInformasjon = database.dbQuery { getAllInformasjon() }
             val foundInformasjon = allInformasjon.first { it.eventId == "1" }
             foundInformasjon.aktiv.`should be false`()
@@ -55,9 +57,10 @@ class DoneEventServiceTest {
 
     @Test
     fun `Setter Oppgave-event inaktivt hvis Done-event mottas`() {
-        val record =  ConsumerRecord<String, Done>(Kafka.oppgaveTopicName, 1, 1, null, DoneObjectMother.createDone("2"));
-        doneEventService.processEvent(record)
+        val record = ConsumerRecord<String, Done>(Kafka.oppgaveTopicName, 1, 1, null, DoneObjectMother.createDone("2"))
+        val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(record)
         runBlocking {
+            doneEventService.processEvents(records)
             val allOppgave = database.dbQuery { getAllOppgave() }
             val foundOppgave = allOppgave.first { it.eventId == "2" }
             foundOppgave.aktiv.`should be false`()
@@ -66,9 +69,10 @@ class DoneEventServiceTest {
 
     @Test
     fun `Lagrer Done-event i cache hvis event med matchende eventId ikke finnes`() {
-        val record =  ConsumerRecord<String, Done>(Kafka.informasjonTopicName, 1, 1, null, DoneObjectMother.createDone("3"));
-        doneEventService.processEvent(record)
+        val record = ConsumerRecord<String, Done>(Kafka.informasjonTopicName, 1, 1, null, DoneObjectMother.createDone("3"))
+        val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(record)
         runBlocking {
+            doneEventService.processEvents(records)
             val allDone = database.dbQuery { getAllDoneEvent() }
             allDone.size `should be equal to` 1
             allDone.first().eventId `should be equal to` "3"

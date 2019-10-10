@@ -7,8 +7,7 @@ import no.nav.personbruker.dittnav.eventaggregator.database.entity.createOppgave
 import no.nav.personbruker.dittnav.eventaggregator.database.entity.getOppgaveById
 import no.nav.personbruker.dittnav.eventaggregator.service.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.transformer.OppgaveTransformer
-import org.apache.kafka.clients.consumer.ConsumerRecord
-
+import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.slf4j.LoggerFactory
 
 class OppgaveEventService(
@@ -17,8 +16,10 @@ class OppgaveEventService(
 
     val log = LoggerFactory.getLogger(OppgaveEventService::class.java)
 
-    override fun <T> processEvent(event: ConsumerRecord<String, T>) {
-        storeEventInCache(event.value() as Oppgave)
+    override suspend fun processEvents(events: ConsumerRecords<String, Oppgave>) {
+        events.forEach { event ->
+            storeEventInCache(event.value() as Oppgave)
+        }
     }
 
     private fun storeEventInCache(event: Oppgave) {

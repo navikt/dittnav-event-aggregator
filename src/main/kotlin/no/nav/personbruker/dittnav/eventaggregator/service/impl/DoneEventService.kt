@@ -8,6 +8,7 @@ import no.nav.personbruker.dittnav.eventaggregator.database.entity.*
 import no.nav.personbruker.dittnav.eventaggregator.service.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.transformer.DoneTransformer
 import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -15,10 +16,12 @@ class DoneEventService(
         val database: Database
 ) : EventBatchProcessorService<Done> {
 
-    private val log : Logger = LoggerFactory.getLogger(DoneEventService::class.java)
+    private val log: Logger = LoggerFactory.getLogger(DoneEventService::class.java)
 
-    override fun <T> processEvent(event: ConsumerRecord<String, T>) {
-        processDoneEvent(event.value() as Done)
+    override suspend fun processEvents(events: ConsumerRecords<String, Done>) {
+        events.forEach { event ->
+            processDoneEvent(event.value() as Done)
+        }
     }
 
     private fun processDoneEvent(event: Done) {
@@ -43,7 +46,7 @@ class DoneEventService(
                 log.info("Satte Oppgave-event med eventId ${event.id} inaktivt")
             }
             EventType.INFORMASJON -> {
-                database.dbQuery{ setInformasjonAktiv(event.id, false) }
+                database.dbQuery { setInformasjonAktiv(event.id, false) }
                 log.info("Satte Informasjon-event med eventId ${event.id} inaktivt")
             }
         }

@@ -1,33 +1,45 @@
 package no.nav.personbruker.dittnav.eventaggregator.service.impl
 
-import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.Informasjon
-import no.nav.personbruker.dittnav.eventaggregator.database.Database
-import no.nav.personbruker.dittnav.eventaggregator.database.entity.createInformasjon
-import no.nav.personbruker.dittnav.eventaggregator.database.entity.getInformasjonById
+import no.nav.personbruker.dittnav.eventaggregator.exceptions.UntransformableRecordException
+import no.nav.personbruker.dittnav.eventaggregator.informasjon.InformasjonRepository
 import no.nav.personbruker.dittnav.eventaggregator.service.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.transformer.InformasjonTransformer
 import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class InformasjonEventService(
-        val database: Database
+        private val informasjonRepository: InformasjonRepository,
+        private val informasjonTransformer: InformasjonTransformer = InformasjonTransformer()
 ) : EventBatchProcessorService<Informasjon> {
 
-    private val log : Logger = LoggerFactory.getLogger(InformasjonEventService::class.java)
+    private val log: Logger = LoggerFactory.getLogger(InformasjonEventService::class.java)
 
-    override fun <T> processEvent(event: ConsumerRecord<String, T>) {
-        storeEventInCache(event.value() as Informasjon)
+    override suspend fun processEvents(events: ConsumerRecords<String, Informasjon>) {
+        val successfullyTransformedEvents = mutableListOf<no.nav.personbruker.dittnav.eventaggregator.database.entity.Informasjon>()
+        val problematicEvents = mutableListOf<ConsumerRecord<String, Informasjon>>()
+        events.forEach { event ->
+            try {
+                val internalEvent = informasjonTransformer.toInternal(event.value())
+                successfullyTransformedEvents.add(internalEvent)
+
+            } catch (e: Exception) {
+                problematicEvents.add(event)
+                log.warn("Transformasjon av event fra Kafka feilet, fullfører batch-en før pollig stoppes.", e)
+            }
+        }
+        informasjonRepository.writeEventsToCache(successfullyTransformedEvents)
+        kastExceptionHvisMislykkedeTransformasjoner(problematicEvents)
     }
 
-    private fun storeEventInCache(event: Informasjon) {
-        val entity = InformasjonTransformer.toInternal(event)
-        log.info("Skal skrive entitet til databasen: $entity")
-        runBlocking {
-            val entityID = database.dbQuery { createInformasjon(entity) }
-            val fetchedRow = database.dbQuery { getInformasjonById(entityID) }
-            log.info("Ny rad hentet fra databasen: $fetchedRow")
+    private fun kastExceptionHvisMislykkedeTransformasjoner(problematicEvents: MutableList<ConsumerRecord<String, Informasjon>>) {
+        if (problematicEvents.isNotEmpty()) {
+            val message = "En eller flere eventer kunne ikke transformeres"
+            val exception = UntransformableRecordException(message)
+            exception.addContext("antallMislykkedeTransformasjoner", problematicEvents.size)
+            throw exception
         }
     }
 

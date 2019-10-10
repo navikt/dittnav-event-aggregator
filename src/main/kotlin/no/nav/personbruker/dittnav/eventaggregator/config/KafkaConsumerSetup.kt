@@ -5,6 +5,7 @@ import no.nav.brukernotifikasjon.schemas.Done
 import no.nav.brukernotifikasjon.schemas.Informasjon
 import no.nav.brukernotifikasjon.schemas.Melding
 import no.nav.brukernotifikasjon.schemas.Oppgave
+import no.nav.personbruker.dittnav.eventaggregator.informasjon.InformasjonRepository
 import no.nav.personbruker.dittnav.eventaggregator.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.service.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.service.impl.DoneEventService
@@ -33,23 +34,24 @@ object KafkaConsumerSetup {
     }
 
     fun startAllKafkaPollers() {
-        Server.infoConsumer.poll()
-        Server.oppgaveConsumer.poll()
-        Server.meldingConsumer.poll()
-        Server.doneConsumer.poll()
+        Server.infoConsumer.startPolling()
+        Server.oppgaveConsumer.startPolling()
+        Server.meldingConsumer.startPolling()
+        Server.doneConsumer.startPolling()
     }
 
     fun stopAllKafkaConsumers() = runBlocking {
         log.info("Begynner å stoppe kafka-pollerne...")
-        Server.infoConsumer.cancel()
-        Server.oppgaveConsumer.cancel()
-        Server.meldingConsumer.cancel()
-        Server.doneConsumer.cancel()
+        Server.infoConsumer.stopPolling()
+        Server.oppgaveConsumer.stopPolling()
+        Server.meldingConsumer.stopPolling()
+        Server.doneConsumer.stopPolling()
         log.info("...ferdig med å stoppe kafka-pollerne.")
     }
 
     fun setupConsumerForTheInformasjonTopic(environment: Environment): Consumer<Informasjon> {
-        val eventProcessor = InformasjonEventService(Server.database)
+        val informasjonRepository = InformasjonRepository(Server.database)
+        val eventProcessor = InformasjonEventService(informasjonRepository)
         val kafkaProps = Kafka.consumerProps(environment, EventType.INFORMASJON)
         return setupConsumerForTheInformasjonTopic(kafkaProps, eventProcessor)
     }

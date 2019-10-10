@@ -3,6 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.database.entity
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.database.H2Database
 import no.nav.personbruker.dittnav.eventaggregator.entity.deleteAllInformasjon
+import no.nav.personbruker.dittnav.eventaggregator.entity.deleteAllRowsInInformasjon
 import no.nav.personbruker.dittnav.eventaggregator.entity.objectmother.InformasjonObjectMother
 import org.amshove.kluent.*
 import org.junit.jupiter.api.AfterAll
@@ -35,7 +36,7 @@ class InformasjonQueriesTest {
         runBlocking {
             database.dbQuery {
                 var generatedId = createInformasjon(informasjon)
-                informasjon = informasjon.copy(id=generatedId)
+                informasjon = informasjon.copy(id = generatedId)
             }
         }
         return informasjon
@@ -45,6 +46,15 @@ class InformasjonQueriesTest {
     fun tearDown() {
         runBlocking {
             database.dbQuery { deleteAllInformasjon() }
+        }
+    }
+
+    @AfterAll
+    fun `tear down`() {
+        runBlocking {
+            database.dbQuery {
+                deleteAllRowsInInformasjon()
+            }
         }
     }
 
