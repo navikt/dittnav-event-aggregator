@@ -1,9 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.informasjon
 
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.database.Database
-import no.nav.personbruker.dittnav.eventaggregator.database.entity.Informasjon
-import no.nav.personbruker.dittnav.eventaggregator.database.entity.createInformasjon
+import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 
 class InformasjonRepository(private val database: Database) {
 

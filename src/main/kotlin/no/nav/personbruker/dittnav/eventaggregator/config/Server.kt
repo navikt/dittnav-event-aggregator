@@ -18,12 +18,19 @@ import no.nav.brukernotifikasjon.schemas.Done
 import no.nav.brukernotifikasjon.schemas.Informasjon
 import no.nav.brukernotifikasjon.schemas.Melding
 import no.nav.brukernotifikasjon.schemas.Oppgave
-import no.nav.personbruker.dittnav.eventaggregator.api.healthApi
-import no.nav.personbruker.dittnav.eventaggregator.api.produceEventsApi
-import no.nav.personbruker.dittnav.eventaggregator.database.consumer.CachedDoneEventConsumer
-import no.nav.personbruker.dittnav.eventaggregator.database.Database
-import no.nav.personbruker.dittnav.eventaggregator.database.PostgresDatabase
-import no.nav.personbruker.dittnav.eventaggregator.kafka.Consumer
+import no.nav.personbruker.dittnav.eventaggregator.common.api.healthApi
+import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
+import no.nav.personbruker.dittnav.eventaggregator.common.database.PostgresDatabase
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
+import no.nav.personbruker.dittnav.eventaggregator.done.CachedDoneEventConsumer
+import no.nav.personbruker.dittnav.eventaggregator.done.DoneProducer
+import no.nav.personbruker.dittnav.eventaggregator.done.doneEventsApi
+import no.nav.personbruker.dittnav.eventaggregator.informasjon.InformasjonProducer
+import no.nav.personbruker.dittnav.eventaggregator.informasjon.informasjonEventsApi
+import no.nav.personbruker.dittnav.eventaggregator.melding.MeldingProducer
+import no.nav.personbruker.dittnav.eventaggregator.melding.meldingEventsApi
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveProducer
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.oppgaveEventsApi
 import java.util.concurrent.TimeUnit
 
 object Server {
@@ -45,7 +52,10 @@ object Server {
             install(DefaultHeaders)
             routing {
                 healthApi()
-                produceEventsApi()
+                doneEventsApi(DoneProducer)
+                informasjonEventsApi(InformasjonProducer)
+                oppgaveEventsApi(OppgaveProducer)
+                meldingEventsApi(MeldingProducer)
                 get("/metrics") {
                     val names = call.request.queryParameters.getAll("name")?.toSet() ?: emptySet()
                     call.respondTextWriter(ContentType.parse(TextFormat.CONTENT_TYPE_004), HttpStatusCode.OK) {
