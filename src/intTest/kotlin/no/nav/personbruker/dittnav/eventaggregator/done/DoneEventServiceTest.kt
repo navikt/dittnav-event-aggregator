@@ -42,6 +42,7 @@ class DoneEventServiceTest {
             database.dbQuery {
                 deleteAllOppgave()
                 deleteAllInformasjon()
+                deleteAllDone()
             }
         }
     }
