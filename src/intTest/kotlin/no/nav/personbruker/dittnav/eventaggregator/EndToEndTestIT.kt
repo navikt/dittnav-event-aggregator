@@ -4,16 +4,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.Informasjon
 import no.nav.common.KafkaEnvironment
+import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
+import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util.KafkaTestUtil
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
-import no.nav.personbruker.dittnav.eventaggregator.database.H2Database
-import no.nav.personbruker.dittnav.eventaggregator.database.entity.getAllInformasjon
-import no.nav.personbruker.dittnav.eventaggregator.entity.deleteAllRowsInInformasjon
-import no.nav.personbruker.dittnav.eventaggregator.informasjon.InformasjonRepository
-import no.nav.personbruker.dittnav.eventaggregator.kafka.Consumer
-import no.nav.personbruker.dittnav.eventaggregator.schema.objectmother.InformasjonObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.service.impl.InformasjonEventService
-import no.nav.personbruker.dittnav.eventaggregator.util.KafkaTestUtil
+import no.nav.personbruker.dittnav.eventaggregator.informasjon.*
 import org.amshove.kluent.`should equal`
 import org.amshove.kluent.shouldEqualTo
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -30,7 +26,7 @@ class EndToEndTestIT {
 
     val adminClient = embeddedEnv.adminClient
 
-    val events = (1..10).map { "$it" to InformasjonObjectMother.createInformasjon(it) }.toMap()
+    val events = (1..10).map { "$it" to AvroInformasjonObjectMother.createInformasjon(it) }.toMap()
 
     init {
         embeddedEnv.start()

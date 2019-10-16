@@ -5,13 +5,13 @@ import no.nav.brukernotifikasjon.schemas.Done
 import no.nav.brukernotifikasjon.schemas.Informasjon
 import no.nav.brukernotifikasjon.schemas.Melding
 import no.nav.brukernotifikasjon.schemas.Oppgave
+import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
+import no.nav.personbruker.dittnav.eventaggregator.common.EventToConsoleBatchProcessorService
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
+import no.nav.personbruker.dittnav.eventaggregator.done.DoneEventService
+import no.nav.personbruker.dittnav.eventaggregator.informasjon.InformasjonEventService
 import no.nav.personbruker.dittnav.eventaggregator.informasjon.InformasjonRepository
-import no.nav.personbruker.dittnav.eventaggregator.kafka.Consumer
-import no.nav.personbruker.dittnav.eventaggregator.service.EventBatchProcessorService
-import no.nav.personbruker.dittnav.eventaggregator.service.impl.DoneEventService
-import no.nav.personbruker.dittnav.eventaggregator.service.impl.EventToConsoleBatchProcessorService
-import no.nav.personbruker.dittnav.eventaggregator.service.impl.InformasjonEventService
-import no.nav.personbruker.dittnav.eventaggregator.service.impl.OppgaveEventService
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveEventService
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -19,7 +19,7 @@ import java.util.*
 
 object KafkaConsumerSetup {
 
-    private val log : Logger = LoggerFactory.getLogger(KafkaConsumerSetup::class.java)
+    private val log: Logger = LoggerFactory.getLogger(KafkaConsumerSetup::class.java)
 
     fun initializeTheKafkaConsumers(environment: Environment) {
         initKafkaConsumers(environment)
