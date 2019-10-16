@@ -6,16 +6,16 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.response.respondText
 import io.ktor.routing.Routing
 import io.ktor.routing.get
-import no.nav.personbruker.dittnav.eventaggregator.config.Server
+import no.nav.personbruker.dittnav.eventaggregator.config.ApplicationContext
 
-fun Routing.healthApi() {
+fun Routing.healthApi(appContext: ApplicationContext) {
 
     get("/isAlive") {
         call.respondText(text = "ALIVE", contentType = ContentType.Text.Plain)
     }
 
     get("/isReady") {
-        if (isAllConsumersRunning() && isDataSourceRunning()) {
+        if (isAllConsumersRunning(appContext) && isDataSourceRunning(appContext)) {
             call.respondText(text = "READY", contentType = ContentType.Text.Plain)
         } else {
             call.respondText(text = "NOTREADY", contentType = ContentType.Text.Plain, status = HttpStatusCode.FailedDependency)
@@ -24,14 +24,14 @@ fun Routing.healthApi() {
 
 }
 
-private fun isAllConsumersRunning(): Boolean {
+private fun isAllConsumersRunning(appContext: ApplicationContext): Boolean {
     val allConsumersRunning =
-            Server.infoConsumer.isRunning() &&
-            Server.oppgaveConsumer.isRunning() &&
-            Server.meldingConsumer.isRunning()
+            appContext.infoConsumer.isRunning() &&
+            appContext.oppgaveConsumer.isRunning() &&
+            appContext.meldingConsumer.isRunning()
     return allConsumersRunning
 }
 
-fun isDataSourceRunning(): Boolean {
-    return Server.database.dataSource.isRunning
+fun isDataSourceRunning(appContext: ApplicationContext): Boolean {
+    return appContext.database.dataSource.isRunning
 }

@@ -13,8 +13,8 @@ import java.time.temporal.ChronoUnit
 import kotlin.coroutines.CoroutineContext
 
 class CachedDoneEventConsumer(
-        val job: Job = Job(),
-        val database: Database
+        val database: Database,
+        val job: Job = Job()
 ): CoroutineScope {
 
     private val log: Logger = LoggerFactory.getLogger(CachedDoneEventConsumer::class.java)
