@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test
 class CachedDoneEventCosumerTest {
 
     private val database = H2Database()
-    private val eventConsumer = CachedDoneEventConsumer(database = database)
+    private val eventConsumer = CachedDoneEventConsumer(database)
 
     private val informasjon1 = InformasjonObjectMother.createInformasjon("1", "12345")
     private val oppgave1 = OppgaveObjectMother.createOppgave("2", "12345")
