@@ -13,6 +13,9 @@ DittNAV (frontend).
 4. Produser et informasjonsevent ved å gjøre en `post` mot endepunktet `http://localhost:8080/produce/informasjon`, 
 f.eks. ´curl -X POST -v http://localhost:8080/produce/informasjon´
 
+# Feilsøking
+For å være sikker på at man får en ny tom database og tomme kafka-topics kan man kjøre kommandoen: `docker-compose down -v`
+
 # Henvendelser
 
 Spørsmål knyttet til koden eller prosjektet kan rettes mot https://github.com/orgs/navikt/teams/personbruker

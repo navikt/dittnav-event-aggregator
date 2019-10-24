@@ -2,8 +2,7 @@ version: '3.7'
 services:
 
   postgres:
-    image: "postgres:11"
-    restart: "always"
+    image: "postgres:11.5"
     volumes:
       - "dittnav-event-cache-data:/var/lib/postgresql/data"
     ports:
@@ -14,7 +13,7 @@ services:
       POSTGRES_DB: "dittnav-event-cache-preprod"
 
   kafka:
-    image: landoop/fast-data-dev:2.2.0
+    image: "landoop/fast-data-dev:2.2.0"
     ports:
       - "3030:3030"
       - "9092:9092"
