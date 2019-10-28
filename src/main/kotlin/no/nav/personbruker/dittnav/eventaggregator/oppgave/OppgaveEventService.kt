@@ -11,7 +11,7 @@ class OppgaveEventService(
         val database: Database
 ) : EventBatchProcessorService<Oppgave> {
 
-    val log = LoggerFactory.getLogger(OppgaveEventService::class.java)
+    private val log = LoggerFactory.getLogger(OppgaveEventService::class.java)
 
     override suspend fun processEvents(events: ConsumerRecords<String, Oppgave>) {
         events.forEach { event ->
