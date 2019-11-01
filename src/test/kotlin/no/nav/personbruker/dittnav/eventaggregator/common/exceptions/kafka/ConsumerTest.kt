@@ -24,7 +24,7 @@ class ConsumerTest {
 
     @BeforeEach
     fun clearMocks() {
-        clearMocks(kafkaConsumer)
+        clearMocks(kafkaConsumer, eventBatchProcessorService)
     }
 
     @Test
@@ -121,6 +121,22 @@ class ConsumerTest {
         runBlocking {
             consumer.startPolling()
             `Vent litt for aa bevise at det fortsettes aa polle`()
+        }
+        consumer.isRunning() `should be equal to` true
+        consumer.stopPolling()
+        verify(exactly = 0) { kafkaConsumer.commitSync() }
+    }
+
+    @Test
+    fun `Skal alltid commit-e mot kafka hvis event-er har blitt funnet`() {
+        val topic = "dummyTopicNoRecordsFound"
+        every { kafkaConsumer.poll(any<Duration>()) } returns ConsumerRecordsObjectMother.giveMeANumberOfInformationRecords(0, topic)
+
+        val consumer: Consumer<Informasjon> = Consumer(topic, kafkaConsumer, eventBatchProcessorService)
+
+        runBlocking {
+            consumer.startPolling()
+            delay(30)
         }
         consumer.isRunning() `should be equal to` true
         consumer.stopPolling()

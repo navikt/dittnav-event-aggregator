@@ -57,7 +57,9 @@ class Consumer<T>(
             MESSAGES_SEEN.labels(topic).inc(records.count().toDouble())
             eventBatchProcessorService.processEvents(records)
             logDebugOutput(records)
-            kafkaConsumer.commitSync()
+            if (isEventsFound(records)) {
+                kafkaConsumer.commitSync()
+            }
 
         } catch (rde: RetriableDatabaseException) {
             log.warn("Klarte ikke å skrive til databasen, prøver igjen senrere. Topic: $topic", rde)
@@ -79,6 +81,8 @@ class Consumer<T>(
             stopPolling()
         }
     }
+
+    private fun isEventsFound(records: ConsumerRecords<String, T>) = records.count() > 0
 
     private fun logDebugOutput(records: ConsumerRecords<String, T>) {
         if (!records.isEmpty) {
