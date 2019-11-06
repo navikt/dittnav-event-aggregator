@@ -6,12 +6,13 @@ import no.nav.brukernotifikasjon.schemas.Informasjon
 import no.nav.brukernotifikasjon.schemas.Melding
 import no.nav.brukernotifikasjon.schemas.Oppgave
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
-import no.nav.personbruker.dittnav.eventaggregator.common.EventToConsoleBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneEventService
 import no.nav.personbruker.dittnav.eventaggregator.informasjon.InformasjonEventService
 import no.nav.personbruker.dittnav.eventaggregator.informasjon.InformasjonRepository
+import no.nav.personbruker.dittnav.eventaggregator.melding.MeldingEventService
+import no.nav.personbruker.dittnav.eventaggregator.melding.MeldingRepository
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveEventService
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.Logger
@@ -63,7 +64,8 @@ object KafkaConsumerSetup {
     }
 
     fun setupConsumerForTheMeldingTopic(environment: Environment, database: Database): Consumer<Melding> {
-        val eventProcessor = EventToConsoleBatchProcessorService<Melding>()
+        val meldingRepository = MeldingRepository(database)
+        val eventProcessor = MeldingEventService(meldingRepository)
         val kafkaProps = Kafka.consumerProps(environment, EventType.MELDING)
         return setupConsumerForTheMeldingTopic(kafkaProps, eventProcessor)
     }

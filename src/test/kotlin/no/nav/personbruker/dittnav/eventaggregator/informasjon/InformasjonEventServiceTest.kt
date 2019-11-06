@@ -7,18 +7,24 @@ import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.objectmothe
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should throw`
 import org.amshove.kluent.invoking
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class InformasjonEventServiceTest {
 
-    private val transformer = mockk<InformasjonTransformer>(relaxed = true)
     private val informasjonRepository = mockk<InformasjonRepository>(relaxed = true)
-    private val eventService = InformasjonEventService(informasjonRepository, transformer)
+    private val eventService = InformasjonEventService(informasjonRepository)
 
     @BeforeEach
     private fun resetMocks() {
-        clearMocks(transformer, informasjonRepository)
+        mockkObject(InformasjonTransformer)
+        clearMocks(informasjonRepository)
+    }
+
+    @AfterAll
+    private fun cleanUp() {
+        unmockkAll()
     }
 
     @Test
@@ -32,11 +38,11 @@ class InformasjonEventServiceTest {
             eventService.processEvents(records)
         }
 
-        verify(exactly = records.count()) { transformer.toInternal(any()) }
+        verify(exactly = records.count()) { InformasjonTransformer.toInternal(any()) }
         coVerify(exactly = 1) { informasjonRepository.writeEventsToCache(allAny()) }
         capturedListOfEntities.captured.size `should be` records.count()
 
-        confirmVerified(transformer)
+        confirmVerified(InformasjonTransformer)
         confirmVerified(informasjonRepository)
     }
 
@@ -53,7 +59,7 @@ class InformasjonEventServiceTest {
         coEvery { informasjonRepository.writeEventsToCache(capture(capturedListOfEntities)) } returns Unit
 
         val retriableExp = UntransformableRecordException("Simulert feil i en test")
-        every { transformer.toInternal(any()) } throws retriableExp andThenMany transformedRecords
+        every { InformasjonTransformer.toInternal(any()) } throws retriableExp andThenMany transformedRecords
 
         invoking {
             runBlocking {
@@ -61,11 +67,11 @@ class InformasjonEventServiceTest {
             }
         } `should throw` UntransformableRecordException::class
 
-        coVerify(exactly = totalNumberOfRecords) { transformer.toInternal(any()) }
+        coVerify(exactly = totalNumberOfRecords) { InformasjonTransformer.toInternal(any()) }
         coVerify(exactly = 1) { informasjonRepository.writeEventsToCache(allAny()) }
         capturedListOfEntities.captured.size `should be` numberOfSuccessfulTransformations
 
-        confirmVerified(transformer)
+        confirmVerified(InformasjonTransformer)
         confirmVerified(informasjonRepository)
     }
 

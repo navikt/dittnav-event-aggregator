@@ -1,14 +1,15 @@
-package no.nav.personbruker.dittnav.eventaggregator.informasjon
+package no.nav.personbruker.dittnav.eventaggregator.melding
 
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-object InformasjonTransformer {
+object MeldingTransformer {
 
-    fun toInternal(external: no.nav.brukernotifikasjon.schemas.Informasjon): Informasjon {
+    fun toInternal(external: no.nav.brukernotifikasjon.schemas.Melding): Melding {
         val newRecordsAreActiveByDefault = true
-        val internal = Informasjon(external.getProdusent(),
+        return Melding(
+                external.getProdusent(),
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(external.getTidspunkt()), ZoneId.of("Europe/Oslo")),
                 external.getAktorId(),
                 external.getEventId(),
@@ -16,10 +17,8 @@ object InformasjonTransformer {
                 external.getTekst(),
                 external.getLink(),
                 external.getSikkerhetsnivaa(),
-                LocalDateTime.now(),
                 newRecordsAreActiveByDefault
         )
-        return internal
     }
 
 }

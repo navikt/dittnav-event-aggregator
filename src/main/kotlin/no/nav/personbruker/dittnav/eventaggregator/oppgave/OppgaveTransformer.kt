@@ -16,7 +16,7 @@ object OppgaveTransformer {
                 external.getDokumentId(),
                 external.getTekst(),
                 external.getLink(),
-                external.getSikkerhetsniva(),
+                external.getSikkerhetsnivaa(),
                 LocalDateTime.now(),
                 newRecordsAreActiveByDefault
         )

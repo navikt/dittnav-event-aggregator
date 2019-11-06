@@ -9,8 +9,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class InformasjonEventService(
-        private val informasjonRepository: InformasjonRepository,
-        private val informasjonTransformer: InformasjonTransformer = InformasjonTransformer()
+        private val informasjonRepository: InformasjonRepository
 ) : EventBatchProcessorService<Informasjon> {
 
     private val log: Logger = LoggerFactory.getLogger(InformasjonEventService::class.java)
@@ -20,7 +19,7 @@ class InformasjonEventService(
         val problematicEvents = mutableListOf<ConsumerRecord<String, Informasjon>>()
         events.forEach { event ->
             try {
-                val internalEvent = informasjonTransformer.toInternal(event.value())
+                val internalEvent = InformasjonTransformer.toInternal(event.value())
                 successfullyTransformedEvents.add(internalEvent)
 
             } catch (e: Exception) {

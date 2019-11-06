@@ -12,17 +12,14 @@ class InformasjonTransformerTest {
     fun `should transform form external to internal`() {
         val original = AvroInformasjonObjectMother.createInformasjon(1)
 
-        val transformer = InformasjonTransformer()
+        val transformed = InformasjonTransformer.toInternal(original)
 
-        val transformed = transformer.toInternal(original)
-
-        transformed.aktorId `should be equal to` original.getAktorId()
         transformed.dokumentId `should be equal to` original.getDokumentId()
         transformed.eventId `should be equal to` original.getEventId()
         transformed.link `should be equal to` original.getLink()
         transformed.tekst `should be equal to` original.getTekst()
         transformed.produsent `should be equal to` original.getProdusent()
-        transformed.sikkerhetsnivaa `should be equal to` original.getSikkerhetsniva()
+        transformed.sikkerhetsnivaa `should be equal to` original.getSikkerhetsnivaa()
 
         val transformedEventTidspunktAsLong = transformed.eventTidspunkt.atZone(ZoneId.of("Europe/Oslo")).toInstant().toEpochMilli()
         transformedEventTidspunktAsLong `should be equal to` original.getTidspunkt()

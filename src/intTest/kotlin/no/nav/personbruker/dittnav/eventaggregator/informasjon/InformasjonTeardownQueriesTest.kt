@@ -37,7 +37,7 @@ class InformasjonTeardownQueriesTest {
 
     private suspend fun `Slett alle informasonselementer fra databasen`() {
         database.dbQuery {
-            deleteAllRowsInInformasjon()
+            deleteAllInformasjon()
         }
     }
 

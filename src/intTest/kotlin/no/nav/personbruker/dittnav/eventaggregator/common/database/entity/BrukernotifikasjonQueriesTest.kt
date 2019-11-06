@@ -6,6 +6,9 @@ import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.informasjon.InformasjonObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.informasjon.createInformasjon
 import no.nav.personbruker.dittnav.eventaggregator.informasjon.deleteAllInformasjon
+import no.nav.personbruker.dittnav.eventaggregator.melding.MeldingObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.melding.createMelding
+import no.nav.personbruker.dittnav.eventaggregator.melding.deleteAllMelding
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
@@ -19,15 +22,18 @@ class BrukernotifikasjonQueriesTest {
     private val database = H2Database()
     private val oppgave1 = OppgaveObjectMother.createOppgave("1", "12")
     private val informasjon1 = InformasjonObjectMother.createInformasjon("2", "12")
+    private val melding1 = MeldingObjectMother.createMelding("3", "12")
     private val brukernotifikasjon1 = Brukernotifikasjon("1", "DittNav", EventType.OPPGAVE)
     private val brukernotifikasjon2 = Brukernotifikasjon("2", "DittNav", EventType.INFORMASJON)
-    private val allBrukernotifikasjonEvents = listOf(brukernotifikasjon1, brukernotifikasjon2)
+    private val brukernotifikasjon3 = Brukernotifikasjon("3", "DittNav", EventType.MELDING)
+    private val allBrukernotifikasjonEvents = listOf(brukernotifikasjon1, brukernotifikasjon2, brukernotifikasjon3)
 
     init {
         runBlocking {
             database.dbQuery {
                 createOppgave(oppgave1)
                 createInformasjon(informasjon1)
+                createMelding(melding1)
             }
         }
     }
@@ -38,6 +44,7 @@ class BrukernotifikasjonQueriesTest {
             database.dbQuery {
                 deleteAllInformasjon()
                 deleteAllOppgave()
+                deleteAllMelding()
             }
         }
     }
@@ -46,7 +53,7 @@ class BrukernotifikasjonQueriesTest {
     fun `Finner alle aggregerte Brukernotifikasjon-eventer fra databaseview`() {
         runBlocking {
             val result = database.dbQuery { getAllBrukernotifikasjonFromView() }
-            result.size `should be equal to` 2
+            result.size `should be equal to` 3
             result `should contain all` allBrukernotifikasjonEvents
         }
     }
