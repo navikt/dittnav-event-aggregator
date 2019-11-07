@@ -20,7 +20,7 @@ spec:
     min: 2
     max: 4
   ingresses:
-    - "https://dittnav-event-aggregator.dev-sbs.nais.io"
+    - "https://dittnav-event-aggregator-q1.dev-sbs.nais.io"
   vault:
     enabled: true
   env:
@@ -29,7 +29,7 @@ spec:
     - name: KAFKA_SCHEMAREGISTRY_SERVERS
       value: "https://kafka-schema-registry.nais-q.adeo.no"
     - name: GROUP_ID
-      value: "dittnav-aggregator-alpha-001"
+      value: "dittnav-aggregator-alpha-002"
     - name: DB_NAME
       value: "dittnav-event-cache-preprod"
     - name: DB_HOST
@@ -38,8 +38,8 @@ spec:
       value: "postgresql/preprod-fss"
   resources:
     limits:
-      cpu: 500m
+      cpu: "3"
       memory: 512Mi
     requests:
-      cpu: 200m
-      memory: 256Mi
+      cpu: "1"
+      memory: 512Mi

@@ -57,7 +57,8 @@ class PostgresDatabase(env: Environment) : Database {
                 minimumIdle = 0
                 maxLifetime = 30001
                 maximumPoolSize = 2
-                connectionTimeout = 250
+                connectionTimeout = 500
+                validationTimeout = 250
                 idleTimeout = 10001
                 isAutoCommit = false
                 transactionIsolation = "TRANSACTION_REPEATABLE_READ"
