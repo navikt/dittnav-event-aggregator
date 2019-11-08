@@ -6,7 +6,7 @@ val ktorVersion = "1.2.5"
 val junitVersion = "5.4.1"
 val kafkaVersion = "2.3.0"
 val confluentVersion = "5.3.0"
-val brukernotifikasjonSchemaVersion = "1.0-SNAPSHOT"
+val brukernotifikasjonSchemaVersion = "1.2019.11.08-15.04-951c0027601f"
 val logstashVersion = 5.2
 val logbackVersion = "1.2.3"
 val vaultJdbcVersion = "1.3.1"
@@ -38,6 +38,7 @@ tasks.withType<KotlinCompile> {
 
 repositories {
     jcenter()
+    mavenCentral()
     maven("http://packages.confluent.io/maven")
     mavenLocal()
 }

@@ -14,9 +14,9 @@ class MeldingEventService (
 
     override suspend fun processEvents(events: ConsumerRecords<String, Melding>) {
 
-        events.map {
+        events.map { event ->
             runCatching {
-                MeldingTransformer.toInternal(it.value())
+                MeldingTransformer.toInternal(event.value())
             }
         }.count {
             it.onSuccess { melding ->
