@@ -8,5 +8,6 @@ create TABLE MELDING(
     tekst           varchar(500),
     link            varchar(200),
     sikkerhetsnivaa integer,
+    sistOppdatert   timestamp,
     aktiv           boolean
 )

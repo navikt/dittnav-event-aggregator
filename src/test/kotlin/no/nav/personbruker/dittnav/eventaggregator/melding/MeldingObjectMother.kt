@@ -15,6 +15,7 @@ object MeldingObjectMother {
                 "Dette er melding til brukeren",
                 "https://nav.no/systemX/$aktorId",
                 4,
+                LocalDateTime.now(ZoneId.of("Europe/Oslo")),
                 true)
     }
 }

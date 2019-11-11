@@ -12,6 +12,7 @@ data class Melding (
     val tekst: String,
     val link: String,
     val sikkerhetsnivaa: Int,
+    val sistOppdatert: LocalDateTime,
     val aktiv: Boolean
 ) {
     constructor(
@@ -23,6 +24,7 @@ data class Melding (
             tekst: String,
             link: String,
             sikkerhetsnivaa: Int,
+            sistOppdatert: LocalDateTime,
             aktiv: Boolean
     ) : this(
             null,
@@ -34,6 +36,7 @@ data class Melding (
             tekst,
             link,
             sikkerhetsnivaa,
+            sistOppdatert,
             aktiv
     )
 }

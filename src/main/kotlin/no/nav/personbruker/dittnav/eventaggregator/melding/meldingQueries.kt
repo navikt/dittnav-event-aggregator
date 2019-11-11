@@ -29,8 +29,8 @@ fun Connection.getMeldingById(entityId: Int): Melding =
 
 
 fun Connection.createMelding(melding: Melding): Int =
-        prepareStatement("""INSERT INTO MELDING(produsent, tidspunkt, aktorId, eventId, dokumentId, tekst, link, sikkerhetsnivaa, aktiv)
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)""", Statement.RETURN_GENERATED_KEYS).use {
+        prepareStatement("""INSERT INTO MELDING(produsent, tidspunkt, aktorId, eventId, dokumentId, tekst, link, sikkerhetsnivaa, sistOppdatert,aktiv)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", Statement.RETURN_GENERATED_KEYS).use {
             it.setString(1, melding.produsent)
             it.setObject(2, melding.tidspunkt, Types.TIMESTAMP)
             it.setString(3, melding.aktorId)
@@ -39,7 +39,8 @@ fun Connection.createMelding(melding: Melding): Int =
             it.setString(6, melding.tekst)
             it.setString(7, melding.link)
             it.setInt(8, melding.sikkerhetsnivaa)
-            it.setBoolean(9, melding.aktiv)
+            it.setObject(9, melding.sistOppdatert, Types.TIMESTAMP)
+            it.setBoolean(10, melding.aktiv)
             it.executeUpdate()
             it.generatedKeys.next()
             it.generatedKeys.getInt("id")
@@ -93,6 +94,7 @@ private fun ResultSet.toMelding(): Melding {
             tekst = getString("tekst"),
             link = getString("link"),
             sikkerhetsnivaa = getInt("sikkerhetsnivaa"),
+            sistOppdatert = LocalDateTime.ofInstant(getTimestamp("sistOppdatert").toInstant(), ZoneId.of("Europe/Oslo")),
             aktiv = getBoolean("aktiv")
     )
 }

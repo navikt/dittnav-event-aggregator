@@ -17,6 +17,7 @@ object MeldingTransformer {
                 external.getTekst(),
                 external.getLink(),
                 external.getSikkerhetsnivaa(),
+                LocalDateTime.now(ZoneId.of("Europe/Oslo")),
                 newRecordsAreActiveByDefault
         )
     }

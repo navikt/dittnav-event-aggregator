@@ -17,7 +17,7 @@ object OppgaveTransformer {
                 external.getTekst(),
                 external.getLink(),
                 external.getSikkerhetsnivaa(),
-                LocalDateTime.now(),
+                LocalDateTime.now(ZoneId.of("Europe/Oslo")),
                 newRecordsAreActiveByDefault
         )
         return internal
