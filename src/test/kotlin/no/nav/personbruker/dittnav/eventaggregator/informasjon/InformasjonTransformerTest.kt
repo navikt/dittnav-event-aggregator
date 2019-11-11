@@ -14,6 +14,7 @@ class InformasjonTransformerTest {
 
         val transformed = InformasjonTransformer.toInternal(original)
 
+        transformed.aktorId `should be equal to` original.getAktorId()
         transformed.dokumentId `should be equal to` original.getDokumentId()
         transformed.eventId `should be equal to` original.getEventId()
         transformed.link `should be equal to` original.getLink()
