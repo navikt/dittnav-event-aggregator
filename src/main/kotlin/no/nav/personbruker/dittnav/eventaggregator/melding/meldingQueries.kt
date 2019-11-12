@@ -1,6 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.melding
 
-import net.logstash.logback.encoder.com.lmax.disruptor.LifecycleAware
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.singleResult
 import java.sql.Connection
@@ -29,10 +28,10 @@ fun Connection.getMeldingById(entityId: Int): Melding =
 
 
 fun Connection.createMelding(melding: Melding): Int =
-        prepareStatement("""INSERT INTO MELDING(produsent, tidspunkt, aktorId, eventId, dokumentId, tekst, link, sikkerhetsnivaa, sistOppdatert,aktiv)
+        prepareStatement("""INSERT INTO MELDING(produsent, eventTidspunkt, aktorId, eventId, dokumentId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv)
             VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", Statement.RETURN_GENERATED_KEYS).use {
             it.setString(1, melding.produsent)
-            it.setObject(2, melding.tidspunkt, Types.TIMESTAMP)
+            it.setObject(2, melding.eventTidspunkt, Types.TIMESTAMP)
             it.setString(3, melding.aktorId)
             it.setString(4, melding.eventId)
             it.setString(5, melding.dokumentId)
@@ -87,7 +86,7 @@ private fun ResultSet.toMelding(): Melding {
     return Melding(
             id = getInt("id"),
             produsent = getString("produsent"),
-            tidspunkt = LocalDateTime.ofInstant(getTimestamp("tidspunkt").toInstant(), ZoneId.of("Europe/Oslo")),
+            eventTidspunkt = LocalDateTime.ofInstant(getTimestamp("eventTidspunkt").toInstant(), ZoneId.of("Europe/Oslo")),
             aktorId = getString("aktorId"),
             eventId = getString("eventId"),
             dokumentId = getString("dokumentId"),
