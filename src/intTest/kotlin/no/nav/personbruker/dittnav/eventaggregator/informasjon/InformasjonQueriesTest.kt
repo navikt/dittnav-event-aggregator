@@ -46,14 +46,6 @@ class InformasjonQueriesTest {
         }
     }
 
-    @AfterAll
-    fun `tear down`() {
-        runBlocking {
-            database.dbQuery {
-                deleteAllRowsInInformasjon()
-            }
-        }
-    }
 
     @Test
     fun `Finner alle cachede Informasjon-eventer`() {
@@ -67,11 +59,11 @@ class InformasjonQueriesTest {
     @Test
     fun `Finner alle aktive cachede Informasjon-eventer`() {
         runBlocking {
-            database.dbQuery { setInformasjonAktiv("2", false) }
+            database.dbQuery { setInformasjonAktivFlag("2", false) }
             val result = database.dbQuery { getAllInformasjonByAktiv(true) }
             result `should contain all` listOf(informasjon1, informasjon3, informasjon4)
             result `should not contain` informasjon2
-            database.dbQuery { setInformasjonAktiv("2", true) }
+            database.dbQuery { setInformasjonAktivFlag("2", true) }
         }
     }
 

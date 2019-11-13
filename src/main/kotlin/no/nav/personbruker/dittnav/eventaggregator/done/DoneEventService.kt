@@ -7,8 +7,9 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon
 import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.getAllBrukernotifikasjonFromView
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import no.nav.personbruker.dittnav.eventaggregator.informasjon.setInformasjonAktiv
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.setOppgaveAktiv
+import no.nav.personbruker.dittnav.eventaggregator.informasjon.setInformasjonAktivFlag
+import no.nav.personbruker.dittnav.eventaggregator.melding.setMeldingAktivFlag
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.setOppgaveAktivFlag
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -32,7 +33,7 @@ class DoneEventService(
             val foundEvent: Brukernotifikasjon? = brukernotifikasjoner.find { it.id == entity.eventId }
             if (foundEvent != null) {
                 log.info("Fant matchende event for Done-event med ${foundEvent.id}")
-                setEventActive(foundEvent)
+                flagEventAsInactive(foundEvent)
             } else {
                 database.dbQuery { createDoneEvent(entity) }
                 log.info("Fant ikke matchende event for done-event med id ${entity.eventId}. Skrev done-event til cache")
@@ -40,15 +41,19 @@ class DoneEventService(
         }
     }
 
-    private suspend fun setEventActive(event: Brukernotifikasjon) {
+    private suspend fun flagEventAsInactive(event: Brukernotifikasjon) {
         when (event.type) {
             EventType.OPPGAVE -> {
-                database.dbQuery { setOppgaveAktiv(event.id, false) }
+                database.dbQuery { setOppgaveAktivFlag(event.id, false) }
                 log.info("Satte Oppgave-event med eventId ${event.id} inaktivt")
             }
             EventType.INFORMASJON -> {
-                database.dbQuery { setInformasjonAktiv(event.id, false) }
+                database.dbQuery { setInformasjonAktivFlag(event.id, false) }
                 log.info("Satte Informasjon-event med eventId ${event.id} inaktivt")
+            }
+            EventType.MELDING -> {
+                database.dbQuery { setMeldingAktivFlag(event.id, false) }
+                log.info("Satte Melding-event med eventId ${event.id} inaktivt")
             }
         }
     }

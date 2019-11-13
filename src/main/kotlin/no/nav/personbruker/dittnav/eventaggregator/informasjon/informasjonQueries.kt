@@ -35,7 +35,7 @@ fun Connection.createInformasjon(informasjon: Informasjon): Int =
             it.generatedKeys.getInt("id")
         }
 
-fun Connection.setInformasjonAktiv(eventId: String, aktiv: Boolean): Int =
+fun Connection.setInformasjonAktivFlag(eventId: String, aktiv: Boolean): Int =
         prepareStatement("""UPDATE INFORMASJON SET aktiv = ? WHERE eventId = ?""").use {
             it.setBoolean(1, aktiv)
             it.setString(2, eventId)

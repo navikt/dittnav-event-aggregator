@@ -21,7 +21,7 @@ class OppgaveTransformerTest {
         internal.link `should be equal to` external.getLink()
         internal.tekst `should be equal to` external.getTekst()
         internal.produsent `should be equal to` external.getProdusent()
-        internal.sikkerhetsinvaa `should be equal to` external.getSikkerhetsniva()
+        internal.sikkerhetsinvaa `should be equal to` external.getSikkerhetsnivaa()
 
         val transformedEventTidspunktAsLong = internal.eventTidspunkt.atZone(ZoneId.of("Europe/Oslo")).toInstant().toEpochMilli()
         transformedEventTidspunktAsLong `should be equal to` external.getTidspunkt()

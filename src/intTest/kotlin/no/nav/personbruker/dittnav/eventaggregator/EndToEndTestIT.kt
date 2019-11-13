@@ -39,7 +39,7 @@ class EndToEndTestIT {
 
         runBlocking {
             database.dbQuery {
-                deleteAllRowsInInformasjon()
+                deleteAllInformasjon()
             }
         }
     }

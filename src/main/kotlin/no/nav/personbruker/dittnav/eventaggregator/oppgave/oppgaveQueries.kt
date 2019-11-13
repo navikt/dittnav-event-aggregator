@@ -36,7 +36,7 @@ fun Connection.createOppgave(oppgave: Oppgave): Int =
                     it.generatedKeys.getInt("id")
                 }
 
-fun Connection.setOppgaveAktiv(eventId: String, aktiv: Boolean): Int =
+fun Connection.setOppgaveAktivFlag(eventId: String, aktiv: Boolean): Int =
         prepareStatement("""UPDATE OPPGAVE SET aktiv = ? WHERE eventId = ?""").use {
             it.setBoolean(1, aktiv)
             it.setString(2, eventId)

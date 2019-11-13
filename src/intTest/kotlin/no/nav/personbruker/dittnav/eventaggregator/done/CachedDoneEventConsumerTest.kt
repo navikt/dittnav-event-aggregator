@@ -6,18 +6,19 @@ import no.nav.personbruker.dittnav.eventaggregator.informasjon.InformasjonObject
 import no.nav.personbruker.dittnav.eventaggregator.informasjon.createInformasjon
 import no.nav.personbruker.dittnav.eventaggregator.informasjon.deleteAllInformasjon
 import no.nav.personbruker.dittnav.eventaggregator.informasjon.getInformasjonByEventId
+import no.nav.personbruker.dittnav.eventaggregator.melding.MeldingObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.melding.createMelding
+import no.nav.personbruker.dittnav.eventaggregator.melding.deleteAllMelding
+import no.nav.personbruker.dittnav.eventaggregator.melding.getMeldingByEventId
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.getOppgaveByEventId
-import org.amshove.kluent.AnyException
-import org.amshove.kluent.`should not throw`
-import org.amshove.kluent.invoking
-import org.amshove.kluent.shouldBeFalse
+import org.amshove.kluent.*
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 
-class CachedDoneEventCosumerTest {
+class CachedDoneEventConsumerTest {
 
     private val database = H2Database()
     private val eventConsumer = CachedDoneEventConsumer(database)
@@ -26,6 +27,7 @@ class CachedDoneEventCosumerTest {
     private val oppgave1 = OppgaveObjectMother.createOppgave("2", "12345")
     private val done1 = DoneObjectMother.createDone("3")
     private val done2 = DoneObjectMother.createDone("4")
+    private val done3 = DoneObjectMother.createDone("5")
 
     init {
         runBlocking {
@@ -34,6 +36,7 @@ class CachedDoneEventCosumerTest {
                 createOppgave(oppgave1)
                 createDoneEvent(done1)
                 createDoneEvent(done2)
+                createDoneEvent(done3)
             }
         }
     }
@@ -45,6 +48,7 @@ class CachedDoneEventCosumerTest {
             database.dbQuery {
                 deleteAllInformasjon()
                 deleteAllOppgave()
+                deleteAllMelding()
                 deleteAllDone()
             }
         }
@@ -67,6 +71,16 @@ class CachedDoneEventCosumerTest {
             eventConsumer.processDoneEvents()
             val oppgave = database.dbQuery { getOppgaveByEventId("4") }
             oppgave.aktiv.shouldBeFalse()
+        }
+    }
+
+    @Test
+    fun `flag Melding event as inactive if Done event with same eventId exists`() {
+        runBlocking {
+            database.dbQuery { createMelding(MeldingObjectMother.createMelding("5", "12345")) }
+            eventConsumer.processDoneEvents()
+            val melding = database.dbQuery { getMeldingByEventId("5") }
+            melding.aktiv.shouldBeFalse()
         }
     }
 
