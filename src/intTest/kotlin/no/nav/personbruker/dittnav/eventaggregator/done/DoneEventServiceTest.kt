@@ -10,10 +10,10 @@ import no.nav.personbruker.dittnav.eventaggregator.informasjon.InformasjonObject
 import no.nav.personbruker.dittnav.eventaggregator.informasjon.createInformasjon
 import no.nav.personbruker.dittnav.eventaggregator.informasjon.deleteAllInformasjon
 import no.nav.personbruker.dittnav.eventaggregator.informasjon.getAllInformasjon
-import no.nav.personbruker.dittnav.eventaggregator.melding.MeldingObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.melding.createMelding
-import no.nav.personbruker.dittnav.eventaggregator.melding.deleteAllMelding
-import no.nav.personbruker.dittnav.eventaggregator.melding.getAllMelding
+import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
+import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
+import no.nav.personbruker.dittnav.eventaggregator.innboks.getAllInnboks
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
@@ -31,7 +31,7 @@ class DoneEventServiceTest {
     private val doneEventService = DoneEventService(database)
     private val informasjon1 = InformasjonObjectMother.createInformasjon("1", "12345")
     private val oppgave = OppgaveObjectMother.createOppgave("2", "12345")
-    private val melding = MeldingObjectMother.createMelding("3", "12345")
+    private val innboks = InnboksObjectMother.createInnboks("3", "12345")
     private val informasjon2 = InformasjonObjectMother.createInformasjon("4", "12345")
 
     init {
@@ -40,7 +40,7 @@ class DoneEventServiceTest {
                 createInformasjon(informasjon1)
                 createInformasjon(informasjon2)
                 createOppgave(oppgave)
-                createMelding(melding)
+                createInnboks(innboks)
             }
         }
     }
@@ -51,7 +51,7 @@ class DoneEventServiceTest {
             database.dbQuery {
                 deleteAllOppgave()
                 deleteAllInformasjon()
-                deleteAllMelding()
+                deleteAllInnboks()
                 deleteAllDone()
             }
         }
@@ -82,14 +82,14 @@ class DoneEventServiceTest {
     }
 
     @Test
-    fun `Flag Melding event as inactive if Done event is received`() {
-        val record = ConsumerRecord<String, Done>(Kafka.meldingTopicName, 1, 1, null, AvroDoneObjectMother.createDone("3"))
+    fun `Flag Innboks-event as inactive if Done event is received`() {
+        val record = ConsumerRecord<String, Done>(Kafka.innboksTopicName, 1, 1, null, AvroDoneObjectMother.createDone("3"))
         val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(record)
         runBlocking {
             doneEventService.processEvents(records)
-            val allOppgave = database.dbQuery { getAllMelding() }
-            val foundOppgave = allOppgave.first { it.eventId == "3" }
-            foundOppgave.aktiv.`should be false`()
+            val allInnboks = database.dbQuery { getAllInnboks() }
+            val foundInnboks = allInnboks.first { it.eventId == "3" }
+            foundInnboks.aktiv.`should be false`()
         }
     }
 

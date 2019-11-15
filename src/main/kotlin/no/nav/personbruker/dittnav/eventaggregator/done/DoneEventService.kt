@@ -8,7 +8,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Bruker
 import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.getAllBrukernotifikasjonFromView
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.informasjon.setInformasjonAktivFlag
-import no.nav.personbruker.dittnav.eventaggregator.melding.setMeldingAktivFlag
+import no.nav.personbruker.dittnav.eventaggregator.innboks.setInnboksAktivFlag
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.setOppgaveAktivFlag
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.slf4j.Logger
@@ -51,9 +51,9 @@ class DoneEventService(
                 database.dbQuery { setInformasjonAktivFlag(event.id, false) }
                 log.info("Satte Informasjon-event med eventId ${event.id} inaktivt")
             }
-            EventType.MELDING -> {
-                database.dbQuery { setMeldingAktivFlag(event.id, false) }
-                log.info("Satte Melding-event med eventId ${event.id} inaktivt")
+            EventType.INNBOKS -> {
+                database.dbQuery { setInnboksAktivFlag(event.id, false) }
+                log.info("Satte Innboks-event med eventId ${event.id} inaktivt")
             }
         }
     }

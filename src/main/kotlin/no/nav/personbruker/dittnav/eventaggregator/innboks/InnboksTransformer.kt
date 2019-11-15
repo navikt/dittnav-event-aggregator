@@ -1,14 +1,14 @@
-package no.nav.personbruker.dittnav.eventaggregator.melding
+package no.nav.personbruker.dittnav.eventaggregator.innboks
 
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-object MeldingTransformer {
+object InnboksTransformer {
 
-    fun toInternal(external: no.nav.brukernotifikasjon.schemas.Melding): Melding {
+    fun toInternal(external: no.nav.brukernotifikasjon.schemas.Innboks): Innboks {
         val newRecordsAreActiveByDefault = true
-        return Melding(
+        return Innboks(
                 external.getProdusent(),
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(external.getTidspunkt()), ZoneId.of("Europe/Oslo")),
                 external.getAktorId(),

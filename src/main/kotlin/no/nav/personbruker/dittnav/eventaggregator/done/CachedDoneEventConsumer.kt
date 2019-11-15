@@ -4,8 +4,8 @@ import kotlinx.coroutines.*
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.informasjon.getAllInformasjonByAktiv
 import no.nav.personbruker.dittnav.eventaggregator.informasjon.setInformasjonAktivFlag
-import no.nav.personbruker.dittnav.eventaggregator.melding.getAllMeldingByAktiv
-import no.nav.personbruker.dittnav.eventaggregator.melding.setMeldingAktivFlag
+import no.nav.personbruker.dittnav.eventaggregator.innboks.getAllInnboksByAktiv
+import no.nav.personbruker.dittnav.eventaggregator.innboks.setInnboksAktivFlag
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.getAllOppgaveByAktiv
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.setOppgaveAktivFlag
 import org.slf4j.Logger
@@ -48,7 +48,7 @@ class CachedDoneEventConsumer(
             val allDone = database.dbQuery { getAllDoneEvent() }
             val allAktivInformasjon = database.dbQuery { getAllInformasjonByAktiv(true) }
             val allAktivOppgave = database.dbQuery { getAllOppgaveByAktiv(true) }
-            val allAktivMelding = database.dbQuery { getAllMeldingByAktiv(true) }
+            val allAktivInnboks = database.dbQuery { getAllInnboksByAktiv(true) }
             allDone.forEach { done ->
                 if(allAktivInformasjon.any { it.eventId == done.eventId}) {
                     database.dbQuery { setInformasjonAktivFlag(done.eventId, false) }
@@ -56,9 +56,9 @@ class CachedDoneEventConsumer(
                 } else if(allAktivOppgave.any {it.eventId == done.eventId}) {
                     database.dbQuery { setOppgaveAktivFlag(done.eventId, false) }
                     log.info("Fant nytt Oppgave-event etter tidligere mottatt Done-event, setter event med eventId ${done.eventId} inaktivt")
-                } else if(allAktivMelding.any {it.eventId == done.eventId}) {
-                    database.dbQuery { setMeldingAktivFlag(done.eventId, false) }
-                    log.info("Fant nytt Melding-event etter tidligere mottatt Done-event, setter event med eventId ${done.eventId} inaktivt")
+                } else if(allAktivInnboks.any {it.eventId == done.eventId}) {
+                    database.dbQuery { setInnboksAktivFlag(done.eventId, false) }
+                    log.info("Fant nytt Innboks-event etter tidligere mottatt Done-event, setter event med eventId ${done.eventId} inaktivt")
                 }
             }
         }
