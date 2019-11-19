@@ -2,10 +2,10 @@ package no.nav.personbruker.dittnav.eventaggregator.common.exceptions.objectmoth
 
 import no.nav.brukernotifikasjon.schemas.Done
 import no.nav.brukernotifikasjon.schemas.Informasjon
-import no.nav.brukernotifikasjon.schemas.Melding
+import no.nav.brukernotifikasjon.schemas.Innboks
 import no.nav.personbruker.dittnav.eventaggregator.done.schema.AvroDoneObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.informasjon.AvroInformasjonObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.melding.AvroMeldingObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.innboks.AvroInnboksObjectMother
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.common.TopicPartition
@@ -44,17 +44,17 @@ object ConsumerRecordsObjectMother {
         return allRecords
     }
 
-    fun giveMeANumberOfMeldingRecords(numberOfRecords: Int, topicName: String): ConsumerRecords<String, Melding> {
-        val records = mutableMapOf<TopicPartition, List<ConsumerRecord<String, Melding>>>()
-        val recordsForSingleTopic = createMeldingRecords(topicName, numberOfRecords)
+    fun giveMeANumberOfInnboksRecords(numberOfRecords: Int, topicName: String): ConsumerRecords<String, Innboks> {
+        val records = mutableMapOf<TopicPartition, List<ConsumerRecord<String, Innboks>>>()
+        val recordsForSingleTopic = createInnboksRecords(topicName, numberOfRecords)
         records[TopicPartition(topicName, numberOfRecords)] = recordsForSingleTopic
         return ConsumerRecords(records)
     }
 
-    private fun createMeldingRecords(topicName: String, totalNumber: Int): List<ConsumerRecord<String, Melding>> {
-        val allRecords = mutableListOf<ConsumerRecord<String, Melding>>()
+    private fun createInnboksRecords(topicName: String, totalNumber: Int): List<ConsumerRecord<String, Innboks>> {
+        val allRecords = mutableListOf<ConsumerRecord<String, Innboks>>()
         for (i in 0 until totalNumber) {
-            val schemaRecord = AvroMeldingObjectMother.createMelding(i)
+            val schemaRecord = AvroInnboksObjectMother.createInnboks(i)
             allRecords.add(ConsumerRecord(topicName, i, i.toLong(), "key-$i", schemaRecord))
         }
         return allRecords

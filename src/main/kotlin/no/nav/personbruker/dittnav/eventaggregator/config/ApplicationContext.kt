@@ -11,7 +11,7 @@ class ApplicationContext {
 
     val infoConsumer = KafkaConsumerSetup.setupConsumerForTheInformasjonTopic(environment, database)
     val oppgaveConsumer = KafkaConsumerSetup.setupConsumerForTheOppgaveTopic(environment, database)
-    val meldingConsumer = KafkaConsumerSetup.setupConsumerForTheMeldingTopic(environment, database)
+    val innboksConsumer = KafkaConsumerSetup.setupConsumerForTheInnboksTopic(environment, database)
     val doneConsumer = KafkaConsumerSetup.setupConsumerForTheDoneTopic(environment, database)
 
     val cachedDoneEventConsumer = CachedDoneEventConsumer(database)

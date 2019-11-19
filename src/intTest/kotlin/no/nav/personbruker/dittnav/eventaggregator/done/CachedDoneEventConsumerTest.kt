@@ -6,10 +6,10 @@ import no.nav.personbruker.dittnav.eventaggregator.informasjon.InformasjonObject
 import no.nav.personbruker.dittnav.eventaggregator.informasjon.createInformasjon
 import no.nav.personbruker.dittnav.eventaggregator.informasjon.deleteAllInformasjon
 import no.nav.personbruker.dittnav.eventaggregator.informasjon.getInformasjonByEventId
-import no.nav.personbruker.dittnav.eventaggregator.melding.MeldingObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.melding.createMelding
-import no.nav.personbruker.dittnav.eventaggregator.melding.deleteAllMelding
-import no.nav.personbruker.dittnav.eventaggregator.melding.getMeldingByEventId
+import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
+import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
+import no.nav.personbruker.dittnav.eventaggregator.innboks.getInnboksByEventId
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
@@ -48,7 +48,7 @@ class CachedDoneEventConsumerTest {
             database.dbQuery {
                 deleteAllInformasjon()
                 deleteAllOppgave()
-                deleteAllMelding()
+                deleteAllInnboks()
                 deleteAllDone()
             }
         }
@@ -75,12 +75,12 @@ class CachedDoneEventConsumerTest {
     }
 
     @Test
-    fun `flag Melding event as inactive if Done event with same eventId exists`() {
+    fun `flag Innboks event as inactive if Done event with same eventId exists`() {
         runBlocking {
-            database.dbQuery { createMelding(MeldingObjectMother.createMelding("5", "12345")) }
+            database.dbQuery { createInnboks(InnboksObjectMother.createInnboks("5", "12345")) }
             eventConsumer.processDoneEvents()
-            val melding = database.dbQuery { getMeldingByEventId("5") }
-            melding.aktiv.shouldBeFalse()
+            val innboks = database.dbQuery { getInnboksByEventId("5") }
+            innboks.aktiv.shouldBeFalse()
         }
     }
 

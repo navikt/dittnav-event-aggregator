@@ -1,8 +1,8 @@
-package no.nav.personbruker.dittnav.eventaggregator.melding
+package no.nav.personbruker.dittnav.eventaggregator.innboks
 
 import java.time.LocalDateTime
 
-data class Melding (
+data class Innboks (
         val id: Int?,
         val produsent: String,
         val eventTidspunkt: LocalDateTime,

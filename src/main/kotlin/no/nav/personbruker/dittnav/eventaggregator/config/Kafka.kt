@@ -25,7 +25,7 @@ object Kafka {
     // Har midlertidig lag på et -testing postfix på topic-navene, slik at vi ikke ved et uhell kludrer til de reelle topic-ene.
     val doneTopicName = "aapen-brukernotifikasjon-done-v1-testing"
     val oppgaveTopicName = "aapen-brukernotifikasjon-nyOppgave-v1-testing"
-    val meldingTopicName = "aapen-brukernotifikasjon-nyMelding-v1-testing"
+    val innboksTopicName = "aapen-brukernotifikasjon-nyInnboks-v1-testing"
     val informasjonTopicName = "aapen-brukernotifikasjon-nyInformasjon-v1-testing"
 
     private fun credentialProps(env: Environment): Properties {
