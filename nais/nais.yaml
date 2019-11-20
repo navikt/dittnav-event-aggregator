@@ -2,7 +2,7 @@ apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
   name: dittnav-event-aggregator
-  namespace: q1
+  namespace: {{namespace}}
   labels:
     team: {{team}}
 spec:
@@ -25,17 +25,17 @@ spec:
     enabled: true
   env:
     - name: KAFKA_BOOTSTRAP_SERVERS
-      value: "SSL://b27apvl00045.preprod.local:8443,SSL://b27apvl00046.preprod.local:8443,SSL://b27apvl00047.preprod.local:8443"
+      value: {{kafkaBootstrapServers}}
     - name: KAFKA_SCHEMAREGISTRY_SERVERS
-      value: "https://kafka-schema-registry.nais-q.adeo.no"
+      value: {{kafkaSchemaregistryServers}}
     - name: GROUP_ID
-      value: "dittnav-aggregator-alpha-002"
+      value: {{groupId}}
     - name: DB_NAME
-      value: "dittnav-event-cache-preprod"
+      value: {{dbName}}
     - name: DB_HOST
-      value: "b27dbvl008.preprod.local:5432"
+      value: {{dbHost}}
     - name: DB_MOUNT_PATH
-      value: "postgresql/preprod-fss"
+      value: {{dbMountPath}}
   resources:
     limits:
       cpu: "3"
