@@ -2,11 +2,5 @@
   "namespace": "q1",
   "ingresses": [
     "https://dittnav-event-aggregator-q1.dev-sbs.nais.io"
-  ],
-  "kafkaBootstrapServers": "SSL://b27apvl00045.preprod.local:8443,SSL://b27apvl00046.preprod.local:8443,SSL://b27apvl00047.preprod.local:8443",
-  "kafkaSchemaregistryServers": "https://kafka-schema-registry.nais-q.adeo.no",
-  "groupId": "dittnav-aggregator-alpha-002",
-  "dbName": "dittnav-event-cache-preprod",
-  "dbHost": "b27dbvl008.preprod.local:5432",
-  "dbMountPath": "postgresql/preprod-fss"
+  ]
 }
