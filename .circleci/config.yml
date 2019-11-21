@@ -47,6 +47,7 @@ commands:
       environment:
         type: string
     steps:
+      - checkout
       - nais/deploy-with-gh-app:
           repo: navikt/dittnav-event-aggregator
           image: navikt/dittnav-event-aggregator
