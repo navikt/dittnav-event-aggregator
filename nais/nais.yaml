@@ -1,0 +1,31 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: dittnav-event-aggregator
+  namespace: {{namespace}}
+  labels:
+    team: {{team}}
+spec:
+  image: {{version}}
+  port: 8080
+  liveness:
+    path: /isAlive
+    initialDelay: 5
+  readiness:
+    path: /isReady
+    initialDelay: 5
+  prometheus:
+    path: /metrics
+  replicas:
+    min: 2
+    max: 4
+  ingresses: {{ingresses}}
+  vault:
+    enabled: true
+  resources:
+    limits:
+      cpu: "3"
+      memory: 512Mi
+    requests:
+      cpu: "1"
+      memory: 512Mi
