@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executePersistQuery
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.singleResult
 import java.sql.Connection
@@ -26,23 +27,19 @@ fun Connection.getInnboksById(entityId: Int): Innboks =
                     }
                 }
 
-
-fun Connection.createInnboks(innboks: Innboks): Int =
-        prepareStatement("""INSERT INTO INNBOKS(produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv)
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", Statement.RETURN_GENERATED_KEYS).use {
-            it.setString(1, innboks.produsent)
-            it.setObject(2, innboks.eventTidspunkt, Types.TIMESTAMP)
-            it.setString(3, innboks.fodselsnummer)
-            it.setString(4, innboks.eventId)
-            it.setString(5, innboks.grupperingsId)
-            it.setString(6, innboks.tekst)
-            it.setString(7, innboks.link)
-            it.setInt(8, innboks.sikkerhetsnivaa)
-            it.setObject(9, innboks.sistOppdatert, Types.TIMESTAMP)
-            it.setBoolean(10, innboks.aktiv)
-            it.executeUpdate()
-            it.generatedKeys.next()
-            it.generatedKeys.getInt("id")
+fun Connection.createInnboks(innboks: Innboks): Int? =
+        executePersistQuery("""INSERT INTO INNBOKS(produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""") {
+            setString(1, innboks.produsent)
+            setObject(2, innboks.eventTidspunkt, Types.TIMESTAMP)
+            setString(3, innboks.fodselsnummer)
+            setString(4, innboks.eventId)
+            setString(5, innboks.grupperingsId)
+            setString(6, innboks.tekst)
+            setString(7, innboks.link)
+            setInt(8, innboks.sikkerhetsnivaa)
+            setObject(9, innboks.sistOppdatert, Types.TIMESTAMP)
+            setBoolean(10, innboks.aktiv)
         }
 
 fun Connection.setInnboksAktivFlag(eventId: String, aktiv: Boolean): Int =

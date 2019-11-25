@@ -117,4 +117,14 @@ class OppgaveQueriesTest {
             }
         } shouldThrow SQLException::class `with message` "Found no rows"
     }
+
+    @Test
+    fun `Persister ikke entitet dersom rad med samme eventId og produsent finnes`() {
+        runBlocking {
+            database.dbQuery {
+                createOppgave(oppgave1)
+                getAllOppgave().size `should be equal to` allEvents.size
+            }
+        }
+    }
 }

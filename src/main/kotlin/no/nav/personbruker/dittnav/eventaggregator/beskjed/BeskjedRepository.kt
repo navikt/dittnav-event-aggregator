@@ -1,17 +1,20 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
-import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class BeskjedRepository(private val database: Database) {
 
-    suspend fun writeEventsToCache(entities: List<Beskjed>) {
-        database.translateExternalExceptionsToInternalOnes {
-            runBlocking {
-                database.dbQuery {
-                    entities.forEach { entity ->
-                        createBeskjed(entity)
-                    }
+    val log: Logger = LoggerFactory.getLogger(InformasjonRepository::class.java)
+
+    fun writeEventsToCache(entities: List<Beskjed>) {
+        database.queryWithExceptionTranslation {
+            entities.forEach { entity ->
+                val entityId = createBeskjed(entity)
+
+                if (entityId == null) {
+                    log.warn("Hoppet over persistering av Beskjed: $entity")
                 }
             }
         }

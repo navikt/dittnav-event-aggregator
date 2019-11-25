@@ -1,6 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
-import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.Oppgave
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
@@ -22,10 +21,13 @@ class OppgaveEventService(
     private fun storeEventInCache(event: Oppgave) {
         val entity = OppgaveTransformer.toInternal(event)
         log.info("Skal skrive entitet til databasen: $entity")
-        runBlocking {
-            val entityId = database.dbQuery { createOppgave(entity) }
-            val fetchedRow = database.dbQuery { getOppgaveById(entityId) }
-            log.info("Ny rad hentet fra databasen $fetchedRow")
+        database.queryWithExceptionTranslation {
+            createOppgave(entity)?.let { entityId ->
+                val storedOppgave = getOppgaveById(entityId)
+                log.info("Oppgave hentet i databasen: $storedOppgave")
+            }?: run {
+                log.warn("Hoppet over persistering av  Oppgave: $entity")
+            }
         }
     }
 }

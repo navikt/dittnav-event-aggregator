@@ -1,12 +1,10 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.database
 
 import com.zaxxer.hikari.HikariDataSource
+import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
-import java.sql.Connection
-import java.sql.SQLException
-import java.sql.SQLRecoverableException
-import java.sql.SQLTransientException
+import java.sql.*
 
 interface Database {
 
@@ -51,4 +49,13 @@ interface Database {
         }
     }
 
+    fun queryWithExceptionTranslation(operationToExecute: Connection.() -> Unit) {
+        translateExternalExceptionsToInternalOnes {
+            runBlocking {
+                dbQuery {
+                    operationToExecute()
+                }
+            }
+        }
+    }
 }

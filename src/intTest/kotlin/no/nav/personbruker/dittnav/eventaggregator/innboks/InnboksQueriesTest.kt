@@ -2,6 +2,8 @@ package no.nav.personbruker.dittnav.eventaggregator.innboks
 
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.getAllOppgave
 import org.amshove.kluent.*
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
@@ -50,7 +52,7 @@ class InnboksQueriesTest {
     }
 
     @Test
-    fun `Should find all Innboks`() {
+    fun `finner alle Innboks`() {
         runBlocking {
             database.dbQuery {
                 val result = getAllInnboks()
@@ -61,7 +63,7 @@ class InnboksQueriesTest {
     }
 
     @Test
-    fun `should find Innboks by id`() {
+    fun `finner Innboks med id`() {
         runBlocking {
             database.dbQuery {
                 val result = getInnboksById(innboks1.id!!)
@@ -71,7 +73,7 @@ class InnboksQueriesTest {
     }
 
     @Test
-    fun `should set aktiv flag`() {
+    fun `setter aktiv flag`() {
         runBlocking {
             database.dbQuery {
                 setInnboksAktivFlag("1", false)
@@ -86,7 +88,7 @@ class InnboksQueriesTest {
     }
 
     @Test
-    fun `should find Innboks by aktiv flag`() {
+    fun `finner Innboks etter aktiv flag`() {
         runBlocking {
             database.dbQuery {
                 setInnboksAktivFlag(innboks1.eventId, false)
@@ -104,7 +106,7 @@ class InnboksQueriesTest {
     }
 
     @Test
-    fun `should find Innboks by fodselsnummer`() {
+    fun `finner Innboks med fodselsnummer`() {
         runBlocking {
             database.dbQuery {
                 val result = getInnboksByFodselsnummer(fodselsnummer1)
@@ -116,11 +118,21 @@ class InnboksQueriesTest {
     }
 
     @Test
-    fun `should find Innboks by eventId`() {
+    fun `finner Innboks med eventId`() {
         runBlocking {
             database.dbQuery {
                 val result = getInnboksByEventId(innboks1.eventId)
                 result `should equal` innboks1
+            }
+        }
+    }
+
+    @Test
+    fun `persister ikke entitet dersom rad med samme eventId og produsent finnes`() {
+        runBlocking {
+            database.dbQuery {
+                createInnboks(innboks1)
+                getAllInnboks().size `should be equal to` allInnboks.size
             }
         }
     }
