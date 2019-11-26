@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
+import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executePersistQuery
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.singleResult
@@ -18,7 +19,7 @@ fun Connection.getAllOppgave(): List<Oppgave> =
                     }
                 }
 
-fun Connection.createOppgave(oppgave: Oppgave): Int? =
+fun Connection.createOppgave(oppgave: Oppgave): PersistActionResult =
         executePersistQuery("""INSERT INTO OPPGAVE (produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?)""")
                 {
                     setString(1, oppgave.produsent)

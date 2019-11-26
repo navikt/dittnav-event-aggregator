@@ -33,7 +33,7 @@ class OppgaveQueriesTest {
         var oppgave = OppgaveObjectMother.createOppgave(eventId, fodselsnummer)
         runBlocking {
             database.dbQuery {
-                var generatedId = createOppgave(oppgave)
+                var generatedId = createOppgave(oppgave).entityId
                 oppgave = oppgave.copy(id=generatedId)
             }
         }

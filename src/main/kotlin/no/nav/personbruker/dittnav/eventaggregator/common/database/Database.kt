@@ -27,35 +27,35 @@ interface Database {
                 }
             }
 
-    fun translateExternalExceptionsToInternalOnes(databaseActions: () -> Unit) {
-        try {
-            databaseActions()
 
-        } catch (te: SQLTransientException) {
-            val message = "Skriving til databasen feilet grunnet en periodisk feil."
-            throw RetriableDatabaseException(message, te)
 
-        } catch (re: SQLRecoverableException) {
-            val message = "Skriving til databasen feilet grunnet en periodisk feil."
-            throw RetriableDatabaseException(message, re)
-
-        } catch (se: SQLException) {
-            val message = "Det skjedde en SQL relatert feil ved skriving til databasen."
-            throw UnretriableDatabaseException(message, se)
-
-        } catch (e: Exception) {
-            val message = "Det skjedde en ukjent feil ved skriving til databasen."
-            throw UnretriableDatabaseException(message, e)
-        }
-    }
-
-    fun queryWithExceptionTranslation(operationToExecute: Connection.() -> Unit) {
+    suspend fun queryWithExceptionTranslation(operationToExecute: Connection.() -> Unit) {
         translateExternalExceptionsToInternalOnes {
-            runBlocking {
-                dbQuery {
-                    operationToExecute()
-                }
+            dbQuery {
+                operationToExecute()
             }
         }
+    }
+}
+
+inline fun translateExternalExceptionsToInternalOnes(databaseActions: () -> Unit) {
+    try {
+        databaseActions()
+
+    } catch (te: SQLTransientException) {
+        val message = "Skriving til databasen feilet grunnet en periodisk feil."
+        throw RetriableDatabaseException(message, te)
+
+    } catch (re: SQLRecoverableException) {
+        val message = "Skriving til databasen feilet grunnet en periodisk feil."
+        throw RetriableDatabaseException(message, re)
+
+    } catch (se: SQLException) {
+        val message = "Det skjedde en SQL relatert feil ved skriving til databasen."
+        throw UnretriableDatabaseException(message, se)
+
+    } catch (e: Exception) {
+        val message = "Det skjedde en ukjent feil ved skriving til databasen."
+        throw UnretriableDatabaseException(message, e)
     }
 }

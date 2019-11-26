@@ -1,10 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.kafka
 
 import io.prometheus.client.Counter
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
@@ -29,7 +26,7 @@ class Consumer<T>(
     private val log: Logger = LoggerFactory.getLogger(Consumer::class.java)
 
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO + job
+        get() = Dispatchers.Default + job
 
     fun isRunning(): Boolean {
         return job.isActive
@@ -53,14 +50,16 @@ class Consumer<T>(
 
     private suspend fun processBatchOfEvents() {
         try {
-            val records = kafkaConsumer.poll(Duration.of(100, ChronoUnit.MILLIS))
-            MESSAGES_SEEN.labels(topic).inc(records.count().toDouble())
-            eventBatchProcessorService.processEvents(records)
-            logDebugOutput(records)
-            if (isEventsFound(records)) {
-                kafkaConsumer.commitSync()
+            withContext(Dispatchers.IO) {
+                kafkaConsumer.poll(Duration.of(100, ChronoUnit.MILLIS))
+            }.takeIf {
+                records -> records.count() > 0
+            }?.let { records ->
+                MESSAGES_SEEN.labels(topic).inc(records.count().toDouble())
+                eventBatchProcessorService.processEvents(records)
+                logDebugOutput(records)
+                commitSync()
             }
-
         } catch (rde: RetriableDatabaseException) {
             log.warn("Klarte ikke å skrive til databasen, prøver igjen senrere. Topic: $topic", rde)
 
@@ -82,11 +81,13 @@ class Consumer<T>(
         }
     }
 
-    private fun isEventsFound(records: ConsumerRecords<String, T>) = records.count() > 0
-
     private fun logDebugOutput(records: ConsumerRecords<String, T>) {
-        if (!records.isEmpty) {
-            log.info("Fant ${records.count()} eventer funnet på topic-en: $topic.")
+        log.info("Fant ${records.count()} eventer funnet på topic-en: $topic.")
+    }
+
+    private suspend fun commitSync() {
+        withContext(Dispatchers.IO) {
+            kafkaConsumer.commitSync()
         }
     }
 

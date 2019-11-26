@@ -1,5 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.database.util
 
+import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
+import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistFailureReason
 import java.sql.*
 
 fun <T> ResultSet.singleResult(result: ResultSet.() -> T): T =
@@ -16,15 +18,15 @@ fun <T> ResultSet.list(result: ResultSet.() -> T): List<T> =
             }
         }
 
-fun Connection.executePersistQuery(sql: String, paramInit: PreparedStatement.() -> Unit): Int? =
+fun Connection.executePersistQuery(sql: String, paramInit: PreparedStatement.() -> Unit): PersistActionResult =
         prepareStatement("""$sql ON CONFLICT DO NOTHING""", Statement.RETURN_GENERATED_KEYS).use {
 
             it.paramInit()
             it.executeUpdate()
 
             if (it.generatedKeys.next()) {
-                it.generatedKeys.getInt("id")
+                PersistActionResult.success(it.generatedKeys.getInt("id"))
             } else {
-                null
+                PersistActionResult.failure(PersistFailureReason.CONFLICTING_KEYS)
             }
         }

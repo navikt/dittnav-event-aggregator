@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.database
 
+import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
 import org.amshove.kluent.`should be`
@@ -11,12 +12,10 @@ import java.sql.SQLTransientException
 
 class DatabaseTest {
 
-    private val database = H2Database()
-
     @Test
     fun `Skal ikke gjore noe hvis det ikke blir kastet en exception`() {
         var denneVariablelenSkalHaBlittFlippet = false
-        database.translateExternalExceptionsToInternalOnes {
+        translateExternalExceptionsToInternalOnes {
             denneVariablelenSkalHaBlittFlippet = true
         }
         denneVariablelenSkalHaBlittFlippet `should be` true
@@ -25,7 +24,7 @@ class DatabaseTest {
     @Test
     fun `Skal haandtere ukjente exceptions, og mappe til intern exceptiontype`() {
         invoking {
-            database.translateExternalExceptionsToInternalOnes {
+            translateExternalExceptionsToInternalOnes {
                 throw Exception("Simulert exception")
             }
         } `should throw` UnretriableDatabaseException::class
@@ -34,7 +33,7 @@ class DatabaseTest {
     @Test
     fun `Skal haandtere SQLException, og mappe til intern exceptiontype`() {
         invoking {
-            database.translateExternalExceptionsToInternalOnes {
+            translateExternalExceptionsToInternalOnes {
                 throw SQLException("Simulert exception")
             }
         } `should throw` UnretriableDatabaseException::class
@@ -43,7 +42,7 @@ class DatabaseTest {
     @Test
     fun `Skal haandtere SQLTransientException, og mappe til intern exceptiontype`() {
         invoking {
-            database.translateExternalExceptionsToInternalOnes {
+            translateExternalExceptionsToInternalOnes {
                 throw SQLTransientException("Simulert exception")
             }
         } `should throw` RetriableDatabaseException::class
@@ -52,7 +51,7 @@ class DatabaseTest {
     @Test
     fun `Skal haandtere SQLRecoverableException, og mappe til intern exceptiontype`() {
         invoking {
-            database.translateExternalExceptionsToInternalOnes {
+            translateExternalExceptionsToInternalOnes {
                 throw SQLTransientException("Simulert exception")
             }
         } `should throw` RetriableDatabaseException::class

@@ -1,6 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import no.nav.brukernotifikasjon.schemas.Done
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
@@ -26,9 +27,9 @@ class DoneEventService(
         }
     }
 
-    private fun processDoneEvent(event: Done) {
+    private suspend fun processDoneEvent(event: Done) {
         val entity = DoneTransformer.toInternal(event)
-        runBlocking {
+        withContext(Dispatchers.IO) {
             val brukernotifikasjoner = database.dbQuery { getAllBrukernotifikasjonFromView() }
             val foundEvent: Brukernotifikasjon? = brukernotifikasjoner.find { it.id == entity.eventId }
             if (foundEvent != null) {

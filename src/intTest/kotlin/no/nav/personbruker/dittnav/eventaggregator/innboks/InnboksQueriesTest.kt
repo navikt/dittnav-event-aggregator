@@ -36,8 +36,9 @@ class InnboksQueriesTest {
 
         return runBlocking {
             database.dbQuery {
-                createInnboks(innboks)
-                        .let { innboks.copy(id = it) }
+                createInnboks(innboks).entityId.let {
+                    innboks.copy(id = it)
+                }
             }
         }
     }

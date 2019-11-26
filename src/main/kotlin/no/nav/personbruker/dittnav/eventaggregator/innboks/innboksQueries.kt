@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
+import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executePersistQuery
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.singleResult
@@ -27,7 +28,7 @@ fun Connection.getInnboksById(entityId: Int): Innboks =
                     }
                 }
 
-fun Connection.createInnboks(innboks: Innboks): Int? =
+fun Connection.createInnboks(innboks: Innboks): PersistActionResult =
         executePersistQuery("""INSERT INTO INNBOKS(produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv)
             VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""") {
             setString(1, innboks.produsent)
