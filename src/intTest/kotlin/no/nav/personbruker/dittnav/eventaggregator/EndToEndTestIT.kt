@@ -2,14 +2,14 @@ package no.nav.personbruker.dittnav.eventaggregator
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import no.nav.brukernotifikasjon.schemas.Informasjon
+import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.common.KafkaEnvironment
 import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
 import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util.KafkaTestUtil
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
-import no.nav.personbruker.dittnav.eventaggregator.informasjon.*
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.*
 import org.amshove.kluent.`should equal`
 import org.amshove.kluent.shouldEqualTo
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -20,13 +20,13 @@ class EndToEndTestIT {
 
     val database = H2Database()
 
-    val topicen = "endToEndTestItInformasjon"
+    val topicen = "endToEndTestItBeskjed"
     val embeddedEnv = KafkaTestUtil.createDefaultKafkaEmbeddedInstance(listOf(topicen))
     val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
 
     val adminClient = embeddedEnv.adminClient
 
-    val events = (1..10).map { "$it" to AvroInformasjonObjectMother.createInformasjon(it) }.toMap()
+    val events = (1..10).map { "$it" to AvroBeskjedObjectMother.createBeskjed(it) }.toMap()
 
     init {
         embeddedEnv.start()
@@ -39,7 +39,7 @@ class EndToEndTestIT {
 
         runBlocking {
             database.dbQuery {
-                deleteAllInformasjon()
+                deleteAllBeskjed()
             }
         }
     }
@@ -50,13 +50,13 @@ class EndToEndTestIT {
     }
 
     @Test
-    fun `Skal lese inn informasjons-eventer og skrive de til databasen`() {
+    fun `Skal lese inn Beskjeds-eventer og skrive de til databasen`() {
         `Produserer noen testeventer`()
         `Les inn alle eventene og verifiser at de har blitt lagt til i databasen`()
 
         runBlocking {
             database.dbQuery {
-                getAllInformasjon().size
+                getAllBeskjed().size
             } `should equal` events.size
         }
     }
@@ -68,10 +68,10 @@ class EndToEndTestIT {
     }
 
     fun `Les inn alle eventene og verifiser at de har blitt lagt til i databasen`() {
-        val informasjonRepository = InformasjonRepository(database)
-        val eventProcessor = InformasjonEventService(informasjonRepository)
-        val consumerProps = Kafka.consumerProps(testEnvironment, EventType.INFORMASJON, true)
-        val kafkaConsumer = KafkaConsumer<String, Informasjon>(consumerProps)
+        val beskjedRepository = BeskjedRepository(database)
+        val eventProcessor = BeskjedEventService(beskjedRepository)
+        val consumerProps = Kafka.consumerProps(testEnvironment, EventType.BESKJED, true)
+        val kafkaConsumer = KafkaConsumer<String, Beskjed>(consumerProps)
         val consumer = Consumer(topicen, kafkaConsumer, eventProcessor)
 
         runBlocking {
@@ -88,7 +88,7 @@ class EndToEndTestIT {
         while (currentNumberOfRecords < events.size) {
             runBlocking {
                 database.dbQuery {
-                    currentNumberOfRecords = getAllInformasjon().size
+                    currentNumberOfRecords = getAllBeskjed().size
                 }
                 delay(100)
             }

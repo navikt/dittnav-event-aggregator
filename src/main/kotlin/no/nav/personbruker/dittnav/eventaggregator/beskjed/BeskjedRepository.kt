@@ -1,16 +1,16 @@
-package no.nav.personbruker.dittnav.eventaggregator.informasjon
+package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 
-class InformasjonRepository(private val database: Database) {
+class BeskjedRepository(private val database: Database) {
 
-    suspend fun writeEventsToCache(entities: List<Informasjon>) {
+    suspend fun writeEventsToCache(entities: List<Beskjed>) {
         database.translateExternalExceptionsToInternalOnes {
             runBlocking {
                 database.dbQuery {
                     entities.forEach { entity ->
-                        createInformasjon(entity)
+                        createBeskjed(entity)
                     }
                 }
             }

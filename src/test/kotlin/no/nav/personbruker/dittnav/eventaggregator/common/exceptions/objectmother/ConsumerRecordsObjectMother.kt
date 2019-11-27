@@ -1,10 +1,10 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.exceptions.objectmother
 
 import no.nav.brukernotifikasjon.schemas.Done
-import no.nav.brukernotifikasjon.schemas.Informasjon
+import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.Innboks
 import no.nav.personbruker.dittnav.eventaggregator.done.schema.AvroDoneObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.informasjon.AvroInformasjonObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.innboks.AvroInnboksObjectMother
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
@@ -12,17 +12,17 @@ import org.apache.kafka.common.TopicPartition
 
 object ConsumerRecordsObjectMother {
 
-    fun giveMeANumberOfInformationRecords(numberOfRecords: Int, topicName: String): ConsumerRecords<String, Informasjon> {
-        val records = mutableMapOf<TopicPartition, List<ConsumerRecord<String, Informasjon>>>()
-        val recordsForSingleTopic = createInformasjonRecords(topicName, numberOfRecords)
+    fun giveMeANumberOfInformationRecords(numberOfRecords: Int, topicName: String): ConsumerRecords<String, Beskjed> {
+        val records = mutableMapOf<TopicPartition, List<ConsumerRecord<String, Beskjed>>>()
+        val recordsForSingleTopic = createBeskjedRecords(topicName, numberOfRecords)
         records[TopicPartition(topicName, numberOfRecords)] = recordsForSingleTopic
-        return ConsumerRecords<String, Informasjon>(records)
+        return ConsumerRecords(records)
     }
 
-    private fun createInformasjonRecords(topicName: String, totalNumber: Int): List<ConsumerRecord<String, Informasjon>> {
-        val allRecords = mutableListOf<ConsumerRecord<String, Informasjon>>()
+    private fun createBeskjedRecords(topicName: String, totalNumber: Int): List<ConsumerRecord<String, Beskjed>> {
+        val allRecords = mutableListOf<ConsumerRecord<String, Beskjed>>()
         for (i in 0 until totalNumber) {
-            val schemaRecord = AvroInformasjonObjectMother.createInformasjon(i)
+            val schemaRecord = AvroBeskjedObjectMother.createBeskjed(i)
             allRecords.add(ConsumerRecord(topicName, i, i.toLong(), "key-$i", schemaRecord))
         }
         return allRecords
@@ -32,7 +32,7 @@ object ConsumerRecordsObjectMother {
         val records = mutableMapOf<TopicPartition, List<ConsumerRecord<String, Done>>>()
         val recordsForSingleTopic = createDoneRecords(topicName, numberOfRecords)
         records[TopicPartition(topicName, numberOfRecords)] = recordsForSingleTopic
-        return ConsumerRecords<String, Done>(records)
+        return ConsumerRecords(records)
     }
 
     private fun createDoneRecords(topicName: String, totalNumber: Int): List<ConsumerRecord<String, Done>> {
@@ -64,7 +64,7 @@ object ConsumerRecordsObjectMother {
         val records = mutableMapOf<TopicPartition, List<ConsumerRecord<String, Done>>>()
         val recordsForSingleTopic = listOf(singleRecord)
         records[TopicPartition(topicName, 1)] = recordsForSingleTopic
-        return ConsumerRecords<String, Done>(records)
+        return ConsumerRecords(records)
     }
 
 }

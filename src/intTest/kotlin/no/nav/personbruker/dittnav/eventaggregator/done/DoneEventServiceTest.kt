@@ -6,10 +6,10 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.objectmother.ConsumerRecordsObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
 import no.nav.personbruker.dittnav.eventaggregator.done.schema.AvroDoneObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.informasjon.InformasjonObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.informasjon.createInformasjon
-import no.nav.personbruker.dittnav.eventaggregator.informasjon.deleteAllInformasjon
-import no.nav.personbruker.dittnav.eventaggregator.informasjon.getAllInformasjon
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.getAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
@@ -29,16 +29,16 @@ class DoneEventServiceTest {
 
     private val database = H2Database()
     private val doneEventService = DoneEventService(database)
-    private val informasjon1 = InformasjonObjectMother.createInformasjon("1", "12345")
+    private val beskjed1 = BeskjedObjectMother.createBeskjed("1", "12345")
     private val oppgave = OppgaveObjectMother.createOppgave("2", "12345")
     private val innboks = InnboksObjectMother.createInnboks("3", "12345")
-    private val informasjon2 = InformasjonObjectMother.createInformasjon("4", "12345")
+    private val beskjed2 = BeskjedObjectMother.createBeskjed("4", "12345")
 
     init {
         runBlocking {
             database.dbQuery {
-                createInformasjon(informasjon1)
-                createInformasjon(informasjon2)
+                createBeskjed(beskjed1)
+                createBeskjed(beskjed2)
                 createOppgave(oppgave)
                 createInnboks(innboks)
             }
@@ -50,7 +50,7 @@ class DoneEventServiceTest {
         runBlocking {
             database.dbQuery {
                 deleteAllOppgave()
-                deleteAllInformasjon()
+                deleteAllBeskjed()
                 deleteAllInnboks()
                 deleteAllDone()
             }
@@ -58,14 +58,14 @@ class DoneEventServiceTest {
     }
 
     @Test
-    fun `Setter Informasjon-event inaktivt hvis Done-event mottas`() {
-        val record = ConsumerRecord<String, Done>(Kafka.informasjonTopicName, 1, 1, null, AvroDoneObjectMother.createDone("1"))
+    fun `Setter Beskjed-event inaktivt hvis Done-event mottas`() {
+        val record = ConsumerRecord<String, Done>(Kafka.beskjedTopicName, 1, 1, null, AvroDoneObjectMother.createDone("1"))
         val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(record)
         runBlocking {
             doneEventService.processEvents(records)
-            val allInformasjon = database.dbQuery { getAllInformasjon() }
-            val foundInformasjon = allInformasjon.first { it.eventId == "1" }
-            foundInformasjon.aktiv.`should be false`()
+            val allBeskjed = database.dbQuery { getAllBeskjed() }
+            val foundBeskjed = allBeskjed.first { it.eventId == "1" }
+            foundBeskjed.aktiv.`should be false`()
         }
     }
 
@@ -95,7 +95,7 @@ class DoneEventServiceTest {
 
     @Test
     fun `Should not cache Done event if event with matching eventId exists`() {
-        val record = ConsumerRecord<String, Done>(Kafka.informasjonTopicName, 1, 1, null, AvroDoneObjectMother.createDone("4"))
+        val record = ConsumerRecord<String, Done>(Kafka.beskjedTopicName, 1, 1, null, AvroDoneObjectMother.createDone("4"))
         val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(record)
         runBlocking {
             doneEventService.processEvents(records)
@@ -106,7 +106,7 @@ class DoneEventServiceTest {
 
     @Test
     fun `Lagrer Done-event i cache hvis event med matchende eventId ikke finnes`() {
-        val record = ConsumerRecord<String, Done>(Kafka.informasjonTopicName, 1, 1, null, AvroDoneObjectMother.createDone("99"))
+        val record = ConsumerRecord<String, Done>(Kafka.beskjedTopicName, 1, 1, null, AvroDoneObjectMother.createDone("99"))
         val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(record)
         runBlocking {
             doneEventService.processEvents(records)

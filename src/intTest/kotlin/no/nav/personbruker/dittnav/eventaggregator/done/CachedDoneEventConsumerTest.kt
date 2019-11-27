@@ -2,10 +2,10 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
-import no.nav.personbruker.dittnav.eventaggregator.informasjon.InformasjonObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.informasjon.createInformasjon
-import no.nav.personbruker.dittnav.eventaggregator.informasjon.deleteAllInformasjon
-import no.nav.personbruker.dittnav.eventaggregator.informasjon.getInformasjonByEventId
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.getBeskjedByEventId
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
@@ -23,7 +23,7 @@ class CachedDoneEventConsumerTest {
     private val database = H2Database()
     private val eventConsumer = CachedDoneEventConsumer(database)
 
-    private val informasjon1 = InformasjonObjectMother.createInformasjon("1", "12345")
+    private val beskjed1 = BeskjedObjectMother.createBeskjed("1", "12345")
     private val oppgave1 = OppgaveObjectMother.createOppgave("2", "12345")
     private val done1 = DoneObjectMother.createDone("3")
     private val done2 = DoneObjectMother.createDone("4")
@@ -32,7 +32,7 @@ class CachedDoneEventConsumerTest {
     init {
         runBlocking {
             database.dbQuery {
-                createInformasjon(informasjon1)
+                createBeskjed(beskjed1)
                 createOppgave(oppgave1)
                 createDoneEvent(done1)
                 createDoneEvent(done2)
@@ -46,7 +46,7 @@ class CachedDoneEventConsumerTest {
         eventConsumer.cancel()
         runBlocking {
             database.dbQuery {
-                deleteAllInformasjon()
+                deleteAllBeskjed()
                 deleteAllOppgave()
                 deleteAllInnboks()
                 deleteAllDone()
@@ -55,12 +55,12 @@ class CachedDoneEventConsumerTest {
     }
 
     @Test
-    fun `setter Informasjon-event inaktivt hvis Done-event med samme eventId tidligere er mottatt`() {
+    fun `setter Beskjed-event inaktivt hvis Done-event med samme eventId tidligere er mottatt`() {
         runBlocking {
-            database.dbQuery { createInformasjon(InformasjonObjectMother.createInformasjon("3", "12345")) }
+            database.dbQuery { createBeskjed(BeskjedObjectMother.createBeskjed("3", "12345")) }
             eventConsumer.processDoneEvents()
-            val informasjon = database.dbQuery { getInformasjonByEventId("3") }
-            informasjon.aktiv.shouldBeFalse()
+            val beskjed = database.dbQuery { getBeskjedByEventId("3") }
+            beskjed.aktiv.shouldBeFalse()
         }
     }
 

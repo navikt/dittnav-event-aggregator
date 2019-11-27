@@ -6,7 +6,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util.Ka
 import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util.KafkaProducerUtil
 import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util.KafkaTestUtil
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
-import no.nav.personbruker.dittnav.eventaggregator.informasjon.AvroInformasjonObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMother
 import org.amshove.kluent.`should equal`
 import org.amshove.kluent.shouldContainAll
 import org.amshove.kluent.shouldEqualTo
@@ -22,12 +22,12 @@ import org.junit.jupiter.api.Test
  */
 class AvroBasicKafkaEmbeddedTesting {
 
-    private val topicen = Kafka.informasjonTopicName
+    private val topicen = Kafka.beskjedTopicName
     private val username = "srvkafkaclient"
     private val password = "kafkaclient"
     private val embeddedEnv = KafkaTestUtil.createDefaultKafkaEmbeddedInstance(listOf(topicen))
 
-    private val events = (1..9).map { "$it" to AvroInformasjonObjectMother.createInformasjon(it) }.toMap()
+    private val events = (1..9).map { "$it" to AvroBeskjedObjectMother.createBeskjed(it) }.toMap()
 
     init {
         embeddedEnv.start()

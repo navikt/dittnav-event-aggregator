@@ -12,8 +12,8 @@ DittNAV (frontend).
     * bygge og kjøre integrasjonstester: `gradle clean build`
 2. Start lokal instans av Kafka og Postgres ved å kjøre `docker-compose up -d`
 3. Start konsumenten ved å kjøre kommandoen `gradle runServer`.
-4. Produser et informasjonsevent ved å gjøre en `post` mot endepunktet `http://localhost:8093/produce/informasjon`, 
-f.eks. ´curl -X POST -v http://localhost:8093/produce/informasjon´
+4. Produser et beskjedsevent ved å gjøre en `post` mot endepunktet `http://localhost:8093/produce/beskjed`, 
+f.eks. ´curl -X POST -v http://localhost:8093/produce/beskjed´
 
 # Feilsøking
 For å være sikker på at man får en ny tom database og tomme kafka-topics kan man kjøre kommandoen: `docker-compose down -v`

@@ -2,14 +2,14 @@ package no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.consum
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import no.nav.brukernotifikasjon.schemas.Informasjon
+import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.common.KafkaEnvironment
 import no.nav.personbruker.dittnav.eventaggregator.common.SimpleEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util.KafkaTestUtil
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
-import no.nav.personbruker.dittnav.eventaggregator.informasjon.AvroInformasjonObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMother
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should equal`
 import org.amshove.kluent.shouldEqualTo
@@ -19,13 +19,13 @@ import org.junit.jupiter.api.Test
 
 class SingleTopicConsumerTest {
 
-    private val topicen = "singleTopicConsumerTestInformasjon"
+    private val topicen = "singleTopicConsumerTestBeskjed"
     private val embeddedEnv = KafkaTestUtil.createDefaultKafkaEmbeddedInstance(listOf(topicen))
     private val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
 
     private val adminClient = embeddedEnv.adminClient
 
-    private val events = (1..10).map { "$it" to AvroInformasjonObjectMother.createInformasjon(it) }.toMap()
+    private val events = (1..10).map { "$it" to AvroBeskjedObjectMother.createBeskjed(it) }.toMap()
 
     init {
         embeddedEnv.start()
@@ -45,9 +45,9 @@ class SingleTopicConsumerTest {
     @Test
     fun `Lese inn alle testeventene fra Kafka`() {
         `Produserer noen testeventer`()
-        val eventProcessor = SimpleEventCounterService<Informasjon>()
-        val consumerProps = Kafka.consumerProps(testEnvironment, EventType.INFORMASJON, true)
-        val kafkaConsumer = KafkaConsumer<String, Informasjon>(consumerProps)
+        val eventProcessor = SimpleEventCounterService<Beskjed>()
+        val consumerProps = Kafka.consumerProps(testEnvironment, EventType.BESKJED, true)
+        val kafkaConsumer = KafkaConsumer<String, Beskjed>(consumerProps)
         val consumer = Consumer(topicen, kafkaConsumer, eventProcessor)
 
         runBlocking {
@@ -67,7 +67,7 @@ class SingleTopicConsumerTest {
         } shouldEqualTo true
     }
 
-    private suspend fun `Vent til alle eventer har blitt konsumert`(eventProcessor: SimpleEventCounterService<Informasjon>) {
+    private suspend fun `Vent til alle eventer har blitt konsumert`(eventProcessor: SimpleEventCounterService<Beskjed>) {
         while (`have all events been consumed`(eventProcessor, events)) {
             delay(100)
         }
@@ -75,5 +75,5 @@ class SingleTopicConsumerTest {
 
 }
 
-private fun `have all events been consumed`(eventProcessor: SimpleEventCounterService<Informasjon>, events: Map<String, Informasjon>) =
+private fun `have all events been consumed`(eventProcessor: SimpleEventCounterService<Beskjed>, events: Map<String, Beskjed>) =
         eventProcessor.eventCounter < events.size

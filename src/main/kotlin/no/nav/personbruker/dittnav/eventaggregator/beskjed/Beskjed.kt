@@ -1,8 +1,8 @@
-package no.nav.personbruker.dittnav.eventaggregator.informasjon
+package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import java.time.LocalDateTime
 
-data class Informasjon(
+data class Beskjed(
         val id: Int?,
         val produsent: String,
         val eventTidspunkt: LocalDateTime,
