@@ -34,7 +34,7 @@ fun Routing.healthApi(appContext: ApplicationContext) {
 
     get("/selftest") {
         var selftest = StringBuilder()
-                .append("Informasjonconsumer running ${appContext.infoConsumer.isRunning()}\r\n")
+                .append("Beskjedconsumer running ${appContext.beskjedConsumer.isRunning()}\r\n")
                 .append("Oppgaveconsumer running ${appContext.oppgaveConsumer.isRunning()}\r\n")
                 .append("Innboksconsumer running ${appContext.innboksConsumer.isRunning()}\r\n")
                 .append("Doneconsumer running ${appContext.doneConsumer.isRunning()}\r\n")
@@ -44,7 +44,7 @@ fun Routing.healthApi(appContext: ApplicationContext) {
 
 private fun isAllConsumersRunning(appContext: ApplicationContext): Boolean {
     val allConsumersRunning =
-            appContext.infoConsumer.isRunning() &&
+            appContext.beskjedConsumer.isRunning() &&
             appContext.oppgaveConsumer.isRunning() &&
             appContext.innboksConsumer.isRunning() &&
             appContext.doneConsumer.isRunning()

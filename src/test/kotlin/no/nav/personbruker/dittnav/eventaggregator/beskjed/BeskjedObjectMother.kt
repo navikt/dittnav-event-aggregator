@@ -1,18 +1,18 @@
-package no.nav.personbruker.dittnav.eventaggregator.informasjon
+package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-object InformasjonObjectMother {
+object BeskjedObjectMother {
 
-    fun createInformasjon(eventId: String, aktorId: String): Informasjon {
-        return Informasjon(
+    fun createBeskjed(eventId: String, aktorId: String): Beskjed {
+        return Beskjed(
                 produsent = "DittNav",
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("Europe/Oslo")),
                 aktorId = aktorId,
                 eventId = eventId,
                 dokumentId = "100$aktorId",
-                tekst = "Dette er informasjon til brukeren",
+                tekst = "Dette er beskjed til brukeren",
                 link = "https://nav.no/systemX/$aktorId",
                 sistOppdatert = LocalDateTime.now(ZoneId.of("Europe/Oslo")),
                 sikkerhetsnivaa = 4,

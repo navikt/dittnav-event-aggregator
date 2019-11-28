@@ -9,7 +9,7 @@ class ApplicationContext {
     var environment = Environment()
     val database: Database = PostgresDatabase(environment)
 
-    val infoConsumer = KafkaConsumerSetup.setupConsumerForTheInformasjonTopic(environment, database)
+    val beskjedConsumer = KafkaConsumerSetup.setupConsumerForTheBeskjedTopic(environment, database)
     val oppgaveConsumer = KafkaConsumerSetup.setupConsumerForTheOppgaveTopic(environment, database)
     val innboksConsumer = KafkaConsumerSetup.setupConsumerForTheInnboksTopic(environment, database)
     val doneConsumer = KafkaConsumerSetup.setupConsumerForTheDoneTopic(environment, database)

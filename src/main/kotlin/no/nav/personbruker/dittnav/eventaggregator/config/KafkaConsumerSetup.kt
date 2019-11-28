@@ -2,15 +2,15 @@ package no.nav.personbruker.dittnav.eventaggregator.config
 
 import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.Done
-import no.nav.brukernotifikasjon.schemas.Informasjon
+import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.Innboks
 import no.nav.brukernotifikasjon.schemas.Oppgave
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneEventService
-import no.nav.personbruker.dittnav.eventaggregator.informasjon.InformasjonEventService
-import no.nav.personbruker.dittnav.eventaggregator.informasjon.InformasjonRepository
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedEventService
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksEventService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveEventService
@@ -24,7 +24,7 @@ object KafkaConsumerSetup {
     private val log: Logger = LoggerFactory.getLogger(KafkaConsumerSetup::class.java)
 
     fun startAllKafkaPollers(appContext: ApplicationContext) {
-        appContext.infoConsumer.startPolling()
+        appContext.beskjedConsumer.startPolling()
         appContext.oppgaveConsumer.startPolling()
         appContext.innboksConsumer.startPolling()
         appContext.doneConsumer.startPolling()
@@ -32,7 +32,7 @@ object KafkaConsumerSetup {
 
     fun stopAllKafkaConsumers(appContext: ApplicationContext) = runBlocking {
         log.info("Begynner å stoppe kafka-pollerne...")
-        appContext.infoConsumer.stopPolling()
+        appContext.beskjedConsumer.stopPolling()
         appContext.oppgaveConsumer.stopPolling()
         appContext.innboksConsumer.stopPolling()
         appContext.doneConsumer.stopPolling()
@@ -40,16 +40,16 @@ object KafkaConsumerSetup {
     }
 
 
-    fun setupConsumerForTheInformasjonTopic(environment: Environment, database: Database): Consumer<Informasjon> {
-        val informasjonRepository = InformasjonRepository(database)
-        val eventProcessor = InformasjonEventService(informasjonRepository)
-        val kafkaProps = Kafka.consumerProps(environment, EventType.INFORMASJON)
-        return setupConsumerForTheInformasjonTopic(kafkaProps, eventProcessor)
+    fun setupConsumerForTheBeskjedTopic(environment: Environment, database: Database): Consumer<Beskjed> {
+        val beskjedRepository = BeskjedRepository(database)
+        val eventProcessor = BeskjedEventService(beskjedRepository)
+        val kafkaProps = Kafka.consumerProps(environment, EventType.BESKJED)
+        return setupConsumerForTheBeskjedTopic(kafkaProps, eventProcessor)
     }
 
-    fun setupConsumerForTheInformasjonTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<Informasjon>): Consumer<Informasjon> {
-        val kafkaConsumer = KafkaConsumer<String, Informasjon>(kafkaProps)
-        return Consumer(Kafka.informasjonTopicName, kafkaConsumer, eventProcessor)
+    fun setupConsumerForTheBeskjedTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<Beskjed>): Consumer<Beskjed> {
+        val kafkaConsumer = KafkaConsumer<String, Beskjed>(kafkaProps)
+        return Consumer(Kafka.beskjedTopicName, kafkaConsumer, eventProcessor)
     }
 
     fun setupConsumerForTheOppgaveTopic(environment: Environment, database: Database): Consumer<Oppgave> {

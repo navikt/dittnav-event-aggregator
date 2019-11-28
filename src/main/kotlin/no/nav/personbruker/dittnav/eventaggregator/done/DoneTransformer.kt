@@ -10,8 +10,8 @@ object DoneTransformer {
         val internal = Done(external.getEventId(),
                 external.getProdusent(),
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(external.getTidspunkt()), ZoneId.of("Europe/Oslo")),
-                external.getAktorId(),
-                external.getDokumentId()
+                external.getFodselsnummer(),
+                external.getGrupperingsId()
         )
         return internal
     }

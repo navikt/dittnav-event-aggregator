@@ -2,7 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.consum
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import no.nav.brukernotifikasjon.schemas.Informasjon
+import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.Innboks
 import no.nav.brukernotifikasjon.schemas.Oppgave
 import no.nav.common.KafkaEnvironment
@@ -12,10 +12,10 @@ import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.config.Environment
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
-import no.nav.personbruker.dittnav.eventaggregator.config.KafkaConsumerSetup.setupConsumerForTheInformasjonTopic
+import no.nav.personbruker.dittnav.eventaggregator.config.KafkaConsumerSetup.setupConsumerForTheBeskjedTopic
 import no.nav.personbruker.dittnav.eventaggregator.config.KafkaConsumerSetup.setupConsumerForTheInnboksTopic
 import no.nav.personbruker.dittnav.eventaggregator.config.KafkaConsumerSetup.setupConsumerForTheOppgaveTopic
-import no.nav.personbruker.dittnav.eventaggregator.informasjon.AvroInformasjonObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.innboks.AvroInnboksObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.AvroOppgaveObjectMother
 import org.amshove.kluent.`should be equal to`
@@ -25,16 +25,16 @@ import org.junit.jupiter.api.Test
 
 class MultipleTopicsConsumerTest {
 
-    private val topics = listOf(Kafka.informasjonTopicName, Kafka.oppgaveTopicName, Kafka.innboksTopicName)
+    private val topics = listOf(Kafka.beskjedTopicName, Kafka.oppgaveTopicName, Kafka.innboksTopicName)
     private val embeddedEnv = KafkaTestUtil.createDefaultKafkaEmbeddedInstance(topics)
     private val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
     private val adminClient = embeddedEnv.adminClient
 
-    private val informasjonEventProcessor = SimpleEventCounterService<Informasjon>()
+    private val beskjedEventProcessor = SimpleEventCounterService<Beskjed>()
     private val oppgaveEventProcessor = SimpleEventCounterService<Oppgave>()
     private val innboksEventProcessor = SimpleEventCounterService<Innboks>()
 
-    private val informasjonEvents = (1..10).map { "$it" to AvroInformasjonObjectMother.createInformasjon(it) }.toMap()
+    private val beskjedEvents = (1..10).map { "$it" to AvroBeskjedObjectMother.createBeskjed(it) }.toMap()
     private val oppgaveEvents = (1..11).map { "$it" to AvroOppgaveObjectMother.createOppgave(it) }.toMap()
     private val innboksEvents = (1..12).map { "$it" to AvroInnboksObjectMother.createInnboks(it) }.toMap()
 
@@ -55,10 +55,10 @@ class MultipleTopicsConsumerTest {
 
     fun `Produserer testeventer for alle topics`() {
         runBlocking {
-            val producedAllInformasjon = KafkaTestUtil.produceEvents(testEnvironment, Kafka.informasjonTopicName, informasjonEvents)
+            val producedAllBeskjed = KafkaTestUtil.produceEvents(testEnvironment, Kafka.beskjedTopicName, beskjedEvents)
             val producedAllOppgave = KafkaTestUtil.produceEvents(testEnvironment, Kafka.oppgaveTopicName, oppgaveEvents)
             val producedAllInnboks = KafkaTestUtil.produceEvents(testEnvironment, Kafka.innboksTopicName, innboksEvents)
-            producedAllInformasjon `should be equal to` true
+            producedAllBeskjed `should be equal to` true
             producedAllOppgave `should be equal to` true
             producedAllInnboks `should be equal to` true
         }
@@ -68,46 +68,46 @@ class MultipleTopicsConsumerTest {
     fun `Skal kunne konsumere fra flere topics i parallell`() {
         `Produserer testeventer for alle topics`()
 
-        val informasjonConsumer = createInfoConsumer(testEnvironment, informasjonEventProcessor)
+        val beskjedConsumer = createInfoConsumer(testEnvironment, beskjedEventProcessor)
         val oppgaveConsumer = createOppgaveConsumer(testEnvironment, oppgaveEventProcessor)
         val innboksConsumer = createInnboksConsumer(testEnvironment, innboksEventProcessor)
 
         runBlocking {
-            informasjonConsumer.startPolling()
+            beskjedConsumer.startPolling()
             oppgaveConsumer.startPolling()
             innboksConsumer.startPolling()
 
             `Vent til alle eventer har blitt konsumert`()
 
-            informasjonConsumer.stopPolling()
+            beskjedConsumer.stopPolling()
             oppgaveConsumer.stopPolling()
             innboksConsumer.stopPolling()
 
-            informasjonEvents.size `should be equal to` informasjonEventProcessor.eventCounter
+            beskjedEvents.size `should be equal to` beskjedEventProcessor.eventCounter
             oppgaveEvents.size `should be equal to` oppgaveEventProcessor.eventCounter
             innboksEvents.size `should be equal to`  innboksEventProcessor.eventCounter
         }
     }
 
     private suspend fun `Vent til alle eventer har blitt konsumert`() {
-        while (`Har alle eventer blitt lest`(informasjonEventProcessor, informasjonEvents,
+        while (`Har alle eventer blitt lest`(beskjedEventProcessor, beskjedEvents,
                         oppgaveEventProcessor, oppgaveEvents,
                         innboksEventProcessor, innboksEvents)) {
             delay(100)
         }
     }
 
-    private fun `Har alle eventer blitt lest`(informasjon: SimpleEventCounterService<Informasjon>, informasjonEvents: Map<String, Informasjon>,
+    private fun `Har alle eventer blitt lest`(beskjed: SimpleEventCounterService<Beskjed>, BeskjedEvents: Map<String, Beskjed>,
                                               oppgave: SimpleEventCounterService<Oppgave>, oppgaveEvents: Map<String, Oppgave>,
                                               innboks: SimpleEventCounterService<Innboks>, innboksEvents: Map<String, Innboks>): Boolean {
-        return informasjon.eventCounter < informasjonEvents.size &&
+        return beskjed.eventCounter < BeskjedEvents.size &&
                 oppgave.eventCounter < oppgaveEvents.size &&
                 innboks.eventCounter < innboksEvents.size
     }
 
-    private fun createInfoConsumer(env: Environment, informasjonEventProcessor: SimpleEventCounterService<Informasjon>): Consumer<Informasjon> {
-        val kafkaProps = Kafka.consumerProps(env, EventType.INFORMASJON, true)
-        return setupConsumerForTheInformasjonTopic(kafkaProps, informasjonEventProcessor)
+    private fun createInfoConsumer(env: Environment, BeskjedEventProcessor: SimpleEventCounterService<Beskjed>): Consumer<Beskjed> {
+        val kafkaProps = Kafka.consumerProps(env, EventType.BESKJED, true)
+        return setupConsumerForTheBeskjedTopic(kafkaProps, BeskjedEventProcessor)
     }
 
     private fun createOppgaveConsumer(env: Environment, oppgaveEventProcessor: SimpleEventCounterService<Oppgave>): Consumer<Oppgave> {

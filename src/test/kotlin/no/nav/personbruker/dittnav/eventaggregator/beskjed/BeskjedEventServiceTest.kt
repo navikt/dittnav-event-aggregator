@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.informasjon
+package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
@@ -11,15 +11,15 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-class InformasjonEventServiceTest {
+class BeskjedEventServiceTest {
 
-    private val informasjonRepository = mockk<InformasjonRepository>(relaxed = true)
-    private val eventService = InformasjonEventService(informasjonRepository)
+    private val BeskjedRepository = mockk<BeskjedRepository>(relaxed = true)
+    private val eventService = BeskjedEventService(BeskjedRepository)
 
     @BeforeEach
     private fun resetMocks() {
-        mockkObject(InformasjonTransformer)
-        clearMocks(informasjonRepository)
+        mockkObject(BeskjedTransformer)
+        clearMocks(BeskjedRepository)
     }
 
     @AfterAll
@@ -31,19 +31,19 @@ class InformasjonEventServiceTest {
     fun `Skal skrive alle eventer til databasen`() {
         val records = ConsumerRecordsObjectMother.giveMeANumberOfInformationRecords(5, "dummyTopic")
 
-        val capturedListOfEntities = slot<List<Informasjon>>()
-        coEvery { informasjonRepository.writeEventsToCache(capture(capturedListOfEntities)) } returns Unit
+        val capturedListOfEntities = slot<List<Beskjed>>()
+        coEvery { BeskjedRepository.writeEventsToCache(capture(capturedListOfEntities)) } returns Unit
 
         runBlocking {
             eventService.processEvents(records)
         }
 
-        verify(exactly = records.count()) { InformasjonTransformer.toInternal(any()) }
-        coVerify(exactly = 1) { informasjonRepository.writeEventsToCache(allAny()) }
+        verify(exactly = records.count()) { BeskjedTransformer.toInternal(any()) }
+        coVerify(exactly = 1) { BeskjedRepository.writeEventsToCache(allAny()) }
         capturedListOfEntities.captured.size `should be` records.count()
 
-        confirmVerified(InformasjonTransformer)
-        confirmVerified(informasjonRepository)
+        confirmVerified(BeskjedTransformer)
+        confirmVerified(BeskjedRepository)
     }
 
     @Test
@@ -55,11 +55,11 @@ class InformasjonEventServiceTest {
         val records = ConsumerRecordsObjectMother.giveMeANumberOfInformationRecords(totalNumberOfRecords, "dummyTopic")
         val transformedRecords = createANumberOfTransformedRecords(numberOfSuccessfulTransformations)
 
-        val capturedListOfEntities = slot<List<Informasjon>>()
-        coEvery { informasjonRepository.writeEventsToCache(capture(capturedListOfEntities)) } returns Unit
+        val capturedListOfEntities = slot<List<Beskjed>>()
+        coEvery { BeskjedRepository.writeEventsToCache(capture(capturedListOfEntities)) } returns Unit
 
         val retriableExp = UntransformableRecordException("Simulert feil i en test")
-        every { InformasjonTransformer.toInternal(any()) } throws retriableExp andThenMany transformedRecords
+        every { BeskjedTransformer.toInternal(any()) } throws retriableExp andThenMany transformedRecords
 
         invoking {
             runBlocking {
@@ -67,18 +67,18 @@ class InformasjonEventServiceTest {
             }
         } `should throw` UntransformableRecordException::class
 
-        coVerify(exactly = totalNumberOfRecords) { InformasjonTransformer.toInternal(any()) }
-        coVerify(exactly = 1) { informasjonRepository.writeEventsToCache(allAny()) }
+        coVerify(exactly = totalNumberOfRecords) { BeskjedTransformer.toInternal(any()) }
+        coVerify(exactly = 1) { BeskjedRepository.writeEventsToCache(allAny()) }
         capturedListOfEntities.captured.size `should be` numberOfSuccessfulTransformations
 
-        confirmVerified(InformasjonTransformer)
-        confirmVerified(informasjonRepository)
+        confirmVerified(BeskjedTransformer)
+        confirmVerified(BeskjedRepository)
     }
 
-    private fun createANumberOfTransformedRecords(numberOfRecords: Int): MutableList<Informasjon> {
-        val transformedRecords = mutableListOf<Informasjon>()
+    private fun createANumberOfTransformedRecords(numberOfRecords: Int): MutableList<Beskjed> {
+        val transformedRecords = mutableListOf<Beskjed>()
         for (i in 0 until numberOfRecords) {
-            transformedRecords.add(InformasjonObjectMother.createInformasjon("$i", "{$i}12345"))
+            transformedRecords.add(BeskjedObjectMother.createBeskjed("$i", "{$i}12345"))
         }
         return transformedRecords
     }

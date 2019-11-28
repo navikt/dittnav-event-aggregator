@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.informasjon
+package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be null`
@@ -6,16 +6,16 @@ import org.amshove.kluent.`should not be null`
 import org.junit.jupiter.api.Test
 import java.time.ZoneId
 
-class InformasjonTransformerTest {
+class BeskjedTransformerTest {
 
     @Test
     fun `should transform form external to internal`() {
-        val original = AvroInformasjonObjectMother.createInformasjon(1)
+        val original = AvroBeskjedObjectMother.createBeskjed(1)
 
-        val transformed = InformasjonTransformer.toInternal(original)
+        val transformed = BeskjedTransformer.toInternal(original)
 
-        transformed.aktorId `should be equal to` original.getAktorId()
-        transformed.dokumentId `should be equal to` original.getDokumentId()
+        transformed.aktorId `should be equal to` original.getFodselsnummer()
+        transformed.dokumentId `should be equal to` original.getGrupperingsId()
         transformed.eventId `should be equal to` original.getEventId()
         transformed.link `should be equal to` original.getLink()
         transformed.tekst `should be equal to` original.getTekst()

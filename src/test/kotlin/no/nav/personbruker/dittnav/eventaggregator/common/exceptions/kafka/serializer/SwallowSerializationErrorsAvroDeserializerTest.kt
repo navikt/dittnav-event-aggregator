@@ -5,7 +5,7 @@ import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 import io.confluent.kafka.serializers.KafkaAvroSerializer
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.SwallowSerializationErrorsAvroDeserializer
-import no.nav.personbruker.dittnav.eventaggregator.informasjon.AvroInformasjonObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMother
 import org.amshove.kluent.`should be null`
 import org.amshove.kluent.shouldEqual
 import org.junit.jupiter.api.Test
@@ -29,7 +29,7 @@ class SwallowSerializationErrorsAvroDeserializerTest {
 
     @Test
     fun `should serialize valid records successfully`() {
-        val original = AvroInformasjonObjectMother.createInformasjon(1)
+        val original = AvroBeskjedObjectMother.createBeskjed(1)
         val serialized = serializer.serialize(topic, original)
         val deserialized = deserializer.deserialize(topic, serialized)
 

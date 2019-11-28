@@ -2,8 +2,8 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 
 import kotlinx.coroutines.*
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
-import no.nav.personbruker.dittnav.eventaggregator.informasjon.getAllInformasjonByAktiv
-import no.nav.personbruker.dittnav.eventaggregator.informasjon.setInformasjonAktivFlag
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.getAllBeskjedByAktiv
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.setBeskjedAktivFlag
 import no.nav.personbruker.dittnav.eventaggregator.innboks.getAllInnboksByAktiv
 import no.nav.personbruker.dittnav.eventaggregator.innboks.setInnboksAktivFlag
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.getAllOppgaveByAktiv
@@ -46,13 +46,13 @@ class CachedDoneEventConsumer(
     fun processDoneEvents() {
         runBlocking {
             val allDone = database.dbQuery { getAllDoneEvent() }
-            val allAktivInformasjon = database.dbQuery { getAllInformasjonByAktiv(true) }
+            val allAktivBeskjed = database.dbQuery { getAllBeskjedByAktiv(true) }
             val allAktivOppgave = database.dbQuery { getAllOppgaveByAktiv(true) }
             val allAktivInnboks = database.dbQuery { getAllInnboksByAktiv(true) }
             allDone.forEach { done ->
-                if(allAktivInformasjon.any { it.eventId == done.eventId}) {
-                    database.dbQuery { setInformasjonAktivFlag(done.eventId, false) }
-                    log.info("Fant nytt Informasjon-event etter tidligere mottatt Done-event, setter event med eventId ${done.eventId} inaktivt")
+                if(allAktivBeskjed.any { it.eventId == done.eventId}) {
+                    database.dbQuery { setBeskjedAktivFlag(done.eventId, false) }
+                    log.info("Fant nytt Beskjed-event etter tidligere mottatt Done-event, setter event med eventId ${done.eventId} inaktivt")
                 } else if(allAktivOppgave.any {it.eventId == done.eventId}) {
                     database.dbQuery { setOppgaveAktivFlag(done.eventId, false) }
                     log.info("Fant nytt Oppgave-event etter tidligere mottatt Done-event, setter event med eventId ${done.eventId} inaktivt")
