@@ -10,9 +10,9 @@ object BeskjedTransformer {
         val newRecordsAreActiveByDefault = true
         val internal = Beskjed(external.getProdusent(),
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(external.getTidspunkt()), ZoneId.of("Europe/Oslo")),
-                external.getAktorId(),
+                external.getFodselsnummer(),
                 external.getEventId(),
-                external.getDokumentId(),
+                external.getGrupperingsId(),
                 external.getTekst(),
                 external.getLink(),
                 external.getSikkerhetsnivaa(),
