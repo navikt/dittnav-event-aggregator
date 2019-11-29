@@ -28,8 +28,8 @@ class BeskjedQueriesTest {
         allEventsForSingleUser = listOf(Beskjed1, Beskjed2, Beskjed3)
     }
 
-    private fun createBeskjed(eventId: String, aktorId: String): Beskjed {
-        var Beskjed = BeskjedObjectMother.createBeskjed(eventId, aktorId)
+    private fun createBeskjed(eventId: String, fodselsnummer: String): Beskjed {
+        var Beskjed = BeskjedObjectMother.createBeskjed(eventId, fodselsnummer)
         runBlocking {
             database.dbQuery {
                 var generatedId = createBeskjed(Beskjed)
@@ -85,18 +85,18 @@ class BeskjedQueriesTest {
     }
 
     @Test
-    fun `Finner cachede Beskjeds-eventer for aktorID`() {
+    fun `Finner cachede Beskjeds-eventer for fodselsnummer`() {
         runBlocking {
-            val result = database.dbQuery { getBeskjedByAktorId("12345") }
+            val result = database.dbQuery { getBeskjedByFodselsnummer("12345") }
             result.size `should be equal to` 3
             result `should contain all` allEventsForSingleUser
         }
     }
 
     @Test
-    fun `Returnerer tom liste hvis Beskjeds-eventer for aktorID ikke finnes`() {
+    fun `Returnerer tom liste hvis Beskjeds-eventer for fodselsnummer ikke finnes`() {
         runBlocking {
-            val result = database.dbQuery { getBeskjedByAktorId("-1") }
+            val result = database.dbQuery { getBeskjedByFodselsnummer("-1") }
             result.isEmpty() `should be equal to` true
         }
     }

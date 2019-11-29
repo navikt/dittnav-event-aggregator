@@ -13,8 +13,8 @@ class DoneTransformerTest {
         val transformed = DoneTransformer.toInternal(original)
 
         transformed.produsent `should be equal to` original.getProdusent()
-        transformed.aktorId `should be equal to` original.getFodselsnummer()
-        transformed.dokumentId `should be equal to` original.getGrupperingsId()
+        transformed.fodselsnummer `should be equal to` original.getFodselsnummer()
+        transformed.grupperingsId `should be equal to` original.getGrupperingsId()
         transformed.eventId `should be equal to` original.getEventId()
 
         val transformedEventTidspunktAsLong = transformed.eventTidspunkt.atZone(ZoneId.of("Europe/Oslo")).toInstant().toEpochMilli()

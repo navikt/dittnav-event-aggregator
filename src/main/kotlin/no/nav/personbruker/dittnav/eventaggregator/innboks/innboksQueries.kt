@@ -28,13 +28,13 @@ fun Connection.getInnboksById(entityId: Int): Innboks =
 
 
 fun Connection.createInnboks(innboks: Innboks): Int =
-        prepareStatement("""INSERT INTO INNBOKS(produsent, eventTidspunkt, aktorId, eventId, dokumentId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv)
+        prepareStatement("""INSERT INTO INNBOKS(produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv)
             VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", Statement.RETURN_GENERATED_KEYS).use {
             it.setString(1, innboks.produsent)
             it.setObject(2, innboks.eventTidspunkt, Types.TIMESTAMP)
-            it.setString(3, innboks.aktorId)
+            it.setString(3, innboks.fodselsnummer)
             it.setString(4, innboks.eventId)
-            it.setString(5, innboks.dokumentId)
+            it.setString(5, innboks.grupperingsId)
             it.setString(6, innboks.tekst)
             it.setString(7, innboks.link)
             it.setInt(8, innboks.sikkerhetsnivaa)
@@ -62,10 +62,10 @@ fun Connection.getAllInnboksByAktiv(aktiv: Boolean): List<Innboks> =
                     }
                 }
 
-fun Connection.getInnboksByAktorId(aktorId: String) : List<Innboks> =
-        prepareStatement("""SELECT * FROM INNBOKS WHERE aktorId = ?""")
+fun Connection.getInnboksByFodselsnummer(fodselsnummer: String) : List<Innboks> =
+        prepareStatement("""SELECT * FROM INNBOKS WHERE fodselsnummer = ?""")
                 .use {
-                    it.setString(1, aktorId)
+                    it.setString(1, fodselsnummer)
                     it.executeQuery().list {
                         toInnboks()
                     }
@@ -87,9 +87,9 @@ private fun ResultSet.toInnboks(): Innboks {
             id = getInt("id"),
             produsent = getString("produsent"),
             eventTidspunkt = LocalDateTime.ofInstant(getTimestamp("eventTidspunkt").toInstant(), ZoneId.of("Europe/Oslo")),
-            aktorId = getString("aktorId"),
+            fodselsnummer = getString("fodselsnummer"),
             eventId = getString("eventId"),
-            dokumentId = getString("dokumentId"),
+            grupperingsId = getString("grupperingsId"),
             tekst = getString("tekst"),
             link = getString("link"),
             sikkerhetsnivaa = getInt("sikkerhetsnivaa"),

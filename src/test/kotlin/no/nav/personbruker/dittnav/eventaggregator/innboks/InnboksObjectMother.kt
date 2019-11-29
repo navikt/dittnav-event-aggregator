@@ -5,15 +5,15 @@ import java.time.ZoneId
 
 object InnboksObjectMother {
 
-    fun createInnboks(eventId: String, aktorId: String): Innboks {
+    fun createInnboks(eventId: String, fodselsnummer: String): Innboks {
         return Innboks(
                 "DittNav",
                 LocalDateTime.now(ZoneId.of("Europe/Oslo")),
-                aktorId,
+                fodselsnummer,
                 eventId,
                 "100$eventId",
                 "Dette er innboksnotifikasjon til brukeren",
-                "https://nav.no/systemX/$aktorId",
+                "https://nav.no/systemX/$fodselsnummer",
                 4,
                 LocalDateTime.now(ZoneId.of("Europe/Oslo")),
                 true)

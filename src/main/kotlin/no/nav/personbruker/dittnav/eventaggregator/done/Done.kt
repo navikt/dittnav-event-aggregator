@@ -6,6 +6,6 @@ data class Done(
         val eventId: String,
         val produsent: String,
         val eventTidspunkt: LocalDateTime,
-        val aktorId: String,
-        val dokumentId: String
+        val fodselsnummer: String,
+        val grupperingsId: String
 )

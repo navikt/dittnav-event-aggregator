@@ -5,13 +5,13 @@ import java.time.ZoneId
 
 object OppgaveObjectMother {
 
-    fun createOppgave(eventId: String, aktorId: String): Oppgave {
+    fun createOppgave(eventId: String, fodselsnummer: String): Oppgave {
         return Oppgave(
                 produsent = "DittNav",
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("Europe/Oslo")),
-                aktorId = aktorId,
+                fodselsnummer = fodselsnummer,
                 eventId = eventId,
-                dokumentId = "Dok12345",
+                grupperingsId = "Dok12345",
                 tekst = "Dette er en oppgave til brukeren",
                 link = "https://nav.no/systemX/",
                 sikkerhetsinvaa = 4,

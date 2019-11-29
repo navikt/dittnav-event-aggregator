@@ -10,8 +10,8 @@ import org.junit.jupiter.api.Test
 class InnboksQueriesTest {
     private val database = H2Database()
 
-    private val aktorId1 = "12345"
-    private val aktorId2 = "67890"
+    private val fodselsnummer1 = "12345"
+    private val fodselsnummer2 = "67890"
 
     private val innboks1: Innboks
     private val innboks2: Innboks
@@ -21,16 +21,16 @@ class InnboksQueriesTest {
     private val allInnboksForAktor1: List<Innboks>
 
     init {
-        innboks1 = createInnboks("1", aktorId1)
-        innboks2 = createInnboks("2", aktorId2)
-        innboks3 = createInnboks("3", aktorId1)
+        innboks1 = createInnboks("1", fodselsnummer1)
+        innboks2 = createInnboks("2", fodselsnummer2)
+        innboks3 = createInnboks("3", fodselsnummer1)
 
         allInnboks = listOf(innboks1, innboks2, innboks3)
         allInnboksForAktor1 = listOf(innboks1, innboks3)
     }
 
-    private fun createInnboks(eventId: String, aktorId: String): Innboks {
-        val innboks = InnboksObjectMother.createInnboks(eventId, aktorId)
+    private fun createInnboks(eventId: String, fodselsnummer: String): Innboks {
+        val innboks = InnboksObjectMother.createInnboks(eventId, fodselsnummer)
 
         return runBlocking {
             database.dbQuery {
@@ -104,10 +104,10 @@ class InnboksQueriesTest {
     }
 
     @Test
-    fun `should find Innboks by aktorId`() {
+    fun `should find Innboks by fodselsnummer`() {
         runBlocking {
             database.dbQuery {
-                val result = getInnboksByAktorId(aktorId1)
+                val result = getInnboksByFodselsnummer(fodselsnummer1)
                 result.size `should be equal to` allInnboksForAktor1.size
                 result `should contain all` allInnboksForAktor1
                 result `should not contain` innboks2
