@@ -1,7 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import no.nav.brukernotifikasjon.schemas.Innboks
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
@@ -20,9 +18,7 @@ class InnboksEventService (
             runCatching {
                 InnboksTransformer.toInternal(event.value())
             }.onSuccess { innboks ->
-                withContext(Dispatchers.IO) {
-                    innboksRepository.storeInnboksEventInCache(innboks)
-                }
+                innboksRepository.storeInnboksEventInCache(innboks)
             }.onFailure { error ->
                 log.warn("Transformasjon av event [$event] fra Kafka feilet, fullfører batch-en før pollig stoppes.", error)
             }.isFailure

@@ -2,9 +2,10 @@ package no.nav.personbruker.dittnav.eventaggregator.innboks
 
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.getAllOppgave
-import org.amshove.kluent.*
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should contain all`
+import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should not contain`
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 
@@ -133,7 +134,9 @@ class InnboksQueriesTest {
         runBlocking {
             database.dbQuery {
                 createInnboks(innboks1)
-                getAllInnboks().size `should be equal to` allInnboks.size
+                val numberOfEvents = getAllInnboks().size
+                createInnboks(innboks1)
+                getAllInnboks().size `should be equal to` numberOfEvents
             }
         }
     }

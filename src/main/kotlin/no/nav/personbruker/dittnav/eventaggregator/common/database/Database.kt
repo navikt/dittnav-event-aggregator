@@ -1,31 +1,37 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.database
 
 import com.zaxxer.hikari.HikariDataSource
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
-import java.sql.*
+import java.sql.Connection
+import java.sql.SQLException
+import java.sql.SQLRecoverableException
+import java.sql.SQLTransientException
 
 interface Database {
 
     val dataSource: HikariDataSource
 
-    suspend fun <T> dbQuery(operationToExecute: Connection.() -> T): T =
-            dataSource.connection.use { openConnection ->
-                try {
-                    openConnection.operationToExecute().apply {
-                        openConnection.commit()
-                    }
-
-                } catch (e: Exception) {
-                    try {
-                        openConnection.rollback()
-                    } catch (rollbackException: Exception) {
-                        e.addSuppressed(rollbackException)
-                    }
-                    throw e
+    suspend fun <T> dbQuery(operationToExecute: Connection.() -> T): T = withContext(Dispatchers.IO) {
+        dataSource.connection.use { openConnection ->
+            try {
+                openConnection.operationToExecute().apply {
+                    openConnection.commit()
                 }
+
+            } catch (e: Exception) {
+                try {
+                    openConnection.rollback()
+                } catch (rollbackException: Exception) {
+                    e.addSuppressed(rollbackException)
+                }
+                throw e
             }
+        }
+    }
+
 
 
 

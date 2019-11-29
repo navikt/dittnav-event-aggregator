@@ -123,7 +123,9 @@ class OppgaveQueriesTest {
         runBlocking {
             database.dbQuery {
                 createOppgave(oppgave1)
-                getAllOppgave().size `should be equal to` allEvents.size
+                val numberOfEvents = getAllOppgave().size
+                createOppgave(oppgave1)
+                getAllOppgave().size `should be equal to` numberOfEvents
             }
         }
     }

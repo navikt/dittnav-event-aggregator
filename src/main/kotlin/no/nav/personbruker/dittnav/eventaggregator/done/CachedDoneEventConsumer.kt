@@ -1,6 +1,9 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.time.delay
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.getAllBeskjedByAktiv
@@ -12,8 +15,6 @@ import no.nav.personbruker.dittnav.eventaggregator.oppgave.setOppgaveAktivFlag
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
-import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
 import kotlin.coroutines.CoroutineContext
 
 class CachedDoneEventConsumer(
@@ -43,22 +44,20 @@ class CachedDoneEventConsumer(
     }
 
     suspend fun processDoneEvents() {
-        withContext(Dispatchers.IO) {
-            val allDone = database.dbQuery { getAllDoneEvent() }
-            val allAktivBeskjed = database.dbQuery { getAllBeskjedByAktiv(true) }
-            val allAktivOppgave = database.dbQuery { getAllOppgaveByAktiv(true) }
-            val allAktivInnboks = database.dbQuery { getAllInnboksByAktiv(true) }
-            allDone.forEach { done ->
-                if(allAktivBeskjed.any { it.eventId == done.eventId}) {
-                    database.dbQuery { setBeskjedAktivFlag(done.eventId, false) }
-                    log.info("Fant nytt Beskjed-event etter tidligere mottatt Done-event, setter event med eventId ${done.eventId} inaktivt")
-                } else if(allAktivOppgave.any {it.eventId == done.eventId}) {
-                    database.dbQuery { setOppgaveAktivFlag(done.eventId, false) }
-                    log.info("Fant nytt Oppgave-event etter tidligere mottatt Done-event, setter event med eventId ${done.eventId} inaktivt")
-                } else if(allAktivInnboks.any {it.eventId == done.eventId}) {
-                    database.dbQuery { setInnboksAktivFlag(done.eventId, false) }
-                    log.info("Fant nytt Innboks-event etter tidligere mottatt Done-event, setter event med eventId ${done.eventId} inaktivt")
-                }
+        val allDone = database.dbQuery { getAllDoneEvent() }
+        val allAktivBeskjed = database.dbQuery { getAllBeskjedByAktiv(true) }
+        val allAktivOppgave = database.dbQuery { getAllOppgaveByAktiv(true) }
+        val allAktivInnboks = database.dbQuery { getAllInnboksByAktiv(true) }
+        allDone.forEach { done ->
+            if(allAktivBeskjed.any { it.eventId == done.eventId}) {
+                database.dbQuery { setBeskjedAktivFlag(done.eventId, false) }
+                log.info("Fant nytt Beskjed-event etter tidligere mottatt Done-event, setter event med eventId ${done.eventId} inaktivt")
+            } else if(allAktivOppgave.any {it.eventId == done.eventId}) {
+                database.dbQuery { setOppgaveAktivFlag(done.eventId, false) }
+                log.info("Fant nytt Oppgave-event etter tidligere mottatt Done-event, setter event med eventId ${done.eventId} inaktivt")
+            } else if(allAktivInnboks.any {it.eventId == done.eventId}) {
+                database.dbQuery { setInnboksAktivFlag(done.eventId, false) }
+                log.info("Fant nytt Innboks-event etter tidligere mottatt Done-event, setter event med eventId ${done.eventId} inaktivt")
             }
         }
     }
