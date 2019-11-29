@@ -5,15 +5,15 @@ import java.time.ZoneId
 
 object BeskjedObjectMother {
 
-    fun createBeskjed(eventId: String, aktorId: String): Beskjed {
+    fun createBeskjed(eventId: String, fodselsnummer: String): Beskjed {
         return Beskjed(
                 produsent = "DittNav",
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("Europe/Oslo")),
-                aktorId = aktorId,
+                fodselsnummer = fodselsnummer,
                 eventId = eventId,
-                dokumentId = "100$aktorId",
+                grupperingsId = "100$fodselsnummer",
                 tekst = "Dette er beskjed til brukeren",
-                link = "https://nav.no/systemX/$aktorId",
+                link = "https://nav.no/systemX/$fodselsnummer",
                 sistOppdatert = LocalDateTime.now(ZoneId.of("Europe/Oslo")),
                 sikkerhetsnivaa = 4,
                 aktiv = true)

@@ -6,9 +6,9 @@ data class Beskjed(
         val id: Int?,
         val produsent: String,
         val eventTidspunkt: LocalDateTime,
-        val aktorId: String,
+        val fodselsnummer: String,
         val eventId: String,
-        val dokumentId: String,
+        val grupperingsId: String,
         val tekst: String,
         val link: String,
         val sikkerhetsnivaa: Int,
@@ -17,13 +17,13 @@ data class Beskjed(
 ) {
     constructor(produsent: String,
                 eventTidspunkt: LocalDateTime,
-                aktorId: String,
+                fodselsnummer: String,
                 eventId: String,
-                dokumentId: String,
+                grupperingsId: String,
                 tekst: String,
                 link: String,
                 sikkerhetsnivaa: Int,
                 sistOppdatert: LocalDateTime,
-                aktiv: Boolean) : this(null, produsent, eventTidspunkt, aktorId, eventId, dokumentId, tekst, link,
+                aktiv: Boolean) : this(null, produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link,
             sikkerhetsnivaa, sistOppdatert, aktiv)
 }

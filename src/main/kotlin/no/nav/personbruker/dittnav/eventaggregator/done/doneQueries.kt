@@ -17,13 +17,13 @@ fun Connection.getAllDoneEvent(): List<Done> =
                 }
 
 fun Connection.createDoneEvent(done: Done): Int =
-        prepareStatement("""INSERT INTO DONE(produsent, eventTidspunkt, aktorid, eventId, dokumentId)
+        prepareStatement("""INSERT INTO DONE(produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId)
             VALUES (?, ?, ?, ?, ?)""", Statement.RETURN_GENERATED_KEYS).use {
             it.setString(1, done.produsent)
             it.setObject(2, done.eventTidspunkt, Types.TIMESTAMP)
-            it.setString(3, done.aktorId)
+            it.setString(3, done.fodselsnummer)
             it.setString(4, done.eventId)
-            it.setString(5, done.dokumentId)
+            it.setString(5, done.grupperingsId)
             it.executeUpdate()
             it.generatedKeys.next()
             it.generatedKeys.getInt("id")
@@ -34,7 +34,7 @@ private fun ResultSet.toDoneEvent(): Done {
             eventId = getString("eventId"),
             produsent = getString("produsent"),
             eventTidspunkt = LocalDateTime.ofInstant(getTimestamp("eventTidspunkt").toInstant(), ZoneId.of("Europe/Oslo")),
-            aktorId = getString("aktorId"),
-            dokumentId = getString("dokumentId")
+            fodselsnummer = getString("fodselsnummer"),
+            grupperingsId = getString("grupperingsId")
     )
 }

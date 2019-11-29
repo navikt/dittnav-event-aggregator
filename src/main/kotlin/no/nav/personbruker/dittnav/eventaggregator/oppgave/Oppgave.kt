@@ -6,9 +6,9 @@ data class Oppgave(
         val id: Int?,
         val produsent: String,
         val eventTidspunkt: LocalDateTime,
-        val aktorId: String,
+        val fodselsnummer: String,
         val eventId: String,
-        val dokumentId: String,
+        val grupperingsId: String,
         val tekst: String,
         val link: String,
         val sikkerhetsinvaa: Int,
@@ -18,13 +18,13 @@ data class Oppgave(
     constructor(
             produsent: String,
             eventTidspunkt: LocalDateTime,
-            aktorId: String,
+            fodselsnummer: String,
             eventId: String,
-            dokumentId: String,
+            grupperingsId: String,
             tekst: String,
             link: String,
             sikkerhetsinvaa: Int,
             sistOppdatert: LocalDateTime,
             aktiv: Boolean
-    ) : this(null, produsent, eventTidspunkt, aktorId, eventId, dokumentId, tekst, link, sikkerhetsinvaa, sistOppdatert, aktiv)
+    ) : this(null, produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsinvaa, sistOppdatert, aktiv)
 }

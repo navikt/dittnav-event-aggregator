@@ -15,8 +15,8 @@ class OppgaveTransformerTest {
 
         val internal = OppgaveTransformer.toInternal(external)
 
-        internal.aktorId `should be equal to` external.getFodselsnummer()
-        internal.dokumentId `should be equal to` external.getGrupperingsId()
+        internal.fodselsnummer `should be equal to` external.getFodselsnummer()
+        internal.grupperingsId `should be equal to` external.getGrupperingsId()
         internal.eventId `should be equal to` external.getEventId()
         internal.link `should be equal to` external.getLink()
         internal.tekst `should be equal to` external.getTekst()

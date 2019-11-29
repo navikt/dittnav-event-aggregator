@@ -11,8 +11,8 @@ class OppgaveQueriesTest {
 
     private val database = H2Database()
 
-    private val aktorId1 = "12345"
-    private val aktorId2 = "54321"
+    private val fodselsnummer1 = "12345"
+    private val fodselsnummer2 = "54321"
 
     private val oppgave1: Oppgave
     private val oppgave2: Oppgave
@@ -22,15 +22,15 @@ class OppgaveQueriesTest {
     private val allEventsForSingleUser: List<Oppgave>
 
     init {
-        oppgave1 = createOppgave("1", aktorId1)
-        oppgave2 = createOppgave("2", aktorId2)
-        oppgave3 = createOppgave("3", aktorId1)
+        oppgave1 = createOppgave("1", fodselsnummer1)
+        oppgave2 = createOppgave("2", fodselsnummer2)
+        oppgave3 = createOppgave("3", fodselsnummer1)
         allEvents = listOf(oppgave1, oppgave2, oppgave3)
         allEventsForSingleUser = listOf(oppgave1, oppgave3)
     }
 
-    private fun createOppgave(eventId: String, aktorId: String): Oppgave {
-        var oppgave = OppgaveObjectMother.createOppgave(eventId, aktorId)
+    private fun createOppgave(eventId: String, fodselsnummer: String): Oppgave {
+        var oppgave = OppgaveObjectMother.createOppgave(eventId, fodselsnummer)
         runBlocking {
             database.dbQuery {
                 var generatedId = createOppgave(oppgave)
@@ -68,18 +68,18 @@ class OppgaveQueriesTest {
     }
 
     @Test
-    fun `Finner alle cachede Oppgave-event for aktorId`() {
+    fun `Finner alle cachede Oppgave-event for fodselsnummer`() {
         runBlocking {
-            val result = database.dbQuery { getOppgaveByAktorId(aktorId1) }
+            val result = database.dbQuery { getOppgaveByFodselsnummer(fodselsnummer1) }
             result.size `should be equal to` allEventsForSingleUser.size
             result `should contain all` allEventsForSingleUser
         }
     }
 
     @Test
-    fun `Gir tom liste dersom Oppgave-event med gitt aktorId ikke finnes`() {
+    fun `Gir tom liste dersom Oppgave-event med gitt fodselsnummer ikke finnes`() {
         runBlocking {
-            val result = database.dbQuery { getOppgaveByAktorId("-1") }
+            val result = database.dbQuery { getOppgaveByFodselsnummer("-1") }
             result.isEmpty() `should be` true
         }
     }
