@@ -1,5 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
+import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executePersistQuery
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.singleResult
 import java.sql.Connection
@@ -17,22 +19,19 @@ fun Connection.getAllBeskjed(): List<Beskjed> =
                     }
                 }
 
-fun Connection.createBeskjed(beskjed: Beskjed): Int =
-        prepareStatement("""INSERT INTO BESKJED (produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", Statement.RETURN_GENERATED_KEYS).use {
-            it.setString(1, beskjed.produsent)
-            it.setObject(2, beskjed.eventTidspunkt, Types.TIMESTAMP)
-            it.setString(3, beskjed.fodselsnummer)
-            it.setString(4, beskjed.eventId)
-            it.setString(5, beskjed.grupperingsId)
-            it.setString(6, beskjed.tekst)
-            it.setString(7, beskjed.link)
-            it.setInt(8, beskjed.sikkerhetsnivaa)
-            it.setObject(9, beskjed.sistOppdatert, Types.TIMESTAMP)
-            it.setBoolean(10, beskjed.aktiv)
-            it.executeUpdate()
-            it.generatedKeys.next()
-            it.generatedKeys.getInt("id")
+fun Connection.createBeskjed(beskjed: Beskjed): PersistActionResult =
+        executePersistQuery("""INSERT INTO BESKJED (produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""") {
+            setString(1, beskjed.produsent)
+            setObject(2, beskjed.eventTidspunkt, Types.TIMESTAMP)
+            setString(3, beskjed.fodselsnummer)
+            setString(4, beskjed.eventId)
+            setString(5, beskjed.grupperingsId)
+            setString(6, beskjed.tekst)
+            setString(7, beskjed.link)
+            setInt(8, beskjed.sikkerhetsnivaa)
+            setObject(9, beskjed.sistOppdatert, Types.TIMESTAMP)
+            setBoolean(10, beskjed.aktiv)
         }
 
 fun Connection.setBeskjedAktivFlag(eventId: String, aktiv: Boolean): Int =

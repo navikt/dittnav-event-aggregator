@@ -21,7 +21,7 @@ class BeskjedTeardownQueriesTest {
             val skalHaElementerIDatabasen = database.dbQuery { getAllBeskjed() }
             skalHaElementerIDatabasen.size `should be equal to` 3
 
-            `Slett alle informasonselementer fra databasen`()
+            `Slett alle beskjedelementer fra databasen`()
             val skalIkkeHaElementerIDatabasen = database.dbQuery { getAllBeskjed() }
             skalIkkeHaElementerIDatabasen.isEmpty() `should equal` true
         }
@@ -35,7 +35,7 @@ class BeskjedTeardownQueriesTest {
         }
     }
 
-    private suspend fun `Slett alle informasonselementer fra databasen`() {
+    private suspend fun `Slett alle beskjedelementer fra databasen`() {
         database.dbQuery {
             deleteAllBeskjed()
         }

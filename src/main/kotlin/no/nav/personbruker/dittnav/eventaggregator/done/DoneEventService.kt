@@ -1,6 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
-import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.Done
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
@@ -26,18 +25,16 @@ class DoneEventService(
         }
     }
 
-    private fun processDoneEvent(event: Done) {
+    private suspend fun processDoneEvent(event: Done) {
         val entity = DoneTransformer.toInternal(event)
-        runBlocking {
-            val brukernotifikasjoner = database.dbQuery { getAllBrukernotifikasjonFromView() }
-            val foundEvent: Brukernotifikasjon? = brukernotifikasjoner.find { it.id == entity.eventId }
-            if (foundEvent != null) {
-                log.info("Fant matchende event for Done-event med ${foundEvent.id}")
-                flagEventAsInactive(foundEvent)
-            } else {
-                database.dbQuery { createDoneEvent(entity) }
-                log.info("Fant ikke matchende event for done-event med id ${entity.eventId}. Skrev done-event til cache")
-            }
+        val brukernotifikasjoner = database.dbQuery { getAllBrukernotifikasjonFromView() }
+        val foundEvent: Brukernotifikasjon? = brukernotifikasjoner.find { it.id == entity.eventId }
+        if (foundEvent != null) {
+            log.info("Fant matchende event for Done-event med ${foundEvent.id}")
+            flagEventAsInactive(foundEvent)
+        } else {
+            database.dbQuery { createDoneEvent(entity) }
+            log.info("Fant ikke matchende event for done-event med id ${entity.eventId}. Skrev done-event til cache")
         }
     }
 

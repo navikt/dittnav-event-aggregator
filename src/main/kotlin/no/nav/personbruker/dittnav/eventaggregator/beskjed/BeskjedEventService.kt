@@ -9,7 +9,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class BeskjedEventService(
-        private val BeskjedRepository: BeskjedRepository
+        private val beskjedRepository: BeskjedRepository
 ) : EventBatchProcessorService<Beskjed> {
 
     private val log: Logger = LoggerFactory.getLogger(BeskjedEventService::class.java)
@@ -27,7 +27,9 @@ class BeskjedEventService(
                 log.warn("Transformasjon av event fra Kafka feilet, fullfører batch-en før pollig stoppes.", e)
             }
         }
-        BeskjedRepository.writeEventsToCache(successfullyTransformedEvents)
+
+        beskjedRepository.writeEventsToCache(successfullyTransformedEvents)
+
         kastExceptionHvisMislykkedeTransformasjoner(problematicEvents)
     }
 

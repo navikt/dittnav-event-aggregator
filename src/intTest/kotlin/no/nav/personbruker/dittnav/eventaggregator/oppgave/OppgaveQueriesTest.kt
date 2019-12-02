@@ -33,7 +33,7 @@ class OppgaveQueriesTest {
         var oppgave = OppgaveObjectMother.createOppgave(eventId, fodselsnummer)
         runBlocking {
             database.dbQuery {
-                var generatedId = createOppgave(oppgave)
+                var generatedId = createOppgave(oppgave).entityId
                 oppgave = oppgave.copy(id=generatedId)
             }
         }
@@ -116,5 +116,17 @@ class OppgaveQueriesTest {
                 database.dbQuery { getOppgaveByEventId("-1") }
             }
         } shouldThrow SQLException::class `with message` "Found no rows"
+    }
+
+    @Test
+    fun `Persister ikke entitet dersom rad med samme eventId og produsent finnes`() {
+        runBlocking {
+            database.dbQuery {
+                createOppgave(oppgave1)
+                val numberOfEvents = getAllOppgave().size
+                createOppgave(oppgave1)
+                getAllOppgave().size `should be equal to` numberOfEvents
+            }
+        }
     }
 }

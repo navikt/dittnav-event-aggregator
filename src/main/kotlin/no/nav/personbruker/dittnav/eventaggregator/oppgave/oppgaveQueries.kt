@@ -1,5 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
+import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executePersistQuery
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.singleResult
 import java.sql.Connection
@@ -17,23 +19,19 @@ fun Connection.getAllOppgave(): List<Oppgave> =
                     }
                 }
 
-fun Connection.createOppgave(oppgave: Oppgave): Int =
-        prepareStatement("""INSERT INTO OPPGAVE (produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?)""",
-                Statement.RETURN_GENERATED_KEYS)
-                .use {
-                    it.setString(1, oppgave.produsent)
-                    it.setObject(2, oppgave.eventTidspunkt, Types.TIMESTAMP)
-                    it.setString(3, oppgave.fodselsnummer)
-                    it.setString(4, oppgave.eventId)
-                    it.setString(5, oppgave.grupperingsId)
-                    it.setString(6, oppgave.tekst)
-                    it.setString(7, oppgave.link)
-                    it.setInt(8, oppgave.sikkerhetsinvaa)
-                    it.setObject(9, oppgave.sistOppdatert, Types.TIMESTAMP)
-                    it.setBoolean(10, oppgave.aktiv)
-                    it.executeUpdate()
-                    it.generatedKeys.next()
-                    it.generatedKeys.getInt("id")
+fun Connection.createOppgave(oppgave: Oppgave): PersistActionResult =
+        executePersistQuery("""INSERT INTO OPPGAVE (produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?)""")
+                {
+                    setString(1, oppgave.produsent)
+                    setObject(2, oppgave.eventTidspunkt, Types.TIMESTAMP)
+                    setString(3, oppgave.fodselsnummer)
+                    setString(4, oppgave.eventId)
+                    setString(5, oppgave.grupperingsId)
+                    setString(6, oppgave.tekst)
+                    setString(7, oppgave.link)
+                    setInt(8, oppgave.sikkerhetsinvaa)
+                    setObject(9, oppgave.sistOppdatert, Types.TIMESTAMP)
+                    setBoolean(10, oppgave.aktiv)
                 }
 
 fun Connection.setOppgaveAktivFlag(eventId: String, aktiv: Boolean): Int =

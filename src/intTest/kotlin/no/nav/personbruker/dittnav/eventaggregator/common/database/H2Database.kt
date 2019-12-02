@@ -17,7 +17,7 @@ class H2Database : Database {
 
     private fun createDataSource(): HikariDataSource {
         return HikariDataSource().apply {
-            jdbcUrl = "jdbc:h2:mem:testdb"
+            jdbcUrl = "jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE"
             username = "sa"
             password = ""
             validate()

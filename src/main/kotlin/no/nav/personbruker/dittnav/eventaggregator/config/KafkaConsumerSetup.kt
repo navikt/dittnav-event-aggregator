@@ -30,7 +30,7 @@ object KafkaConsumerSetup {
         appContext.doneConsumer.startPolling()
     }
 
-    fun stopAllKafkaConsumers(appContext: ApplicationContext) = runBlocking {
+    fun stopAllKafkaConsumers(appContext: ApplicationContext) {
         log.info("Begynner å stoppe kafka-pollerne...")
         appContext.beskjedConsumer.stopPolling()
         appContext.oppgaveConsumer.stopPolling()
