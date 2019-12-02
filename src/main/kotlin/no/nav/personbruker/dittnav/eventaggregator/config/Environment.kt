@@ -1,6 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
-data class Environment(val bootstrapServers: String = getEnvVar("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092"),
+data class Environment(val bootstrapServers: String = getEnvVar("KAFKA_BOOTSTRAP_SERVERS", "localhost:29092"),
                        val schemaRegistryUrl: String = getEnvVar("KAFKA_SCHEMAREGISTRY_SERVERS", "http://localhost:8081"),
                        val username: String = getEnvVar("FSS_SYSTEMUSER_USERNAME", "username"),
                        val password: String = getEnvVar("FSS_SYSTEMUSER_PASSWORD", "password"),

@@ -9,7 +9,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class BeskjedEventService(
-        private val BeskjedRepository: BeskjedRepository
+        private val beskjedRepository: BeskjedRepository
 ) : EventBatchProcessorService<Beskjed> {
 
     private val log: Logger = LoggerFactory.getLogger(BeskjedEventService::class.java)

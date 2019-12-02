@@ -29,14 +29,14 @@ class BeskjedQueriesTest {
     }
 
     private fun createBeskjed(eventId: String, fodselsnummer: String): Beskjed {
-        var Beskjed = BeskjedObjectMother.createBeskjed(eventId, fodselsnummer)
-        runBlocking {
+        var beskjed = BeskjedObjectMother.createBeskjed(eventId, fodselsnummer)
+        return runBlocking {
             database.dbQuery {
-                var generatedId = createBeskjed(Beskjed)
-                Beskjed = Beskjed.copy(id = generatedId)
+                createBeskjed(beskjed).entityId.let{
+                    beskjed.copy(id = it)
+                }
             }
         }
-        return Beskjed
     }
 
     @AfterAll
