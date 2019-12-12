@@ -75,12 +75,16 @@ workflows:
       - bygg-gradle
       - docker-bygg-og-push-uten-latest:
           context: NAIS deployment
+          requires:
+            - bygg-gradle
           filters:
             branches:
               ignore:
                 - master
       - docker-bygg-og-push-med-latest:
           context: NAIS deployment
+          requires:
+            - bygg-gradle
           filters:
             branches:
               only:
