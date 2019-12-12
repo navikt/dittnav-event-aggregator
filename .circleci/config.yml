@@ -21,12 +21,16 @@ jobs:
           paths:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle.kts" }}
+      - persist_to_workspace:
+          root: .
+          paths:
+            - build/libs/*
+            - Dockerfile
   docker-bygg-og-push-uten-latest:
     executor: nais/deployment-cli
     steps:
-      - setup_remote_docker
-      - run:
-          name: Docker build og push, uten latest
+      - docker-deploy:
+          description: Docker build og push, uten latest
           command: |
             echo $DOCKER_PASSWORD | docker login --username $DOCKER_LOGIN --password-stdin
             docker build -t "navikt/dittnav-event-aggregator:$CIRCLE_SHA1" .
@@ -34,9 +38,8 @@ jobs:
   docker-bygg-og-push-med-latest:
     executor: nais/deployment-cli
     steps:
-      - setup_remote_docker
-      - run:
-          name: Docker build og push, med latest
+      - docker-deploy:
+          description: Docker build og push, med latest
           command: |
             echo $DOCKER_PASSWORD | docker login --username $DOCKER_LOGIN --password-stdin
             docker build -t "navikt/dittnav-event-aggregator:$CIRCLE_SHA1" -t "navikt/dittnav-event-aggregator:latest" .
@@ -50,6 +53,21 @@ jobs:
           environment: dev-sbs
 
 commands:
+  docker-deploy:
+    description: Bygg og push Docker-image
+    parameters:
+      description:
+        type: string
+      command:
+        type: string
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - attach_workspace:
+          at: .
+      - run:
+          name: << parameters.description >>
+          command: << parameters.command >>
   nais-deploy:
     description: Deploy til miljø
     parameters:
