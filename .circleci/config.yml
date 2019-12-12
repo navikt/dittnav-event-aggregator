@@ -3,7 +3,7 @@ orbs:
   nais: 'navikt/nais-deployment@3.2.0'
 
 jobs:
-  bygg-og-push-docker:
+  bygg-gradle:
     docker:
       - image: circleci/openjdk:13-jdk-buster
         environment:
@@ -17,20 +17,31 @@ jobs:
       - run:
           name: Gradle build
           command: gradle build
-      - setup_remote_docker
-      - run:
-          name: Docker build
-          command: docker build -t "navikt/dittnav-event-aggregator:$CIRCLE_SHA1" -t "navikt/dittnav-event-aggregator:latest" .
-      - run:
-          name: Docker push
-          command: |
-            echo $DOCKER_PASSWORD | docker login --username $DOCKER_LOGIN --password-stdin
-            docker push "navikt/dittnav-event-aggregator:$CIRCLE_SHA1"
-            docker push "navikt/dittnav-event-aggregator:latest"
       - save_cache:
           paths:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle.kts" }}
+  docker-bygg-og-push-uten-latest:
+    executor: nais/deployment-cli
+    steps:
+      - setup_remote_docker
+      - run:
+          name: Docker build og push, uten latest
+          command: |
+            echo $DOCKER_PASSWORD | docker login --username $DOCKER_LOGIN --password-stdin
+            docker build -t "navikt/dittnav-event-aggregator:$CIRCLE_SHA1" .
+            docker push "navikt/dittnav-event-aggregator:$CIRCLE_SHA1"
+  docker-bygg-og-push-med-latest:
+    executor: nais/deployment-cli
+    steps:
+      - setup_remote_docker
+      - run:
+          name: Docker build og push, med latest
+          command: |
+            echo $DOCKER_PASSWORD | docker login --username $DOCKER_LOGIN --password-stdin
+            docker build -t "navikt/dittnav-event-aggregator:$CIRCLE_SHA1" -t "navikt/dittnav-event-aggregator:latest" .
+            docker push "navikt/dittnav-event-aggregator:$CIRCLE_SHA1"
+            docker push "navikt/dittnav-event-aggregator:latest"
   deploy-q1:
     executor: nais/deployment-cli
     steps:
@@ -61,12 +72,24 @@ commands:
 workflows:
   bygg-og-deploy:
     jobs:
-      - bygg-og-push-docker:
+      - bygg-gradle
+      - docker-bygg-og-push-uten-latest:
           context: NAIS deployment
+          filters:
+            branches:
+              ignore:
+                - master
+      - docker-bygg-og-push-med-latest:
+          context: NAIS deployment
+          filters:
+            branches:
+              only:
+                - master
       - til-q1:
           type: approval
           requires:
-            - bygg-og-push-docker
+            - docker-bygg-og-push-uten-latest
+            - docker-bygg-og-push-med-latest
       - deploy-q1:
           requires:
             - til-q1
