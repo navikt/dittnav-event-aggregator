@@ -1,6 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
 import no.nav.brukernotifikasjon.schemas.Done
+import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon
@@ -9,6 +10,7 @@ import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.setBeskjedAktivFlag
 import no.nav.personbruker.dittnav.eventaggregator.innboks.setInnboksAktivFlag
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.setOppgaveAktivFlag
+import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -19,14 +21,14 @@ class DoneEventService(
 
     private val log: Logger = LoggerFactory.getLogger(DoneEventService::class.java)
 
-    override suspend fun processEvents(events: ConsumerRecords<String, Done>) {
+    override suspend fun processEvents(events: ConsumerRecords<Nokkel, Done>) {
         events.forEach { event ->
-            processDoneEvent(event.value() as Done)
+            processDoneEvent(event)
         }
     }
 
-    private suspend fun processDoneEvent(event: Done) {
-        val entity = DoneTransformer.toInternal(event)
+    private suspend fun processDoneEvent(event: ConsumerRecord<Nokkel, Done>) {
+        val entity = DoneTransformer.toInternal(event.key(), event.value())
         val brukernotifikasjoner = database.dbQuery { getAllBrukernotifikasjonFromView() }
         val foundEvent: Brukernotifikasjon? = brukernotifikasjoner.find { it.id == entity.eventId }
         if (foundEvent != null) {

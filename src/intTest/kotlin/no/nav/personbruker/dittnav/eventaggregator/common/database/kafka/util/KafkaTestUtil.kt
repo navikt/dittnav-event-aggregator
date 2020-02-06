@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util
 
+import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.common.JAASCredential
 import no.nav.common.KafkaEnvironment
 import no.nav.personbruker.dittnav.eventaggregator.config.Environment
@@ -28,7 +29,7 @@ object KafkaTestUtil {
         )
     }
 
-    suspend fun produceEvents(env: Environment, topicName: String, events: Map<String, GenericRecord>): Boolean {
+    suspend fun produceEvents(env: Environment, topicName: String, events: Map<Nokkel, GenericRecord>): Boolean {
         return KafkaProducerUtil.kafkaAvroProduce(
                 env.bootstrapServers,
                 env.schemaRegistryUrl,

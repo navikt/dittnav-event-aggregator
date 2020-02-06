@@ -5,9 +5,9 @@ import java.time.LocalDateTime
 data class Innboks (
         val id: Int?,
         val produsent: String,
+        val eventId: String,
         val eventTidspunkt: LocalDateTime,
         val fodselsnummer: String,
-        val eventId: String,
         val grupperingsId: String,
         val tekst: String,
         val link: String,
@@ -17,9 +17,9 @@ data class Innboks (
 ) {
     constructor(
             produsent: String,
+            eventId: String,
             eventTidspunkt: LocalDateTime,
             fodselsnummer: String,
-            eventId: String,
             grupperingsId: String,
             tekst: String,
             link: String,
@@ -29,9 +29,9 @@ data class Innboks (
     ) : this(
             null,
             produsent,
+            eventId,
             eventTidspunkt,
             fodselsnummer,
-            eventId,
             grupperingsId,
             tekst,
             link,

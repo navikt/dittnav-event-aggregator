@@ -7,6 +7,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util.Ka
 import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util.KafkaTestUtil
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import org.amshove.kluent.`should equal`
 import org.amshove.kluent.shouldContainAll
 import org.amshove.kluent.shouldEqualTo
@@ -27,7 +28,7 @@ class AvroBasicKafkaEmbeddedTesting {
     private val password = "kafkaclient"
     private val embeddedEnv = KafkaTestUtil.createDefaultKafkaEmbeddedInstance(listOf(topicen))
 
-    private val events = (1..9).map { "$it" to AvroBeskjedObjectMother.createBeskjed(it) }.toMap()
+    private val events = (1..9).map { createNokkel(it) to AvroBeskjedObjectMother.createBeskjed(it) }.toMap()
 
     init {
         embeddedEnv.start()

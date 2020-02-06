@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util
 
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
 import kotlinx.coroutines.withTimeoutOrNull
+import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.common.JAAS_PLAIN_LOGIN
 import no.nav.common.JAAS_REQUIRED
 import org.apache.avro.generic.GenericRecord
@@ -20,14 +21,14 @@ object KafkaProducerUtil {
             topic: String,
             user: String,
             pwd: String,
-            data: Map<String, GenericRecord>
+            data: Map<Nokkel, GenericRecord>
     ): Boolean =
             try {
-                KafkaProducer<String, GenericRecord>(
+                KafkaProducer<Nokkel, GenericRecord>(
                         Properties().apply {
                             set(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokersURL)
                             set(ProducerConfig.CLIENT_ID_CONFIG, "funKafkaAvroProduce")
-                            set(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer")
+                            set(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "io.confluent.kafka.serializers.KafkaAvroSerializer")
                             set(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "io.confluent.kafka.serializers.KafkaAvroSerializer")
                             set(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl)
                             set(ProducerConfig.ACKS_CONFIG, "all")

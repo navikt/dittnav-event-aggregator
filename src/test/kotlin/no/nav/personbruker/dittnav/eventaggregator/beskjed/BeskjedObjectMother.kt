@@ -9,6 +9,7 @@ object BeskjedObjectMother {
         return Beskjed(
                 produsent = "DittNav",
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("Europe/Oslo")),
+                synligFremTil = LocalDateTime.now(ZoneId.of("Europe/Oslo")),
                 fodselsnummer = fodselsnummer,
                 eventId = eventId,
                 grupperingsId = "100$fodselsnummer",

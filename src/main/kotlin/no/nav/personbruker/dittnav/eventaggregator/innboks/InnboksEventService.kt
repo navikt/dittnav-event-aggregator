@@ -1,6 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
 import no.nav.brukernotifikasjon.schemas.Innboks
+import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import org.apache.kafka.clients.consumer.ConsumerRecords
@@ -12,11 +13,11 @@ class InnboksEventService (
 
     private val log = LoggerFactory.getLogger(InnboksEventService::class.java)
 
-    override suspend fun processEvents(events: ConsumerRecords<String, Innboks>) {
+    override suspend fun processEvents(events: ConsumerRecords<Nokkel, Innboks>) {
 
         events.count { event ->
             runCatching {
-                InnboksTransformer.toInternal(event.value())
+                InnboksTransformer.toInternal(event.key(), event.value())
             }.onSuccess { innboks ->
                 innboksRepository.storeInnboksEventInCache(innboks)
             }.onFailure { error ->

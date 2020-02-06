@@ -1,6 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import no.nav.brukernotifikasjon.schemas.Beskjed
+import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -14,12 +15,12 @@ class BeskjedEventService(
 
     private val log: Logger = LoggerFactory.getLogger(BeskjedEventService::class.java)
 
-    override suspend fun processEvents(events: ConsumerRecords<String, Beskjed>) {
+    override suspend fun processEvents(events: ConsumerRecords<Nokkel, Beskjed>) {
         val successfullyTransformedEvents = mutableListOf<no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed>()
-        val problematicEvents = mutableListOf<ConsumerRecord<String, Beskjed>>()
+        val problematicEvents = mutableListOf<ConsumerRecord<Nokkel, Beskjed>>()
         events.forEach { event ->
             try {
-                val internalEvent = BeskjedTransformer.toInternal(event.value())
+                val internalEvent = BeskjedTransformer.toInternal(event.key(), event.value())
                 successfullyTransformedEvents.add(internalEvent)
 
             } catch (e: Exception) {
@@ -33,7 +34,7 @@ class BeskjedEventService(
         kastExceptionHvisMislykkedeTransformasjoner(problematicEvents)
     }
 
-    private fun kastExceptionHvisMislykkedeTransformasjoner(problematicEvents: MutableList<ConsumerRecord<String, Beskjed>>) {
+    private fun kastExceptionHvisMislykkedeTransformasjoner(problematicEvents: MutableList<ConsumerRecord<Nokkel, Beskjed>>) {
         if (problematicEvents.isNotEmpty()) {
             val message = "En eller flere eventer kunne ikke transformeres"
             val exception = UntransformableRecordException(message)

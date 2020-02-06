@@ -38,7 +38,7 @@ class BeskjedEventServiceTest {
             eventService.processEvents(records)
         }
 
-        verify(exactly = records.count()) { BeskjedTransformer.toInternal(any()) }
+        verify(exactly = records.count()) { BeskjedTransformer.toInternal(any(), any()) }
         coVerify(exactly = 1) { BeskjedRepository.writeEventsToCache(allAny()) }
         capturedListOfEntities.captured.size `should be` records.count()
 
@@ -59,7 +59,7 @@ class BeskjedEventServiceTest {
         coEvery { BeskjedRepository.writeEventsToCache(capture(capturedListOfEntities)) } returns Unit
 
         val retriableExp = UntransformableRecordException("Simulert feil i en test")
-        every { BeskjedTransformer.toInternal(any()) } throws retriableExp andThenMany transformedRecords
+        every { BeskjedTransformer.toInternal(any(), any()) } throws retriableExp andThenMany transformedRecords
 
         invoking {
             runBlocking {
@@ -67,7 +67,7 @@ class BeskjedEventServiceTest {
             }
         } `should throw` UntransformableRecordException::class
 
-        coVerify(exactly = totalNumberOfRecords) { BeskjedTransformer.toInternal(any()) }
+        coVerify(exactly = totalNumberOfRecords) { BeskjedTransformer.toInternal(any(), any()) }
         coVerify(exactly = 1) { BeskjedRepository.writeEventsToCache(allAny()) }
         capturedListOfEntities.captured.size `should be` numberOfSuccessfulTransformations
 

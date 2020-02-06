@@ -20,8 +20,8 @@ fun Connection.getAllBeskjed(): List<Beskjed> =
                 }
 
 fun Connection.createBeskjed(beskjed: Beskjed): PersistActionResult =
-        executePersistQuery("""INSERT INTO BESKJED (produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""") {
+        executePersistQuery("""INSERT INTO BESKJED (produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""") {
             setString(1, beskjed.produsent)
             setObject(2, beskjed.eventTidspunkt, Types.TIMESTAMP)
             setString(3, beskjed.fodselsnummer)
@@ -31,7 +31,8 @@ fun Connection.createBeskjed(beskjed: Beskjed): PersistActionResult =
             setString(7, beskjed.link)
             setInt(8, beskjed.sikkerhetsnivaa)
             setObject(9, beskjed.sistOppdatert, Types.TIMESTAMP)
-            setBoolean(10, beskjed.aktiv)
+            setObject(10, beskjed.synligFremTil, Types.TIMESTAMP)
+            setBoolean(11, beskjed.aktiv)
         }
 
 fun Connection.setBeskjedAktivFlag(eventId: String, aktiv: Boolean): Int =
@@ -89,6 +90,7 @@ private fun ResultSet.toBeskjed(): Beskjed {
             link = getString("link"),
             sikkerhetsnivaa = getInt("sikkerhetsnivaa"),
             sistOppdatert = LocalDateTime.ofInstant(getTimestamp("sistOppdatert").toInstant(), ZoneId.of("Europe/Oslo")),
+            synligFremTil = LocalDateTime.ofInstant(getTimestamp("synligFremTil").toInstant(), ZoneId.of("Europe/Oslo")),
             aktiv = getBoolean("aktiv")
     )
 }

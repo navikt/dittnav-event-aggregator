@@ -3,6 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.consum
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.Beskjed
+import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.common.KafkaEnvironment
 import no.nav.personbruker.dittnav.eventaggregator.common.SimpleEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util.KafkaTestUtil
@@ -10,6 +11,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should equal`
 import org.amshove.kluent.shouldEqualTo
@@ -25,7 +27,7 @@ class SingleTopicConsumerTest {
 
     private val adminClient = embeddedEnv.adminClient
 
-    private val events = (1..10).map { "$it" to AvroBeskjedObjectMother.createBeskjed(it) }.toMap()
+    private val events = (1..10).map { createNokkel(it) to AvroBeskjedObjectMother.createBeskjed(it) }.toMap()
 
     init {
         embeddedEnv.start()
@@ -47,7 +49,7 @@ class SingleTopicConsumerTest {
         `Produserer noen testeventer`()
         val eventProcessor = SimpleEventCounterService<Beskjed>()
         val consumerProps = Kafka.consumerProps(testEnvironment, EventType.BESKJED, true)
-        val kafkaConsumer = KafkaConsumer<String, Beskjed>(consumerProps)
+        val kafkaConsumer = KafkaConsumer<Nokkel, Beskjed>(consumerProps)
         val consumer = Consumer(topicen, kafkaConsumer, eventProcessor)
 
         runBlocking {
@@ -75,5 +77,5 @@ class SingleTopicConsumerTest {
 
 }
 
-private fun `have all events been consumed`(eventProcessor: SimpleEventCounterService<Beskjed>, events: Map<String, Beskjed>) =
+private fun `have all events been consumed`(eventProcessor: SimpleEventCounterService<Beskjed>, events: Map<Nokkel, Beskjed>) =
         eventProcessor.eventCounter < events.size

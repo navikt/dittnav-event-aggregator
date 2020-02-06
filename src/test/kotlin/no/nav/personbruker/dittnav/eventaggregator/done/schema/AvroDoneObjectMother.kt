@@ -7,10 +7,8 @@ object AvroDoneObjectMother {
 
     fun createDone(eventId: String): Done {
         return Done(
-                "DittNav",
                 Instant.now().toEpochMilli(),
                 "12345",
-                eventId,
                 "100${eventId}"
         )
     }

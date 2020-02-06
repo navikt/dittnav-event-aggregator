@@ -1,9 +1,11 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
+import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.brukernotifikasjon.schemas.Oppgave
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistFailureReason
+import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.slf4j.LoggerFactory
 
@@ -13,14 +15,14 @@ class OppgaveEventService(
 
     private val log = LoggerFactory.getLogger(OppgaveEventService::class.java)
 
-    override suspend fun processEvents(events: ConsumerRecords<String, Oppgave>) {
+    override suspend fun processEvents(events: ConsumerRecords<Nokkel, Oppgave>) {
         events.forEach { event ->
-            storeEventInCache(event.value() as Oppgave)
+            storeEventInCache(event)
         }
     }
 
-    private suspend fun storeEventInCache(event: Oppgave) {
-        val entity = OppgaveTransformer.toInternal(event)
+    private suspend fun storeEventInCache(event: ConsumerRecord<Nokkel, Oppgave>) {
+        val entity = OppgaveTransformer.toInternal(event.key(), event.value())
         log.info("Skal skrive entitet til databasen: $entity")
 
         database.queryWithExceptionTranslation {

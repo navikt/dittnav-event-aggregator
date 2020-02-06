@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.common.kafka
 
 import io.prometheus.client.Counter
 import kotlinx.coroutines.*
+import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
@@ -17,7 +18,7 @@ import kotlin.coroutines.CoroutineContext
 
 class Consumer<T>(
         val topic: String,
-        val kafkaConsumer: KafkaConsumer<String, T>,
+        val kafkaConsumer: KafkaConsumer<Nokkel, T>,
         val eventBatchProcessorService: EventBatchProcessorService<T>,
         val job: Job = Job(),
         val MESSAGES_SEEN: Counter = initPrometheusMessageCounter(topic)
@@ -81,7 +82,7 @@ class Consumer<T>(
         }
     }
 
-    private fun logDebugOutput(records: ConsumerRecords<String, T>) {
+    private fun logDebugOutput(records: ConsumerRecords<Nokkel, T>) {
         log.info("Fant ${records.count()} eventer funnet på topic-en: $topic.")
     }
 
