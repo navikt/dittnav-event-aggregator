@@ -18,10 +18,13 @@ object BeskjedTransformer {
                 external.getLink(),
                 external.getSikkerhetsnivaa(),
                 LocalDateTime.now(ZoneId.of("Europe/Oslo")),
-                LocalDateTime.ofInstant(Instant.ofEpochMilli(external.getSynligFremTil()), ZoneId.of("Europe/Oslo")),
+                external.getAsTimeZoneOslo(),
                 newRecordsAreActiveByDefault
         )
         return internal
     }
 
+    private fun no.nav.brukernotifikasjon.schemas.Beskjed.getAsTimeZoneOslo(): LocalDateTime? {
+        return getSynligFremTil()?.let { datetime -> LocalDateTime.ofInstant(Instant.ofEpochMilli(datetime), ZoneId.of("Europe/Oslo")) }
+    }
 }

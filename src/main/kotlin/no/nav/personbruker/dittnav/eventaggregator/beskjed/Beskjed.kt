@@ -13,7 +13,7 @@ data class Beskjed(
         val link: String,
         val sikkerhetsnivaa: Int,
         val sistOppdatert: LocalDateTime,
-        val synligFremTil: LocalDateTime,
+        val synligFremTil: LocalDateTime?,
         val aktiv: Boolean
 ) {
     constructor(produsent: String,
@@ -25,7 +25,7 @@ data class Beskjed(
                 link: String,
                 sikkerhetsnivaa: Int,
                 sistOppdatert: LocalDateTime,
-                synligFremTil: LocalDateTime,
+                synligFremTil: LocalDateTime?,
                 aktiv: Boolean
     ) : this(null,
             produsent,
