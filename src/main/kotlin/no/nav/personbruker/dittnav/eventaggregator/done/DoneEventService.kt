@@ -2,12 +2,14 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 
 import no.nav.brukernotifikasjon.schemas.Done
 import no.nav.brukernotifikasjon.schemas.Nokkel
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.setBeskjedAktivFlag
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon
 import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.getAllBrukernotifikasjonFromView
+import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.NokkelNullException
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.getNonNullKey
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.setBeskjedAktivFlag
 import no.nav.personbruker.dittnav.eventaggregator.innboks.setInnboksAktivFlag
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.setOppgaveAktivFlag
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -23,12 +25,18 @@ class DoneEventService(
 
     override suspend fun processEvents(events: ConsumerRecords<Nokkel, Done>) {
         events.forEach { event ->
-            processDoneEvent(event)
+            try {
+                processDoneEvent(event)
+            } catch (e: NokkelNullException) {
+                log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", e)
+            } catch (e: Exception) {
+                log.warn("Transformasjon av done-event fra Kafka feilet.", e)
+            }
         }
     }
 
     private suspend fun processDoneEvent(event: ConsumerRecord<Nokkel, Done>) {
-        val entity = DoneTransformer.toInternal(event.key(), event.value())
+        val entity = DoneTransformer.toInternal(event.getNonNullKey(), event.value())
         val brukernotifikasjoner = database.dbQuery { getAllBrukernotifikasjonFromView() }
         val foundEvent: Brukernotifikasjon? = brukernotifikasjoner.find { it.id == entity.eventId }
         if (foundEvent != null) {
