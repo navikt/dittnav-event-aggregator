@@ -6,7 +6,6 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.singleResult
 import java.sql.Connection
 import java.sql.ResultSet
-import java.sql.Statement
 import java.sql.Types
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -90,7 +89,11 @@ private fun ResultSet.toBeskjed(): Beskjed {
             link = getString("link"),
             sikkerhetsnivaa = getInt("sikkerhetsnivaa"),
             sistOppdatert = LocalDateTime.ofInstant(getTimestamp("sistOppdatert").toInstant(), ZoneId.of("Europe/Oslo")),
-            synligFremTil = LocalDateTime.ofInstant(getTimestamp("synligFremTil").toInstant(), ZoneId.of("Europe/Oslo")),
+            synligFremTil = getNullableLocalDateTime("synligFremTil"),
             aktiv = getBoolean("aktiv")
     )
+}
+
+private fun ResultSet.getNullableLocalDateTime(label: String) : LocalDateTime? {
+    return getTimestamp(label)?.let { timestamp -> LocalDateTime.ofInstant(timestamp.toInstant(), ZoneId.of("Europe/Oslo")) }
 }
