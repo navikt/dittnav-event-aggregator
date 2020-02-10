@@ -8,9 +8,9 @@ object InnboksObjectMother {
     fun createInnboks(eventId: String, fodselsnummer: String): Innboks {
         return Innboks(
                 "DittNav",
+                eventId,
                 LocalDateTime.now(ZoneId.of("Europe/Oslo")),
                 fodselsnummer,
-                eventId,
                 "100$eventId",
                 "Dette er innboksnotifikasjon til brukeren",
                 "https://nav.no/systemX/$fodselsnummer",

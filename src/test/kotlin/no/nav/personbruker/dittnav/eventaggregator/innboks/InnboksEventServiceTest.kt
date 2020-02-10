@@ -39,7 +39,7 @@ class InnboksEventServiceTest {
             innboksService.processEvents(records)
         }
 
-        verify(exactly = records.count()) { InnboksTransformer.toInternal(any()) }
+        verify(exactly = records.count()) { InnboksTransformer.toInternal(any(), any()) }
         coVerify(exactly = records.count()) { repository.storeInnboksEventInCache(any()) }
         capturedStores.size `should be` records.count()
 
@@ -62,7 +62,7 @@ class InnboksEventServiceTest {
 
         val mockedException = UntransformableRecordException("Simulated Exception")
 
-        every { InnboksTransformer.toInternal(any()) } throws mockedException andThenMany transformedRecords
+        every { InnboksTransformer.toInternal(any(), any()) } throws mockedException andThenMany transformedRecords
 
         invoking {
             runBlocking {
@@ -70,7 +70,7 @@ class InnboksEventServiceTest {
             }
         } `should throw` UntransformableRecordException::class
 
-        verify(exactly = numberOfRecords) { InnboksTransformer.toInternal(any()) }
+        verify(exactly = numberOfRecords) { InnboksTransformer.toInternal(any(), any()) }
         coVerify(exactly = numberOfSuccessfulTransformations) { repository.storeInnboksEventInCache(any()) }
         capturedStores.size `should be` numberOfSuccessfulTransformations
 

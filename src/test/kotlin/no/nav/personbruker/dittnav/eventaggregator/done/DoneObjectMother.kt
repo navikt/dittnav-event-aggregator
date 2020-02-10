@@ -7,8 +7,8 @@ object DoneObjectMother {
 
     fun createDone(eventId: String): Done {
         return Done(
-                eventId,
                 "DittNav",
+                eventId,
                 LocalDateTime.now(ZoneId.of("Europe/Oslo")),
                 "12345",
                 "100${eventId}"

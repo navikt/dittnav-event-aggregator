@@ -4,6 +4,7 @@ import io.mockk.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.Beskjed
+import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
@@ -19,7 +20,7 @@ import java.time.Duration
 
 class ConsumerTest {
 
-    private val kafkaConsumer = mockk<KafkaConsumer<String, Beskjed>>(relaxUnitFun = true)
+    private val kafkaConsumer = mockk<KafkaConsumer<Nokkel, Beskjed>>(relaxUnitFun = true)
     private val eventBatchProcessorService = mockk<EventBatchProcessorService<Beskjed>>(relaxed = true)
 
     @BeforeEach

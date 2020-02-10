@@ -1,19 +1,16 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
-import kotlinx.coroutines.runBlocking
-import no.nav.brukernotifikasjon.schemas.Done
-import no.nav.brukernotifikasjon.schemas.Beskjed
-import no.nav.brukernotifikasjon.schemas.Innboks
-import no.nav.brukernotifikasjon.schemas.Oppgave
+import no.nav.brukernotifikasjon.schemas.*
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedEventService
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneEventService
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedEventService
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksEventService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveEventService
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -48,18 +45,19 @@ object KafkaConsumerSetup {
     }
 
     fun setupConsumerForTheBeskjedTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<Beskjed>): Consumer<Beskjed> {
-        val kafkaConsumer = KafkaConsumer<String, Beskjed>(kafkaProps)
+        val kafkaConsumer = KafkaConsumer<Nokkel, Beskjed>(kafkaProps)
         return Consumer(Kafka.beskjedTopicName, kafkaConsumer, eventProcessor)
     }
 
     fun setupConsumerForTheOppgaveTopic(environment: Environment, database: Database): Consumer<Oppgave> {
-        val eventProcessor = OppgaveEventService(database)
+        val oppgaveRepository = OppgaveRepository(database)
+        val eventProcessor = OppgaveEventService(oppgaveRepository)
         val kafkaProps = Kafka.consumerProps(environment, EventType.OPPGAVE)
         return setupConsumerForTheOppgaveTopic(kafkaProps, eventProcessor)
     }
 
     fun setupConsumerForTheOppgaveTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<Oppgave>): Consumer<Oppgave> {
-        val kafkaConsumer = KafkaConsumer<String, Oppgave>(kafkaProps)
+        val kafkaConsumer = KafkaConsumer<Nokkel, Oppgave>(kafkaProps)
         return Consumer(Kafka.oppgaveTopicName, kafkaConsumer, eventProcessor)
     }
 
@@ -71,7 +69,7 @@ object KafkaConsumerSetup {
     }
 
     fun setupConsumerForTheInnboksTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<Innboks>): Consumer<Innboks> {
-        val kafkaConsumer = KafkaConsumer<String, Innboks>(kafkaProps)
+        val kafkaConsumer = KafkaConsumer<Nokkel, Innboks>(kafkaProps)
         return Consumer(Kafka.innboksTopicName, kafkaConsumer, eventProcessor)
     }
 
@@ -82,7 +80,7 @@ object KafkaConsumerSetup {
     }
 
     fun setupConsumerForTheDoneTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<Done>): Consumer<Done> {
-        val kafkaConsumer = KafkaConsumer<String, Done>(kafkaProps)
+        val kafkaConsumer = KafkaConsumer<Nokkel, Done>(kafkaProps)
         return Consumer(Kafka.doneTopicName, kafkaConsumer, eventProcessor)
     }
 }

@@ -4,6 +4,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.Innboks
+import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.brukernotifikasjon.schemas.Oppgave
 import no.nav.common.KafkaEnvironment
 import no.nav.personbruker.dittnav.eventaggregator.common.SimpleEventCounterService
@@ -17,6 +18,7 @@ import no.nav.personbruker.dittnav.eventaggregator.config.KafkaConsumerSetup.set
 import no.nav.personbruker.dittnav.eventaggregator.config.KafkaConsumerSetup.setupConsumerForTheOppgaveTopic
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.innboks.AvroInnboksObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.AvroOppgaveObjectMother
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should equal`
@@ -34,9 +36,9 @@ class MultipleTopicsConsumerTest {
     private val oppgaveEventProcessor = SimpleEventCounterService<Oppgave>()
     private val innboksEventProcessor = SimpleEventCounterService<Innboks>()
 
-    private val beskjedEvents = (1..10).map { "$it" to AvroBeskjedObjectMother.createBeskjed(it) }.toMap()
-    private val oppgaveEvents = (1..11).map { "$it" to AvroOppgaveObjectMother.createOppgave(it) }.toMap()
-    private val innboksEvents = (1..12).map { "$it" to AvroInnboksObjectMother.createInnboks(it) }.toMap()
+    private val beskjedEvents = (1..10).map { createNokkel(it) to AvroBeskjedObjectMother.createBeskjed(it) }.toMap()
+    private val oppgaveEvents = (1..11).map { createNokkel(it) to AvroOppgaveObjectMother.createOppgave(it) }.toMap()
+    private val innboksEvents = (1..12).map { createNokkel(it) to AvroInnboksObjectMother.createInnboks(it) }.toMap()
 
     init {
         embeddedEnv.start()
@@ -97,9 +99,9 @@ class MultipleTopicsConsumerTest {
         }
     }
 
-    private fun `Har alle eventer blitt lest`(beskjed: SimpleEventCounterService<Beskjed>, BeskjedEvents: Map<String, Beskjed>,
-                                              oppgave: SimpleEventCounterService<Oppgave>, oppgaveEvents: Map<String, Oppgave>,
-                                              innboks: SimpleEventCounterService<Innboks>, innboksEvents: Map<String, Innboks>): Boolean {
+    private fun `Har alle eventer blitt lest`(beskjed: SimpleEventCounterService<Beskjed>, BeskjedEvents: Map<Nokkel, Beskjed>,
+                                              oppgave: SimpleEventCounterService<Oppgave>, oppgaveEvents: Map<Nokkel, Oppgave>,
+                                              innboks: SimpleEventCounterService<Innboks>, innboksEvents: Map<Nokkel, Innboks>): Boolean {
         return beskjed.eventCounter < BeskjedEvents.size &&
                 oppgave.eventCounter < oppgaveEvents.size &&
                 innboks.eventCounter < innboksEvents.size

@@ -4,6 +4,7 @@ import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeoutOrNull
+import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.common.JAAS_PLAIN_LOGIN
 import no.nav.common.JAAS_REQUIRED
 import org.apache.kafka.clients.CommonClientConfigs
@@ -22,15 +23,15 @@ object KafkaConsumerUtil {
             user: String,
             pwd: String,
             noOfEvents: Int
-    ): Map<String, String> =
+    ): Map<Nokkel, String> =
             try {
 
-                KafkaConsumer<String, String>(
+                KafkaConsumer<Nokkel, String>(
                         Properties().apply {
                             set(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokersURL)
                             set(ConsumerConfig.CLIENT_ID_CONFIG, "funKafkaAvroConsume")
                             set(ConsumerConfig.GROUP_ID_CONFIG, "funKafkaAvroConsumeGrpID")
-                            set(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer")
+                            set(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "io.confluent.kafka.serializers.KafkaAvroDeserializer")
                             set(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "io.confluent.kafka.serializers.KafkaAvroDeserializer")
                             set(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, true)
                             set(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl)
@@ -44,7 +45,7 @@ object KafkaConsumerUtil {
                 ).use { c ->
                     c.subscribe(listOf(topic))
 
-                    val fE = mutableMapOf<String, String>()
+                    val fE = mutableMapOf<Nokkel, String>()
 
                     withTimeoutOrNull(10_000) {
 
