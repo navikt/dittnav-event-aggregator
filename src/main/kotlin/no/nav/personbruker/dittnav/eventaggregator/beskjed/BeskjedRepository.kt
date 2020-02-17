@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistFailureReason
+import no.nav.personbruker.dittnav.eventaggregator.config.MetricsState
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -25,4 +26,9 @@ class BeskjedRepository(private val database: Database) {
         }
     }
 
+    suspend fun getBeskjedMetricsState(): List<MetricsState> {
+        return database.dbQuery {
+            getBeskjedMetricsState()
+        }
+    }
 }

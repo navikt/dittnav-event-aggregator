@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
+import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
@@ -15,6 +16,14 @@ class BeskjedEventService(
         private val beskjedRepository: BeskjedRepository
 ) : EventBatchProcessorService<Beskjed> {
 
+    fun initBeskjedMetrics() {
+        runBlocking {
+            beskjedRepository.getBeskjedMetricsState()
+        }.let { lifetimeMetrics ->
+            initMetrics(lifetimeMetrics)
+        }
+    }
+
     private val log: Logger = LoggerFactory.getLogger(BeskjedEventService::class.java)
 
     override suspend fun processEvents(events: ConsumerRecords<Nokkel, Beskjed>) {
@@ -22,6 +31,7 @@ class BeskjedEventService(
         val problematicEvents = mutableListOf<ConsumerRecord<Nokkel, Beskjed>>()
         events.forEach { event ->
             try {
+                registerMetrics(event)
                 val internalEvent = BeskjedTransformer.toInternal(event.getNonNullKey(), event.value())
                 successfullyTransformedEvents.add(internalEvent)
             } catch (e: NokkelNullException) {

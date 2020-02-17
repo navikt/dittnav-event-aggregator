@@ -3,13 +3,15 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executePersistQuery
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getUtcDateTime
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getEpochTimeInSeconds
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.singleResult
+import no.nav.personbruker.dittnav.eventaggregator.config.MetricsState
+import no.nav.personbruker.dittnav.eventaggregator.config.beskjedMetricsState
 import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.Types
 import java.time.LocalDateTime
-import java.time.ZoneId
 
 fun Connection.getAllBeskjed(): List<Beskjed> =
         prepareStatement("""SELECT * FROM BESKJED""")
@@ -69,6 +71,14 @@ fun Connection.getBeskjedById(id: Int): Beskjed =
                     it.setInt(1, id)
                     it.executeQuery().singleResult() {
                         toBeskjed()
+                    }
+                }
+
+fun Connection.getBeskjedMetricsState(): List<MetricsState> =
+        prepareStatement("""SELECT PRODUSENT, COUNT(*) AS total, MAX(sistoppdatert) as lastSeen FROM BESKJED GROUP BY PRODUSENT""")
+                .use {
+                    it.executeQuery().list {
+                        beskjedMetricsState(getString("produsent"), getInt("total"), getEpochTimeInSeconds("lastSeen"))
                     }
                 }
 

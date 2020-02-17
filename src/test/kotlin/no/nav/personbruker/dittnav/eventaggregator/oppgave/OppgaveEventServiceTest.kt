@@ -4,7 +4,10 @@ import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.objectmother.ConsumerRecordsObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.config.MetricsState
+import no.nav.personbruker.dittnav.eventaggregator.config.PrometheusMetricsCollector
 import org.amshove.kluent.`should be`
+import org.amshove.kluent.`should equal`
 import org.amshove.kluent.`should throw`
 import org.amshove.kluent.invoking
 import org.junit.jupiter.api.AfterAll
@@ -76,6 +79,43 @@ class OppgaveEventServiceTest {
 
         confirmVerified(repository)
         confirmVerified(OppgaveTransformer)
+    }
+
+    @Test
+    fun shouldLoadMetricsStateCorrectly() {
+        val metrics = listOf(
+                MetricsState("oppgave", "DittNAV", 2, 5000)
+        )
+
+        coEvery{ repository.getOppgaveMetricsState() } returns metrics
+
+        val capturedCount = CapturingSlot<Int>()
+        val capturedLastSeen = CapturingSlot<Long>()
+
+        mockkObject( PrometheusMetricsCollector )
+
+        every { PrometheusMetricsCollector.setLifetimeMessagesSeen("oppgave", "DittNAV", capture(capturedCount)) } returns Unit
+        every { PrometheusMetricsCollector.setMessageLastSeen("oppgave", "DittNAV", capture(capturedLastSeen)) } returns Unit
+
+        oppgaveService.initOppgaveMetrics()
+
+        capturedCount.captured `should equal` 2
+        capturedLastSeen.captured `should equal` 5000
+    }
+
+    @Test
+    fun shouldRegisterMetricsForEveryEvent() {
+        val numberOfRecords = 5
+
+        val records = ConsumerRecordsObjectMother.giveMeANumberOfOppgaveRecords(numberOfRecords, "oppgave")
+
+        mockkObject( PrometheusMetricsCollector )
+
+        runBlocking {
+            oppgaveService.processEvents(records)
+        }
+
+        verify (exactly = numberOfRecords) { PrometheusMetricsCollector.registerMessageSeen(any(), any()) }
     }
 
     private fun createANumberOfTransformedOppgaveRecords(number: Int): List<Oppgave> {

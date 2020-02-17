@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
+import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.Done
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.setBeskjedAktivFlag
@@ -23,9 +24,20 @@ class DoneEventService(
 
     private val log: Logger = LoggerFactory.getLogger(DoneEventService::class.java)
 
+    fun initDoneMetrics() {
+        runBlocking {
+            database.dbQuery {
+                getDoneMetricsState()
+            }
+        }.let { lifetimeMetrics ->
+            initMetrics(lifetimeMetrics)
+        }
+    }
+
     override suspend fun processEvents(events: ConsumerRecords<Nokkel, Done>) {
         events.forEach { event ->
             try {
+                registerMetrics(event)
                 processDoneEvent(event)
             } catch (e: NokkelNullException) {
                 log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", e)

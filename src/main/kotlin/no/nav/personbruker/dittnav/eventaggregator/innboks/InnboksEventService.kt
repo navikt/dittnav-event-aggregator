@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
+import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.Innboks
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
@@ -16,10 +17,19 @@ class InnboksEventService (
 
     private val log = LoggerFactory.getLogger(InnboksEventService::class.java)
 
+    fun initInnboksMetrics() {
+        runBlocking {
+            innboksRepository.getInnboksMetricsState()
+        }.let { lifetimeMetrics ->
+            initMetrics(lifetimeMetrics)
+        }
+    }
+
     override suspend fun processEvents(events: ConsumerRecords<Nokkel, Innboks>) {
         val problematicEvents = mutableListOf<ConsumerRecord<Nokkel, Innboks>>()
         events.forEach { event ->
             try {
+                registerMetrics(event)
                 val internalEvent = InnboksTransformer.toInternal(event.getNonNullKey(), event.value())
                 innboksRepository.storeInnboksEventInCache(internalEvent)
             } catch (e: NokkelNullException) {

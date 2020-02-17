@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistFailureReason
+import no.nav.personbruker.dittnav.eventaggregator.config.MetricsState
 import org.slf4j.LoggerFactory
 
 class OppgaveRepository(private val database: Database) {
@@ -22,6 +23,12 @@ class OppgaveRepository(private val database: Database) {
                 }
 
             }
+        }
+    }
+
+    suspend fun getOppgaveMetricsState(): List<MetricsState> {
+        return database.dbQuery {
+            getOppgaveMetricsState()
         }
     }
 }

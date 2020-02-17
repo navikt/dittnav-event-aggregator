@@ -4,7 +4,11 @@ import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.objectmother.ConsumerRecordsObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.config.*
+import no.nav.personbruker.dittnav.eventaggregator.config.PrometheusMetricsCollector.setLifetimeMessagesSeen
+import no.nav.personbruker.dittnav.eventaggregator.config.PrometheusMetricsCollector.setMessageLastSeen
 import org.amshove.kluent.`should be`
+import org.amshove.kluent.`should equal`
 import org.amshove.kluent.`should throw`
 import org.amshove.kluent.invoking
 import org.junit.jupiter.api.AfterAll
@@ -76,6 +80,43 @@ class InnboksEventServiceTest {
 
         confirmVerified(repository)
         confirmVerified(InnboksTransformer)
+    }
+
+    @Test
+    fun shouldLoadMetricsStateCorrectly() {
+        val metrics = listOf(
+                MetricsState("innboks", "DittNAV", 2, 5000)
+        )
+
+        coEvery{ repository.getInnboksMetricsState() } returns metrics
+
+        val capturedCount = CapturingSlot<Int>()
+        val capturedLastSeen = CapturingSlot<Long>()
+
+        mockkObject( PrometheusMetricsCollector )
+
+        every { setLifetimeMessagesSeen("innboks", "DittNAV", capture(capturedCount)) } returns Unit
+        every { setMessageLastSeen("innboks", "DittNAV", capture(capturedLastSeen)) } returns Unit
+
+        innboksService.initInnboksMetrics()
+
+        capturedCount.captured `should equal` 2
+        capturedLastSeen.captured `should equal` 5000
+    }
+
+    @Test
+    fun shouldRegisterMetricsForEveryEvent() {
+        val numberOfRecords = 5
+
+        val records = ConsumerRecordsObjectMother.giveMeANumberOfInnboksRecords(numberOfRecords, "innboks")
+
+        mockkObject( PrometheusMetricsCollector )
+
+        runBlocking {
+            innboksService.processEvents(records)
+        }
+
+        verify (exactly = numberOfRecords) { PrometheusMetricsCollector.registerMessageSeen(any(), any()) }
     }
 
     private fun createANumberOfTransformedInnboksRecords(number: Int): List<Innboks> {

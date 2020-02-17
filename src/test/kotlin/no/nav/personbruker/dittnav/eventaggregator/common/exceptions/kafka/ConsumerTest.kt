@@ -31,7 +31,7 @@ class ConsumerTest {
     @Test
     fun `Skal commit-e mot Kafka hvis ingen feil skjer`() {
         val topic = "dummyTopicNoErrors"
-        every { kafkaConsumer.poll(any<Duration>()) } returns ConsumerRecordsObjectMother.giveMeANumberOfInformationRecords(1, topic)
+        every { kafkaConsumer.poll(any<Duration>()) } returns ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(1, topic)
 
         val consumer: Consumer<Beskjed> = Consumer(topic, kafkaConsumer, eventBatchProcessorService)
 
@@ -47,7 +47,7 @@ class ConsumerTest {
     @Test
     fun `Skal ikke kvittere ut eventer som lest, hvis en ukjent feil skjer`() {
         val topic = "dummyTopicUkjentFeil"
-        every { kafkaConsumer.poll(any<Duration>()) } returns ConsumerRecordsObjectMother.giveMeANumberOfInformationRecords(1, topic)
+        every { kafkaConsumer.poll(any<Duration>()) } returns ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(1, topic)
         coEvery { eventBatchProcessorService.processEvents(any()) } throws Exception("Simulert feil i en test")
 
         val consumer: Consumer<Beskjed> = Consumer(topic, kafkaConsumer, eventBatchProcessorService)
@@ -64,7 +64,7 @@ class ConsumerTest {
     @Test
     fun `Skal ikke kvittere ut eventer som lest, hvis skriving mot cache-en feiler`() {
         val topic = "dummyTopicUnretriableErrorAgainstDb"
-        every { kafkaConsumer.poll(any<Duration>()) } returns ConsumerRecordsObjectMother.giveMeANumberOfInformationRecords(1, topic)
+        every { kafkaConsumer.poll(any<Duration>()) } returns ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(1, topic)
         coEvery { eventBatchProcessorService.processEvents(any()) } throws UnretriableDatabaseException("Simulert feil i en test")
 
         val consumer: Consumer<Beskjed> = Consumer(topic, kafkaConsumer, eventBatchProcessorService)
@@ -81,7 +81,7 @@ class ConsumerTest {
     @Test
     fun `Skal ikke kvittere ut eventer som lest, hvis transformering av et eller flere eventer feiler`() {
         val topic = "dummyTopicUntransformable"
-        every { kafkaConsumer.poll(any<Duration>()) } returns ConsumerRecordsObjectMother.giveMeANumberOfInformationRecords(1, topic)
+        every { kafkaConsumer.poll(any<Duration>()) } returns ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(1, topic)
         coEvery { eventBatchProcessorService.processEvents(any()) } throws UntransformableRecordException("Simulert feil i en test")
 
         val consumer: Consumer<Beskjed> = Consumer(topic, kafkaConsumer, eventBatchProcessorService)
@@ -114,7 +114,7 @@ class ConsumerTest {
     @Test
     fun `Skal fortsette pollingen hvis det er en retriable database exception`() {
         val topic = "dummyTopicDatabaseRetriable"
-        every { kafkaConsumer.poll(any<Duration>()) } returns ConsumerRecordsObjectMother.giveMeANumberOfInformationRecords(1, topic)
+        every { kafkaConsumer.poll(any<Duration>()) } returns ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(1, topic)
         val retriableDbExption = RetriableDatabaseException("Simulert feil i en test")
         coEvery { eventBatchProcessorService.processEvents(any()) } throws retriableDbExption
         val consumer: Consumer<Beskjed> = Consumer(topic, kafkaConsumer, eventBatchProcessorService)
@@ -131,7 +131,7 @@ class ConsumerTest {
     @Test
     fun `Skal alltid commit-e mot kafka hvis event-er har blitt funnet`() {
         val topic = "dummyTopicNoRecordsFound"
-        every { kafkaConsumer.poll(any<Duration>()) } returns ConsumerRecordsObjectMother.giveMeANumberOfInformationRecords(0, topic)
+        every { kafkaConsumer.poll(any<Duration>()) } returns ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(0, topic)
 
         val consumer: Consumer<Beskjed> = Consumer(topic, kafkaConsumer, eventBatchProcessorService)
 

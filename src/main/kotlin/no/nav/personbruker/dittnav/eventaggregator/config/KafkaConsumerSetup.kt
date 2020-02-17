@@ -1,5 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
+import io.prometheus.client.Counter
+import io.prometheus.client.Gauge
 import no.nav.brukernotifikasjon.schemas.*
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedEventService
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
@@ -39,7 +41,7 @@ object KafkaConsumerSetup {
 
     fun setupConsumerForTheBeskjedTopic(environment: Environment, database: Database): Consumer<Beskjed> {
         val beskjedRepository = BeskjedRepository(database)
-        val eventProcessor = BeskjedEventService(beskjedRepository)
+        val eventProcessor = BeskjedEventService(beskjedRepository).apply { initBeskjedMetrics() }
         val kafkaProps = Kafka.consumerProps(environment, EventType.BESKJED)
         return setupConsumerForTheBeskjedTopic(kafkaProps, eventProcessor)
     }
@@ -51,7 +53,7 @@ object KafkaConsumerSetup {
 
     fun setupConsumerForTheOppgaveTopic(environment: Environment, database: Database): Consumer<Oppgave> {
         val oppgaveRepository = OppgaveRepository(database)
-        val eventProcessor = OppgaveEventService(oppgaveRepository)
+        val eventProcessor = OppgaveEventService(oppgaveRepository).apply { initOppgaveMetrics() }
         val kafkaProps = Kafka.consumerProps(environment, EventType.OPPGAVE)
         return setupConsumerForTheOppgaveTopic(kafkaProps, eventProcessor)
     }
@@ -63,7 +65,7 @@ object KafkaConsumerSetup {
 
     fun setupConsumerForTheInnboksTopic(environment: Environment, database: Database): Consumer<Innboks> {
         val innboksRepository = InnboksRepository(database)
-        val eventProcessor = InnboksEventService(innboksRepository)
+        val eventProcessor = InnboksEventService(innboksRepository).apply { initInnboksMetrics() }
         val kafkaProps = Kafka.consumerProps(environment, EventType.INNBOKS)
         return setupConsumerForTheInnboksTopic(kafkaProps, eventProcessor)
     }
@@ -74,7 +76,7 @@ object KafkaConsumerSetup {
     }
 
     fun setupConsumerForTheDoneTopic(environment: Environment, database: Database): Consumer<Done> {
-        val eventProcessor = DoneEventService(database)
+        val eventProcessor = DoneEventService(database).apply { initDoneMetrics() }
         val kafkaProps = Kafka.consumerProps(environment, EventType.DONE)
         return setupConsumerForTheDoneTopic(kafkaProps, eventProcessor)
     }
@@ -84,3 +86,4 @@ object KafkaConsumerSetup {
         return Consumer(Kafka.doneTopicName, kafkaConsumer, eventProcessor)
     }
 }
+

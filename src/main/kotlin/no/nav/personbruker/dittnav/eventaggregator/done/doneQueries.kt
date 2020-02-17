@@ -1,7 +1,10 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getUtcDateTime
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getEpochTimeInSeconds
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
+import no.nav.personbruker.dittnav.eventaggregator.config.MetricsState
+import no.nav.personbruker.dittnav.eventaggregator.config.doneMetricsState
 import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.Statement
@@ -39,3 +42,12 @@ private fun ResultSet.toDoneEvent(): Done {
             grupperingsId = getString("grupperingsId")
     )
 }
+
+
+fun Connection.getDoneMetricsState(): List<MetricsState> =
+        prepareStatement("""SELECT PRODUSENT, COUNT(*) AS total, MAX(sistoppdatert) as lastSeen FROM DONE GROUP BY PRODUSENT""")
+                .use {
+                    it.executeQuery().list {
+                        doneMetricsState(getString("produsent"), getInt("total"), getEpochTimeInSeconds("lastSeen"))
+                    }
+                }
