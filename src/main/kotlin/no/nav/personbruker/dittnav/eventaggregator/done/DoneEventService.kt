@@ -38,29 +38,33 @@ class DoneEventService(
     private suspend fun processDoneEvent(event: ConsumerRecord<Nokkel, Done>) {
         val entity = DoneTransformer.toInternal(event.getNonNullKey(), event.value())
         val brukernotifikasjoner = database.dbQuery { getAllBrukernotifikasjonFromView() }
-        val foundEvent: Brukernotifikasjon? = brukernotifikasjoner.find { it.id == entity.eventId }
+        val foundEvent: Brukernotifikasjon? = brukernotifikasjoner.find { findEventInCache(it, entity) }
         if (foundEvent != null) {
-            log.info("Fant matchende event for Done-event med ${foundEvent.id}")
+            log.info("Fant matchende event for Done-event med eventId: ${foundEvent.eventId}, produsent: ${foundEvent.produsent}, type: ${foundEvent.type}")
             flagEventAsInactive(foundEvent)
         } else {
             database.dbQuery { createDoneEvent(entity) }
-            log.info("Fant ikke matchende event for done-event med id ${entity.eventId}. Skrev done-event til cache")
+            log.info("Fant ikke matchende event for done-event med id ${entity.eventId}, produsent: ${entity.produsent}, eventTidspunkt: ${entity.eventTidspunkt}. Skrev done-event til cache")
         }
+    }
+
+    private fun findEventInCache(brukernotifikasjon: Brukernotifikasjon, done: no.nav.personbruker.dittnav.eventaggregator.done.Done): Boolean {
+        return (brukernotifikasjon.eventId == done.eventId && brukernotifikasjon.produsent == done.produsent && brukernotifikasjon.fodselsnummer == done.fodselsnummer)
     }
 
     private suspend fun flagEventAsInactive(event: Brukernotifikasjon) {
         when (event.type) {
             EventType.OPPGAVE -> {
-                database.dbQuery { setOppgaveAktivFlag(event.id, false) }
-                log.info("Satte Oppgave-event med eventId ${event.id} inaktivt")
+                database.dbQuery { setOppgaveAktivFlag(event.eventId, false) }
+                log.info("Satte Oppgave-event med eventId ${event.eventId} inaktivt")
             }
             EventType.BESKJED -> {
-                database.dbQuery { setBeskjedAktivFlag(event.id, false) }
-                log.info("Satte Beskjed-event med eventId ${event.id} inaktivt")
+                database.dbQuery { setBeskjedAktivFlag(event.eventId, false) }
+                log.info("Satte Beskjed-event med eventId ${event.eventId} inaktivt")
             }
             EventType.INNBOKS -> {
-                database.dbQuery { setInnboksAktivFlag(event.id, false) }
-                log.info("Satte Innboks-event med eventId ${event.id} inaktivt")
+                database.dbQuery { setInnboksAktivFlag(event.eventId, false) }
+                log.info("Satte Innboks-event med eventId ${event.eventId} inaktivt")
             }
         }
     }

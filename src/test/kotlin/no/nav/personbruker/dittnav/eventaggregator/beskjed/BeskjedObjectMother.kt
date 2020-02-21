@@ -2,11 +2,13 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import java.time.LocalDateTime
 import java.time.ZoneId
+import kotlin.random.Random
 
 object BeskjedObjectMother {
 
     fun createBeskjed(eventId: String, fodselsnummer: String): Beskjed {
         return Beskjed(
+                uid = Random.nextInt(1,100).toString(),
                 produsent = "DittNav",
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("Europe/Oslo")),
                 synligFremTil = LocalDateTime.now(ZoneId.of("Europe/Oslo")),

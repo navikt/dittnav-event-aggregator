@@ -4,12 +4,15 @@ import no.nav.brukernotifikasjon.schemas.Nokkel
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.util.UUID
 
 object BeskjedTransformer {
 
     fun toInternal(externalNokkel: Nokkel, externalValue: no.nav.brukernotifikasjon.schemas.Beskjed): Beskjed {
         val newRecordsAreActiveByDefault = true
-        val internal = Beskjed(externalNokkel.getSystembruker(),
+        val internal = Beskjed(
+                createRandomStringUUID(),
+                externalNokkel.getSystembruker(),
                 externalNokkel.getEventId(),
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(externalValue.getTidspunkt()), ZoneId.of("Europe/Oslo")),
                 externalValue.getFodselsnummer(),
@@ -26,5 +29,10 @@ object BeskjedTransformer {
 
     private fun no.nav.brukernotifikasjon.schemas.Beskjed.getAsTimeZoneOslo(): LocalDateTime? {
         return getSynligFremTil()?.let { datetime -> LocalDateTime.ofInstant(Instant.ofEpochMilli(datetime), ZoneId.of("Europe/Oslo")) }
+    }
+
+    private fun createRandomStringUUID(): String {
+        return UUID.randomUUID().toString()
+
     }
 }

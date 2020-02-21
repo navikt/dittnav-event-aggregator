@@ -15,8 +15,9 @@ fun Connection.getAllBrukernotifikasjonFromView(): List<Brukernotifikasjon> =
 
 private fun ResultSet.toBrukernotifikasjon(): Brukernotifikasjon {
     return Brukernotifikasjon(
-            id = getString("eventId"),
+            eventId = getString("eventId"),
             produsent = getString("produsent"),
-            type = EventType.valueOf(getString("type").toUpperCase())
+            type = EventType.valueOf(getString("type").toUpperCase()),
+            fodselsnummer = getString("fodselsnummer")
     )
 }
