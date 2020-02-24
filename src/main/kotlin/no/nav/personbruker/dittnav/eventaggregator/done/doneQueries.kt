@@ -42,12 +42,3 @@ private fun ResultSet.toDoneEvent(): Done {
             grupperingsId = getString("grupperingsId")
     )
 }
-
-
-fun Connection.getDoneMetricsState(): List<MetricsState> =
-        prepareStatement("""SELECT PRODUSENT, COUNT(*) AS total, MAX(sistoppdatert) as lastSeen FROM DONE GROUP BY PRODUSENT""")
-                .use {
-                    it.executeQuery().list {
-                        doneMetricsState(getString("produsent"), getInt("total"), getEpochTimeInSeconds("lastSeen"))
-                    }
-                }

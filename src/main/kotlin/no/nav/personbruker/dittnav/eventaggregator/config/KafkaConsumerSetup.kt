@@ -76,7 +76,7 @@ object KafkaConsumerSetup {
     }
 
     fun setupConsumerForTheDoneTopic(environment: Environment, database: Database): Consumer<Done> {
-        val eventProcessor = DoneEventService(database).apply { initDoneMetrics() }
+        val eventProcessor = DoneEventService(database)
         val kafkaProps = Kafka.consumerProps(environment, EventType.DONE)
         return setupConsumerForTheDoneTopic(kafkaProps, eventProcessor)
     }

@@ -24,16 +24,6 @@ class DoneEventService(
 
     private val log: Logger = LoggerFactory.getLogger(DoneEventService::class.java)
 
-    fun initDoneMetrics() {
-        runBlocking {
-            database.dbQuery {
-                getDoneMetricsState()
-            }
-        }.let { lifetimeMetrics ->
-            initMetrics(lifetimeMetrics)
-        }
-    }
-
     override suspend fun processEvents(events: ConsumerRecords<Nokkel, Done>) {
         events.forEach { event ->
             try {
