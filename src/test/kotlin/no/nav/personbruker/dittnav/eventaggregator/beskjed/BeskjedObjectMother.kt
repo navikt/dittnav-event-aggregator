@@ -9,7 +9,7 @@ object BeskjedObjectMother {
     fun createBeskjed(eventId: String, fodselsnummer: String): Beskjed {
         return Beskjed(
                 uid = Random.nextInt(1,100).toString(),
-                produsent = "DittNav",
+                produsent = "DittNAV",
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("Europe/Oslo")),
                 synligFremTil = LocalDateTime.now(ZoneId.of("Europe/Oslo")),
                 fodselsnummer = fodselsnummer,

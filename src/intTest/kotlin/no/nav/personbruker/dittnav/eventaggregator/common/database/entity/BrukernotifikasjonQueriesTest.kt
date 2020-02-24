@@ -23,9 +23,9 @@ class BrukernotifikasjonQueriesTest {
     private val oppgave1 = OppgaveObjectMother.createOppgave("1", "12")
     private val beskjed1 = BeskjedObjectMother.createBeskjed("2", "12")
     private val innboks1 = InnboksObjectMother.createInnboks("3", "12")
-    private val brukernotifikasjon1 = Brukernotifikasjon("1", "DittNav", EventType.OPPGAVE)
-    private val brukernotifikasjon2 = Brukernotifikasjon("2", "DittNav", EventType.BESKJED)
-    private val brukernotifikasjon3 = Brukernotifikasjon("3", "DittNav", EventType.INNBOKS)
+    private val brukernotifikasjon1 = Brukernotifikasjon("1", "DittNAV", EventType.OPPGAVE, "12")
+    private val brukernotifikasjon2 = Brukernotifikasjon("2", "DittNAV", EventType.BESKJED, "12")
+    private val brukernotifikasjon3 = Brukernotifikasjon("3", "DittNAV", EventType.INNBOKS, "12")
     private val allBrukernotifikasjonEvents = listOf(brukernotifikasjon1, brukernotifikasjon2, brukernotifikasjon3)
 
     init {

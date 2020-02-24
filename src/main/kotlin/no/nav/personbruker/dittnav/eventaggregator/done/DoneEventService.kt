@@ -36,20 +36,22 @@ class DoneEventService(
     }
 
     private suspend fun processDoneEvent(event: ConsumerRecord<Nokkel, Done>) {
-        val entity = DoneTransformer.toInternal(event.getNonNullKey(), event.value())
+        val doneEntity = DoneTransformer.toInternal(event.getNonNullKey(), event.value())
         val brukernotifikasjoner = database.dbQuery { getAllBrukernotifikasjonFromView() }
-        val foundEvent: Brukernotifikasjon? = brukernotifikasjoner.find { findEventInCache(it, entity) }
+        val foundEvent: Brukernotifikasjon? = brukernotifikasjoner.find { isEventInCache(it, doneEntity) }
         if (foundEvent != null) {
             log.info("Fant matchende event for Done-event med eventId: ${foundEvent.eventId}, produsent: ${foundEvent.produsent}, type: ${foundEvent.type}")
             flagEventAsInactive(foundEvent)
         } else {
-            database.dbQuery { createDoneEvent(entity) }
-            log.info("Fant ikke matchende event for done-event med id ${entity.eventId}, produsent: ${entity.produsent}, eventTidspunkt: ${entity.eventTidspunkt}. Skrev done-event til cache")
+            database.dbQuery { createDoneEvent(doneEntity) }
+            log.info("Fant ikke matchende event for done-event med eventId ${doneEntity.eventId}, produsent: ${doneEntity.produsent}, eventTidspunkt: ${doneEntity.eventTidspunkt}. Skrev done-event til cache")
         }
     }
 
-    private fun findEventInCache(brukernotifikasjon: Brukernotifikasjon, done: no.nav.personbruker.dittnav.eventaggregator.done.Done): Boolean {
-        return (brukernotifikasjon.eventId == done.eventId && brukernotifikasjon.produsent == done.produsent && brukernotifikasjon.fodselsnummer == done.fodselsnummer)
+    private fun isEventInCache(brukernotifikasjon: Brukernotifikasjon, done: no.nav.personbruker.dittnav.eventaggregator.done.Done): Boolean {
+        return (brukernotifikasjon.eventId == done.eventId &&
+                brukernotifikasjon.produsent == done.produsent &&
+                brukernotifikasjon.fodselsnummer == done.fodselsnummer)
     }
 
     private suspend fun flagEventAsInactive(event: Brukernotifikasjon) {
