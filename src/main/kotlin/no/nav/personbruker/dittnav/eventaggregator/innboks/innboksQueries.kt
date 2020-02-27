@@ -6,7 +6,6 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.singleResult
 import java.sql.Connection
 import java.sql.ResultSet
-import java.sql.Statement
 import java.sql.Types
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -43,13 +42,15 @@ fun Connection.createInnboks(innboks: Innboks): PersistActionResult =
             setBoolean(10, innboks.aktiv)
         }
 
-fun Connection.setInnboksAktivFlag(eventId: String, aktiv: Boolean): Int =
-        prepareStatement("""UPDATE INNBOKS SET aktiv = ? WHERE eventid = ?""")
-            .use {
-                it.setBoolean(1, aktiv)
-                it.setString(2, eventId)
-                it.executeUpdate()
-            }
+fun Connection.setInnboksAktivFlag(eventId: String, produsent: String, fodselsnummer: String, aktiv: Boolean): Int =
+        prepareStatement("""UPDATE INNBOKS SET aktiv = ? WHERE eventId = ? AND produsent = ? AND fodselsnummer = ?""")
+                .use {
+                    it.setBoolean(1, aktiv)
+                    it.setString(2, eventId)
+                    it.setString(3, produsent)
+                    it.setString(4, fodselsnummer)
+                    it.executeUpdate()
+                }
 
 fun Connection.getAllInnboksByAktiv(aktiv: Boolean): List<Innboks> =
         prepareStatement("""SELECT * FROM INNBOKS WHERE aktiv = ?""")
@@ -60,7 +61,7 @@ fun Connection.getAllInnboksByAktiv(aktiv: Boolean): List<Innboks> =
                     }
                 }
 
-fun Connection.getInnboksByFodselsnummer(fodselsnummer: String) : List<Innboks> =
+fun Connection.getInnboksByFodselsnummer(fodselsnummer: String): List<Innboks> =
         prepareStatement("""SELECT * FROM INNBOKS WHERE fodselsnummer = ?""")
                 .use {
                     it.setString(1, fodselsnummer)
@@ -69,7 +70,7 @@ fun Connection.getInnboksByFodselsnummer(fodselsnummer: String) : List<Innboks> 
                     }
                 }
 
-fun Connection.getInnboksByEventId(eventId: String) : Innboks =
+fun Connection.getInnboksByEventId(eventId: String): Innboks =
         prepareStatement("""SELECT * FROM INNBOKS WHERE eventId = ?""")
                 .use {
                     it.setString(1, eventId)
@@ -77,7 +78,6 @@ fun Connection.getInnboksByEventId(eventId: String) : Innboks =
                         toInnboks()
                     }
                 }
-
 
 
 private fun ResultSet.toInnboks(): Innboks {

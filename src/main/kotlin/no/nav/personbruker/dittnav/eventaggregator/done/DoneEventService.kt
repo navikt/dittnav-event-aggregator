@@ -41,7 +41,7 @@ class DoneEventService(
         val foundEvent: Brukernotifikasjon? = brukernotifikasjoner.find { isEventInCache(it, doneEntity) }
         if (foundEvent != null) {
             log.info("Fant matchende event for Done-event med eventId: ${foundEvent.eventId}, produsent: ${foundEvent.produsent}, type: ${foundEvent.type}")
-            flagEventAsInactive(foundEvent)
+            flagEventAsInactive(foundEvent, doneEntity)
         } else {
             database.dbQuery { createDoneEvent(doneEntity) }
             log.info("Fant ikke matchende event for done-event med eventId ${doneEntity.eventId}, produsent: ${doneEntity.produsent}, eventTidspunkt: ${doneEntity.eventTidspunkt}. Skrev done-event til cache")
@@ -54,18 +54,18 @@ class DoneEventService(
                 brukernotifikasjon.fodselsnummer == done.fodselsnummer)
     }
 
-    private suspend fun flagEventAsInactive(event: Brukernotifikasjon) {
+    suspend fun flagEventAsInactive(event: Brukernotifikasjon, done: no.nav.personbruker.dittnav.eventaggregator.done.Done) {
         when (event.type) {
             EventType.OPPGAVE -> {
-                database.dbQuery { setOppgaveAktivFlag(event.eventId, false) }
+                database.dbQuery { setOppgaveAktivFlag(done.eventId, done.produsent, done.fodselsnummer, false) }
                 log.info("Satte Oppgave-event med eventId ${event.eventId} inaktivt")
             }
             EventType.BESKJED -> {
-                database.dbQuery { setBeskjedAktivFlag(event.eventId, false) }
+                database.dbQuery { setBeskjedAktivFlag(done.eventId, done.produsent, done.fodselsnummer, false) }
                 log.info("Satte Beskjed-event med eventId ${event.eventId} inaktivt")
             }
             EventType.INNBOKS -> {
-                database.dbQuery { setInnboksAktivFlag(event.eventId, false) }
+                database.dbQuery { setInnboksAktivFlag(done.eventId, done.produsent, done.fodselsnummer, false) }
                 log.info("Satte Innboks-event med eventId ${event.eventId} inaktivt")
             }
         }

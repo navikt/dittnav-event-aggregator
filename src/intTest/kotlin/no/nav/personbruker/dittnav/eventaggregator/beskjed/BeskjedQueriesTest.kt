@@ -16,6 +16,10 @@ class BeskjedQueriesTest {
     private val Beskjed3: Beskjed
     private val Beskjed4: Beskjed
 
+    private val produsent = "DittNAV"
+    private val fodselsnummer = "12345"
+    private val eventId = "2"
+
     private val allEvents: List<Beskjed>
     private val allEventsForSingleUser: List<Beskjed>
 
@@ -32,7 +36,7 @@ class BeskjedQueriesTest {
         var beskjed = BeskjedObjectMother.createBeskjed(eventId, fodselsnummer)
         return runBlocking {
             database.dbQuery {
-                createBeskjed(beskjed).entityId.let{
+                createBeskjed(beskjed).entityId.let {
                     beskjed.copy(id = it)
                 }
             }
@@ -59,11 +63,11 @@ class BeskjedQueriesTest {
     @Test
     fun `Finner alle aktive cachede Beskjed-eventer`() {
         runBlocking {
-            database.dbQuery { setBeskjedAktivFlag("2", false) }
+            database.dbQuery { setBeskjedAktivFlag(eventId, produsent, fodselsnummer, false) }
             val result = database.dbQuery { getAllBeskjedByAktiv(true) }
             result `should contain all` listOf(Beskjed1, Beskjed3, Beskjed4)
             result `should not contain` Beskjed2
-            database.dbQuery { setBeskjedAktivFlag("2", true) }
+            database.dbQuery { setBeskjedAktivFlag(eventId, produsent, fodselsnummer, true) }
         }
     }
 
@@ -87,7 +91,7 @@ class BeskjedQueriesTest {
     @Test
     fun `Finner cachede Beskjeds-eventer for fodselsnummer`() {
         runBlocking {
-            val result = database.dbQuery { getBeskjedByFodselsnummer("12345") }
+            val result = database.dbQuery { getBeskjedByFodselsnummer(fodselsnummer) }
             result.size `should be equal to` 3
             result `should contain all` allEventsForSingleUser
         }
@@ -104,7 +108,7 @@ class BeskjedQueriesTest {
     @Test
     fun `Finner cachet Beskjed-event med eventId`() {
         runBlocking {
-            val result = database.dbQuery { getBeskjedByEventId("2") }
+            val result = database.dbQuery { getBeskjedByEventId(eventId) }
             result `should equal` Beskjed2
         }
     }

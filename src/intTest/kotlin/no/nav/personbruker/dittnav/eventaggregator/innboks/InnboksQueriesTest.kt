@@ -20,6 +20,9 @@ class InnboksQueriesTest {
     private val innboks2: Innboks
     private val innboks3: Innboks
 
+    private val produsent = "DittNAV"
+    private val eventId = "1"
+
     private val allInnboks: List<Innboks>
     private val allInnboksForAktor1: List<Innboks>
 
@@ -78,12 +81,12 @@ class InnboksQueriesTest {
     fun `setter aktiv flag`() {
         runBlocking {
             database.dbQuery {
-                setInnboksAktivFlag("1", false)
-                var innboks = getInnboksByEventId("1")
+                setInnboksAktivFlag(eventId, produsent, fodselsnummer1, false)
+                var innboks = getInnboksByEventId(eventId)
                 innboks.aktiv `should be equal to` false
 
-                setInnboksAktivFlag("1", true)
-                innboks = getInnboksByEventId("1")
+                setInnboksAktivFlag(eventId, produsent, fodselsnummer1, true)
+                innboks = getInnboksByEventId(eventId)
                 innboks.aktiv `should be equal to` true
             }
         }
@@ -93,7 +96,7 @@ class InnboksQueriesTest {
     fun `finner Innboks etter aktiv flag`() {
         runBlocking {
             database.dbQuery {
-                setInnboksAktivFlag(innboks1.eventId, false)
+                setInnboksAktivFlag(innboks1.eventId, produsent, fodselsnummer1, false)
                 val aktiveInnboks = getAllInnboksByAktiv(true)
                 val inaktivInnboks = getAllInnboksByAktiv(false)
 
@@ -102,7 +105,7 @@ class InnboksQueriesTest {
                 inaktivInnboks.single { it.id == innboks1.id }
                 inaktivInnboks.size `should be equal to` 1
 
-                setInnboksAktivFlag(innboks1.eventId, true)
+                setInnboksAktivFlag(innboks1.eventId, produsent, fodselsnummer1, true)
             }
         }
     }

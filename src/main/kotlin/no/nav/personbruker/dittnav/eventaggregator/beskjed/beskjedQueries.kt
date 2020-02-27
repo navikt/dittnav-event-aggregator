@@ -35,17 +35,19 @@ fun Connection.createBeskjed(beskjed: Beskjed): PersistActionResult =
             setBoolean(12, beskjed.aktiv)
         }
 
-fun Connection.setBeskjedAktivFlag(eventId: String, aktiv: Boolean): Int =
-        prepareStatement("""UPDATE BESKJED SET aktiv = ? WHERE eventId = ?""").use {
+fun Connection.setBeskjedAktivFlag(eventId: String, produsent: String, fodselsnummer: String, aktiv: Boolean): Int =
+        prepareStatement("""UPDATE BESKJED SET aktiv = ? WHERE eventId = ? AND produsent = ? AND fodselsnummer = ?""").use {
             it.setBoolean(1, aktiv)
             it.setString(2, eventId)
+            it.setString(3, produsent)
+            it.setString(4, fodselsnummer)
             it.executeUpdate()
         }
 
 fun Connection.getAllBeskjedByAktiv(aktiv: Boolean): List<Beskjed> =
         prepareStatement("""SELECT * FROM BESKJED WHERE aktiv = ?""")
                 .use {
-                    it.setBoolean(1,aktiv)
+                    it.setBoolean(1, aktiv)
                     it.executeQuery().list {
                         toBeskjed()
                     }
@@ -96,6 +98,6 @@ private fun ResultSet.toBeskjed(): Beskjed {
     )
 }
 
-private fun ResultSet.getNullableLocalDateTime(label: String) : LocalDateTime? {
+private fun ResultSet.getNullableLocalDateTime(label: String): LocalDateTime? {
     return getTimestamp(label)?.let { timestamp -> LocalDateTime.ofInstant(timestamp.toInstant(), ZoneId.of("Europe/Oslo")) }
 }

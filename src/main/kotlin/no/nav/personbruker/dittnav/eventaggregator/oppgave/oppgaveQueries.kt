@@ -6,7 +6,6 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.singleResult
 import java.sql.Connection
 import java.sql.ResultSet
-import java.sql.Statement
 import java.sql.Types
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -21,23 +20,25 @@ fun Connection.getAllOppgave(): List<Oppgave> =
 
 fun Connection.createOppgave(oppgave: Oppgave): PersistActionResult =
         executePersistQuery("""INSERT INTO OPPGAVE (produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?)""")
-                {
-                    setString(1, oppgave.produsent)
-                    setObject(2, oppgave.eventTidspunkt, Types.TIMESTAMP)
-                    setString(3, oppgave.fodselsnummer)
-                    setString(4, oppgave.eventId)
-                    setString(5, oppgave.grupperingsId)
-                    setString(6, oppgave.tekst)
-                    setString(7, oppgave.link)
-                    setInt(8, oppgave.sikkerhetsinvaa)
-                    setObject(9, oppgave.sistOppdatert, Types.TIMESTAMP)
-                    setBoolean(10, oppgave.aktiv)
-                }
+        {
+            setString(1, oppgave.produsent)
+            setObject(2, oppgave.eventTidspunkt, Types.TIMESTAMP)
+            setString(3, oppgave.fodselsnummer)
+            setString(4, oppgave.eventId)
+            setString(5, oppgave.grupperingsId)
+            setString(6, oppgave.tekst)
+            setString(7, oppgave.link)
+            setInt(8, oppgave.sikkerhetsinvaa)
+            setObject(9, oppgave.sistOppdatert, Types.TIMESTAMP)
+            setBoolean(10, oppgave.aktiv)
+        }
 
-fun Connection.setOppgaveAktivFlag(eventId: String, aktiv: Boolean): Int =
-        prepareStatement("""UPDATE OPPGAVE SET aktiv = ? WHERE eventId = ?""").use {
+fun Connection.setOppgaveAktivFlag(eventId: String, produsent: String, fodselsnummer: String, aktiv: Boolean): Int =
+        prepareStatement("""UPDATE OPPGAVE SET aktiv = ? WHERE eventId = ? AND produsent = ? AND fodselsnummer = ?""").use {
             it.setBoolean(1, aktiv)
             it.setString(2, eventId)
+            it.setString(3, produsent)
+            it.setString(4, fodselsnummer)
             it.executeUpdate()
         }
 
