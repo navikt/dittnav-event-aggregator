@@ -82,7 +82,7 @@ fun Connection.getBeskjedByEventId(eventId: String): Beskjed =
 
 private fun ResultSet.toBeskjed(): Beskjed {
     return Beskjed(
-            uid = getString("uid"),
+            uid = getNullableUid("uid"),
             id = getInt("id"),
             produsent = getString("produsent"),
             eventTidspunkt = LocalDateTime.ofInstant(getTimestamp("eventTidspunkt").toInstant(), ZoneId.of("Europe/Oslo")),
@@ -100,4 +100,12 @@ private fun ResultSet.toBeskjed(): Beskjed {
 
 private fun ResultSet.getNullableLocalDateTime(label: String): LocalDateTime? {
     return getTimestamp(label)?.let { timestamp -> LocalDateTime.ofInstant(timestamp.toInstant(), ZoneId.of("Europe/Oslo")) }
+}
+
+private fun ResultSet.getNullableUid(label: String): String {
+    if (getString(label).isNullOrBlank()) {
+        return "0"
+    } else {
+        return getString(label)
+    }
 }
