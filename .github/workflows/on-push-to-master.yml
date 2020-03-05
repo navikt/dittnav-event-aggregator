@@ -42,6 +42,5 @@ jobs:
         if: env.SLACK_URL_SPECIFIED == 'true'
         uses: navikt/deploy-trigger-slack-integration@v1
         with:
-          preprod_environments: "q0 q1 q6"
           slack_channel: "#dittnav-deploy-actions"
           webhook_url: ${{ secrets.WEBHOOK_URL }}
