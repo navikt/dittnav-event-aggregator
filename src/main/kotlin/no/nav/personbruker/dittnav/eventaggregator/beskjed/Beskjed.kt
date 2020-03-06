@@ -3,6 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 import java.time.LocalDateTime
 
 data class Beskjed(
+        val uid: String,
         val id: Int?,
         val produsent: String,
         val eventId: String,
@@ -16,7 +17,8 @@ data class Beskjed(
         val synligFremTil: LocalDateTime?,
         val aktiv: Boolean
 ) {
-    constructor(produsent: String,
+    constructor(uid: String,
+                produsent: String,
                 eventId: String,
                 eventTidspunkt: LocalDateTime,
                 fodselsnummer: String,
@@ -27,7 +29,8 @@ data class Beskjed(
                 sistOppdatert: LocalDateTime,
                 synligFremTil: LocalDateTime?,
                 aktiv: Boolean
-    ) : this(null,
+    ) : this(uid,
+            null,
             produsent,
             eventId,
             eventTidspunkt,

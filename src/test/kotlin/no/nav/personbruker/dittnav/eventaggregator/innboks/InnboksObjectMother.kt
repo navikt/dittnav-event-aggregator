@@ -7,7 +7,7 @@ object InnboksObjectMother {
 
     fun createInnboks(eventId: String, fodselsnummer: String): Innboks {
         return Innboks(
-                "DittNav",
+                "DittNAV",
                 eventId,
                 LocalDateTime.now(ZoneId.of("Europe/Oslo")),
                 fodselsnummer,

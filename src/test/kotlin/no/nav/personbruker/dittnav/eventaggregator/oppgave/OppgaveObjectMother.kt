@@ -7,7 +7,7 @@ object OppgaveObjectMother {
 
     fun createOppgave(eventId: String, fodselsnummer: String): Oppgave {
         return Oppgave(
-                produsent = "DittNav",
+                produsent = "DittNAV",
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("Europe/Oslo")),
                 fodselsnummer = fodselsnummer,
                 eventId = eventId,
