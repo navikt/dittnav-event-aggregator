@@ -24,7 +24,7 @@ class BeskjedTransformerTest {
         transformed.produsent `should be equal to` nokkel.getSystembruker()
         transformed.sikkerhetsnivaa `should be equal to` original.getSikkerhetsnivaa()
 
-        val transformedEventTidspunktAsLong = transformed.eventTidspunkt.atZone(ZoneId.of("Europe/Oslo")).toInstant().toEpochMilli()
+        val transformedEventTidspunktAsLong = transformed.eventTidspunkt.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
         transformedEventTidspunktAsLong `should be equal to` original.getTidspunkt()
 
         transformed.aktiv `should be equal to` true

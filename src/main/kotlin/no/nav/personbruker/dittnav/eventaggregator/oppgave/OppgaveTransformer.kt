@@ -12,13 +12,13 @@ object OppgaveTransformer {
         val internal = Oppgave(
                 nokkel.getSystembruker(),
                 nokkel.getEventId(),
-                LocalDateTime.ofInstant(Instant.ofEpochMilli(external.getTidspunkt()), ZoneId.of("Europe/Oslo")),
+                LocalDateTime.ofInstant(Instant.ofEpochMilli(external.getTidspunkt()), ZoneId.of("UTC")),
                 external.getFodselsnummer(),
                 external.getGrupperingsId(),
                 external.getTekst(),
                 external.getLink(),
                 external.getSikkerhetsnivaa(),
-                LocalDateTime.now(ZoneId.of("Europe/Oslo")),
+                LocalDateTime.now(ZoneId.of("UTC")),
                 newRecordsAreActiveByDefault
         )
         return internal

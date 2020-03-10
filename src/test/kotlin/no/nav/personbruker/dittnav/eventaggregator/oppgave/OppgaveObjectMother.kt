@@ -8,14 +8,14 @@ object OppgaveObjectMother {
     fun createOppgave(eventId: String, fodselsnummer: String): Oppgave {
         return Oppgave(
                 produsent = "DittNAV",
-                eventTidspunkt = LocalDateTime.now(ZoneId.of("Europe/Oslo")),
+                eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
                 fodselsnummer = fodselsnummer,
                 eventId = eventId,
                 grupperingsId = "Dok12345",
                 tekst = "Dette er en oppgave til brukeren",
                 link = "https://nav.no/systemX/",
                 sikkerhetsinvaa = 4,
-                sistOppdatert = LocalDateTime.now(ZoneId.of("Europe/Oslo")),
+                sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
                 aktiv = true)
     }
 }

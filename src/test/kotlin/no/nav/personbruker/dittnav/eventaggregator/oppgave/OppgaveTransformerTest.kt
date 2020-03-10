@@ -25,7 +25,7 @@ class OppgaveTransformerTest {
         internal.produsent `should be equal to` nokkel.getSystembruker()
         internal.sikkerhetsinvaa `should be equal to` external.getSikkerhetsnivaa()
 
-        val transformedEventTidspunktAsLong = internal.eventTidspunkt.atZone(ZoneId.of("Europe/Oslo")).toInstant().toEpochMilli()
+        val transformedEventTidspunktAsLong = internal.eventTidspunkt.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
         transformedEventTidspunktAsLong `should be equal to` external.getTidspunkt()
 
         internal.aktiv `should be` true
