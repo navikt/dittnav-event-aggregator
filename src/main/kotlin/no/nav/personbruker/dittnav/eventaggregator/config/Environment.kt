@@ -1,20 +1,20 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
-data class Environment(val bootstrapServers: String = getEnvVar("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092"),
-                       val schemaRegistryUrl: String = getEnvVar("KAFKA_SCHEMAREGISTRY_SERVERS", "http://localhost:8081"),
-                       val username: String = getEnvVar("FSS_SYSTEMUSER_USERNAME", "username"),
-                       val password: String = getEnvVar("FSS_SYSTEMUSER_PASSWORD", "password"),
-                       val groupId: String = getEnvVar("GROUP_ID", "dittnav_events"),
-                       val dbHost: String = getEnvVar("DB_HOST", "localhost:5432"),
-                       val dbName: String = getEnvVar("DB_NAME", "dittnav-event-cache-preprod"),
-                       val dbAdmin: String = getEnvVar("DB_NAME", "test") + "-admin",
-                       val dbUser: String = getEnvVar("DB_NAME", "test") + "-user",
+data class Environment(val bootstrapServers: String = getEnvVar("KAFKA_BOOTSTRAP_SERVERS"),
+                       val schemaRegistryUrl: String = getEnvVar("KAFKA_SCHEMAREGISTRY_SERVERS"),
+                       val username: String = getEnvVar("FSS_SYSTEMUSER_USERNAME"),
+                       val password: String = getEnvVar("FSS_SYSTEMUSER_PASSWORD"),
+                       val groupId: String = getEnvVar("GROUP_ID"),
+                       val dbHost: String = getEnvVar("DB_HOST"),
+                       val dbName: String = getEnvVar("DB_NAME"),
+                       val dbAdmin: String = getEnvVar("DB_NAME") + "-admin",
+                       val dbUser: String = getEnvVar("DB_NAME") + "-user",
                        val dbUrl: String = "jdbc:postgresql://$dbHost/$dbName",
-                       val dbPassword: String = getEnvVar("DB_PASSWORD", "testpassword"),
-                       val dbMountPath: String = getEnvVar("DB_MOUNT_PATH", "notUsedOnLocalhost")
+                       val dbPassword: String = getEnvVar("DB_PASSWORD"),
+                       val dbMountPath: String = getEnvVar("DB_MOUNT_PATH")
 )
 
-fun getEnvVar(varName: String, defaultValue: String? = null): String {
-    return System.getenv(varName) ?: defaultValue
-    ?: throw IllegalArgumentException("Variable $varName cannot be empty")
+fun getEnvVar(varName: String): String {
+    return System.getenv(varName)
+            ?: throw IllegalArgumentException("Appen kan ikke starte uten av miljøvariabelen $varName er satt.")
 }

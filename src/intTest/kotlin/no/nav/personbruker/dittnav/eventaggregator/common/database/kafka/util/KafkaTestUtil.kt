@@ -21,11 +21,19 @@ object KafkaTestUtil {
     }
 
     fun createEnvironmentForEmbeddedKafka(embeddedEnv: KafkaEnvironment): Environment {
-        return Environment().copy(
+        return Environment(
                 bootstrapServers = embeddedEnv.brokersURL.substringAfterLast("/"),
                 schemaRegistryUrl = embeddedEnv.schemaRegistry!!.url,
                 username = username,
-                password = password
+                password = password,
+                groupId = "groupId-for-tests",
+                dbAdmin = "dbAdminIkkeIBrukHer",
+                dbHost = "dbHostIkkeIBrukHer",
+                dbMountPath = "dbMountPathIkkeIBrukHer",
+                dbName = "dbNameIkkeIBrukHer",
+                dbPassword = "dbPasswordIkkeIBrukHer",
+                dbUrl = "dbUrlIkkeIBrukHer",
+                dbUser = "dbUserIkkeIBrukHer"
         )
     }
 
