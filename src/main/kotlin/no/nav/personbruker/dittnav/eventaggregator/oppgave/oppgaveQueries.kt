@@ -6,8 +6,6 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getUtcDa
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getEpochTimeInSeconds
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.singleResult
-import no.nav.personbruker.dittnav.eventaggregator.config.MetricsState
-import no.nav.personbruker.dittnav.eventaggregator.config.oppgaveMetricsState
 import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.Types
@@ -77,15 +75,6 @@ fun Connection.getOppgaveByEventId(eventId: String): Oppgave =
                     it.setString(1, eventId)
                     it.executeQuery().singleResult {
                         toOppgave()
-                    }
-                }
-
-
-fun Connection.getOppgaveMetricsState(): List<MetricsState> =
-        prepareStatement("""SELECT PRODUSENT, COUNT(*) AS total, MAX(sistoppdatert) as lastSeen FROM OPPGAVE GROUP BY PRODUSENT""")
-                .use {
-                    it.executeQuery().list {
-                        oppgaveMetricsState(getString("produsent"), getInt("total"), getEpochTimeInSeconds("lastSeen"))
                     }
                 }
 

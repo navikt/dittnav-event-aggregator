@@ -39,13 +39,4 @@ object PrometheusMetricsCollector {
         LIFETIME_MESSAGES_SEEN.labels(topic, producer).inc()
         MESSAGE_LAST_SEEN.labels(topic, producer).setToCurrentTime()
     }
-
-    fun setLifetimeMessagesSeen(topic: String, producer: String, totalMessagesSeen: Int) {
-        MESSAGE_LAST_SEEN.labels(topic, producer).set(totalMessagesSeen.toDouble())
-    }
-
-    fun setMessageLastSeen(topic: String, producer: String, messageLastSeenEpochSeconds: Long) {
-        LIFETIME_MESSAGES_SEEN.remove(topic, producer)
-        LIFETIME_MESSAGES_SEEN.labels(topic, producer).inc(messageLastSeenEpochSeconds.toDouble())
-    }
 }

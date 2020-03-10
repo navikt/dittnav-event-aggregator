@@ -2,7 +2,6 @@ package no.nav.personbruker.dittnav.eventaggregator.innboks
 
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistFailureReason
-import no.nav.personbruker.dittnav.eventaggregator.config.MetricsState
 import org.slf4j.LoggerFactory
 
 class InnboksRepository(private val database: Database) {
@@ -26,9 +25,4 @@ class InnboksRepository(private val database: Database) {
         }
     }
 
-    suspend fun getInnboksMetricsState(): List<MetricsState> {
-        return database.dbQuery {
-            getInnboksMetricsState()
-        }
-    }
 }

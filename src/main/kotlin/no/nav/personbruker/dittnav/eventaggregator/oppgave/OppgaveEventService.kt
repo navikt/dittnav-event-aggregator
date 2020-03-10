@@ -1,39 +1,36 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
-import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.brukernotifikasjon.schemas.Oppgave
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.NokkelNullException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.getNonNullKey
+import no.nav.personbruker.dittnav.eventaggregator.config.EventType.OPPGAVE
+import no.nav.personbruker.dittnav.eventaggregator.influx.EventMetricsProbe
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.slf4j.LoggerFactory
 
 class OppgaveEventService(
-        val oppgaveRepository: OppgaveRepository
+        private val oppgaveRepository: OppgaveRepository,
+        private val metricsProbe: EventMetricsProbe
 ) : EventBatchProcessorService<Oppgave> {
 
     private val log = LoggerFactory.getLogger(OppgaveEventService::class.java)
-
-    fun initOppgaveMetrics() {
-        runBlocking {
-            oppgaveRepository.getOppgaveMetricsState()
-        }.let { lifetimeMetrics ->
-            initMetrics(lifetimeMetrics)
-        }
-    }
 
     override suspend fun processEvents(events: ConsumerRecords<Nokkel, Oppgave>) {
         val problematicEvents = mutableListOf<ConsumerRecord<Nokkel, Oppgave>>()
         events.forEach { event ->
             try {
-                registerMetrics(event)
+                metricsProbe.reportEventSeen(OPPGAVE, event.systembruker)
                 storeEventInCache(event)
+                metricsProbe.reportEventProcessed(OPPGAVE, event.systembruker)
             } catch (e: NokkelNullException) {
+                metricsProbe.reportEventFailed(OPPGAVE, event.systembruker)
                 log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", e)
             } catch (e: Exception) {
+                metricsProbe.reportEventFailed(OPPGAVE, event.systembruker)
                 problematicEvents.add(event)
                 log.warn("Transformasjon av oppgave-event fra Kafka feilet.", e)
             }

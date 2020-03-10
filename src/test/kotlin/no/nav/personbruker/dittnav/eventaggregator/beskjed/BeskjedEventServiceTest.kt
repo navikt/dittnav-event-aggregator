@@ -4,10 +4,9 @@ import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.objectmother.ConsumerRecordsObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.config.MetricsState
 import no.nav.personbruker.dittnav.eventaggregator.config.PrometheusMetricsCollector
+import no.nav.personbruker.dittnav.eventaggregator.influx.EventMetricsProbe
 import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should equal`
 import org.amshove.kluent.`should throw`
 import org.amshove.kluent.invoking
 import org.junit.jupiter.api.AfterAll
@@ -17,12 +16,14 @@ import org.junit.jupiter.api.Test
 class BeskjedEventServiceTest {
 
     private val beskjedRepository = mockk<BeskjedRepository>(relaxed = true)
-    private val eventService = BeskjedEventService(beskjedRepository)
+    private val eventMetricsProbe = mockk<EventMetricsProbe>(relaxed = true)
+    private val eventService = BeskjedEventService(beskjedRepository, eventMetricsProbe)
 
     @BeforeEach
     private fun resetMocks() {
         mockkObject(BeskjedTransformer)
         clearMocks(beskjedRepository)
+        clearMocks(eventMetricsProbe)
     }
 
     @AfterAll
@@ -72,32 +73,11 @@ class BeskjedEventServiceTest {
 
         coVerify(exactly = totalNumberOfRecords) { BeskjedTransformer.toInternal(any(), any()) }
         coVerify(exactly = 1) { beskjedRepository.writeEventsToCache(allAny()) }
+        coVerify(exactly = numberOfFailedTransformations) { eventMetricsProbe.reportEventFailed(any(), any()) }
         capturedListOfEntities.captured.size `should be` numberOfSuccessfulTransformations
 
         confirmVerified(BeskjedTransformer)
         confirmVerified(beskjedRepository)
-    }
-
-    @Test
-    fun shouldLoadMetricsStateCorrectly() {
-        val metrics = listOf(
-                MetricsState("beskjed", "DittNAV", 2, 5000)
-        )
-
-        coEvery{ beskjedRepository.getBeskjedMetricsState() } returns metrics
-
-        val capturedCount = CapturingSlot<Int>()
-        val capturedLastSeen = CapturingSlot<Long>()
-
-        mockkObject( PrometheusMetricsCollector )
-
-        every { PrometheusMetricsCollector.setLifetimeMessagesSeen("beskjed", "DittNAV", capture(capturedCount)) } returns Unit
-        every { PrometheusMetricsCollector.setMessageLastSeen("beskjed", "DittNAV", capture(capturedLastSeen)) } returns Unit
-
-        eventService.initBeskjedMetrics()
-
-        capturedCount.captured `should equal` 2
-        capturedLastSeen.captured `should equal` 5000
     }
 
     @Test
@@ -112,7 +92,8 @@ class BeskjedEventServiceTest {
             eventService.processEvents(records)
         }
 
-        verify (exactly = numberOfRecords) { PrometheusMetricsCollector.registerMessageSeen(any(), any()) }
+        coVerify (exactly = numberOfRecords) { eventMetricsProbe.reportEventSeen(any(), any()) }
+        coVerify (exactly = numberOfRecords) { eventMetricsProbe.reportEventProcessed(any(), any()) }
     }
 
     private fun createANumberOfTransformedRecords(numberOfRecords: Int): MutableList<Beskjed> {

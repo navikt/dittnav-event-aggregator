@@ -3,8 +3,6 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getUtcDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getEpochTimeInSeconds
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
-import no.nav.personbruker.dittnav.eventaggregator.config.MetricsState
-import no.nav.personbruker.dittnav.eventaggregator.config.doneMetricsState
 import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.Statement

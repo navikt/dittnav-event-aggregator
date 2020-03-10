@@ -5,12 +5,14 @@ import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.common.KafkaEnvironment
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.*
+import no.nav.personbruker.dittnav.eventaggregator.common.StubMetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
 import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util.KafkaTestUtil
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.*
+import no.nav.personbruker.dittnav.eventaggregator.influx.EventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import org.amshove.kluent.`should equal`
 import org.amshove.kluent.shouldEqualTo
@@ -25,6 +27,9 @@ class EndToEndTestIT {
     val topicen = "endToEndTestItBeskjed"
     val embeddedEnv = KafkaTestUtil.createDefaultKafkaEmbeddedInstance(listOf(topicen))
     val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
+
+    val metricsReporter = StubMetricsReporter()
+    val metricsProbe = EventMetricsProbe(metricsReporter)
 
     val adminClient = embeddedEnv.adminClient
 
@@ -71,7 +76,7 @@ class EndToEndTestIT {
 
     fun `Les inn alle eventene og verifiser at de har blitt lagt til i databasen`() {
         val beskjedRepository = BeskjedRepository(database)
-        val eventProcessor = BeskjedEventService(beskjedRepository)
+        val eventProcessor = BeskjedEventService(beskjedRepository, metricsProbe)
         val consumerProps = Kafka.consumerProps(testEnvironment, EventType.BESKJED, true)
         val kafkaConsumer = KafkaConsumer<Nokkel, Beskjed>(consumerProps)
         val consumer = Consumer(topicen, kafkaConsumer, eventProcessor)

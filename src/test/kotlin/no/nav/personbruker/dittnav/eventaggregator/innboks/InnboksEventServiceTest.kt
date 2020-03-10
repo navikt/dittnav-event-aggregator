@@ -4,11 +4,8 @@ import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.objectmother.ConsumerRecordsObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.config.*
-import no.nav.personbruker.dittnav.eventaggregator.config.PrometheusMetricsCollector.setLifetimeMessagesSeen
-import no.nav.personbruker.dittnav.eventaggregator.config.PrometheusMetricsCollector.setMessageLastSeen
+import no.nav.personbruker.dittnav.eventaggregator.influx.EventMetricsProbe
 import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should equal`
 import org.amshove.kluent.`should throw`
 import org.amshove.kluent.invoking
 import org.junit.jupiter.api.AfterAll
@@ -18,12 +15,14 @@ import org.junit.jupiter.api.Test
 class InnboksEventServiceTest {
 
     private val repository = mockk<InnboksRepository>(relaxed = true)
-    private val innboksService = InnboksEventService(repository)
+    private val metricsProbe = mockk<EventMetricsProbe>(relaxed = true)
+    private val innboksService = InnboksEventService(repository, metricsProbe)
 
     @BeforeEach
     fun resetMocks() {
         mockkObject(InnboksTransformer)
         clearMocks(repository)
+        clearMocks(metricsProbe)
     }
 
     @AfterAll
@@ -76,32 +75,11 @@ class InnboksEventServiceTest {
 
         verify(exactly = numberOfRecords) { InnboksTransformer.toInternal(any(), any()) }
         coVerify(exactly = numberOfSuccessfulTransformations) { repository.storeInnboksEventInCache(any()) }
+        coVerify(exactly = numberOfFailedTransformations) { metricsProbe.reportEventFailed(any(), any()) }
         capturedStores.size `should be` numberOfSuccessfulTransformations
 
         confirmVerified(repository)
         confirmVerified(InnboksTransformer)
-    }
-
-    @Test
-    fun shouldLoadMetricsStateCorrectly() {
-        val metrics = listOf(
-                MetricsState("innboks", "DittNAV", 2, 5000)
-        )
-
-        coEvery{ repository.getInnboksMetricsState() } returns metrics
-
-        val capturedCount = CapturingSlot<Int>()
-        val capturedLastSeen = CapturingSlot<Long>()
-
-        mockkObject( PrometheusMetricsCollector )
-
-        every { setLifetimeMessagesSeen("innboks", "DittNAV", capture(capturedCount)) } returns Unit
-        every { setMessageLastSeen("innboks", "DittNAV", capture(capturedLastSeen)) } returns Unit
-
-        innboksService.initInnboksMetrics()
-
-        capturedCount.captured `should equal` 2
-        capturedLastSeen.captured `should equal` 5000
     }
 
     @Test
@@ -110,13 +88,11 @@ class InnboksEventServiceTest {
 
         val records = ConsumerRecordsObjectMother.giveMeANumberOfInnboksRecords(numberOfRecords, "innboks")
 
-        mockkObject( PrometheusMetricsCollector )
-
         runBlocking {
             innboksService.processEvents(records)
         }
 
-        verify (exactly = numberOfRecords) { PrometheusMetricsCollector.registerMessageSeen(any(), any()) }
+        coVerify (exactly = numberOfRecords) { metricsProbe.reportEventSeen(any(), any()) }
     }
 
     private fun createANumberOfTransformedInnboksRecords(number: Int): List<Innboks> {

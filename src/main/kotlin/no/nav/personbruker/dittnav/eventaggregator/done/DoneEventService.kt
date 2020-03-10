@@ -1,6 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
-import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.Done
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.setBeskjedAktivFlag
@@ -11,6 +10,8 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.getAll
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.NokkelNullException
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.getNonNullKey
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
+import no.nav.personbruker.dittnav.eventaggregator.config.EventType.DONE
+import no.nav.personbruker.dittnav.eventaggregator.influx.EventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.innboks.setInnboksAktivFlag
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.setOppgaveAktivFlag
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -19,7 +20,8 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class DoneEventService(
-        val database: Database
+        val database: Database,
+        val eventMetricsProbe: EventMetricsProbe
 ) : EventBatchProcessorService<Done> {
 
     private val log: Logger = LoggerFactory.getLogger(DoneEventService::class.java)
@@ -27,11 +29,14 @@ class DoneEventService(
     override suspend fun processEvents(events: ConsumerRecords<Nokkel, Done>) {
         events.forEach { event ->
             try {
-                registerMetrics(event)
+                eventMetricsProbe.reportEventSeen(DONE, event.systembruker)
                 processDoneEvent(event)
+                eventMetricsProbe.reportEventProcessed(DONE, event.systembruker)
             } catch (e: NokkelNullException) {
+                eventMetricsProbe.reportEventFailed(DONE, event.systembruker)
                 log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", e)
             } catch (e: Exception) {
+                eventMetricsProbe.reportEventFailed(DONE, event.systembruker)
                 log.warn("Transformasjon av done-event fra Kafka feilet.", e)
             }
         }
@@ -69,6 +74,9 @@ class DoneEventService(
             EventType.INNBOKS -> {
                 database.dbQuery { setInnboksAktivFlag(done.eventId, done.produsent, done.fodselsnummer, false) }
                 log.info("Satte Innboks-event med eventId ${event.eventId} inaktivt")
+            }
+            else -> {
+                log.warn("Fant ukjent eventtype ved behandling av done-events: $event")
             }
         }
     }

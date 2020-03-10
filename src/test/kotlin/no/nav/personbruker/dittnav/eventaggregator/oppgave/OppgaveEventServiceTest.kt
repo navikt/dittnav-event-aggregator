@@ -4,10 +4,8 @@ import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.objectmother.ConsumerRecordsObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.config.MetricsState
-import no.nav.personbruker.dittnav.eventaggregator.config.PrometheusMetricsCollector
+import no.nav.personbruker.dittnav.eventaggregator.influx.EventMetricsProbe
 import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should equal`
 import org.amshove.kluent.`should throw`
 import org.amshove.kluent.invoking
 import org.junit.jupiter.api.AfterAll
@@ -17,12 +15,14 @@ import org.junit.jupiter.api.Test
 class OppgaveEventServiceTest {
 
     private val repository = mockk<OppgaveRepository>(relaxed = true)
-    private val oppgaveService = OppgaveEventService(repository)
+    private val metricsProbe = mockk<EventMetricsProbe>(relaxed = true)
+    private val oppgaveService = OppgaveEventService(repository, metricsProbe)
 
     @BeforeEach
     fun resetMocks() {
         mockkObject(OppgaveTransformer)
         clearMocks(repository)
+        clearMocks(metricsProbe)
     }
 
     @AfterAll
@@ -75,32 +75,11 @@ class OppgaveEventServiceTest {
 
         verify(exactly = numberOfRecords) { OppgaveTransformer.toInternal(any(), any()) }
         coVerify(exactly = numberOfSuccessfulTransformations) { repository.storeOppgaveEventInCache(any()) }
+        coVerify(exactly = numberOfFailedTransformations) { metricsProbe.reportEventFailed(any(), any()) }
         capturedStores.size `should be` numberOfSuccessfulTransformations
 
         confirmVerified(repository)
         confirmVerified(OppgaveTransformer)
-    }
-
-    @Test
-    fun shouldLoadMetricsStateCorrectly() {
-        val metrics = listOf(
-                MetricsState("oppgave", "DittNAV", 2, 5000)
-        )
-
-        coEvery{ repository.getOppgaveMetricsState() } returns metrics
-
-        val capturedCount = CapturingSlot<Int>()
-        val capturedLastSeen = CapturingSlot<Long>()
-
-        mockkObject( PrometheusMetricsCollector )
-
-        every { PrometheusMetricsCollector.setLifetimeMessagesSeen("oppgave", "DittNAV", capture(capturedCount)) } returns Unit
-        every { PrometheusMetricsCollector.setMessageLastSeen("oppgave", "DittNAV", capture(capturedLastSeen)) } returns Unit
-
-        oppgaveService.initOppgaveMetrics()
-
-        capturedCount.captured `should equal` 2
-        capturedLastSeen.captured `should equal` 5000
     }
 
     @Test
@@ -109,13 +88,12 @@ class OppgaveEventServiceTest {
 
         val records = ConsumerRecordsObjectMother.giveMeANumberOfOppgaveRecords(numberOfRecords, "oppgave")
 
-        mockkObject( PrometheusMetricsCollector )
-
         runBlocking {
             oppgaveService.processEvents(records)
         }
 
-        verify (exactly = numberOfRecords) { PrometheusMetricsCollector.registerMessageSeen(any(), any()) }
+        coVerify (exactly = numberOfRecords) { metricsProbe.reportEventSeen(any(), any()) }
+        coVerify (exactly = numberOfRecords) { metricsProbe.reportEventProcessed(any(), any()) }
     }
 
     private fun createANumberOfTransformedOppgaveRecords(number: Int): List<Oppgave> {

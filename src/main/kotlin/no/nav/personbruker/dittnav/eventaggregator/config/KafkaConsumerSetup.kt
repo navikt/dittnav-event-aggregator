@@ -1,7 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
-import io.prometheus.client.Counter
-import io.prometheus.client.Gauge
 import no.nav.brukernotifikasjon.schemas.*
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedEventService
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
@@ -9,6 +7,9 @@ import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorSer
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneEventService
+import no.nav.personbruker.dittnav.eventaggregator.influx.EventMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.influx.InfluxMetricsReporter
+import no.nav.personbruker.dittnav.eventaggregator.influx.SensuClient
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksEventService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveEventService
@@ -41,7 +42,8 @@ object KafkaConsumerSetup {
 
     fun setupConsumerForTheBeskjedTopic(environment: Environment, database: Database): Consumer<Beskjed> {
         val beskjedRepository = BeskjedRepository(database)
-        val eventProcessor = BeskjedEventService(beskjedRepository).apply { initBeskjedMetrics() }
+        val metricsProbe = setupEventMetricsProbe(environment)
+        val eventProcessor = BeskjedEventService(beskjedRepository, metricsProbe)
         val kafkaProps = Kafka.consumerProps(environment, EventType.BESKJED)
         return setupConsumerForTheBeskjedTopic(kafkaProps, eventProcessor)
     }
@@ -53,7 +55,8 @@ object KafkaConsumerSetup {
 
     fun setupConsumerForTheOppgaveTopic(environment: Environment, database: Database): Consumer<Oppgave> {
         val oppgaveRepository = OppgaveRepository(database)
-        val eventProcessor = OppgaveEventService(oppgaveRepository).apply { initOppgaveMetrics() }
+        val metricsProbe = setupEventMetricsProbe(environment)
+        val eventProcessor = OppgaveEventService(oppgaveRepository, metricsProbe)
         val kafkaProps = Kafka.consumerProps(environment, EventType.OPPGAVE)
         return setupConsumerForTheOppgaveTopic(kafkaProps, eventProcessor)
     }
@@ -65,7 +68,8 @@ object KafkaConsumerSetup {
 
     fun setupConsumerForTheInnboksTopic(environment: Environment, database: Database): Consumer<Innboks> {
         val innboksRepository = InnboksRepository(database)
-        val eventProcessor = InnboksEventService(innboksRepository).apply { initInnboksMetrics() }
+        val metricsProbe = setupEventMetricsProbe(environment)
+        val eventProcessor = InnboksEventService(innboksRepository, metricsProbe)
         val kafkaProps = Kafka.consumerProps(environment, EventType.INNBOKS)
         return setupConsumerForTheInnboksTopic(kafkaProps, eventProcessor)
     }
@@ -76,7 +80,8 @@ object KafkaConsumerSetup {
     }
 
     fun setupConsumerForTheDoneTopic(environment: Environment, database: Database): Consumer<Done> {
-        val eventProcessor = DoneEventService(database)
+        val metricsProbe = setupEventMetricsProbe(environment)
+        val eventProcessor = DoneEventService(database, metricsProbe)
         val kafkaProps = Kafka.consumerProps(environment, EventType.DONE)
         return setupConsumerForTheDoneTopic(kafkaProps, eventProcessor)
     }
@@ -84,6 +89,12 @@ object KafkaConsumerSetup {
     fun setupConsumerForTheDoneTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<Done>): Consumer<Done> {
         val kafkaConsumer = KafkaConsumer<Nokkel, Done>(kafkaProps)
         return Consumer(Kafka.doneTopicName, kafkaConsumer, eventProcessor)
+    }
+
+    fun setupEventMetricsProbe(environment: Environment): EventMetricsProbe {
+        val sensuClient = SensuClient(environment.sensuHost, environment.sensuPort.toInt())
+        val metricsReporter = InfluxMetricsReporter(sensuClient, environment)
+        return EventMetricsProbe(metricsReporter)
     }
 }
 
