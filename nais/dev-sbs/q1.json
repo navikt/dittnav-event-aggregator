@@ -1,6 +1,7 @@
 {
   "namespace": "q1",
   "ingresses": [
-    "https://dittnav-event-aggregator-q1.dev-sbs.nais.io"
+    "https://dittnav-event-aggregator-q1.dev-sbs.nais.io",
+    "dittnav-event-aggregator-q1.nais.oera-q.local"
   ]
 }
