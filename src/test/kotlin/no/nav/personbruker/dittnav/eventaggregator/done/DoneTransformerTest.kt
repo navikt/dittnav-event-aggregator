@@ -19,7 +19,7 @@ class DoneTransformerTest {
         transformed.grupperingsId `should be equal to` original.getGrupperingsId()
         transformed.eventId `should be equal to` nokkel.getEventId()
 
-        val transformedEventTidspunktAsLong = transformed.eventTidspunkt.atZone(ZoneId.of("Europe/Oslo")).toInstant().toEpochMilli()
+        val transformedEventTidspunktAsLong = transformed.eventTidspunkt.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
         transformedEventTidspunktAsLong `should be equal to` original.getTidspunkt()
     }
 }

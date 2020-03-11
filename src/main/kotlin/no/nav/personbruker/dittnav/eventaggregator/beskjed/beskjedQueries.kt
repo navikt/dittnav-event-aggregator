@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executePersistQuery
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getUtcDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.singleResult
 import java.sql.Connection
@@ -85,19 +86,19 @@ private fun ResultSet.toBeskjed(): Beskjed {
             uid = getString("uid"),
             id = getInt("id"),
             produsent = getString("produsent"),
-            eventTidspunkt = LocalDateTime.ofInstant(getTimestamp("eventTidspunkt").toInstant(), ZoneId.of("Europe/Oslo")),
+            eventTidspunkt = getUtcDateTime("eventTidspunkt"),
             fodselsnummer = getString("fodselsnummer"),
             eventId = getString("eventId"),
             grupperingsId = getString("grupperingsId"),
             tekst = getString("tekst"),
             link = getString("link"),
             sikkerhetsnivaa = getInt("sikkerhetsnivaa"),
-            sistOppdatert = LocalDateTime.ofInstant(getTimestamp("sistOppdatert").toInstant(), ZoneId.of("Europe/Oslo")),
+            sistOppdatert = getUtcDateTime("sistOppdatert"),
             synligFremTil = getNullableLocalDateTime("synligFremTil"),
             aktiv = getBoolean("aktiv")
     )
 }
 private fun ResultSet.getNullableLocalDateTime(label: String): LocalDateTime? {
-    return getTimestamp(label)?.let { timestamp -> LocalDateTime.ofInstant(timestamp.toInstant(), ZoneId.of("Europe/Oslo")) }
+    return getTimestamp(label)?.let { timestamp -> timestamp.toLocalDateTime() }
 }
 

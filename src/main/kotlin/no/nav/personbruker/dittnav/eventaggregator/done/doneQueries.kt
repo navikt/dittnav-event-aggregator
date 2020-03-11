@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getUtcDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
 import java.sql.Connection
 import java.sql.ResultSet
@@ -33,7 +34,7 @@ private fun ResultSet.toDoneEvent(): Done {
     return Done(
             eventId = getString("eventId"),
             produsent = getString("produsent"),
-            eventTidspunkt = LocalDateTime.ofInstant(getTimestamp("eventTidspunkt").toInstant(), ZoneId.of("Europe/Oslo")),
+            eventTidspunkt = getUtcDateTime("eventTidspunkt"),
             fodselsnummer = getString("fodselsnummer"),
             grupperingsId = getString("grupperingsId")
     )
