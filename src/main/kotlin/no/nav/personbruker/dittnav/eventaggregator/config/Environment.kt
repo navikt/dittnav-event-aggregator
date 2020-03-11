@@ -10,7 +10,6 @@ data class Environment(val bootstrapServers: String = getEnvVar("KAFKA_BOOTSTRAP
                        val dbAdmin: String = getEnvVar("DB_NAME") + "-admin",
                        val dbUser: String = getEnvVar("DB_NAME") + "-user",
                        val dbUrl: String = "jdbc:postgresql://$dbHost/$dbName",
-                       val dbPassword: String = getEnvVar("DB_PASSWORD"),
                        val dbMountPath: String = getEnvVar("DB_MOUNT_PATH")
 )
 

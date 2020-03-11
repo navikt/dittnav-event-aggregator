@@ -1,7 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
 import com.zaxxer.hikari.HikariDataSource
-import no.nav.personbruker.dittnav.eventaggregator.common.database.PostgresDatabase
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.configuration.FluentConfiguration
 import javax.sql.DataSource
