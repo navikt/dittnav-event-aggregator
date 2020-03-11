@@ -19,7 +19,6 @@ fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()
         configureShutdownHook(appContext)
     }
 
-    Flyway.runFlywayMigrations(appContext.environment)
 }
 
 private fun Application.configureStartupHook(appContext: ApplicationContext) {
