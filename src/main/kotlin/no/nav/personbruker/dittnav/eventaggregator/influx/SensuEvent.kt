@@ -14,6 +14,7 @@ data class SensuEvent(
                 "handlers": [ "events_nano" ],
                 "status": 0,
                 "output": "${dataPoint.lineProtocol()}"
+            }
         """.trimIndent()
     }
 }
