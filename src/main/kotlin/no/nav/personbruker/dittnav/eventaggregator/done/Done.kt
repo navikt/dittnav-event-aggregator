@@ -8,4 +8,13 @@ data class Done(
         val eventTidspunkt: LocalDateTime,
         val fodselsnummer: String,
         val grupperingsId: String
-)
+) {
+    override fun toString(): String {
+        return "Done(" +
+                "produsent=$produsent, " +
+                "eventId=$eventId, " +
+                "eventTidspunkt=$eventTidspunkt, " +
+                "fodselsnummer=***, " +
+                "grupperingsId=$grupperingsId"
+    }
+}

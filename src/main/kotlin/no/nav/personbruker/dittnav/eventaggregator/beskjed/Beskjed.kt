@@ -43,4 +43,21 @@ data class Beskjed(
             synligFremTil,
             aktiv
     )
+
+    override fun toString(): String {
+        return "Beskjed(" +
+                "uid=$uid, " +
+                "id=$id, " +
+                "produsent=$produsent, " +
+                "eventId=$eventId, " +
+                "eventTidspunkt=$eventTidspunkt, " +
+                "fodselsnummer=***, " +
+                "grupperingsId=$grupperingsId, " +
+                "tekst=***, " +
+                "link=***, " +
+                "sikkerhetsnivaa=$sikkerhetsnivaa, " +
+                "sistOppdatert=$sistOppdatert, " +
+                "synligFremTil=$synligFremTil, " +
+                "aktiv=$aktiv"
+    }
 }

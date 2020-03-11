@@ -8,8 +8,6 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.util.singleRe
 import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.Types
-import java.time.LocalDateTime
-import java.time.ZoneId
 
 fun Connection.getAllOppgave(): List<Oppgave> =
         prepareStatement("""SELECT * FROM OPPGAVE""")
@@ -29,7 +27,7 @@ fun Connection.createOppgave(oppgave: Oppgave): PersistActionResult =
             setString(5, oppgave.grupperingsId)
             setString(6, oppgave.tekst)
             setString(7, oppgave.link)
-            setInt(8, oppgave.sikkerhetsinvaa)
+            setInt(8, oppgave.sikkerhetsnivaa)
             setObject(9, oppgave.sistOppdatert, Types.TIMESTAMP)
             setBoolean(10, oppgave.aktiv)
         }
@@ -89,7 +87,7 @@ private fun ResultSet.toOppgave(): Oppgave {
             grupperingsId = getString("grupperingsId"),
             tekst = getString("tekst"),
             link = getString("link"),
-            sikkerhetsinvaa = getInt("sikkerhetsnivaa"),
+            sikkerhetsnivaa = getInt("sikkerhetsnivaa"),
             sistOppdatert = getUtcDateTime("sistOppdatert"),
             aktiv = getBoolean("aktiv")
     )

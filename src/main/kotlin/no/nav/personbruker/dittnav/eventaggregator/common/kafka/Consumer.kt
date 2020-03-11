@@ -91,7 +91,6 @@ class Consumer<T>(
             kafkaConsumer.commitSync()
         }
     }
-
 }
 
 private fun initPrometheusMessageCounter(topic: String): Counter {

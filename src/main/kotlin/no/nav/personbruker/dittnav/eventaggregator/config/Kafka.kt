@@ -2,16 +2,12 @@ package no.nav.personbruker.dittnav.eventaggregator.config
 
 import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
-import io.confluent.kafka.serializers.KafkaAvroSerializer
 import io.netty.util.NetUtil.getHostname
 import no.nav.personbruker.dittnav.eventaggregator.config.ConfigUtil.isCurrentlyRunningOnNais
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
-import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.config.SaslConfigs
 import org.apache.kafka.common.config.SslConfigs
-import org.apache.kafka.common.serialization.StringDeserializer
-import org.apache.kafka.common.serialization.StringSerializer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -63,19 +59,5 @@ object Kafka {
 
     private fun buildGroupIdIncludingEventType(env: Environment, eventTypeToConsume: EventType) =
             env.groupId + eventTypeToConsume.eventType
-
-    fun producerProps(env: Environment, eventTypeToConsume: EventType, enableSecurity : Boolean = isCurrentlyRunningOnNais()): Properties {
-        val groupIdAndEventType = buildGroupIdIncludingEventType(env, eventTypeToConsume)
-        return Properties().apply {
-            put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, env.bootstrapServers)
-            put(KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG, env.schemaRegistryUrl)
-            put(ConsumerConfig.CLIENT_ID_CONFIG, groupIdAndEventType + getHostname(InetSocketAddress(0)))
-            put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
-            put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer::class.java)
-            if (enableSecurity) {
-                putAll(credentialProps(env))
-            }
-        }
-    }
 
 }

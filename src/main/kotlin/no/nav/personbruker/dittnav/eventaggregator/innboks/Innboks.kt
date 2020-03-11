@@ -39,4 +39,19 @@ data class Innboks (
             sistOppdatert,
             aktiv
     )
+
+    override fun toString(): String {
+        return "Innboks(" +
+                "id=$id, " +
+                "produsent=$produsent, " +
+                "eventId=$eventId, " +
+                "eventTidspunkt=$eventTidspunkt, " +
+                "fodselsnummer=***, " +
+                "grupperingsId=$grupperingsId, " +
+                "tekst=***, " +
+                "link=***, " +
+                "sikkerhetsnivaa=$sikkerhetsnivaa, " +
+                "sistOppdatert=$sistOppdatert, " +
+                "aktiv=$aktiv"
+    }
 }
