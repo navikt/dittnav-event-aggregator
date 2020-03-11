@@ -11,7 +11,7 @@ data class Oppgave(
         val grupperingsId: String,
         val tekst: String,
         val link: String,
-        val sikkerhetsinvaa: Int,
+        val sikkerhetsnivaa: Int,
         val sistOppdatert: LocalDateTime,
         val aktiv: Boolean
 ) {
@@ -38,4 +38,19 @@ data class Oppgave(
             sistOppdatert,
             aktiv
     )
+
+    override fun toString(): String {
+        return "Oppgave(" +
+                "id=$id, " +
+                "produsent=$produsent, " +
+                "eventId=$eventId, " +
+                "eventTidspunkt=$eventTidspunkt, " +
+                "fodselsnummer=***, " +
+                "grupperingsId=$grupperingsId, " +
+                "tekst=***, " +
+                "link=***, " +
+                "sikkerhetsnivaa=$sikkerhetsnivaa, " +
+                "sistOppdatert=$sistOppdatert, " +
+                "aktiv=$aktiv"
+    }
 }
