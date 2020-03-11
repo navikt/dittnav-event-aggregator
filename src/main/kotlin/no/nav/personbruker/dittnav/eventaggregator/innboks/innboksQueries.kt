@@ -4,14 +4,10 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistAction
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executePersistQuery
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.singleResult
-import no.nav.personbruker.dittnav.eventaggregator.config.MetricsState
-import no.nav.personbruker.dittnav.eventaggregator.config.innboksMetricsState
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.*
 import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.Types
-import java.time.LocalDateTime
-import java.time.ZoneId
 
 fun Connection.getAllInnboks(): List<Innboks> =
         prepareStatement("""SELECT * FROM INNBOKS""")

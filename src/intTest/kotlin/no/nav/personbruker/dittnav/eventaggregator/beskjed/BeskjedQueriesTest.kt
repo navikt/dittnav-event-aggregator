@@ -6,7 +6,6 @@ import org.amshove.kluent.*
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
-import kotlin.test.Ignore
 
 class BeskjedQueriesTest {
 
@@ -121,16 +120,6 @@ class BeskjedQueriesTest {
                 database.dbQuery { getBeskjedByEventId("-1") }
             }
         } shouldThrow SQLException::class `with message` "Found no rows"
-    }
-
-    @Ignore
-    @Test
-    fun `Skal finne antall eventer per produsent`() {
-//        runBlocking {
-//            val resultat = database.dbQuery { getBeskjedMetricsState() }
-//            resultat[0] `should contain` allEvents[0].produsent
-//            resultat[0] `should contain` allEvents.size.toString()
-//        }
     }
 
 }
