@@ -104,6 +104,16 @@ tasks {
     }
 
     register("runServer", JavaExec::class) {
+        environment("KAFKA_BOOTSTRAP_SERVERS", "localhost:29092")
+        environment("KAFKA_SCHEMAREGISTRY_SERVERS", "http://localhost:8081")
+        environment("FSS_SYSTEMUSER_USERNAME", "username")
+        environment("FSS_SYSTEMUSER_PASSWORD", "password")
+        environment("GROUP_ID", "dittnav_events")
+        environment("DB_HOST", "localhost:5432")
+        environment("DB_NAME", "dittnav-event-cache-preprod")
+        environment("DB_PASSWORD", "testpassword")
+        environment("DB_MOUNT_PATH", "notUsedOnLocalhost")
+
         main = application.mainClassName
         classpath = sourceSets["main"].runtimeClasspath
     }

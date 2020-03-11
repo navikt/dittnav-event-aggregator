@@ -1,7 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
-import no.nav.personbruker.dittnav.eventaggregator.common.database.PostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.done.CachedDoneEventConsumer
 
 class ApplicationContext {
