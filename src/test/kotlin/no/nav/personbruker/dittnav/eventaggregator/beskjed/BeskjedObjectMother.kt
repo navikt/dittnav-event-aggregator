@@ -10,14 +10,14 @@ object BeskjedObjectMother {
         return Beskjed(
                 uid = Random.nextInt(1,100).toString(),
                 produsent = "DittNAV",
-                eventTidspunkt = LocalDateTime.now(ZoneId.of("Europe/Oslo")),
-                synligFremTil = LocalDateTime.now(ZoneId.of("Europe/Oslo")),
+                eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
+                synligFremTil = LocalDateTime.now(ZoneId.of("UTC")),
                 fodselsnummer = fodselsnummer,
                 eventId = eventId,
                 grupperingsId = "100$fodselsnummer",
                 tekst = "Dette er beskjed til brukeren",
                 link = "https://nav.no/systemX/$fodselsnummer",
-                sistOppdatert = LocalDateTime.now(ZoneId.of("Europe/Oslo")),
+                sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
                 sikkerhetsnivaa = 4,
                 aktiv = true)
     }
