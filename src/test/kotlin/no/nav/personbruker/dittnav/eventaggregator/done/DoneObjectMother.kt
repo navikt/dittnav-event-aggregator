@@ -9,7 +9,7 @@ object DoneObjectMother {
         return Done(
                 "DittNAV",
                 eventId,
-                LocalDateTime.now(ZoneId.of("Europe/Oslo")),
+                LocalDateTime.now(ZoneId.of("UTC")),
                 "12345",
                 "100${eventId}"
         )

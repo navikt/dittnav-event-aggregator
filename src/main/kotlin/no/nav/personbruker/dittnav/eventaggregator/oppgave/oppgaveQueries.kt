@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executePersistQuery
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getUtcDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.singleResult
 import java.sql.Connection
@@ -82,14 +83,14 @@ private fun ResultSet.toOppgave(): Oppgave {
     return Oppgave(
             id = getInt("id"),
             produsent = getString("produsent"),
-            eventTidspunkt = LocalDateTime.ofInstant(getTimestamp("eventTidspunkt").toInstant(), ZoneId.of("Europe/Oslo")),
+            eventTidspunkt = getUtcDateTime("eventTidspunkt"),
             fodselsnummer = getString("fodselsnummer"),
             eventId = getString("eventId"),
             grupperingsId = getString("grupperingsId"),
             tekst = getString("tekst"),
             link = getString("link"),
             sikkerhetsinvaa = getInt("sikkerhetsnivaa"),
-            sistOppdatert = LocalDateTime.ofInstant(getTimestamp("sistOppdatert").toInstant(), ZoneId.of("Europe/Oslo")),
+            sistOppdatert = getUtcDateTime("sistOppdatert"),
             aktiv = getBoolean("aktiv")
     )
 }

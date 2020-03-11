@@ -14,21 +14,21 @@ object BeskjedTransformer {
                 createRandomStringUUID(),
                 externalNokkel.getSystembruker(),
                 externalNokkel.getEventId(),
-                LocalDateTime.ofInstant(Instant.ofEpochMilli(externalValue.getTidspunkt()), ZoneId.of("Europe/Oslo")),
+                LocalDateTime.ofInstant(Instant.ofEpochMilli(externalValue.getTidspunkt()), ZoneId.of("UTC")),
                 externalValue.getFodselsnummer(),
                 externalValue.getGrupperingsId(),
                 externalValue.getTekst(),
                 externalValue.getLink(),
                 externalValue.getSikkerhetsnivaa(),
-                LocalDateTime.now(ZoneId.of("Europe/Oslo")),
-                externalValue.getAsTimeZoneOslo(),
+                LocalDateTime.now(ZoneId.of("UTC")),
+                externalValue.getAsUTDateTime(),
                 newRecordsAreActiveByDefault
         )
         return internal
     }
 
-    private fun no.nav.brukernotifikasjon.schemas.Beskjed.getAsTimeZoneOslo(): LocalDateTime? {
-        return getSynligFremTil()?.let { datetime -> LocalDateTime.ofInstant(Instant.ofEpochMilli(datetime), ZoneId.of("Europe/Oslo")) }
+    private fun no.nav.brukernotifikasjon.schemas.Beskjed.getAsUTDateTime(): LocalDateTime? {
+        return getSynligFremTil()?.let { datetime -> LocalDateTime.ofInstant(Instant.ofEpochMilli(datetime), ZoneId.of("UTC")) }
     }
 
     private fun createRandomStringUUID(): String {

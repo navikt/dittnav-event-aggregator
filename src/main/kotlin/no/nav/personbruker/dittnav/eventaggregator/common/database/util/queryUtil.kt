@@ -3,6 +3,9 @@ package no.nav.personbruker.dittnav.eventaggregator.common.database.util
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistFailureReason
 import java.sql.*
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.util.*
 
 fun <T> ResultSet.singleResult(result: ResultSet.() -> T): T =
         if (next()) {
@@ -18,6 +21,8 @@ fun <T> ResultSet.list(result: ResultSet.() -> T): List<T> =
             }
         }
 
+fun ResultSet.getUtcDateTime(columnLabel: String): LocalDateTime = getTimestamp(columnLabel).toLocalDateTime()
+
 fun Connection.executePersistQuery(sql: String, paramInit: PreparedStatement.() -> Unit): PersistActionResult =
         prepareStatement("""$sql ON CONFLICT DO NOTHING""", Statement.RETURN_GENERATED_KEYS).use {
 
@@ -30,3 +35,4 @@ fun Connection.executePersistQuery(sql: String, paramInit: PreparedStatement.() 
                 PersistActionResult.failure(PersistFailureReason.CONFLICTING_KEYS)
             }
         }
+

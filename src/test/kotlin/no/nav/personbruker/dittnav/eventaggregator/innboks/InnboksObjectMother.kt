@@ -9,13 +9,13 @@ object InnboksObjectMother {
         return Innboks(
                 "DittNAV",
                 eventId,
-                LocalDateTime.now(ZoneId.of("Europe/Oslo")),
+                LocalDateTime.now(ZoneId.of("UTC")),
                 fodselsnummer,
                 "100$eventId",
                 "Dette er innboksnotifikasjon til brukeren",
                 "https://nav.no/systemX/$fodselsnummer",
                 4,
-                LocalDateTime.now(ZoneId.of("Europe/Oslo")),
+                LocalDateTime.now(ZoneId.of("UTC")),
                 true)
     }
 }

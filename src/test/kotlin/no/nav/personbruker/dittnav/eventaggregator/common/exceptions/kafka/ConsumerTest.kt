@@ -37,7 +37,7 @@ class ConsumerTest {
 
         runBlocking {
             consumer.startPolling()
-            delay(30)
+            delay(300)
         }
         consumer.isRunning() `should be equal to` true
         consumer.stopPolling()
