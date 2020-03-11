@@ -1,1 +1,0 @@
-ALTER TABLE BESKJED ADD COLUMN uid varchar(100);
