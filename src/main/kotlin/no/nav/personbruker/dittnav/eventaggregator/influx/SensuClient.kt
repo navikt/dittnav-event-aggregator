@@ -17,17 +17,23 @@ class SensuClient (val hostname: String, val port: Int) {
         try {
             val socket = Socket(hostname, port)
 
-            OutputStreamWriter(socket.getOutputStream(), UTF_8).also { writer ->
-                writer.write(event.toJson())
-                writer.flush()
-                log.debug("Sendte metrics event til [$hostname:$port]. Payload: [${event.toJson()}]")
+            try {
+                OutputStreamWriter(socket.getOutputStream(), UTF_8).also { writer ->
+                    writer.write(event.toJson())
+                    writer.flush()
+                    log.info("Sendte metrics event til [$hostname:$port]. Payload: [${event.toJson()}]")
+                }
+            } catch (ioe: IOException) {
+                log.warn("Kunne ikke sende metrics event til [$hostname:$port]. Payload: [${event.toJson()}].", ioe)
+            } finally {
+                socket.close()
             }
         } catch (ioe: IOException) {
             log.warn("Kunne ikke sende metrics event til [$hostname:$port]. Payload: [${event.toJson()}].", ioe)
         } catch (uhe: UnknownHostException) {
             log.warn("Kunne ikke koble til sensu host [$hostname:$port]")
         } catch (e: Exception) {
-            log.warn("Kunne ikke sende metrics event til [$hostname:$port]. Payload: [${event.toJson()}].", e)
+            log.warn("Kunne ikke sende metrics event til sensu", e)
         }
     }
 }
