@@ -11,7 +11,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.NokkelNullE
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.getNonNullKey
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType.DONE
-import no.nav.personbruker.dittnav.eventaggregator.influx.EventMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.innboks.setInnboksAktivFlag
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.setOppgaveAktivFlag
 import org.apache.kafka.clients.consumer.ConsumerRecord

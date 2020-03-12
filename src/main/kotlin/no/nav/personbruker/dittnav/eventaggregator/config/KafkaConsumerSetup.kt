@@ -7,11 +7,12 @@ import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorSer
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneEventService
-import no.nav.personbruker.dittnav.eventaggregator.influx.EventMetricsProbe
-import no.nav.personbruker.dittnav.eventaggregator.influx.InfluxMetricsReporter
-import no.nav.personbruker.dittnav.eventaggregator.influx.SensuClient
+import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.InfluxMetricsReporter
+import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.SensuClient
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksEventService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
+import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameScrubber
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveEventService
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -94,7 +95,8 @@ object KafkaConsumerSetup {
     fun setupEventMetricsProbe(environment: Environment): EventMetricsProbe {
         val sensuClient = SensuClient(environment.sensuHost, environment.sensuPort.toInt())
         val metricsReporter = InfluxMetricsReporter(sensuClient, environment)
-        return EventMetricsProbe(metricsReporter)
+        val nameScrubber = ProducerNameScrubber(environment.producerAliases)
+        return EventMetricsProbe(metricsReporter, nameScrubber)
     }
 }
 

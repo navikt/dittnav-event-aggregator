@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.influx
+package no.nav.personbruker.dittnav.eventaggregator.metrics.influx
 
 private const val METRIC_NAMESPACE = "dittnav.kafka.events.v1"
 

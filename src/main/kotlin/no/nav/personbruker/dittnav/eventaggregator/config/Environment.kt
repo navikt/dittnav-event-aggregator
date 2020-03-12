@@ -15,7 +15,8 @@ data class Environment(val bootstrapServers: String = getEnvVar("KAFKA_BOOTSTRAP
                        val clusterName: String = getEnvVar("NAIS_CLUSTER_NAME"),
                        val namespace: String = getEnvVar("NAIS_NAMESPACE"),
                        val sensuHost: String = getEnvVar("SENSU_HOST"),
-                       val sensuPort: String = getEnvVar("SENSU_PORT")
+                       val sensuPort: String = getEnvVar("SENSU_PORT"),
+                       val producerAliases: String = getEnvVar("PRODUCER_ALIASES")
 )
 
 fun getEnvVar(varName: String): String {

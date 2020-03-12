@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.config
+package no.nav.personbruker.dittnav.eventaggregator.metrics
 
 import io.prometheus.client.Counter
 import io.prometheus.client.Gauge

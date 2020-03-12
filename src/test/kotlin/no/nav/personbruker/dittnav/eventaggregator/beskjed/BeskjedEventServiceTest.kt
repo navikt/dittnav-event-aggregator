@@ -4,8 +4,8 @@ import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.objectmother.ConsumerRecordsObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.config.PrometheusMetricsCollector
-import no.nav.personbruker.dittnav.eventaggregator.influx.EventMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.metrics.PrometheusMetricsCollector
+import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should throw`
 import org.amshove.kluent.invoking
@@ -86,7 +86,7 @@ class BeskjedEventServiceTest {
 
         val records = ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(numberOfRecords, "beskjed")
 
-        mockkObject( PrometheusMetricsCollector )
+        mockkObject(PrometheusMetricsCollector)
 
         runBlocking {
             eventService.processEvents(records)
