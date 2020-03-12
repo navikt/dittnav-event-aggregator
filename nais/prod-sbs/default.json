@@ -1,0 +1,8 @@
+{
+  "namespace": "default",
+  "cluster": "prod",
+  "environment": "prod",
+  "ingresses": [
+    "https://dittnav-event-aggregator.prod-sbs.nais.io"
+  ]
+}
