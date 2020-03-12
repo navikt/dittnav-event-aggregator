@@ -25,6 +25,11 @@ spec:
   {{/each}}
   vault:
     enabled: true
+    paths:
+      - kvPath: /kv/{{cluster}}/sbs/dittnav-event-aggregator/{{namespace}}
+        mountPath: /var/run/secrets/nais.io/vault
+      - kvPath: /serviceuser/data/{{environment}}/srvdn-e-aggregator
+        mountPath: /secret/serviceuser
   resources:
     limits:
       cpu: "3"
