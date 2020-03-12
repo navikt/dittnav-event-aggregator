@@ -1,5 +1,5 @@
 
-CREATE TABLE beskjed (
+CREATE TABLE IF NOT EXISTS beskjed (
     id serial primary key,
     produsent character varying(100),
     eventtidspunkt timestamp without time zone,
@@ -15,7 +15,7 @@ CREATE TABLE beskjed (
     uid character varying(100)
 );
 
-CREATE TABLE oppgave (
+CREATE TABLE IF NOT EXISTS oppgave (
     id serial primary key,
     produsent character varying(100),
     eventtidspunkt timestamp without time zone,
@@ -29,7 +29,7 @@ CREATE TABLE oppgave (
     aktiv boolean
 );
 
-CREATE TABLE innboks (
+CREATE TABLE IF NOT EXISTS innboks (
     id serial primary key,
     produsent character varying(100),
     eventtidspunkt timestamp without time zone,
@@ -43,7 +43,7 @@ CREATE TABLE innboks (
     aktiv boolean
 );
 
-CREATE TABLE public.done (
+CREATE TABLE IF NOT EXISTS done (
     id serial primary key,
     produsent character varying(100),
     eventtidspunkt timestamp without time zone,
@@ -52,11 +52,14 @@ CREATE TABLE public.done (
     grupperingsid character varying(100)
 );
 
+ALTER TABLE BESKJED DROP CONSTRAINT IF EXISTS beskjedEventIdProdusent;
 ALTER TABLE BESKJED ADD CONSTRAINT beskjedEventIdProdusent UNIQUE (eventid, produsent);
+ALTER TABLE OPPGAVE DROP CONSTRAINT IF EXISTS oppgaveEventIdProdusent;
 ALTER TABLE OPPGAVE ADD CONSTRAINT oppgaveEventIdProdusent UNIQUE (eventid, produsent);
+ALTER TABLE INNBOKS DROP CONSTRAINT IF EXISTS innboksEventIdProdusent;
 ALTER TABLE INNBOKS ADD CONSTRAINT innboksEventIdProdusent UNIQUE (eventid, produsent);
 
-CREATE VIEW brukernotifikasjon_view AS
+CREATE OR REPLACE VIEW brukernotifikasjon_view AS
 SELECT eventId, produsent, 'beskjed' as type, fodselsnummer FROM BESKJED
 UNION
 SELECT eventId, produsent, 'oppgave' as type, fodselsnummer FROM OPPGAVE
