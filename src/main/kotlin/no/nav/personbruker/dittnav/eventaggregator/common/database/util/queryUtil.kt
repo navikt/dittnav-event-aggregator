@@ -36,3 +36,7 @@ fun Connection.executePersistQuery(sql: String, paramInit: PreparedStatement.() 
             }
         }
 
+fun ResultSet.getEpochTimeInSeconds(label: String): Long {
+    return getTimestamp(label).toInstant().epochSecond
+}
+

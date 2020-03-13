@@ -24,4 +24,5 @@ class InnboksRepository(private val database: Database) {
             }
         }
     }
+
 }

@@ -32,7 +32,13 @@ object KafkaTestUtil {
                 dbMountPath = "dbMountPathIkkeIBrukHer",
                 dbName = "dbNameIkkeIBrukHer",
                 dbUrl = "dbUrlIkkeIBrukHer",
-                dbUser = "dbUserIkkeIBrukHer"
+                dbUser = "dbUserIkkeIBrukHer",
+                appName = "appNameIkkeIBrukHer",
+                clusterName = "clusterNameIkkeIBrukHer",
+                namespace = "namespaceIkkeIBrukHer",
+                sensuHost = "sensuHostIkkeIBrukHer",
+                sensuPort = "sensuPortIkkeIBrukHer",
+                producerAliases = "producerAliasesIkkeIBrukHer"
         )
     }
 

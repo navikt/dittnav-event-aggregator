@@ -1,6 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.kafka
 
-import io.prometheus.client.Counter
 import kotlinx.coroutines.*
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
@@ -20,8 +19,7 @@ class Consumer<T>(
         val topic: String,
         val kafkaConsumer: KafkaConsumer<Nokkel, T>,
         val eventBatchProcessorService: EventBatchProcessorService<T>,
-        val job: Job = Job(),
-        val MESSAGES_SEEN: Counter = initPrometheusMessageCounter(topic)
+        val job: Job = Job()
 ) : CoroutineScope {
 
     private val log: Logger = LoggerFactory.getLogger(Consumer::class.java)
@@ -56,7 +54,6 @@ class Consumer<T>(
             }.takeIf {
                 records -> records.count() > 0
             }?.let { records ->
-                MESSAGES_SEEN.labels(topic).inc(records.count().toDouble())
                 eventBatchProcessorService.processEvents(records)
                 logDebugOutput(records)
                 commitSync()
@@ -91,14 +88,4 @@ class Consumer<T>(
             kafkaConsumer.commitSync()
         }
     }
-}
-
-private fun initPrometheusMessageCounter(topic: String): Counter {
-    val topicNameWithoutDashes = topic.replace("-", "_")
-    return Counter.build()
-            .name("${topicNameWithoutDashes}_messages_seen")
-            .namespace("dittnav_consumer")
-            .help("Messages read since last startup")
-            .labelNames("topic")
-            .register()
 }

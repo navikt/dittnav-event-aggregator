@@ -3,6 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.oppgave
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executePersistQuery
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getUtcDateTime
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getEpochTimeInSeconds
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.singleResult
 import java.sql.Connection

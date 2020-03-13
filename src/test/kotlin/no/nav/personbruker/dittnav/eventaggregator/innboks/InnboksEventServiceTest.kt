@@ -4,6 +4,7 @@ import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.objectmother.ConsumerRecordsObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should throw`
 import org.amshove.kluent.invoking
@@ -14,12 +15,14 @@ import org.junit.jupiter.api.Test
 class InnboksEventServiceTest {
 
     private val repository = mockk<InnboksRepository>(relaxed = true)
-    private val innboksService = InnboksEventService(repository)
+    private val metricsProbe = mockk<EventMetricsProbe>(relaxed = true)
+    private val innboksService = InnboksEventService(repository, metricsProbe)
 
     @BeforeEach
     fun resetMocks() {
         mockkObject(InnboksTransformer)
         clearMocks(repository)
+        clearMocks(metricsProbe)
     }
 
     @AfterAll
@@ -72,10 +75,24 @@ class InnboksEventServiceTest {
 
         verify(exactly = numberOfRecords) { InnboksTransformer.toInternal(any(), any()) }
         coVerify(exactly = numberOfSuccessfulTransformations) { repository.storeInnboksEventInCache(any()) }
+        coVerify(exactly = numberOfFailedTransformations) { metricsProbe.reportEventFailed(any(), any()) }
         capturedStores.size `should be` numberOfSuccessfulTransformations
 
         confirmVerified(repository)
         confirmVerified(InnboksTransformer)
+    }
+
+    @Test
+    fun shouldRegisterMetricsForEveryEvent() {
+        val numberOfRecords = 5
+
+        val records = ConsumerRecordsObjectMother.giveMeANumberOfInnboksRecords(numberOfRecords, "innboks")
+
+        runBlocking {
+            innboksService.processEvents(records)
+        }
+
+        coVerify (exactly = numberOfRecords) { metricsProbe.reportEventSeen(any(), any()) }
     }
 
     private fun createANumberOfTransformedInnboksRecords(number: Int): List<Innboks> {

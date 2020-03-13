@@ -121,4 +121,5 @@ class BeskjedQueriesTest {
             }
         } shouldThrow SQLException::class `with message` "Found no rows"
     }
+
 }

@@ -4,6 +4,7 @@ import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.objectmother.ConsumerRecordsObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should throw`
 import org.amshove.kluent.invoking
@@ -14,12 +15,14 @@ import org.junit.jupiter.api.Test
 class OppgaveEventServiceTest {
 
     private val repository = mockk<OppgaveRepository>(relaxed = true)
-    private val oppgaveService = OppgaveEventService(repository)
+    private val metricsProbe = mockk<EventMetricsProbe>(relaxed = true)
+    private val oppgaveService = OppgaveEventService(repository, metricsProbe)
 
     @BeforeEach
     fun resetMocks() {
         mockkObject(OppgaveTransformer)
         clearMocks(repository)
+        clearMocks(metricsProbe)
     }
 
     @AfterAll
@@ -72,10 +75,25 @@ class OppgaveEventServiceTest {
 
         verify(exactly = numberOfRecords) { OppgaveTransformer.toInternal(any(), any()) }
         coVerify(exactly = numberOfSuccessfulTransformations) { repository.storeOppgaveEventInCache(any()) }
+        coVerify(exactly = numberOfFailedTransformations) { metricsProbe.reportEventFailed(any(), any()) }
         capturedStores.size `should be` numberOfSuccessfulTransformations
 
         confirmVerified(repository)
         confirmVerified(OppgaveTransformer)
+    }
+
+    @Test
+    fun shouldRegisterMetricsForEveryEvent() {
+        val numberOfRecords = 5
+
+        val records = ConsumerRecordsObjectMother.giveMeANumberOfOppgaveRecords(numberOfRecords, "oppgave")
+
+        runBlocking {
+            oppgaveService.processEvents(records)
+        }
+
+        coVerify (exactly = numberOfRecords) { metricsProbe.reportEventSeen(any(), any()) }
+        coVerify (exactly = numberOfRecords) { metricsProbe.reportEventProcessed(any(), any()) }
     }
 
     private fun createANumberOfTransformedOppgaveRecords(number: Int): List<Oppgave> {

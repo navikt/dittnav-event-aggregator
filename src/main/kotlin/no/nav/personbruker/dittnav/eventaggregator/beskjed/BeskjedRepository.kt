@@ -24,5 +24,4 @@ class BeskjedRepository(private val database: Database) {
             }
         }
     }
-
 }

@@ -3,13 +3,13 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executePersistQuery
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getUtcDateTime
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getEpochTimeInSeconds
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.singleResult
 import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.Types
 import java.time.LocalDateTime
-import java.time.ZoneId
 
 fun Connection.getAllBeskjed(): List<Beskjed> =
         prepareStatement("""SELECT * FROM BESKJED""")

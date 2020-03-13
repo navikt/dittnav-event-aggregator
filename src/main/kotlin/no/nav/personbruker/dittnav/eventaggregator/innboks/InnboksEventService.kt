@@ -6,12 +6,15 @@ import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorSer
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.NokkelNullException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.getNonNullKey
+import no.nav.personbruker.dittnav.eventaggregator.config.EventType.INNBOKS
+import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.slf4j.LoggerFactory
 
 class InnboksEventService (
-        private val innboksRepository: InnboksRepository
+        private val innboksRepository: InnboksRepository,
+        private val metricsProbe: EventMetricsProbe
 ) : EventBatchProcessorService<Innboks> {
 
     private val log = LoggerFactory.getLogger(InnboksEventService::class.java)
@@ -20,11 +23,15 @@ class InnboksEventService (
         val problematicEvents = mutableListOf<ConsumerRecord<Nokkel, Innboks>>()
         events.forEach { event ->
             try {
+                metricsProbe.reportEventSeen(INNBOKS, event.systembruker)
                 val internalEvent = InnboksTransformer.toInternal(event.getNonNullKey(), event.value())
                 innboksRepository.storeInnboksEventInCache(internalEvent)
+                metricsProbe.reportEventProcessed(INNBOKS, event.systembruker)
             } catch (e: NokkelNullException) {
+                metricsProbe.reportEventFailed(INNBOKS, event.systembruker)
                 log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", e)
             } catch (e: Exception) {
+                metricsProbe.reportEventFailed(INNBOKS, event.systembruker)
                 problematicEvents.add(event)
                 log.warn("Transformasjon av innboks-event fra Kafka feilet, fullfører batch-en før pollig stoppes.", e)
             }

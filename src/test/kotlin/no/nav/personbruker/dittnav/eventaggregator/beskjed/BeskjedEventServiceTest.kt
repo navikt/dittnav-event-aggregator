@@ -4,6 +4,8 @@ import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.objectmother.ConsumerRecordsObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.metrics.PrometheusMetricsCollector
+import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should throw`
 import org.amshove.kluent.invoking
@@ -13,13 +15,15 @@ import org.junit.jupiter.api.Test
 
 class BeskjedEventServiceTest {
 
-    private val BeskjedRepository = mockk<BeskjedRepository>(relaxed = true)
-    private val eventService = BeskjedEventService(BeskjedRepository)
+    private val beskjedRepository = mockk<BeskjedRepository>(relaxed = true)
+    private val eventMetricsProbe = mockk<EventMetricsProbe>(relaxed = true)
+    private val eventService = BeskjedEventService(beskjedRepository, eventMetricsProbe)
 
     @BeforeEach
     private fun resetMocks() {
         mockkObject(BeskjedTransformer)
-        clearMocks(BeskjedRepository)
+        clearMocks(beskjedRepository)
+        clearMocks(eventMetricsProbe)
     }
 
     @AfterAll
@@ -29,21 +33,21 @@ class BeskjedEventServiceTest {
 
     @Test
     fun `Skal skrive alle eventer til databasen`() {
-        val records = ConsumerRecordsObjectMother.giveMeANumberOfInformationRecords(5, "dummyTopic")
+        val records = ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(5, "dummyTopic")
 
         val capturedListOfEntities = slot<List<Beskjed>>()
-        coEvery { BeskjedRepository.writeEventsToCache(capture(capturedListOfEntities)) } returns Unit
+        coEvery { beskjedRepository.writeEventsToCache(capture(capturedListOfEntities)) } returns Unit
 
         runBlocking {
             eventService.processEvents(records)
         }
 
         verify(exactly = records.count()) { BeskjedTransformer.toInternal(any(), any()) }
-        coVerify(exactly = 1) { BeskjedRepository.writeEventsToCache(allAny()) }
+        coVerify(exactly = 1) { beskjedRepository.writeEventsToCache(allAny()) }
         capturedListOfEntities.captured.size `should be` records.count()
 
         confirmVerified(BeskjedTransformer)
-        confirmVerified(BeskjedRepository)
+        confirmVerified(beskjedRepository)
     }
 
     @Test
@@ -52,11 +56,11 @@ class BeskjedEventServiceTest {
         val numberOfFailedTransformations = 1
         val numberOfSuccessfulTransformations = totalNumberOfRecords - numberOfFailedTransformations
 
-        val records = ConsumerRecordsObjectMother.giveMeANumberOfInformationRecords(totalNumberOfRecords, "dummyTopic")
+        val records = ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(totalNumberOfRecords, "dummyTopic")
         val transformedRecords = createANumberOfTransformedRecords(numberOfSuccessfulTransformations)
 
         val capturedListOfEntities = slot<List<Beskjed>>()
-        coEvery { BeskjedRepository.writeEventsToCache(capture(capturedListOfEntities)) } returns Unit
+        coEvery { beskjedRepository.writeEventsToCache(capture(capturedListOfEntities)) } returns Unit
 
         val retriableExp = UntransformableRecordException("Simulert feil i en test")
         every { BeskjedTransformer.toInternal(any(), any()) } throws retriableExp andThenMany transformedRecords
@@ -68,11 +72,28 @@ class BeskjedEventServiceTest {
         } `should throw` UntransformableRecordException::class
 
         coVerify(exactly = totalNumberOfRecords) { BeskjedTransformer.toInternal(any(), any()) }
-        coVerify(exactly = 1) { BeskjedRepository.writeEventsToCache(allAny()) }
+        coVerify(exactly = 1) { beskjedRepository.writeEventsToCache(allAny()) }
+        coVerify(exactly = numberOfFailedTransformations) { eventMetricsProbe.reportEventFailed(any(), any()) }
         capturedListOfEntities.captured.size `should be` numberOfSuccessfulTransformations
 
         confirmVerified(BeskjedTransformer)
-        confirmVerified(BeskjedRepository)
+        confirmVerified(beskjedRepository)
+    }
+
+    @Test
+    fun shouldRegisterMetricsForEveryEvent() {
+        val numberOfRecords = 5
+
+        val records = ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(numberOfRecords, "beskjed")
+
+        mockkObject(PrometheusMetricsCollector)
+
+        runBlocking {
+            eventService.processEvents(records)
+        }
+
+        coVerify (exactly = numberOfRecords) { eventMetricsProbe.reportEventSeen(any(), any()) }
+        coVerify (exactly = numberOfRecords) { eventMetricsProbe.reportEventProcessed(any(), any()) }
     }
 
     private fun createANumberOfTransformedRecords(numberOfRecords: Int): MutableList<Beskjed> {

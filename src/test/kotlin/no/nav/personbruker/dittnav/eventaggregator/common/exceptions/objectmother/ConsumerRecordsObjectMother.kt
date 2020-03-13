@@ -12,7 +12,7 @@ import org.apache.kafka.common.TopicPartition
 
 object ConsumerRecordsObjectMother {
 
-    fun giveMeANumberOfInformationRecords(numberOfRecords: Int, topicName: String): ConsumerRecords<Nokkel, Beskjed> {
+    fun giveMeANumberOfBeskjedRecords(numberOfRecords: Int, topicName: String): ConsumerRecords<Nokkel, Beskjed> {
         val records = mutableMapOf<TopicPartition, List<ConsumerRecord<Nokkel, Beskjed>>>()
         val recordsForSingleTopic = createBeskjedRecords(topicName, numberOfRecords)
         records[TopicPartition(topicName, numberOfRecords)] = recordsForSingleTopic

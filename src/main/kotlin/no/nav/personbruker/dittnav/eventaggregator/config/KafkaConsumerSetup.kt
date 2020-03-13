@@ -7,6 +7,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorSer
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneEventService
+import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksEventService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveEventService
@@ -37,9 +38,9 @@ object KafkaConsumerSetup {
     }
 
 
-    fun setupConsumerForTheBeskjedTopic(environment: Environment, database: Database): Consumer<Beskjed> {
+    fun setupConsumerForTheBeskjedTopic(environment: Environment, database: Database, metricsProbe: EventMetricsProbe): Consumer<Beskjed> {
         val beskjedRepository = BeskjedRepository(database)
-        val eventProcessor = BeskjedEventService(beskjedRepository)
+        val eventProcessor = BeskjedEventService(beskjedRepository, metricsProbe)
         val kafkaProps = Kafka.consumerProps(environment, EventType.BESKJED)
         return setupConsumerForTheBeskjedTopic(kafkaProps, eventProcessor)
     }
@@ -49,9 +50,9 @@ object KafkaConsumerSetup {
         return Consumer(Kafka.beskjedTopicName, kafkaConsumer, eventProcessor)
     }
 
-    fun setupConsumerForTheOppgaveTopic(environment: Environment, database: Database): Consumer<Oppgave> {
+    fun setupConsumerForTheOppgaveTopic(environment: Environment, database: Database, metricsProbe: EventMetricsProbe): Consumer<Oppgave> {
         val oppgaveRepository = OppgaveRepository(database)
-        val eventProcessor = OppgaveEventService(oppgaveRepository)
+        val eventProcessor = OppgaveEventService(oppgaveRepository, metricsProbe)
         val kafkaProps = Kafka.consumerProps(environment, EventType.OPPGAVE)
         return setupConsumerForTheOppgaveTopic(kafkaProps, eventProcessor)
     }
@@ -61,9 +62,9 @@ object KafkaConsumerSetup {
         return Consumer(Kafka.oppgaveTopicName, kafkaConsumer, eventProcessor)
     }
 
-    fun setupConsumerForTheInnboksTopic(environment: Environment, database: Database): Consumer<Innboks> {
+    fun setupConsumerForTheInnboksTopic(environment: Environment, database: Database, metricsProbe: EventMetricsProbe): Consumer<Innboks> {
         val innboksRepository = InnboksRepository(database)
-        val eventProcessor = InnboksEventService(innboksRepository)
+        val eventProcessor = InnboksEventService(innboksRepository, metricsProbe)
         val kafkaProps = Kafka.consumerProps(environment, EventType.INNBOKS)
         return setupConsumerForTheInnboksTopic(kafkaProps, eventProcessor)
     }
@@ -73,8 +74,8 @@ object KafkaConsumerSetup {
         return Consumer(Kafka.innboksTopicName, kafkaConsumer, eventProcessor)
     }
 
-    fun setupConsumerForTheDoneTopic(environment: Environment, database: Database): Consumer<Done> {
-        val eventProcessor = DoneEventService(database)
+    fun setupConsumerForTheDoneTopic(environment: Environment, database: Database, metricsProbe: EventMetricsProbe): Consumer<Done> {
+        val eventProcessor = DoneEventService(database, metricsProbe)
         val kafkaProps = Kafka.consumerProps(environment, EventType.DONE)
         return setupConsumerForTheDoneTopic(kafkaProps, eventProcessor)
     }
@@ -84,3 +85,4 @@ object KafkaConsumerSetup {
         return Consumer(Kafka.doneTopicName, kafkaConsumer, eventProcessor)
     }
 }
+
