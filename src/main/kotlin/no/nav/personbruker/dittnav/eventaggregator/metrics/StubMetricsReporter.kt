@@ -1,6 +1,5 @@
-package no.nav.personbruker.dittnav.eventaggregator.common
+package no.nav.personbruker.dittnav.eventaggregator.metrics
 
-import no.nav.personbruker.dittnav.eventaggregator.metrics.MetricsReporter
 import org.slf4j.LoggerFactory
 
 class StubMetricsReporter : MetricsReporter {

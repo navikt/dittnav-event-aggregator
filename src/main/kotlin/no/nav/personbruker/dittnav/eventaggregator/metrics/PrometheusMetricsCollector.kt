@@ -7,25 +7,31 @@ object PrometheusMetricsCollector {
 
     val NAMESPACE = "dittnav_consumer"
 
-    val RUNTIME_MESSAGES_SEEN_NAME = "session_kafka_messages_seen"
+    val MESSAGES_SEEN_NAME = "kafka_messages_seen"
+    val MESSAGES_PROCESSED_NAME = "kafka_messages_processed"
+    val MESSAGES_FAILED_NAME = "kafka_messages_failed"
+    val MESSAGE_LAST_SEEN_NAME = "kafka_message_type_last_seen"
 
-    private val RUNTIME_MESSAGES_SEEN: Counter = Counter.build()
-            .name(RUNTIME_MESSAGES_SEEN_NAME)
+    private val MESSAGES_SEEN: Counter = Counter.build()
+            .name(MESSAGES_SEEN_NAME)
             .namespace(NAMESPACE)
             .help("Messages read since last startup")
             .labelNames("topic", "producer")
             .register()
 
-    val LIFETIME_MESSAGES_SEEN_NAME = "all_time_kafka_messages_seen"
-
-    private val LIFETIME_MESSAGES_SEEN: Counter = Counter.build()
-            .name(LIFETIME_MESSAGES_SEEN_NAME)
+    private val MESSAGES_PROCESSED: Counter = Counter.build()
+            .name(MESSAGES_PROCESSED_NAME)
             .namespace(NAMESPACE)
-            .help("Messages read since last startup")
+            .help("Messages successfully processed since last startup")
             .labelNames("topic", "producer")
             .register()
 
-    val MESSAGE_LAST_SEEN_NAME = "kafka_topic_last_seen"
+    private val MESSAGES_FAILED: Counter = Counter.build()
+            .name(MESSAGES_FAILED_NAME)
+            .namespace(NAMESPACE)
+            .help("Messages failed since last startup")
+            .labelNames("topic", "producer")
+            .register()
 
     private val MESSAGE_LAST_SEEN: Gauge = Gauge.build()
             .name(MESSAGE_LAST_SEEN_NAME)
@@ -35,8 +41,15 @@ object PrometheusMetricsCollector {
             .register()
 
     fun registerMessageSeen(topic: String, producer: String) {
-        RUNTIME_MESSAGES_SEEN.labels(topic, producer).inc()
-        LIFETIME_MESSAGES_SEEN.labels(topic, producer).inc()
+        MESSAGES_SEEN.labels(topic, producer).inc()
         MESSAGE_LAST_SEEN.labels(topic, producer).setToCurrentTime()
+    }
+
+    fun registerMessageProcessed(topic: String, producer: String) {
+        MESSAGES_PROCESSED.labels(topic, producer).inc()
+    }
+
+    fun registerMessageFailed(topic: String, producer: String) {
+        MESSAGES_FAILED.labels(topic, producer).inc()
     }
 }

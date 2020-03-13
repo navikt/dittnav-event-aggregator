@@ -50,16 +50,19 @@ internal class EventMetricsProbeTest {
         val metricsProbe = EventMetricsProbe(metricsReporter, nameScrubber)
 
         val capturedTags = slot<Map<String, String>>()
+        val producerNameForPrometheus = slot<String>()
 
         coEvery { metricsReporter.registerDataPoint(any(), any(), capture(capturedTags)) } returns Unit
+        every { PrometheusMetricsCollector.registerMessageProcessed(any(), capture(producerNameForPrometheus)) } returns Unit
 
         runBlocking {
             metricsProbe.reportEventProcessed(EventType.BESKJED, producerName)
         }
 
         coVerify(exactly = 1) { metricsReporter.registerDataPoint(any(), any(), any()) }
-        verify(exactly = 0) { PrometheusMetricsCollector.registerMessageSeen(any(), any()) }
+        verify(exactly = 1) { PrometheusMetricsCollector.registerMessageProcessed(any(), any()) }
 
+        assertEquals(producerAlias, producerNameForPrometheus.captured)
         assertEquals(producerAlias, capturedTags.captured["producer"])
     }
 
@@ -72,16 +75,19 @@ internal class EventMetricsProbeTest {
         val metricsProbe = EventMetricsProbe(metricsReporter, nameScrubber)
 
         val capturedTags = slot<Map<String, String>>()
+        val producerNameForPrometheus = slot<String>()
 
         coEvery { metricsReporter.registerDataPoint(any(), any(), capture(capturedTags)) } returns Unit
+        every { PrometheusMetricsCollector.registerMessageFailed(any(), capture(producerNameForPrometheus)) } returns Unit
 
         runBlocking {
             metricsProbe.reportEventFailed(EventType.BESKJED, producerName)
         }
 
         coVerify(exactly = 1) { metricsReporter.registerDataPoint(any(), any(), any()) }
-        verify(exactly = 0) { PrometheusMetricsCollector.registerMessageSeen(any(), any()) }
+        verify(exactly = 1) { PrometheusMetricsCollector.registerMessageFailed(any(), any()) }
 
+        assertEquals(producerAlias, producerNameForPrometheus.captured)
         assertEquals(producerAlias, capturedTags.captured["producer"])
     }
 }

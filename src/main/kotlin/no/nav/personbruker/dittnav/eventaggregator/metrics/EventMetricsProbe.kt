@@ -1,9 +1,8 @@
 package no.nav.personbruker.dittnav.eventaggregator.metrics
 
+import no.nav.personbruker.dittnav.eventaggregator.config.Environment
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.EVENTS_FAILED
-import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.EVENTS_PROCESSED
-import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.EVENTS_SEEN
+import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.*
 import org.slf4j.LoggerFactory
 
 class EventMetricsProbe (private val metricsReporter: MetricsReporter,
@@ -20,11 +19,13 @@ class EventMetricsProbe (private val metricsReporter: MetricsReporter,
     suspend fun reportEventProcessed(eventType: EventType, producer: String) {
         val printableAlias = nameScrubber.getPublicAlias(producer)
         reportEvent(eventType.toString(), printableAlias, EVENTS_PROCESSED)
+        PrometheusMetricsCollector.registerMessageProcessed(eventType.toString(), printableAlias)
     }
 
     suspend fun reportEventFailed(eventType: EventType, producer: String) {
         val printableAlias = nameScrubber.getPublicAlias(producer)
         reportEvent(eventType.toString(), printableAlias, EVENTS_FAILED)
+        PrometheusMetricsCollector.registerMessageFailed(eventType.toString(), printableAlias)
     }
 
     private suspend fun reportEvent(eventType: String, producerAlias: String, metricName: String) {

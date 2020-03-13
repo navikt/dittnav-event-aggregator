@@ -22,9 +22,9 @@ internal class ProducerNameScrubberTest {
 
     @Test
     fun shouldUseGenericNonSystemAliasIfNotFoundAndNameResemblesIdent() {
-        val scrubbedName = nameScrubber.getPublicAlias("A123456")
+        val scrubbedName = nameScrubber.getPublicAlias("srvabcdefgh")
 
-        assertEquals(nameScrubber.GENERIC_NON_SYSTEM_USER, scrubbedName)
+        assertEquals(nameScrubber.GENERIC_SYSTEM_USER, scrubbedName)
         assertNotSame(producerName, scrubbedName)
     }
 
@@ -32,7 +32,7 @@ internal class ProducerNameScrubberTest {
     fun shouldUseGenericSystemAliasIfNotFound() {
         val scrubbedName = nameScrubber.getPublicAlias("dummy")
 
-        assertEquals(nameScrubber.GENERIC_SYSTEM_USER, scrubbedName)
+        assertEquals(nameScrubber.UNKNOW_USER, scrubbedName)
         assertNotSame(producerName, scrubbedName)
     }
 
