@@ -22,7 +22,7 @@ class InfluxMetricsReporter(val sensuClient: SensuClient, val environment: Envir
     }
 
     private val DEFAULT_TAGS = listOf(
-        "application" to environment.appName,
+        "application" to "dittnav-event-aggregator",
         "cluster" to environment.clusterName,
         "namespace" to environment.namespace
     ).toMap()

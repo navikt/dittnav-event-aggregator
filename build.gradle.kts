@@ -115,7 +115,6 @@ tasks {
         environment("DB_NAME", "dittnav-event-cache-preprod")
         environment("DB_PASSWORD", "testpassword")
         environment("DB_MOUNT_PATH", "notUsedOnLocalhost")
-        environment("NAIS_APP_NAME", "dittnav-event-aggregator")
         environment("NAIS_CLUSTER_NAME", "dev-sbs")
         environment("NAIS_NAMESPACE", "q1")
         environment("SENSU_HOST", "stub")
