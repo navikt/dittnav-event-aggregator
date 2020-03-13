@@ -33,7 +33,6 @@ object KafkaTestUtil {
                 dbName = "dbNameIkkeIBrukHer",
                 dbUrl = "dbUrlIkkeIBrukHer",
                 dbUser = "dbUserIkkeIBrukHer",
-                appName = "appNameIkkeIBrukHer",
                 clusterName = "clusterNameIkkeIBrukHer",
                 namespace = "namespaceIkkeIBrukHer",
                 sensuHost = "sensuHostIkkeIBrukHer",
