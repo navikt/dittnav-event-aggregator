@@ -22,3 +22,5 @@ fun getEnvVar(varName: String): String {
     return System.getenv(varName)
             ?: throw IllegalArgumentException("Appen kan ikke starte uten av miljøvariabelen $varName er satt.")
 }
+
+fun isOtherEnvironmentThanProd() = System.getenv("NAIS_CLUSTER_NAME") != "prod-sbs"

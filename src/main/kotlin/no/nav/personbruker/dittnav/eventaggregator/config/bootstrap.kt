@@ -24,21 +24,15 @@ fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()
 private fun Application.configureStartupHook(appContext: ApplicationContext) {
     environment.monitor.subscribe(ApplicationStarted) {
         Flyway.runFlywayMigrations(appContext.environment)
-        if (isOtherEnvironmentThanProd()) {
-            KafkaConsumerSetup.startAllKafkaPollers(appContext)
-            appContext.cachedDoneEventConsumer.poll()
-        }
+        KafkaConsumerSetup.startAllKafkaPollers(appContext)
+        appContext.cachedDoneEventConsumer.poll()
     }
 }
 
-private fun isOtherEnvironmentThanProd() = System.getenv("NAIS_CLUSTER_NAME") != "prod-sbs"
-
 private fun Application.configureShutdownHook(appContext: ApplicationContext) {
     environment.monitor.subscribe(ApplicationStopPreparing) {
-        if (isOtherEnvironmentThanProd()) {
-            KafkaConsumerSetup.stopAllKafkaConsumers(appContext)
-            appContext.cachedDoneEventConsumer.cancel()
-        }
+        KafkaConsumerSetup.stopAllKafkaConsumers(appContext)
+        appContext.cachedDoneEventConsumer.cancel()
         appContext.database.dataSource.close()
     }
 }
