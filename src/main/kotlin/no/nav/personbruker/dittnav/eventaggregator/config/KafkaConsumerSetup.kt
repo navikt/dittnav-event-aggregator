@@ -26,8 +26,9 @@ object KafkaConsumerSetup {
         appContext.oppgaveConsumer.startPolling()
         appContext.doneConsumer.startPolling()
         if (isOtherEnvironmentThanProd()) {
-            log.info("Er i produksjonsmiljø, unnlater å starte innboksconsumer.")
             appContext.innboksConsumer.startPolling()
+        } else {
+            log.info("Er i produksjonsmiljø, unnlater å starte innboksconsumer.")
         }
     }
 
