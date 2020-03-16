@@ -33,5 +33,6 @@ private fun Application.configureShutdownHook(appContext: ApplicationContext) {
     environment.monitor.subscribe(ApplicationStopPreparing) {
         KafkaConsumerSetup.stopAllKafkaConsumers(appContext)
         appContext.cachedDoneEventConsumer.cancel()
+        appContext.database.dataSource.close()
     }
 }
