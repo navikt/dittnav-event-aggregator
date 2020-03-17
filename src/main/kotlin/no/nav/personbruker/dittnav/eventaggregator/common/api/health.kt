@@ -9,36 +9,32 @@ import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.exporter.common.TextFormat
+import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.config.ApplicationContext
 
 fun Routing.healthApi(appContext: ApplicationContext) {
 
-    get("/isAlive") {
+    get("/internal/isAlive") {
         call.respondText(text = "ALIVE", contentType = ContentType.Text.Plain)
     }
 
-    get("/isReady") {
-        if (isAllConsumersRunning(appContext) && isDataSourceRunning(appContext)) {
+    get("/internal/isReady") {
+        if (isAllConsumersRunning(appContext) && isDataSourceRunning(appContext.database)) {
             call.respondText(text = "READY", contentType = ContentType.Text.Plain)
         } else {
             call.respondText(text = "NOTREADY", contentType = ContentType.Text.Plain, status = HttpStatusCode.FailedDependency)
         }
     }
 
-    get("/metrics") {
+    get("/internal/metrics") {
         val names = call.request.queryParameters.getAll("name")?.toSet() ?: emptySet()
         call.respondTextWriter(ContentType.parse(TextFormat.CONTENT_TYPE_004), HttpStatusCode.OK) {
             TextFormat.write004(this, CollectorRegistry.defaultRegistry.filteredMetricFamilySamples(names))
         }
     }
 
-    get("/selftest") {
-        var selftest = StringBuilder()
-                .append("Beskjedconsumer running ${appContext.beskjedConsumer.isRunning()}\r\n")
-                .append("Oppgaveconsumer running ${appContext.oppgaveConsumer.isRunning()}\r\n")
-                .append("Innboksconsumer running ${appContext.innboksConsumer.isRunning()}\r\n")
-                .append("Doneconsumer running ${appContext.doneConsumer.isRunning()}\r\n")
-        call.respondText ( text = selftest.toString(), contentType = ContentType.Text.Plain)
+    get("/internal/selftest") {
+        call.pingDependencies(appContext)
     }
 }
 
@@ -51,6 +47,6 @@ private fun isAllConsumersRunning(appContext: ApplicationContext): Boolean {
     return allConsumersRunning
 }
 
-fun isDataSourceRunning(appContext: ApplicationContext): Boolean {
-    return appContext.database.dataSource.isRunning
+fun isDataSourceRunning(database: Database): Boolean {
+    return database.dataSource.isRunning
 }
