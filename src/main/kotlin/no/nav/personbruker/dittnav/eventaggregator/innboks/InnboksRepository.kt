@@ -8,21 +8,21 @@ class InnboksRepository(private val database: Database) {
 
     val log = LoggerFactory.getLogger(InnboksRepository::class.java)
 
-    suspend fun storeInnboksEventInCache(innboks: Innboks) {
+    suspend fun writeEventsToCache(entities: List<Innboks>) {
         database.queryWithExceptionTranslation {
-            createInnboks(innboks).onSuccess { entityId ->
-                val storedInnboks = getInnboksById(entityId)
-                log.info("Innboks hentet i databasen: $storedInnboks")
-            }.onFailure { reason ->
-                when(reason) {
-                    PersistFailureReason.CONFLICTING_KEYS ->
-                        log.warn("Hoppet over persistering av Innboks fordi produsent tidligere har brukt samme eventId: $innboks")
-                    else ->
-                        log.warn("Hoppet over persistering av Innboks: $innboks")
-                }
+            entities.forEach { entity ->
+                createInnboks(entity).onFailure { reason ->
+                    when (reason) {
+                        PersistFailureReason.CONFLICTING_KEYS ->
+                            log.warn("Hoppet over persistering av Innboks fordi produsent tidligere har brukt samme eventId: $entity")
+                        else ->
+                            log.warn("Hoppet over persistering av Innboks: $entity")
+                    }
 
+                }
             }
         }
+
     }
 
 }

@@ -20,28 +20,27 @@ class OppgaveEventService(
     private val log = LoggerFactory.getLogger(OppgaveEventService::class.java)
 
     override suspend fun processEvents(events: ConsumerRecords<Nokkel, Oppgave>) {
+        val successfullyTransformedEvents = mutableListOf<no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave>()
         val problematicEvents = mutableListOf<ConsumerRecord<Nokkel, Oppgave>>()
         events.forEach { event ->
             try {
                 metricsProbe.reportEventSeen(OPPGAVE, event.systembruker)
-                storeEventInCache(event)
+                val internalEvent = OppgaveTransformer.toInternal(event.getNonNullKey(), event.value())
+                successfullyTransformedEvents.add(internalEvent)
                 metricsProbe.reportEventProcessed(OPPGAVE, event.systembruker)
+
             } catch (e: NokkelNullException) {
                 metricsProbe.reportEventFailed(OPPGAVE, event.systembruker)
                 log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", e)
+
             } catch (e: Exception) {
                 metricsProbe.reportEventFailed(OPPGAVE, event.systembruker)
                 problematicEvents.add(event)
                 log.warn("Transformasjon av oppgave-event fra Kafka feilet.", e)
             }
         }
+        oppgaveRepository.writeEventsToCache(successfullyTransformedEvents)
         kastExceptionHvisMislykkedeTransformasjoner(problematicEvents)
-    }
-
-    private suspend fun storeEventInCache(event: ConsumerRecord<Nokkel, Oppgave>) {
-        val entity = OppgaveTransformer.toInternal(event.getNonNullKey(), event.value())
-        log.info("Skal skrive entitet til databasen: $entity")
-        oppgaveRepository.storeOppgaveEventInCache(entity)
     }
 
     private fun kastExceptionHvisMislykkedeTransformasjoner(problematicEvents: MutableList<ConsumerRecord<Nokkel, Oppgave>>) {
@@ -52,4 +51,5 @@ class OppgaveEventService(
             throw exception
         }
     }
+
 }
