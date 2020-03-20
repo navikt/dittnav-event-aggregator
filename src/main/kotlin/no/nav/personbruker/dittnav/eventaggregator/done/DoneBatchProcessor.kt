@@ -16,12 +16,12 @@ class DoneBatchProcessor(private val existingEntitiesInDatabase: List<Brukernoti
 
     fun process(batchOfEntities: List<Done>) {
         batchOfEntities.forEach { entityToLookForInTheCache ->
-            val foundEntity: Brukernotifikasjon? = existingEntitiesInDatabase.find { existingEntity ->
+            val foundMatchingEntity: Brukernotifikasjon? = existingEntitiesInDatabase.find { existingEntity ->
                 isAssociatedEntities(existingEntity, entityToLookForInTheCache)
             }
-            if (foundEntity != null) {
-                log.info("Fant matchende event for Done-eventet: $foundEntity")
-                groupEventsByType(foundEntity, entityToLookForInTheCache)
+            if (foundMatchingEntity != null) {
+                log.info("Fant matchende event for Done-eventet: $foundMatchingEntity")
+                groupEventsByType(foundMatchingEntity, entityToLookForInTheCache)
 
             } else {
                 notFoundEvents.add(entityToLookForInTheCache)
@@ -36,19 +36,19 @@ class DoneBatchProcessor(private val existingEntitiesInDatabase: List<Brukernoti
                 entityInTheCache.fodselsnummer == entityToLookForInTheCache.fodselsnummer)
     }
 
-    private fun groupEventsByType(entityInTheCache: Brukernotifikasjon, entityFound: Done) {
-        when (entityInTheCache.type) {
+    private fun groupEventsByType(matchingEntityInTheCache: Brukernotifikasjon, matchedDoneEntity: Done) {
+        when (matchingEntityInTheCache.type) {
             EventType.OPPGAVE -> {
-                foundOppgave.add(entityFound)
+                foundOppgave.add(matchedDoneEntity)
             }
             EventType.BESKJED -> {
-                foundBeskjed.add(entityFound)
+                foundBeskjed.add(matchedDoneEntity)
             }
             EventType.INNBOKS -> {
-                foundInnboks.add(entityFound)
+                foundInnboks.add(matchedDoneEntity)
             }
             else -> {
-                log.warn("Fant ukjent eventtype ved behandling av done-events: $entityInTheCache")
+                log.warn("Fant ukjent eventtype ved behandling av done-events: $matchingEntityInTheCache")
             }
         }
     }
