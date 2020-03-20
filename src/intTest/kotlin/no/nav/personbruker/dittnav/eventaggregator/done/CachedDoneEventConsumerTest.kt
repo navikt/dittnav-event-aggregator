@@ -1,11 +1,11 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.getBeskjedByEventId
+import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
@@ -21,7 +21,8 @@ import org.junit.jupiter.api.Test
 class CachedDoneEventConsumerTest {
 
     private val database = H2Database()
-    private val eventConsumer = CachedDoneEventConsumer(database)
+    private val doneRepository = DoneRepository(database)
+    private val eventConsumer = CachedDoneEventConsumer(doneRepository)
 
     private val beskjed1 = BeskjedObjectMother.createBeskjed("1", "12345")
     private val oppgave1 = OppgaveObjectMother.createOppgave("2", "12345")
@@ -75,12 +76,34 @@ class CachedDoneEventConsumerTest {
     }
 
     @Test
-    fun `flag Innboks event as inactive if Done event with same eventId exists`() {
+    fun `flag Innboks-event as inactive if Done-event with same eventId exists`() {
         runBlocking {
             database.dbQuery { createInnboks(InnboksObjectMother.createInnboks("5", "12345")) }
             eventConsumer.processDoneEvents()
             val innboks = database.dbQuery { getInnboksByEventId("5") }
             innboks.aktiv.shouldBeFalse()
+        }
+    }
+
+    @Test
+    fun `fjerner done-eventer fra ventetabellen hvis tilhorende event blir funnet og satt aktivt`() {
+        val expectedEventId = "50"
+        val expectedFodselsnr = "45678"
+        val expectedProdusent = "dummyProdusent"
+        val doneEvent = DoneObjectMother.createDone(expectedEventId, expectedProdusent, expectedFodselsnr)
+        val associatedBeskjed = BeskjedObjectMother.createBeskjed(expectedEventId, expectedFodselsnr, expectedProdusent)
+
+        runBlocking {
+            database.dbQuery { createDoneEvent(doneEvent) }
+            database.dbQuery { createBeskjed(associatedBeskjed) }
+
+            val elementsInDoneTableBeforeProcessing = database.dbQuery { getAllDoneEvent() }
+            val expectedNumberOfEventsAfterProcessing = elementsInDoneTableBeforeProcessing.size - 1
+
+            eventConsumer.processDoneEvents()
+
+            val elementsInDoneTableAfterProcessing = database.dbQuery { getAllDoneEvent() }
+            elementsInDoneTableAfterProcessing.size `should be equal to` expectedNumberOfEventsAfterProcessing
         }
     }
 

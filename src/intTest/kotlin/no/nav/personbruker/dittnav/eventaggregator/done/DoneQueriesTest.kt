@@ -40,4 +40,20 @@ class DoneQueriesTest {
             result `should contain all` allEvents
         }
     }
+
+    @Test
+    fun `skal slette et spesifikt done-event`() {
+        val doneEventToInsertAndThenDelete = DoneObjectMother.createDone("876543", "dummtProdusent", "123")
+        runBlocking {
+            database.dbQuery { createDoneEvent(doneEventToInsertAndThenDelete) }
+            val antallDoneEventerForSletting = database.dbQuery { getAllDoneEvent() }
+            val expectedAntallDoneEventerEtterSletting = antallDoneEventerForSletting.size - 1
+
+            database.dbQuery { deleteDoneEvent(doneEventToInsertAndThenDelete) }
+
+            val antallDoneEventerEtterSletting = database.dbQuery { getAllDoneEvent() }
+            antallDoneEventerEtterSletting.size `should be equal to` expectedAntallDoneEventerEtterSletting
+        }
+    }
+
 }

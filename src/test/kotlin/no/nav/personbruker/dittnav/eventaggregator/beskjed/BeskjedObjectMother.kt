@@ -7,9 +7,14 @@ import kotlin.random.Random
 object BeskjedObjectMother {
 
     fun createBeskjed(eventId: String, fodselsnummer: String): Beskjed {
+        val produsent = "DittNAV"
+        return createBeskjed(eventId, fodselsnummer, produsent)
+    }
+
+    fun createBeskjed(eventId: String, fodselsnummer: String, produsent: String): Beskjed {
         return Beskjed(
                 uid = Random.nextInt(1,100).toString(),
-                produsent = "DittNAV",
+                produsent = produsent,
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
                 synligFremTil = LocalDateTime.now(ZoneId.of("UTC")),
                 fodselsnummer = fodselsnummer,
@@ -21,4 +26,5 @@ object BeskjedObjectMother {
                 sikkerhetsnivaa = 4,
                 aktiv = true)
     }
+
 }

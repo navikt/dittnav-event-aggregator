@@ -7,17 +7,17 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.getAllBeskjed
-import no.nav.personbruker.dittnav.eventaggregator.metrics.StubMetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.objectmother.ConsumerRecordsObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
 import no.nav.personbruker.dittnav.eventaggregator.done.schema.AvroDoneObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.getAllInnboks
+import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameScrubber
+import no.nav.personbruker.dittnav.eventaggregator.metrics.StubMetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
@@ -36,7 +36,8 @@ class DoneEventServiceTest {
     val metricsReporter = StubMetricsReporter()
     val producerNameScrubber = ProducerNameScrubber("")
     val metricsProbe = EventMetricsProbe(metricsReporter, producerNameScrubber)
-    private val doneEventService = DoneEventService(database, metricsProbe)
+    private val doneRepository = DoneRepository(database)
+    private val doneEventService = DoneEventService(doneRepository, metricsProbe)
     private val beskjed1 = BeskjedObjectMother.createBeskjed("1", "12345")
     private val oppgave = OppgaveObjectMother.createOppgave("2", "12345")
     private val innboks = InnboksObjectMother.createInnboks("3", "12345")

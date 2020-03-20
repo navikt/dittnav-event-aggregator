@@ -7,9 +7,10 @@ import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorSer
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneEventService
-import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksEventService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
+import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveEventService
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -80,8 +81,8 @@ object KafkaConsumerSetup {
         return Consumer(Kafka.innboksTopicName, kafkaConsumer, eventProcessor)
     }
 
-    fun setupConsumerForTheDoneTopic(environment: Environment, database: Database, metricsProbe: EventMetricsProbe): Consumer<Done> {
-        val eventProcessor = DoneEventService(database, metricsProbe)
+    fun setupConsumerForTheDoneTopic(environment: Environment, doneRepository: DoneRepository, metricsProbe: EventMetricsProbe): Consumer<Done> {
+        val eventProcessor = DoneEventService(doneRepository, metricsProbe)
         val kafkaProps = Kafka.consumerProps(environment, EventType.DONE)
         return setupConsumerForTheDoneTopic(kafkaProps, eventProcessor)
     }
