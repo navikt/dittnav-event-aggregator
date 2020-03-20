@@ -14,41 +14,41 @@ class DoneBatchProcessor(private val existingEntitiesInDatabase: List<Brukernoti
     val foundInnboks = mutableListOf<Done>()
     val notFoundEvents = mutableListOf<Done>()
 
-    fun process(batchOfEvents: List<Done>) {
-        batchOfEvents.forEach { doneEntity ->
-            val foundEvent: Brukernotifikasjon? = existingEntitiesInDatabase.find { existingEntity ->
-                isEventInCache(existingEntity, doneEntity)
+    fun process(batchOfEntities: List<Done>) {
+        batchOfEntities.forEach { entityToLookForInTheCache ->
+            val foundEntity: Brukernotifikasjon? = existingEntitiesInDatabase.find { existingEntity ->
+                isAssociatedEntities(existingEntity, entityToLookForInTheCache)
             }
-            if (foundEvent != null) {
-                log.info("Fant matchende event for Done-event med eventId: ${foundEvent.eventId}, produsent: ${foundEvent.produsent}, type: ${foundEvent.type}")
-                groupEventsByType(foundEvent, doneEntity)
+            if (foundEntity != null) {
+                log.info("Fant matchende event for Done-eventet: $foundEntity")
+                groupEventsByType(foundEntity, entityToLookForInTheCache)
 
             } else {
-                notFoundEvents.add(doneEntity)
-                log.info("Fant ikke matchende event for done-event med eventId ${doneEntity.eventId}, produsent: ${doneEntity.produsent}, eventTidspunkt: ${doneEntity.eventTidspunkt}. Skrev done-event til cache")
+                notFoundEvents.add(entityToLookForInTheCache)
+                log.info("Fant ikke matchende event for done-event med eventId $entityToLookForInTheCache")
             }
         }
     }
 
-    private fun isEventInCache(brukernotifikasjon: Brukernotifikasjon, done: Done): Boolean {
-        return (brukernotifikasjon.eventId == done.eventId &&
-                brukernotifikasjon.produsent == done.produsent &&
-                brukernotifikasjon.fodselsnummer == done.fodselsnummer)
+    private fun isAssociatedEntities(entityInTheCache: Brukernotifikasjon, entityToLookForInTheCache: Done): Boolean {
+        return (entityInTheCache.eventId == entityToLookForInTheCache.eventId &&
+                entityInTheCache.produsent == entityToLookForInTheCache.produsent &&
+                entityInTheCache.fodselsnummer == entityToLookForInTheCache.fodselsnummer)
     }
 
-    fun groupEventsByType(event: Brukernotifikasjon, done: Done) {
-        when (event.type) {
+    private fun groupEventsByType(entityInTheCache: Brukernotifikasjon, entityFound: Done) {
+        when (entityInTheCache.type) {
             EventType.OPPGAVE -> {
-                foundOppgave.add(done)
+                foundOppgave.add(entityFound)
             }
             EventType.BESKJED -> {
-                foundBeskjed.add(done)
+                foundBeskjed.add(entityFound)
             }
             EventType.INNBOKS -> {
-                foundInnboks.add(done)
+                foundInnboks.add(entityFound)
             }
             else -> {
-                log.warn("Fant ukjent eventtype ved behandling av done-events: $event")
+                log.warn("Fant ukjent eventtype ved behandling av done-events: $entityInTheCache")
             }
         }
     }
