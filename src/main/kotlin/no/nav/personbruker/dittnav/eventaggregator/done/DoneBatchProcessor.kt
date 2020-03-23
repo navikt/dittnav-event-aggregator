@@ -40,12 +40,15 @@ class DoneBatchProcessor(private val existingEntitiesInDatabase: List<Brukernoti
         when (matchingEntityInTheCache.type) {
             EventType.OPPGAVE -> {
                 foundOppgave.add(matchedDoneEntity)
+                log.info("Skal sette Oppgave-event med eventId ${matchingEntityInTheCache.eventId} inaktivt")
             }
             EventType.BESKJED -> {
                 foundBeskjed.add(matchedDoneEntity)
+                log.info("Skal sette Beskjed-event med eventId ${matchingEntityInTheCache.eventId} inaktivt")
             }
             EventType.INNBOKS -> {
                 foundInnboks.add(matchedDoneEntity)
+                log.info("Skal sette Innboks-event med eventId ${matchingEntityInTheCache.eventId} inaktivt")
             }
             else -> {
                 log.warn("Fant ukjent eventtype ved behandling av done-events: $matchingEntityInTheCache")
