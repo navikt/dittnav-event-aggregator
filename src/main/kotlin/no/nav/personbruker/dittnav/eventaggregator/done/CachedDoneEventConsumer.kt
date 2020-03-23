@@ -22,7 +22,7 @@ class CachedDoneEventConsumer(
 ) : CoroutineScope {
 
     private val log: Logger = LoggerFactory.getLogger(CachedDoneEventConsumer::class.java)
-    private val minutesToWait = Duration.ofMinutes(5)
+    private val minutesToWait = Duration.ofMinutes(2)
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default + job
