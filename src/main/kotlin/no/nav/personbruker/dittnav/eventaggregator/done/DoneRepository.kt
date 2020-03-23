@@ -60,17 +60,6 @@ class DoneRepository(private val database: Database) {
         log.info("Har skrevet ${entities.size} done-eventer til vente-tabellen.")
     }
 
-    suspend fun fetchBrukernotifikasjonerFromView(): List<Brukernotifikasjon> {
-        var resultat = emptyList<Brukernotifikasjon>()
-        database.queryWithExceptionTranslation {
-            resultat = getAllBrukernotifikasjonFromView()
-        }
-        if (resultat.isEmpty()) {
-            log.warn("Fant ingen brukernotifikasjoner i databasen")
-        }
-        return resultat
-    }
-
     suspend fun fetchAllDoneEvents(): List<Done> {
         var resultat = emptyList<Done>()
         database.queryWithExceptionTranslation {
