@@ -97,7 +97,7 @@ class InnboksEventServiceTest {
 
     private fun createANumberOfTransformedInnboksRecords(number: Int): List<Innboks> {
         return (1..number).map {
-            InnboksObjectMother.createInnboks(it.toString(), "12345")
+            InnboksObjectMother.giveMeInnboks(it.toString(), "12345")
         }
     }
 

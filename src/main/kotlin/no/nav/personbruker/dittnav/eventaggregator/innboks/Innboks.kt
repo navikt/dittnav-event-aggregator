@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
+import no.nav.personbruker.dittnav.eventaggregator.done.Done
 import java.time.LocalDateTime
 
 data class Innboks (
@@ -54,4 +55,11 @@ data class Innboks (
                 "sistOppdatert=$sistOppdatert, " +
                 "aktiv=$aktiv"
     }
+
+    fun isRepresentsSameEvent(doneEvent: Done): Boolean {
+        return (eventId == doneEvent.eventId &&
+                produsent == doneEvent.produsent &&
+                fodselsnummer == doneEvent.fodselsnummer)
+    }
+
 }

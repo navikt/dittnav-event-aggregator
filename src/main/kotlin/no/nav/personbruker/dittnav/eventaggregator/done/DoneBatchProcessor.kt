@@ -1,11 +1,16 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
-import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon
-import no.nav.personbruker.dittnav.eventaggregator.config.EventType
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
+import no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class DoneBatchProcessor(private val existingEntitiesInDatabase: List<Brukernotifikasjon>) {
+class DoneBatchProcessor(
+        private val beskjederInDatabase: List<Beskjed>,
+        private val innboksInDatabase: List<Innboks>,
+        private val oppgaveInDatabase: List<Oppgave>
+) {
 
     private val log: Logger = LoggerFactory.getLogger(DoneBatchProcessor::class.java)
 
@@ -16,44 +21,37 @@ class DoneBatchProcessor(private val existingEntitiesInDatabase: List<Brukernoti
 
     fun process(batchOfEntities: List<Done>) {
         batchOfEntities.forEach { entityToLookForInTheCache ->
-            val foundMatchingEntity: Brukernotifikasjon? = existingEntitiesInDatabase.find { existingEntity ->
-                isAssociatedEntities(existingEntity, entityToLookForInTheCache)
-            }
-            if (foundMatchingEntity != null) {
-                log.info("Fant matchende event for Done-eventet: $foundMatchingEntity")
-                groupEventsByType(foundMatchingEntity, entityToLookForInTheCache)
-
-            } else {
-                notFoundEvents.add(entityToLookForInTheCache)
-                log.info("Fant ikke matchende event for done-event med eventId $entityToLookForInTheCache")
-            }
+            groupEventsByType(entityToLookForInTheCache)
         }
     }
 
-    private fun isAssociatedEntities(entityInTheCache: Brukernotifikasjon, entityToLookForInTheCache: Done): Boolean {
-        return (entityInTheCache.eventId == entityToLookForInTheCache.eventId &&
-                entityInTheCache.produsent == entityToLookForInTheCache.produsent &&
-                entityInTheCache.fodselsnummer == entityToLookForInTheCache.fodselsnummer)
-    }
-
-    private fun groupEventsByType(matchingEntityInTheCache: Brukernotifikasjon, matchedDoneEntity: Done) {
-        when (matchingEntityInTheCache.type) {
-            EventType.OPPGAVE -> {
-                foundOppgave.add(matchedDoneEntity)
-                log.info("Skal sette Oppgave-event med eventId ${matchingEntityInTheCache.eventId} inaktivt")
-            }
-            EventType.BESKJED -> {
-                foundBeskjed.add(matchedDoneEntity)
-                log.info("Skal sette Beskjed-event med eventId ${matchingEntityInTheCache.eventId} inaktivt")
-            }
-            EventType.INNBOKS -> {
-                foundInnboks.add(matchedDoneEntity)
-                log.info("Skal sette Innboks-event med eventId ${matchingEntityInTheCache.eventId} inaktivt")
-            }
-            else -> {
-                log.warn("Fant ukjent eventtype ved behandling av done-events: $matchingEntityInTheCache")
+    private fun groupEventsByType(doneEventToLookForAMatch: Done) {
+        beskjederInDatabase.forEach { beskjedInDatabase ->
+            if (beskjedInDatabase.isRepresentsSameEvent(doneEventToLookForAMatch)) {
+                foundBeskjed.add(doneEventToLookForAMatch)
+                log.info("Skal sette Beskjed-event med eventId ${doneEventToLookForAMatch.eventId} inaktivt")
+                return
             }
         }
+
+        innboksInDatabase.forEach { innboksInDatabase ->
+            if (innboksInDatabase.isRepresentsSameEvent(doneEventToLookForAMatch)) {
+                foundInnboks.add(doneEventToLookForAMatch)
+                log.info("Skal sette Innboks-event med eventId ${doneEventToLookForAMatch.eventId} inaktivt")
+                return
+            }
+        }
+
+        oppgaveInDatabase.forEach { oppgaveInDatabase ->
+            if (oppgaveInDatabase.isRepresentsSameEvent(doneEventToLookForAMatch)) {
+                foundOppgave.add(doneEventToLookForAMatch)
+                log.info("Skal sette Oppgave-event med eventId ${doneEventToLookForAMatch.eventId} inaktivt")
+                return
+            }
+        }
+
+        notFoundEvents.add(doneEventToLookForAMatch)
+        log.info("Fant ikke matchende event for done-event med eventId $doneEventToLookForAMatch")
     }
 
 }

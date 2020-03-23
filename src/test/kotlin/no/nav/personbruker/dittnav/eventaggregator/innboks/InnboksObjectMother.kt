@@ -5,7 +5,11 @@ import java.time.ZoneId
 
 object InnboksObjectMother {
 
-    fun createInnboks(eventId: String, fodselsnummer: String): Innboks {
+    fun giveMeInnboks(): Innboks {
+        return giveMeInnboks("i-1", "123")
+    }
+
+    fun giveMeInnboks(eventId: String, fodselsnummer: String): Innboks {
         return Innboks(
                 "DittNAV",
                 eventId,
@@ -18,4 +22,5 @@ object InnboksObjectMother {
                 LocalDateTime.now(ZoneId.of("UTC")),
                 true)
     }
+
 }

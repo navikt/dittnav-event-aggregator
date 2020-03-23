@@ -6,12 +6,16 @@ import kotlin.random.Random
 
 object BeskjedObjectMother {
 
-    fun createBeskjed(eventId: String, fodselsnummer: String): Beskjed {
-        val produsent = "DittNAV"
-        return createBeskjed(eventId, fodselsnummer, produsent)
+    fun giveMeBeskjed(): Beskjed {
+        return giveMeBeskjed("b-1", "123")
     }
 
-    fun createBeskjed(eventId: String, fodselsnummer: String, produsent: String): Beskjed {
+    fun giveMeBeskjed(eventId: String, fodselsnummer: String): Beskjed {
+        val produsent = "DittNAV"
+        return giveMeBeskjed(eventId, fodselsnummer, produsent)
+    }
+
+    fun giveMeBeskjed(eventId: String, fodselsnummer: String, produsent: String): Beskjed {
         return Beskjed(
                 uid = Random.nextInt(1,100).toString(),
                 produsent = produsent,

@@ -25,4 +25,26 @@ class InnboksRepository(private val database: Database) {
 
     }
 
+    suspend fun fetchAll(): List<Innboks> {
+        var resultat = emptyList<Innboks>()
+        database.queryWithExceptionTranslation {
+            resultat = getAllInnboks()
+        }
+        if (resultat.isEmpty()) {
+            log.warn("Fant ingen innboks-eventer i databasen")
+        }
+        return resultat
+    }
+
+    suspend fun fetchActive(): List<Innboks> {
+        var resultat = emptyList<Innboks>()
+        database.queryWithExceptionTranslation {
+            resultat = getAllInnboksByAktiv(true)
+        }
+        if (resultat.isEmpty()) {
+            log.warn("Fant ingen aktive innboks-eventer i databasen")
+        }
+        return resultat
+    }
+
 }

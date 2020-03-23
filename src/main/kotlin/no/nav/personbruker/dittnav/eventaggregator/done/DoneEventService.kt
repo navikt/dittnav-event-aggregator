@@ -2,12 +2,15 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 
 import no.nav.brukernotifikasjon.schemas.Done
 import no.nav.brukernotifikasjon.schemas.Nokkel
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.NokkelNullException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.getNonNullKey
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType.DONE
+import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.slf4j.Logger
@@ -15,6 +18,9 @@ import org.slf4j.LoggerFactory
 
 class DoneEventService(
         private val doneRepository: DoneRepository,
+        private val beskjedRepository: BeskjedRepository,
+        private val innboksRepository: InnboksRepository,
+        private val oppgaveRepository: OppgaveRepository,
         private val eventMetricsProbe: EventMetricsProbe
 ) : EventBatchProcessorService<Done> {
 
@@ -47,8 +53,10 @@ class DoneEventService(
     }
 
     private suspend fun groupDoneEventsByAssociatedEventType(successfullyTransformedEvents: MutableList<no.nav.personbruker.dittnav.eventaggregator.done.Done>): DoneBatchProcessor {
-        val brukernotifikasjoner = doneRepository.fetchBrukernotifikasjonerFromView()
-        val batch = DoneBatchProcessor(brukernotifikasjoner)
+        val aktiveBeskjeder = beskjedRepository.fetchActive()
+        val aktiveInnbokseventer = innboksRepository.fetchActive()
+        val aktiveOppgaver = oppgaveRepository.fetchActive()
+        val batch = DoneBatchProcessor(aktiveBeskjeder, aktiveInnbokseventer, aktiveOppgaver)
         batch.process(successfullyTransformedEvents)
         return batch
     }
