@@ -1,12 +1,13 @@
 package no.nav.personbruker.dittnav.eventaggregator.metrics
 
-import no.nav.personbruker.dittnav.eventaggregator.config.Environment
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.*
+import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.EVENTS_FAILED
+import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.EVENTS_PROCESSED
+import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.EVENTS_SEEN
 import org.slf4j.LoggerFactory
 
-class EventMetricsProbe (private val metricsReporter: MetricsReporter,
-                         private val nameScrubber: ProducerNameScrubber) {
+class EventMetricsProbe(private val metricsReporter: MetricsReporter,
+                        private val nameScrubber: ProducerNameScrubber) {
 
     val log = LoggerFactory.getLogger(EventMetricsProbe::class.java)
 
