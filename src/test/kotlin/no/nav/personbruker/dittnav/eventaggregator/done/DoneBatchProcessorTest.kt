@@ -29,4 +29,42 @@ internal class DoneBatchProcessorTest {
         totalNumberOfGroupedEvents `should be equal to` doneEventsToProcess.size
     }
 
+    @Test
+    fun `skal haandtere at det ikke finnes eventer i databasen og at det ikke ble mottatt eventer`() {
+        val processor = DoneBatchProcessor(emptyList())
+
+        processor.process(emptyList())
+
+        processor.foundBeskjed.size `should be` 0
+        processor.foundInnboks.size `should be` 0
+        processor.foundOppgave.size `should be` 0
+        processor.notFoundEvents.size `should be` 0
+    }
+
+    @Test
+    fun `skal haandtere at det ikke ble mottatt eventer`() {
+        val existingEntitiesInDatabase = BrukernotifikasjonObjectMother.giveMeOneOfEachEventType()
+        val processor = DoneBatchProcessor(existingEntitiesInDatabase)
+
+        processor.process(emptyList())
+
+        processor.foundBeskjed.size `should be` 0
+        processor.foundInnboks.size `should be` 0
+        processor.foundOppgave.size `should be` 0
+        processor.notFoundEvents.size `should be` 0
+    }
+
+    @Test
+    fun `skal haandtere at ingen av eventene ble funnet i databasen`() {
+        val processor = DoneBatchProcessor(emptyList())
+        val batchOfEntities = listOf(DoneObjectMother.createDone("1"), DoneObjectMother.createDone("2"))
+
+        processor.process(batchOfEntities)
+
+        processor.foundBeskjed.size `should be` 0
+        processor.foundInnboks.size `should be` 0
+        processor.foundOppgave.size `should be` 0
+        processor.notFoundEvents.size `should be` 2
+    }
+
 }
