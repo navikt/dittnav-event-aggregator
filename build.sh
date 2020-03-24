@@ -1,2 +1,2 @@
 #!/bin/bash
-./gradlew clean assemble
+gradle clean assemble
