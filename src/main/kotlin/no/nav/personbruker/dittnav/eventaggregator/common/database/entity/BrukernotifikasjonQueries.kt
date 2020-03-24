@@ -6,7 +6,7 @@ import java.sql.Connection
 import java.sql.ResultSet
 
 fun Connection.getAllBrukernotifikasjonFromView(): List<Brukernotifikasjon> =
-        prepareStatement("""SELECT * FROM BRUKERNOTIFIKASJON_VIEW""")
+        prepareStatement("""SELECT * FROM ytest_brukernotifikasjon_view""")
                 .use {
                     it.executeQuery().list {
                         toBrukernotifikasjon()
