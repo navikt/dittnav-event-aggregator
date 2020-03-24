@@ -82,7 +82,7 @@ dependencies {
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
 
-    intTestImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+//    intTestImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
 }
 
 application {
@@ -126,13 +126,13 @@ tasks {
     }
 }
 
-val integrationTest = task<Test>("integrationTest") {
-    description = "Runs integration tests."
-    group = "verification"
-
-    testClassesDirs = sourceSets["intTest"].output.classesDirs
-    classpath = sourceSets["intTest"].runtimeClasspath
-    shouldRunAfter("test")
-}
-
-tasks.check { dependsOn(integrationTest) }
+//val integrationTest = task<Test>("integrationTest") {
+//    description = "Runs integration tests."
+//    group = "verification"
+//
+//    testClassesDirs = sourceSets["intTest"].output.classesDirs
+//    classpath = sourceSets["intTest"].runtimeClasspath
+//    shouldRunAfter("test")
+//}
+//
+//tasks.check { dependsOn(integrationTest) }
