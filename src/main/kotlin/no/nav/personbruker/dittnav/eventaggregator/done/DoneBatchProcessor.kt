@@ -20,16 +20,17 @@ class DoneBatchProcessor(
     val notFoundEvents = mutableListOf<Done>()
 
     fun process(batchOfEntities: List<Done>) {
+        log.info("Skal prosessere ${batchOfEntities.size} done-eventer")
         batchOfEntities.forEach { entityToLookForInTheCache ->
             groupEventsByType(entityToLookForInTheCache)
         }
+        logSummaryForBatch()
     }
 
     private fun groupEventsByType(doneEventToLookForAMatch: Done) {
         beskjederInDatabase.forEach { beskjedInDatabase ->
             if (beskjedInDatabase.isRepresentsSameEvent(doneEventToLookForAMatch)) {
                 foundBeskjed.add(doneEventToLookForAMatch)
-                log.info("Skal sette Beskjed-event med eventId ${doneEventToLookForAMatch.eventId} inaktivt")
                 return
             }
         }
@@ -37,7 +38,6 @@ class DoneBatchProcessor(
         innboksInDatabase.forEach { innboksInDatabase ->
             if (innboksInDatabase.isRepresentsSameEvent(doneEventToLookForAMatch)) {
                 foundInnboks.add(doneEventToLookForAMatch)
-                log.info("Skal sette Innboks-event med eventId ${doneEventToLookForAMatch.eventId} inaktivt")
                 return
             }
         }
@@ -45,13 +45,19 @@ class DoneBatchProcessor(
         oppgaveInDatabase.forEach { oppgaveInDatabase ->
             if (oppgaveInDatabase.isRepresentsSameEvent(doneEventToLookForAMatch)) {
                 foundOppgave.add(doneEventToLookForAMatch)
-                log.info("Skal sette Oppgave-event med eventId ${doneEventToLookForAMatch.eventId} inaktivt")
                 return
             }
         }
 
         notFoundEvents.add(doneEventToLookForAMatch)
-        log.info("Fant ikke matchende event for done-event med eventId $doneEventToLookForAMatch")
+        log.warn("Fant ikke matchende event for done-event med eventId $doneEventToLookForAMatch")
+    }
+
+    private fun logSummaryForBatch() {
+        log.info("Fant ${foundBeskjed.size} done-eventer med tilhørende eventer i beskjed-tabellen.")
+        log.info("Fant ${foundInnboks.size} done-eventer med tilhørende eventer i innboks-tabellen.")
+        log.info("Fant ${foundOppgave.size} done-eventer med tilhørende eventer i oppgave-tabellen.")
+        log.info("Det er ${foundOppgave.size} done-eventer det ikke ble funnet et tilhørende event for nå.")
     }
 
 }
