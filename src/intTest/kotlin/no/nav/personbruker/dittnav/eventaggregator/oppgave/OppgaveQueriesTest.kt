@@ -33,10 +33,10 @@ class OppgaveQueriesTest {
     }
 
     private fun createOppgave(eventId: String, fodselsnummer: String): Oppgave {
-        var oppgave = OppgaveObjectMother.createOppgave(eventId, fodselsnummer)
+        var oppgave = OppgaveObjectMother.giveMeOppgave(eventId, fodselsnummer)
         runBlocking {
             database.dbQuery {
-                var generatedId = createOppgave(oppgave).entityId
+                val generatedId = createOppgave(oppgave).entityId
                 oppgave = oppgave.copy(id=generatedId)
             }
         }

@@ -5,9 +5,17 @@ import java.time.ZoneId
 
 object OppgaveObjectMother {
 
-    fun createOppgave(eventId: String, fodselsnummer: String): Oppgave {
+    fun giveMeOppgave(): Oppgave {
+        return giveMeOppgave("o-1", "123")
+    }
+
+    fun giveMeOppgave(eventId: String, fodselsnummer: String): Oppgave {
+        return giveMeOppgave(eventId, fodselsnummer, "DittNAV")
+    }
+
+    fun giveMeOppgave(eventId: String, fodselsnummer: String, produsent: String): Oppgave {
         return Oppgave(
-                produsent = "DittNAV",
+                produsent = produsent,
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
                 fodselsnummer = fodselsnummer,
                 eventId = eventId,
@@ -18,4 +26,5 @@ object OppgaveObjectMother {
                 sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
                 aktiv = true)
     }
+
 }

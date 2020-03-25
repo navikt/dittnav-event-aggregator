@@ -5,12 +5,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.time.delay
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
+import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
 import kotlin.coroutines.CoroutineContext
 
 class CachedDoneEventConsumer(
+        private val beskjedRepository: BeskjedRepository,
+        private val innboksRepository: InnboksRepository,
+        private val oppgaveRepository: OppgaveRepository,
         private val doneRepository: DoneRepository,
         private val job: Job = Job()
 ) : CoroutineScope {
@@ -45,8 +51,10 @@ class CachedDoneEventConsumer(
     }
 
     private suspend fun groupDoneEventsByAssociatedEventType(allDone: List<Done>): DoneBatchProcessor {
-        val alleBrukernotifikasjoner = doneRepository.fetchBrukernotifikasjonerFromView()
-        val groupedDoneEvents = DoneBatchProcessor(alleBrukernotifikasjoner)
+        val allBeskjeder = beskjedRepository.fetchAll()
+        val allInnbokseventer = innboksRepository.fetchAll()
+        val allOppgaver = oppgaveRepository.fetchAll()
+        val groupedDoneEvents = DoneBatchProcessor(allBeskjeder, allInnbokseventer, allOppgaver)
         groupedDoneEvents.process(allDone)
         return groupedDoneEvents
     }
