@@ -31,10 +31,10 @@ class InnboksTest {
 
     @Test
     internal fun `skal ikke match med ikke-tilhorende done-eventer`() {
-        val beskjed = BeskjedObjectMother.giveMeBeskjed(expectedEventId, expectedFodselsnr, expectedProdusent)
+        val innboks = InnboksObjectMother.giveMeInnboks(expectedEventId, expectedFodselsnr, expectedProdusent)
         val ikkeMatchendeDoneEvent = DoneObjectMother.createDone(expectedEventId, "annenProdusent", expectedFodselsnr)
 
-        beskjed.isRepresentsSameEvent(ikkeMatchendeDoneEvent) `should be equal to` false
+        innboks.isRepresentsSameEvent(ikkeMatchendeDoneEvent) `should be equal to` false
     }
 
 }

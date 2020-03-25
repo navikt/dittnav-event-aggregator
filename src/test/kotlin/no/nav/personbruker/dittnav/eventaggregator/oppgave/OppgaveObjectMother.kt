@@ -10,8 +10,12 @@ object OppgaveObjectMother {
     }
 
     fun giveMeOppgave(eventId: String, fodselsnummer: String): Oppgave {
+        return giveMeOppgave(eventId, fodselsnummer, "DittNAV")
+    }
+
+    fun giveMeOppgave(eventId: String, fodselsnummer: String, produsent: String): Oppgave {
         return Oppgave(
-                produsent = "DittNAV",
+                produsent = produsent,
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
                 fodselsnummer = fodselsnummer,
                 eventId = eventId,
