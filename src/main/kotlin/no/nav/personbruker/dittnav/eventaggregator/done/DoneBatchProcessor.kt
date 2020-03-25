@@ -1,16 +1,11 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
-import no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
+import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon
+import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class DoneBatchProcessor(
-        private val beskjederInDatabase: List<Beskjed>,
-        private val innboksInDatabase: List<Innboks>,
-        private val oppgaveInDatabase: List<Oppgave>
-) {
+class DoneBatchProcessor(private val existingEntitiesInDatabase: List<Brukernotifikasjon>) {
 
     private val log: Logger = LoggerFactory.getLogger(DoneBatchProcessor::class.java)
 
@@ -20,44 +15,57 @@ class DoneBatchProcessor(
     val notFoundEvents = mutableListOf<Done>()
 
     fun process(batchOfEntities: List<Done>) {
-        log.info("Skal prosessere ${batchOfEntities.size} done-eventer")
-        batchOfEntities.forEach { entityToLookForInTheCache ->
-            groupEventsByType(entityToLookForInTheCache)
+        batchOfEntities.forEach { entityToLookFor ->
+            val foundMatchingEntity: Brukernotifikasjon? = existingEntitiesInDatabase.find { existingEntity ->
+                existingEntity.isRepresentsSameEventAs(entityToLookFor)
+            }
+            if (foundMatchingEntity != null) {
+                groupEventsByType(foundMatchingEntity, entityToLookFor)
+
+            } else {
+                notFoundEvents.add(entityToLookFor)
+                log.warn("Fant ikke matchende event for done-event med eventId $entityToLookFor")
+            }
         }
-        logSummaryForBatch()
+        log.info(toString())
     }
 
-    private fun groupEventsByType(doneEventToLookForAMatch: Done) {
-        beskjederInDatabase.forEach { beskjedInDatabase ->
-            if (beskjedInDatabase.isRepresentsSameEvent(doneEventToLookForAMatch)) {
-                foundBeskjed.add(doneEventToLookForAMatch)
-                return
+    private fun groupEventsByType(matchingEntityInTheCache: Brukernotifikasjon, matchedDoneEntity: Done) {
+        when (matchingEntityInTheCache.type) {
+            EventType.OPPGAVE -> {
+                foundOppgave.add(matchedDoneEntity)
+            }
+            EventType.BESKJED -> {
+                foundBeskjed.add(matchedDoneEntity)
+            }
+            EventType.INNBOKS -> {
+                foundInnboks.add(matchedDoneEntity)
+            }
+            else -> {
+                log.warn("Fant ukjent eventtype ved behandling av done-events: $matchingEntityInTheCache")
             }
         }
-
-        innboksInDatabase.forEach { innboksInDatabase ->
-            if (innboksInDatabase.isRepresentsSameEvent(doneEventToLookForAMatch)) {
-                foundInnboks.add(doneEventToLookForAMatch)
-                return
-            }
-        }
-
-        oppgaveInDatabase.forEach { oppgaveInDatabase ->
-            if (oppgaveInDatabase.isRepresentsSameEvent(doneEventToLookForAMatch)) {
-                foundOppgave.add(doneEventToLookForAMatch)
-                return
-            }
-        }
-
-        notFoundEvents.add(doneEventToLookForAMatch)
-        log.warn("Fant ikke matchende event for done-event med eventId $doneEventToLookForAMatch")
     }
 
-    private fun logSummaryForBatch() {
-        log.info("Fant ${foundBeskjed.size} done-eventer med tilhørende eventer i beskjed-tabellen.")
-        log.info("Fant ${foundInnboks.size} done-eventer med tilhørende eventer i innboks-tabellen.")
-        log.info("Fant ${foundOppgave.size} done-eventer med tilhørende eventer i oppgave-tabellen.")
-        log.info("Det er ${foundOppgave.size} done-eventer det ikke ble funnet et tilhørende event for nå.")
+    fun allFoundEvents(): List<Done> {
+        return foundBeskjed + foundInnboks + foundOppgave
+    }
+
+    fun totalNumberOfFoundEvents(): Int {
+        return foundBeskjed.size + foundInnboks.size + foundOppgave.size
+    }
+
+    fun isMoreEventsToProcess(): Boolean {
+        return notFoundEvents.isNotEmpty()
+    }
+
+    override fun toString(): String {
+        return """
+            Fant ${foundBeskjed.size} done-eventer med tilhørende eventer i beskjed-tabellen.
+            Fant ${foundInnboks.size} done-eventer med tilhørende eventer i innboks-tabellen.
+            Fant ${foundOppgave.size} done-eventer med tilhørende eventer i oppgave-tabellen.
+            Det er ${notFoundEvents.size} done-eventer det ikke ble funnet et tilhørende event for nå.
+        """.trimIndent()
     }
 
 }

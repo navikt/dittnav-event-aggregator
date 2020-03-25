@@ -1,6 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
-import no.nav.personbruker.dittnav.eventaggregator.done.Done
 import java.time.LocalDateTime
 
 data class Beskjed(
@@ -60,12 +59,6 @@ data class Beskjed(
                 "sistOppdatert=$sistOppdatert, " +
                 "synligFremTil=$synligFremTil, " +
                 "aktiv=$aktiv"
-    }
-
-    fun isRepresentsSameEvent(doneEvent: Done): Boolean {
-        return (eventId == doneEvent.eventId &&
-                produsent == doneEvent.produsent &&
-                fodselsnummer == doneEvent.fodselsnummer)
     }
 
 }

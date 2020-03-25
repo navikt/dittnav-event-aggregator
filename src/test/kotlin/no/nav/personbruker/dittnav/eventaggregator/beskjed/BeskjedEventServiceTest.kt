@@ -99,7 +99,7 @@ class BeskjedEventServiceTest {
     private fun createANumberOfTransformedRecords(numberOfRecords: Int): MutableList<Beskjed> {
         val transformedRecords = mutableListOf<Beskjed>()
         for (i in 0 until numberOfRecords) {
-            transformedRecords.add(BeskjedObjectMother.giveMeBeskjed("$i", "{$i}12345"))
+            transformedRecords.add(BeskjedObjectMother.giveMeAktivBeskjed("$i", "{$i}12345"))
         }
         return transformedRecords
     }

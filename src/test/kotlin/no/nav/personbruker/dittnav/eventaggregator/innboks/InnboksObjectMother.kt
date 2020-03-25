@@ -5,26 +5,40 @@ import java.time.ZoneId
 
 object InnboksObjectMother {
 
-    fun giveMeInnboks(): Innboks {
-        return giveMeInnboks("i-1", "123")
+    fun giveMeAktivInnboks(): Innboks {
+        return giveMeAktivInnboks("i-1", "123")
     }
 
-    fun giveMeInnboks(eventId: String, fodselsnummer: String): Innboks {
-        return giveMeInnboks(eventId, fodselsnummer, "DittNAV")
+    fun giveMeAktivInnboks(eventId: String, fodselsnummer: String): Innboks {
+        return giveMeAktivInnboks(eventId, fodselsnummer, "DittNAV")
     }
 
-    fun giveMeInnboks(eventId: String, fodselsnummer: String, produsent: String): Innboks {
+    fun giveMeAktivInnboks(eventId: String, fodselsnummer: String, produsent: String): Innboks {
         return Innboks(
                 produsent,
                 eventId,
                 LocalDateTime.now(ZoneId.of("UTC")),
                 fodselsnummer,
-                "100$eventId",
+                "76543",
                 "Dette er innboksnotifikasjon til brukeren",
-                "https://nav.no/systemX/$fodselsnummer",
+                "https://nav.no/systemX/",
                 4,
                 LocalDateTime.now(ZoneId.of("UTC")),
                 true)
+    }
+
+    fun giveMeInaktivInnboks(): Innboks {
+        return Innboks(
+                "DittNAV",
+                "76543",
+                LocalDateTime.now(ZoneId.of("UTC")),
+                "123",
+                "76543",
+                "Dette er innboksnotifikasjon til brukeren",
+                "https://nav.no/systemX/",
+                4,
+                LocalDateTime.now(ZoneId.of("UTC")),
+                false)
     }
 
 }

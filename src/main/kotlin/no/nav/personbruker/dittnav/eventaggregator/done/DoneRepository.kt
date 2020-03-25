@@ -3,6 +3,8 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.setBeskjedAktivFlag
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
+import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon
+import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.getBrukernotifikasjonFromViewByAktiv
 import no.nav.personbruker.dittnav.eventaggregator.innboks.setInnboksAktivFlag
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.setOppgaveAktivFlag
 import org.slf4j.Logger
@@ -58,6 +60,28 @@ class DoneRepository(private val database: Database) {
             }
         }
         log.info("Har skrevet ${entities.size} done-eventer til vente-tabellen.")
+    }
+
+    suspend fun fetchActiveBrukernotifikasjonerFromView(): List<Brukernotifikasjon> {
+        var resultat = emptyList<Brukernotifikasjon>()
+        database.queryWithExceptionTranslation {
+            resultat = getBrukernotifikasjonFromViewByAktiv(true)
+        }
+        if (resultat.isEmpty()) {
+            log.warn("Fant ingen aktive brukernotifikasjoner i databasen")
+        }
+        return resultat
+    }
+
+    suspend fun fetchInaktiveBrukernotifikasjonerFromView(): List<Brukernotifikasjon> {
+        var resultat = emptyList<Brukernotifikasjon>()
+        database.queryWithExceptionTranslation {
+            resultat = getBrukernotifikasjonFromViewByAktiv(false)
+        }
+        if (resultat.isEmpty()) {
+            log.warn("Fant ingen inaktive brukernotifikasjoner i databasen")
+        }
+        return resultat
     }
 
     suspend fun fetchAllDoneEvents(): List<Done> {

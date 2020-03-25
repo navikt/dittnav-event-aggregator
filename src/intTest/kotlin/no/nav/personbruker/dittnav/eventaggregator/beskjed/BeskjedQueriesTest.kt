@@ -33,7 +33,7 @@ class BeskjedQueriesTest {
     }
 
     private fun createBeskjed(eventId: String, fodselsnummer: String): Beskjed {
-        val beskjed = BeskjedObjectMother.giveMeBeskjed(eventId, fodselsnummer)
+        val beskjed = BeskjedObjectMother.giveMeAktivBeskjed(eventId, fodselsnummer)
         return runBlocking {
             database.dbQuery {
                 createBeskjed(beskjed).entityId.let {

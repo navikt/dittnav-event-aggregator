@@ -33,7 +33,7 @@ class OppgaveQueriesTest {
     }
 
     private fun createOppgave(eventId: String, fodselsnummer: String): Oppgave {
-        var oppgave = OppgaveObjectMother.giveMeOppgave(eventId, fodselsnummer)
+        var oppgave = OppgaveObjectMother.giveMeAktivOppgave(eventId, fodselsnummer)
         runBlocking {
             database.dbQuery {
                 val generatedId = createOppgave(oppgave).entityId

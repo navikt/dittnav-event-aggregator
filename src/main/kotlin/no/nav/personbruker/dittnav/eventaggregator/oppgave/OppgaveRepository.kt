@@ -25,26 +25,4 @@ class OppgaveRepository(private val database: Database) {
 
     }
 
-    suspend fun fetchAll(): List<Oppgave> {
-        var resultat = emptyList<Oppgave>()
-        database.queryWithExceptionTranslation {
-            resultat = getAllOppgave()
-        }
-        if (resultat.isEmpty()) {
-            log.warn("Fant ingen beskjed-eventer i databasen")
-        }
-        return resultat
-    }
-
-    suspend fun fetchActive(): List<Oppgave> {
-        var resultat = emptyList<Oppgave>()
-        database.queryWithExceptionTranslation {
-            resultat = getAllOppgaveByAktiv(true)
-        }
-        if (resultat.isEmpty()) {
-            log.warn("Fant ingen aktive oppgavae-eventer i databasen")
-        }
-        return resultat
-    }
-
 }

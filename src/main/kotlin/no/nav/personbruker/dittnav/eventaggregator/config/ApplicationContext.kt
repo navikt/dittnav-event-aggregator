@@ -35,9 +35,9 @@ class ApplicationContext {
     val innboksConsumer = KafkaConsumerSetup.setupConsumerForTheInnboksTopic(innboksKafkaProps, innboksEventProcessor)
 
     val doneRepository = DoneRepository(database)
-    val doneEventProcessor = DoneEventService(doneRepository, beskjedRepository, innboksRepository, oppgaveRepository, metricsProbe)
+    val doneEventProcessor = DoneEventService(doneRepository, metricsProbe)
     val doneKafkaProps = Kafka.consumerProps(environment, EventType.DONE)
     val doneConsumer = KafkaConsumerSetup.setupConsumerForTheDoneTopic(doneKafkaProps, doneEventProcessor)
 
-    val cachedDoneEventConsumer = CachedDoneEventConsumer(beskjedRepository, innboksRepository, oppgaveRepository, doneRepository)
+    val cachedDoneEventConsumer = CachedDoneEventConsumer(doneRepository)
 }

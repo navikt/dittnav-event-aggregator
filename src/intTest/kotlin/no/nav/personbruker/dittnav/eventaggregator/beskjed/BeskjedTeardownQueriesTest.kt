@@ -10,9 +10,9 @@ class BeskjedTeardownQueriesTest {
 
     private val database = H2Database()
 
-    private val beskjed1 = BeskjedObjectMother.giveMeBeskjed("1", "12345")
-    private val beskjed2 = BeskjedObjectMother.giveMeBeskjed("2", "12345")
-    private val beskjed3 = BeskjedObjectMother.giveMeBeskjed("3", "12345")
+    private val beskjed1 = BeskjedObjectMother.giveMeAktivBeskjed("1", "12345")
+    private val beskjed2 = BeskjedObjectMother.giveMeAktivBeskjed("2", "12345")
+    private val beskjed3 = BeskjedObjectMother.giveMeAktivBeskjed("3", "12345")
 
     @Test
     fun `Verifiser at alle rader i Beskjedstabellen slettes`() {
