@@ -3,26 +3,17 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.Done
 import no.nav.brukernotifikasjon.schemas.Nokkel
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.getAllBeskjed
-import no.nav.personbruker.dittnav.eventaggregator.metrics.StubMetricsReporter
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.*
 import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.objectmother.ConsumerRecordsObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
 import no.nav.personbruker.dittnav.eventaggregator.done.schema.AvroDoneObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.innboks.*
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
-import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
-import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
-import no.nav.personbruker.dittnav.eventaggregator.innboks.getAllInnboks
 import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameScrubber
+import no.nav.personbruker.dittnav.eventaggregator.metrics.StubMetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.getAllOppgave
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.*
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be false`
 import org.amshove.kluent.shouldBeEmpty
@@ -33,14 +24,18 @@ import org.junit.jupiter.api.Test
 class DoneEventServiceTest {
 
     private val database = H2Database()
-    val metricsReporter = StubMetricsReporter()
-    val producerNameScrubber = ProducerNameScrubber("")
-    val metricsProbe = EventMetricsProbe(metricsReporter, producerNameScrubber)
-    private val doneEventService = DoneEventService(database, metricsProbe)
-    private val beskjed1 = BeskjedObjectMother.createBeskjed("1", "12345")
-    private val oppgave = OppgaveObjectMother.createOppgave("2", "12345")
-    private val innboks = InnboksObjectMother.createInnboks("3", "12345")
-    private val beskjed2 = BeskjedObjectMother.createBeskjed("4", "12345")
+    private val metricsReporter = StubMetricsReporter()
+    private val producerNameScrubber = ProducerNameScrubber("")
+    private val metricsProbe = EventMetricsProbe(metricsReporter, producerNameScrubber)
+    private val doneRepository = DoneRepository(database)
+    private val beskjedRepository = BeskjedRepository(database)
+    private val innboksRepository = InnboksRepository(database)
+    private val oppgaveRepository = OppgaveRepository(database)
+    private val doneEventService = DoneEventService(doneRepository, beskjedRepository, innboksRepository, oppgaveRepository, metricsProbe)
+    private val beskjed1 = BeskjedObjectMother.giveMeBeskjed("1", "12345")
+    private val oppgave = OppgaveObjectMother.giveMeOppgave("2", "12345")
+    private val innboks = InnboksObjectMother.giveMeInnboks("3", "12345")
+    private val beskjed2 = BeskjedObjectMother.giveMeBeskjed("4", "12345")
     private val nokkel1 = createNokkel(1)
     private val nokkel2 = createNokkel(2)
     private val nokkel3 = createNokkel(3)

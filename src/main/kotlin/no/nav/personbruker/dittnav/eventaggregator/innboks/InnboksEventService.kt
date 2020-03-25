@@ -20,22 +20,27 @@ class InnboksEventService (
     private val log = LoggerFactory.getLogger(InnboksEventService::class.java)
 
     override suspend fun processEvents(events: ConsumerRecords<Nokkel, Innboks>) {
+        val successfullyTransformedEvents = mutableListOf<no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks>()
         val problematicEvents = mutableListOf<ConsumerRecord<Nokkel, Innboks>>()
         events.forEach { event ->
             try {
                 metricsProbe.reportEventSeen(INNBOKS, event.systembruker)
                 val internalEvent = InnboksTransformer.toInternal(event.getNonNullKey(), event.value())
-                innboksRepository.storeInnboksEventInCache(internalEvent)
+                successfullyTransformedEvents.add(internalEvent)
                 metricsProbe.reportEventProcessed(INNBOKS, event.systembruker)
+
             } catch (e: NokkelNullException) {
                 metricsProbe.reportEventFailed(INNBOKS, event.systembruker)
+                problematicEvents.add(event)
                 log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", e)
+
             } catch (e: Exception) {
                 metricsProbe.reportEventFailed(INNBOKS, event.systembruker)
                 problematicEvents.add(event)
                 log.warn("Transformasjon av innboks-event fra Kafka feilet, fullfører batch-en før pollig stoppes.", e)
             }
         }
+        innboksRepository.writeEventsToCache(successfullyTransformedEvents)
         kastExceptionHvisMislykkedeTransformasjoner(problematicEvents)
     }
 

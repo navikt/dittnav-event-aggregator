@@ -29,9 +29,12 @@ class BeskjedEventService(
                 val internalEvent = BeskjedTransformer.toInternal(event.getNonNullKey(), event.value())
                 successfullyTransformedEvents.add(internalEvent)
                 metricsProbe.reportEventProcessed(BESKJED, event.systembruker)
+
             } catch (e: NokkelNullException) {
                 metricsProbe.reportEventFailed(BESKJED, event.systembruker)
+                problematicEvents.add(event)
                 log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", e)
+
             } catch (e: Exception) {
                 metricsProbe.reportEventFailed(BESKJED, event.systembruker)
                 problematicEvents.add(event)

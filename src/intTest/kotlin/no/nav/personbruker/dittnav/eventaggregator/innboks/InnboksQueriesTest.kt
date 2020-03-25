@@ -36,7 +36,7 @@ class InnboksQueriesTest {
     }
 
     private fun createInnboks(eventId: String, fodselsnummer: String): Innboks {
-        val innboks = InnboksObjectMother.createInnboks(eventId, fodselsnummer)
+        val innboks = InnboksObjectMother.giveMeInnboks(eventId, fodselsnummer)
 
         return runBlocking {
             database.dbQuery {

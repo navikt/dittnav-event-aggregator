@@ -34,17 +34,17 @@ class InnboksEventServiceTest {
     fun `Should write events to database`() {
         val records = ConsumerRecordsObjectMother.giveMeANumberOfInnboksRecords(5, "dummyTopic")
 
-        val capturedStores = ArrayList<Innboks>()
+        val capturedStores = slot<List<Innboks>>()
 
-        coEvery { repository.storeInnboksEventInCache(capture(capturedStores))} returns Unit
+        coEvery { repository.writeEventsToCache(capture(capturedStores))} returns Unit
 
         runBlocking {
             innboksService.processEvents(records)
         }
 
         verify(exactly = records.count()) { InnboksTransformer.toInternal(any(), any()) }
-        coVerify(exactly = records.count()) { repository.storeInnboksEventInCache(any()) }
-        capturedStores.size `should be` records.count()
+        coVerify(exactly = 1) { repository.writeEventsToCache(allAny()) }
+        capturedStores.captured.size `should be` records.count()
 
         confirmVerified(repository)
         confirmVerified(InnboksTransformer)
@@ -59,9 +59,9 @@ class InnboksEventServiceTest {
         val records = ConsumerRecordsObjectMother.giveMeANumberOfInnboksRecords(numberOfRecords, "dummyTopic")
         val transformedRecords = createANumberOfTransformedInnboksRecords(numberOfSuccessfulTransformations)
 
-        val capturedStores = ArrayList<Innboks>()
+        val capturedStores = slot<List<Innboks>>()
 
-        coEvery { repository.storeInnboksEventInCache(capture(capturedStores)) } returns Unit
+        coEvery { repository.writeEventsToCache(capture(capturedStores)) } returns Unit
 
         val mockedException = UntransformableRecordException("Simulated Exception")
 
@@ -74,9 +74,9 @@ class InnboksEventServiceTest {
         } `should throw` UntransformableRecordException::class
 
         verify(exactly = numberOfRecords) { InnboksTransformer.toInternal(any(), any()) }
-        coVerify(exactly = numberOfSuccessfulTransformations) { repository.storeInnboksEventInCache(any()) }
+        coVerify(exactly = 1) { repository.writeEventsToCache(allAny()) }
         coVerify(exactly = numberOfFailedTransformations) { metricsProbe.reportEventFailed(any(), any()) }
-        capturedStores.size `should be` numberOfSuccessfulTransformations
+        capturedStores.captured.size `should be` numberOfSuccessfulTransformations
 
         confirmVerified(repository)
         confirmVerified(InnboksTransformer)
@@ -97,7 +97,7 @@ class InnboksEventServiceTest {
 
     private fun createANumberOfTransformedInnboksRecords(number: Int): List<Innboks> {
         return (1..number).map {
-            InnboksObjectMother.createInnboks(it.toString(), "12345")
+            InnboksObjectMother.giveMeInnboks(it.toString(), "12345")
         }
     }
 

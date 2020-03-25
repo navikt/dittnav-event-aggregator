@@ -34,17 +34,17 @@ class OppgaveEventServiceTest {
     fun `Should write events to database`() {
         val records = ConsumerRecordsObjectMother.giveMeANumberOfOppgaveRecords(5, "dummyTopic")
 
-        val capturedStores = ArrayList<Oppgave>()
+        val capturedStores = slot<List<Oppgave>>()
 
-        coEvery { repository.storeOppgaveEventInCache(capture(capturedStores))} returns Unit
+        coEvery { repository.writeEventsToCache(capture(capturedStores))} returns Unit
 
         runBlocking {
             oppgaveService.processEvents(records)
         }
 
         verify(exactly = records.count()) { OppgaveTransformer.toInternal(any(), any()) }
-        coVerify(exactly = records.count()) { repository.storeOppgaveEventInCache(any()) }
-        capturedStores.size `should be` records.count()
+        coVerify(exactly = 1) { repository.writeEventsToCache(allAny()) }
+        capturedStores.captured.size `should be` records.count()
 
         confirmVerified(repository)
         confirmVerified(OppgaveTransformer)
@@ -59,9 +59,9 @@ class OppgaveEventServiceTest {
         val records = ConsumerRecordsObjectMother.giveMeANumberOfOppgaveRecords(numberOfRecords, "dummyTopic")
         val transformedRecords = createANumberOfTransformedOppgaveRecords(numberOfSuccessfulTransformations)
 
-        val capturedStores = ArrayList<Oppgave>()
+        val capturedStores = slot<List<Oppgave>>()
 
-        coEvery { repository.storeOppgaveEventInCache(capture(capturedStores)) } returns Unit
+        coEvery { repository.writeEventsToCache(capture(capturedStores)) } returns Unit
 
         val mockedException = UntransformableRecordException("Simulated Exception")
 
@@ -74,9 +74,9 @@ class OppgaveEventServiceTest {
         } `should throw` UntransformableRecordException::class
 
         verify(exactly = numberOfRecords) { OppgaveTransformer.toInternal(any(), any()) }
-        coVerify(exactly = numberOfSuccessfulTransformations) { repository.storeOppgaveEventInCache(any()) }
+        coVerify(exactly = 1) { repository.writeEventsToCache(allAny()) }
         coVerify(exactly = numberOfFailedTransformations) { metricsProbe.reportEventFailed(any(), any()) }
-        capturedStores.size `should be` numberOfSuccessfulTransformations
+        capturedStores.captured.size `should be` numberOfSuccessfulTransformations
 
         confirmVerified(repository)
         confirmVerified(OppgaveTransformer)
@@ -98,7 +98,7 @@ class OppgaveEventServiceTest {
 
     private fun createANumberOfTransformedOppgaveRecords(number: Int): List<Oppgave> {
         return (1..number).map {
-            OppgaveObjectMother.createOppgave(it.toString(), "12345")
+            OppgaveObjectMother.giveMeOppgave(it.toString(), "12345")
         }
     }
 }
