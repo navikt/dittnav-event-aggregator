@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.time.delay
+import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
@@ -37,12 +38,20 @@ class CachedDoneEventConsumer(
     }
 
     suspend fun processDoneEvents() {
-        val allDone = doneRepository.fetchAllDoneEvents()
-        log.info("Skal behandle ${allDone.size} done-eventer som er plassert i ventetabellen.")
+        try {
+            val allDone = doneRepository.fetchAllDoneEvents()
+            log.info("Skal behandle ${allDone.size} done-eventer som er plassert i ventetabellen.")
 
-        val doneEventsGroupedByActiveEvents = processActiveEventsOnly(allDone)
-        if (doneEventsGroupedByActiveEvents.isMoreEventsToProcess()) {
-            processDeactivatedEventsOnly(doneEventsGroupedByActiveEvents.notFoundEvents)
+            val doneEventsGroupedByActiveEvents = processActiveEventsOnly(allDone)
+            if (doneEventsGroupedByActiveEvents.isMoreEventsToProcess()) {
+                processDeactivatedEventsOnly(doneEventsGroupedByActiveEvents.notFoundEvents)
+            }
+
+        } catch (rde: RetriableDatabaseException) {
+            log.warn("Behandling av done-eventer fra ventatabellen feilet. Klarte ikke å skrive til databasen, prøver igjen senrere.", rde)
+
+        } catch (e: Exception) {
+            log.error("Behandling av done-eventer fra ventatabellen feilet. Noe uventet feilet, forsøker igjen senere", e)
         }
     }
 
