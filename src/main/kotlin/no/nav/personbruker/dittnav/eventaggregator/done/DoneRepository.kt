@@ -1,6 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.setBeskjedAktivFlag
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon
@@ -12,7 +11,7 @@ import org.slf4j.LoggerFactory
 
 class DoneRepository(private val database: Database) {
 
-    val log: Logger = LoggerFactory.getLogger(BeskjedRepository::class.java)
+    private val log: Logger = LoggerFactory.getLogger(DoneRepository::class.java)
 
     suspend fun writeDoneEventsForBeskjedToCache(entities: List<Done>) {
         if (entities.isEmpty()) {

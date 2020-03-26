@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory
 
 class BeskjedRepository(private val database: Database) {
 
-    val log: Logger = LoggerFactory.getLogger(BeskjedRepository::class.java)
+    private val log: Logger = LoggerFactory.getLogger(BeskjedRepository::class.java)
 
     suspend fun writeEventsToCache(entities: List<Beskjed>) {
         database.queryWithExceptionTranslation {
