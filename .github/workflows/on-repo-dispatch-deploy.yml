@@ -25,16 +25,17 @@ jobs:
           SHA=$(echo $VERSION | cut -c16-23)
           git checkout $SHA
 
-      - name: Bygger opp komplett image-navn, tilgjengeliggjør dette for resten av stegene
+      - name: 'Gjør klar nødvendige parametere for deploy til Nais'
         run: |
           APP_NAME="${GITHUB_REPOSITORY//navikt\//}"
           IMAGE_BASE="docker.pkg.github.com/$GITHUB_REPOSITORY/$APP_NAME"
           echo "::set-env name=IMAGE::$IMAGE_BASE:$VERSION"
+          echo "::set-env name=CURRENT_REF::$(git log -1 --pretty='%H')"
 
       - name: 'Deploy-er til ${{ env.NAMESPACE }} i ${{ env.CLUSTER }}'
         uses: 'nais/deploy/actions/deploy@v1'
         env:
-          REF: ${{ env.VERSION }}
+          REF: ${{ env.CURRENT_REF }}
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: ${{ env.CLUSTER }}
           RESOURCE: ./nais/nais.yaml
