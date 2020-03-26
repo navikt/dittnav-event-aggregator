@@ -64,7 +64,7 @@ class CachedDoneEventConsumer(
         groupedDoneEvents.process(allDone)
         updateTheDatabase(groupedDoneEvents)
 
-        val totalNumberOfEvents = groupedDoneEvents.totalNumberOfFoundEvents()
+        val totalNumberOfEvents = groupedDoneEvents.allFoundEvents.size
         log.info("Fikk $totalNumberOfEvents treff tilsamme for done-eventer, fjerner nå disse fra ventetabellen.")
         return groupedDoneEvents
     }
@@ -78,14 +78,14 @@ class CachedDoneEventConsumer(
         doneRepository.writeDoneEventsForBeskjedToCache(groupedDoneEvents.foundBeskjed)
         doneRepository.writeDoneEventsForOppgaveToCache(groupedDoneEvents.foundOppgave)
         doneRepository.writeDoneEventsForInnboksToCache(groupedDoneEvents.foundInnboks)
-        doneRepository.deleteDoneEventFromCache(groupedDoneEvents.allFoundEvents())
+        doneRepository.deleteDoneEventFromCache(groupedDoneEvents.allFoundEvents)
     }
 
     private suspend fun processDeactivatedEventsOnly(remainingEventsToLookFor: List<Done>): DoneBatchProcessor {
         val groupedDoneEvents = fetchInactiveEvents()
         groupedDoneEvents.process(remainingEventsToLookFor)
 
-        val totalNumberOfEvents = groupedDoneEvents.totalNumberOfFoundEvents()
+        val totalNumberOfEvents = groupedDoneEvents.allFoundEvents.size
         log.info("Fikk $totalNumberOfEvents treff tilsamme for done-eventer, fjerner nå disse fra ventetabellen.")
         return groupedDoneEvents
     }

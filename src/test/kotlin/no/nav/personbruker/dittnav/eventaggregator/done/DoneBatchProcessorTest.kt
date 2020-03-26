@@ -23,7 +23,7 @@ internal class DoneBatchProcessorTest {
         processor.foundOppgave.size `should be` 1
         processor.notFoundEvents.size `should be` 1
 
-        val totalNumberOfGroupedEvents = processor.allFoundEvents().size + processor.notFoundEvents.size
+        val totalNumberOfGroupedEvents = processor.allFoundEvents.size + processor.notFoundEvents.size
         totalNumberOfGroupedEvents `should be equal to` doneEventsToProcess.size
     }
 
@@ -75,8 +75,7 @@ internal class DoneBatchProcessorTest {
         val processor = DoneBatchProcessor(existingEntitiesInDatabase)
         processor.process(doneEventsToProcess)
 
-        processor.allFoundEvents() `should contain all` doneEventsToProcess
-        processor.totalNumberOfFoundEvents() `should be` doneEventsToProcess.size
+        processor.allFoundEvents `should contain all` doneEventsToProcess
     }
 
 }

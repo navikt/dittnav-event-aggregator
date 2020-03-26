@@ -12,6 +12,7 @@ class DoneBatchProcessor(private val existingEntitiesInDatabase: List<Brukernoti
     val foundBeskjed = mutableListOf<Done>()
     val foundOppgave = mutableListOf<Done>()
     val foundInnboks = mutableListOf<Done>()
+    val allFoundEvents = mutableListOf<Done>()
     val notFoundEvents = mutableListOf<Done>()
 
     fun process(batchOfEntities: List<Done>) {
@@ -31,6 +32,7 @@ class DoneBatchProcessor(private val existingEntitiesInDatabase: List<Brukernoti
     }
 
     private fun groupEventsByType(matchingEntityInTheCache: Brukernotifikasjon, matchedDoneEntity: Done) {
+        allFoundEvents.add(matchedDoneEntity)
         when (matchingEntityInTheCache.type) {
             EventType.OPPGAVE -> {
                 foundOppgave.add(matchedDoneEntity)
@@ -45,14 +47,6 @@ class DoneBatchProcessor(private val existingEntitiesInDatabase: List<Brukernoti
                 log.warn("Fant ukjent eventtype ved behandling av done-events: $matchingEntityInTheCache")
             }
         }
-    }
-
-    fun allFoundEvents(): List<Done> {
-        return foundBeskjed + foundInnboks + foundOppgave
-    }
-
-    fun totalNumberOfFoundEvents(): Int {
-        return foundBeskjed.size + foundInnboks.size + foundOppgave.size
     }
 
     fun isMoreEventsToProcess(): Boolean {
