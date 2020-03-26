@@ -6,6 +6,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.time.delay
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
+import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
@@ -48,10 +49,13 @@ class CachedDoneEventConsumer(
             }
 
         } catch (rde: RetriableDatabaseException) {
-            log.warn("Behandling av done-eventer fra ventatabellen feilet. Klarte ikke å skrive til databasen, prøver igjen senrere.", rde)
+            log.warn("Behandling av done-eventer fra ventetabellen feilet. Klarte ikke å skrive til databasen, prøver igjen senere. Context: ${rde.context}", rde)
+
+        } catch (ure: UnretriableDatabaseException) {
+            log.warn("Behandling av done-eventer fra ventetabellen feilet. Klarte ikke å skrive til databasen, prøver igjen senere. Context: ${ure.context}", ure)
 
         } catch (e: Exception) {
-            log.error("Behandling av done-eventer fra ventatabellen feilet. Noe uventet feilet, forsøker igjen senere", e)
+            log.error("Uventet feil ved behandling av done-eventer fra ventetabellen, forsøker igjen senere", e)
         }
     }
 

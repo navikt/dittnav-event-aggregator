@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
+import org.postgresql.util.PSQLException
 import java.sql.Connection
 import java.sql.SQLException
 import java.sql.SQLRecoverableException
@@ -33,8 +34,6 @@ interface Database {
     }
 
 
-
-
     suspend fun queryWithExceptionTranslation(operationToExecute: Connection.() -> Unit) {
         translateExternalExceptionsToInternalOnes {
             dbQuery {
@@ -56,9 +55,17 @@ inline fun translateExternalExceptionsToInternalOnes(databaseActions: () -> Unit
         val message = "Skriving til databasen feilet grunnet en periodisk feil."
         throw RetriableDatabaseException(message, re)
 
+    } catch (pe: PSQLException) {
+        val message = "Det skjedde en SQL relatert feil ved skriving til databasen."
+        val ure = UnretriableDatabaseException(message, pe)
+        pe.sqlState?.map { sqlState -> ure.addContext("sqlState", sqlState) }
+        throw ure
+
     } catch (se: SQLException) {
         val message = "Det skjedde en SQL relatert feil ved skriving til databasen."
-        throw UnretriableDatabaseException(message, se)
+        val ure = UnretriableDatabaseException(message, se)
+        se.sqlState?.map { sqlState -> ure.addContext("sqlState", sqlState) }
+        throw ure
 
     } catch (e: Exception) {
         val message = "Det skjedde en ukjent feil ved skriving til databasen."
