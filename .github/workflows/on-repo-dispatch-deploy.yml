@@ -22,14 +22,14 @@ jobs:
         run: |
           echo "Henter ut alle branch-er"
           git fetch --prune origin +refs/heads/*:refs/remotes/origin/*
-          git checkout $VERSION
+          SHA=$(echo $VERSION | cut -c16-23)
+          git checkout $SHA
 
-      - name: Genererer tagger og imagenavn, tilgjengeliggjør dette for resten av stegene
+      - name: Bygger opp komplett image-navn, tilgjengeliggjør dette for resten av stegene
         run: |
           APP_NAME="${GITHUB_REPOSITORY//navikt\//}"
           IMAGE_BASE="docker.pkg.github.com/$GITHUB_REPOSITORY/$APP_NAME"
-          TAG="$(git log -1 --pretty='%ad' --date=format:'%Y%m%d%H%M%S')-$(git log -1 --pretty='%h')"
-          echo "::set-env name=IMAGE::$IMAGE_BASE:$TAG"
+          echo "::set-env name=IMAGE::$IMAGE_BASE:$VERSION"
 
       - name: 'Deploy-er til ${{ env.NAMESPACE }} i ${{ env.CLUSTER }}'
         uses: 'nais/deploy/actions/deploy@v1'
