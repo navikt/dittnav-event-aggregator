@@ -98,7 +98,7 @@ class DoneRepository(private val database: Database) {
                 deleteDoneEvent(doneEvent)
             }
         }
-        log.info("Har fjernet ${doneEventsToDelete.size} done-evneter fra ventetabellen.")
+        log.info("Har fjernet ${doneEventsToDelete.size} done-eventer fra ventetabellen.")
     }
 
 }
