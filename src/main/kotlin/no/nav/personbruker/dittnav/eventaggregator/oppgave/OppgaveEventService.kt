@@ -23,27 +23,30 @@ class OppgaveEventService(
     override suspend fun processEvents(events: ConsumerRecords<Nokkel, Oppgave>) {
         val successfullyTransformedEvents = mutableListOf<no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave>()
         val problematicEvents = mutableListOf<ConsumerRecord<Nokkel, Oppgave>>()
-        events.forEach { event ->
-            try {
-                metricsProbe.reportEventSeen(OPPGAVE, event.systembruker)
-                val internalEvent = OppgaveTransformer.toInternal(event.getNonNullKey(), event.value())
-                successfullyTransformedEvents.add(internalEvent)
-                metricsProbe.reportEventProcessed(OPPGAVE, event.systembruker)
 
-            } catch (e: NokkelNullException) {
-                metricsProbe.reportEventFailed(OPPGAVE, event.systembruker)
-                log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", e)
+        metricsProbe.runWithMetrics(eventType = OPPGAVE) {
+            events.forEach { event ->
+                try {
+                    val internalEvent = OppgaveTransformer.toInternal(event.getNonNullKey(), event.value())
+                    successfullyTransformedEvents.add(internalEvent)
+                    countSuccessfulEventForProducer(event.systembruker)
 
-            } catch (e: FieldNullException) {
-                metricsProbe.reportEventFailed(OPPGAVE, event.systembruker)
-                log.warn("Obligatorisk felt var tomt eller null. EventId: ${event.getNonNullKey().getEventId()}", e)
-            } catch (e: Exception) {
-                metricsProbe.reportEventFailed(OPPGAVE, event.systembruker)
-                problematicEvents.add(event)
-                log.warn("Transformasjon av oppgave-event fra Kafka feilet.", e)
+                } catch (e: NokkelNullException) {
+                    countFailedEventForProducer(event.systembruker)
+                    log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", e)
+                } catch (e: FieldNullException) {
+                    metricsProbe.reportEventFailed(OPPGAVE, event.systembruker)
+                    log.warn("Obligatorisk felt var tomt eller null. EventId: ${event.getNonNullKey().getEventId()}", e)
+                } catch (e: Exception) {
+                    countFailedEventForProducer(event.systembruker)
+                    problematicEvents.add(event)
+                    log.warn("Transformasjon av oppgave-event fra Kafka feilet.", e)
+                }
             }
+
+            oppgaveRepository.writeEventsToCache(successfullyTransformedEvents)
         }
-        oppgaveRepository.writeEventsToCache(successfullyTransformedEvents)
+
         kastExceptionHvisMislykkedeTransformasjoner(problematicEvents)
     }
 

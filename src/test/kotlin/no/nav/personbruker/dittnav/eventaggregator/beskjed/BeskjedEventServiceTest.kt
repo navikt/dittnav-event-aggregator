@@ -5,7 +5,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.ConsumerRecordsObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
-import no.nav.personbruker.dittnav.eventaggregator.metrics.PrometheusMetricsCollector
+import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsSession
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should throw`
 import org.amshove.kluent.invoking
@@ -17,6 +17,7 @@ class BeskjedEventServiceTest {
 
     private val beskjedRepository = mockk<BeskjedRepository>(relaxed = true)
     private val eventMetricsProbe = mockk<EventMetricsProbe>(relaxed = true)
+    private val metricsSession = mockk<EventMetricsSession>(relaxed = true)
     private val eventService = BeskjedEventService(beskjedRepository, eventMetricsProbe)
 
     @BeforeEach
@@ -24,6 +25,7 @@ class BeskjedEventServiceTest {
         mockkObject(BeskjedTransformer)
         clearMocks(beskjedRepository)
         clearMocks(eventMetricsProbe)
+        clearMocks(metricsSession)
     }
 
     @AfterAll
@@ -37,6 +39,12 @@ class BeskjedEventServiceTest {
 
         val capturedListOfEntities = slot<List<Beskjed>>()
         coEvery { beskjedRepository.writeEventsToCache(capture(capturedListOfEntities)) } returns Unit
+
+        val slot = slot<suspend EventMetricsSession.() -> Unit>()
+
+        coEvery { eventMetricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
+            slot.captured.invoke(metricsSession)
+        }
 
         runBlocking {
             eventService.processEvents(records)
@@ -65,6 +73,12 @@ class BeskjedEventServiceTest {
         val retriableExp = UntransformableRecordException("Simulert feil i en test")
         every { BeskjedTransformer.toInternal(any(), any()) } throws retriableExp andThenMany transformedRecords
 
+        val slot = slot<suspend EventMetricsSession.() -> Unit>()
+
+        coEvery { eventMetricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
+            slot.captured.invoke(metricsSession)
+        }
+
         invoking {
             runBlocking {
                 eventService.processEvents(records)
@@ -73,7 +87,7 @@ class BeskjedEventServiceTest {
 
         coVerify(exactly = totalNumberOfRecords) { BeskjedTransformer.toInternal(any(), any()) }
         coVerify(exactly = 1) { beskjedRepository.writeEventsToCache(allAny()) }
-        coVerify(exactly = numberOfFailedTransformations) { eventMetricsProbe.reportEventFailed(any(), any()) }
+        coVerify(exactly = numberOfFailedTransformations) { metricsSession.countFailedEventForProducer(any()) }
         capturedListOfEntities.captured.size `should be` numberOfSuccessfulTransformations
 
         confirmVerified(BeskjedTransformer)
@@ -81,19 +95,21 @@ class BeskjedEventServiceTest {
     }
 
     @Test
-    fun shouldRegisterMetricsForEveryEvent() {
+    fun shouldReportEverySuccessfulEvent() {
         val numberOfRecords = 5
 
         val records = ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(numberOfRecords, "beskjed")
+        val slot = slot<suspend EventMetricsSession.() -> Unit>()
 
-        mockkObject(PrometheusMetricsCollector)
+        coEvery { eventMetricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
+            slot.captured.invoke(metricsSession)
+        }
 
         runBlocking {
             eventService.processEvents(records)
         }
 
-        coVerify (exactly = numberOfRecords) { eventMetricsProbe.reportEventSeen(any(), any()) }
-        coVerify (exactly = numberOfRecords) { eventMetricsProbe.reportEventProcessed(any(), any()) }
+        coVerify (exactly = numberOfRecords) { metricsSession.countSuccessfulEventForProducer(any()) }
     }
 
     private fun createANumberOfTransformedRecords(numberOfRecords: Int): MutableList<Beskjed> {

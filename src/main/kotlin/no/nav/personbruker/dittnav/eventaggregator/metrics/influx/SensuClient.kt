@@ -23,12 +23,12 @@ class SensuClient (val hostname: String, val port: Int) {
                     writer.flush()
                 }
             } catch (ioe: IOException) {
-                log.warn("Kunne ikke sende metrics event til [$hostname:$port]. Payload: [${event.toJson()}].", ioe)
+                log.warn("Kunne ikke sende metrics event til [$hostname:$port]. Payload: [${event.toCompactJson()}].", ioe)
             } finally {
                 socket.close()
             }
         } catch (ioe: IOException) {
-            log.warn("Kunne ikke sende metrics event til [$hostname:$port]. Payload: [${event.toJson()}].", ioe)
+            log.warn("Kunne ikke sende metrics event til [$hostname:$port]. Payload: [${event.toCompactJson()}].", ioe)
         } catch (uhe: UnknownHostException) {
             log.warn("Kunne ikke koble til sensu host [$hostname:$port]")
         } catch (e: Exception) {

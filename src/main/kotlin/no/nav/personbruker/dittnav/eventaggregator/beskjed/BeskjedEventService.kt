@@ -24,27 +24,29 @@ class BeskjedEventService(
     override suspend fun processEvents(events: ConsumerRecords<Nokkel, Beskjed>) {
         val successfullyTransformedEvents = mutableListOf<no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed>()
         val problematicEvents = mutableListOf<ConsumerRecord<Nokkel, Beskjed>>()
-        events.forEach { event ->
-            try {
-                metricsProbe.reportEventSeen(BESKJED, event.systembruker)
-                val internalEvent = BeskjedTransformer.toInternal(event.getNonNullKey(), event.value())
-                successfullyTransformedEvents.add(internalEvent)
-                metricsProbe.reportEventProcessed(BESKJED, event.systembruker)
 
-            } catch (e: NokkelNullException) {
-                metricsProbe.reportEventFailed(BESKJED, event.systembruker)
-                log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", e)
-            } catch (e: FieldNullException) {
-                metricsProbe.reportEventFailed(BESKJED, event.systembruker)
-                log.warn("Obligatorisk felt var tomt eller null. EventId: ${event.getNonNullKey().getEventId()}", e)
-            } catch (e: Exception) {
-                metricsProbe.reportEventFailed(BESKJED, event.systembruker)
-                problematicEvents.add(event)
-                log.warn("Transformasjon av beskjed-event fra Kafka feilet, fullfører batch-en før pollig stoppes.", e)
+        metricsProbe.runWithMetrics(eventType =  BESKJED) {
+            events.forEach { event ->
+                try {
+                    val internalEvent = BeskjedTransformer.toInternal(event.getNonNullKey(), event.value())
+                    successfullyTransformedEvents.add(internalEvent)
+                    countSuccessfulEventForProducer(event.systembruker)
+
+                } catch (e: NokkelNullException) {
+                    countFailedEventForProducer(event.systembruker)
+                    log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", e)
+                } catch (e: FieldNullException) {
+                    countFailedEventForProducer(event.systembruker)
+                    log.warn("Obligatorisk felt var tomt eller null. EventId: ${event.getNonNullKey().getEventId()}", e)
+                } catch (e: Exception) {
+                    countFailedEventForProducer(event.systembruker)
+                    problematicEvents.add(event)
+                    log.warn("Transformasjon av beskjed-event fra Kafka feilet, fullfører batch-en før pollig stoppes.", e)
+                }
             }
-        }
 
-        beskjedRepository.writeEventsToCache(successfullyTransformedEvents)
+            beskjedRepository.writeEventsToCache(successfullyTransformedEvents)
+        }
 
         kastExceptionHvisMislykkedeTransformasjoner(problematicEvents)
     }

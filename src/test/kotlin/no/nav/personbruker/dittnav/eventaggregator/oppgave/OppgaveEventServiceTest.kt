@@ -5,6 +5,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.ConsumerRecordsObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsSession
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should throw`
 import org.amshove.kluent.invoking
@@ -16,6 +17,7 @@ class OppgaveEventServiceTest {
 
     private val repository = mockk<OppgaveRepository>(relaxed = true)
     private val metricsProbe = mockk<EventMetricsProbe>(relaxed = true)
+    private val metricsSession = mockk<EventMetricsSession>(relaxed = true)
     private val oppgaveService = OppgaveEventService(repository, metricsProbe)
 
     @BeforeEach
@@ -23,6 +25,7 @@ class OppgaveEventServiceTest {
         mockkObject(OppgaveTransformer)
         clearMocks(repository)
         clearMocks(metricsProbe)
+        clearMocks(metricsSession)
     }
 
     @AfterAll
@@ -37,6 +40,12 @@ class OppgaveEventServiceTest {
         val capturedStores = slot<List<Oppgave>>()
 
         coEvery { repository.writeEventsToCache(capture(capturedStores))} returns Unit
+
+        val slot = slot<suspend EventMetricsSession.() -> Unit>()
+
+        coEvery { metricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
+            slot.captured.invoke(metricsSession)
+        }
 
         runBlocking {
             oppgaveService.processEvents(records)
@@ -67,6 +76,12 @@ class OppgaveEventServiceTest {
 
         every { OppgaveTransformer.toInternal(any(), any()) } throws mockedException andThenMany transformedRecords
 
+        val slot = slot<suspend EventMetricsSession.() -> Unit>()
+
+        coEvery { metricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
+            slot.captured.invoke(metricsSession)
+        }
+
         invoking {
             runBlocking {
                 oppgaveService.processEvents(records)
@@ -75,7 +90,7 @@ class OppgaveEventServiceTest {
 
         verify(exactly = numberOfRecords) { OppgaveTransformer.toInternal(any(), any()) }
         coVerify(exactly = 1) { repository.writeEventsToCache(allAny()) }
-        coVerify(exactly = numberOfFailedTransformations) { metricsProbe.reportEventFailed(any(), any()) }
+        coVerify(exactly = numberOfFailedTransformations) { metricsSession.countFailedEventForProducer(any()) }
         capturedStores.captured.size `should be` numberOfSuccessfulTransformations
 
         confirmVerified(repository)
@@ -88,12 +103,17 @@ class OppgaveEventServiceTest {
 
         val records = ConsumerRecordsObjectMother.giveMeANumberOfOppgaveRecords(numberOfRecords, "oppgave")
 
+        val slot = slot<suspend EventMetricsSession.() -> Unit>()
+
+        coEvery { metricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
+            slot.captured.invoke(metricsSession)
+        }
+
         runBlocking {
             oppgaveService.processEvents(records)
         }
 
-        coVerify (exactly = numberOfRecords) { metricsProbe.reportEventSeen(any(), any()) }
-        coVerify (exactly = numberOfRecords) { metricsProbe.reportEventProcessed(any(), any()) }
+        coVerify (exactly = numberOfRecords) { metricsSession.countSuccessfulEventForProducer(any()) }
     }
 
     private fun createANumberOfTransformedOppgaveRecords(number: Int): List<Oppgave> {
