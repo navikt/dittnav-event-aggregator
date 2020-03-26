@@ -17,7 +17,7 @@ spec:
   prometheus:
     path: /metrics
   replicas:
-    min: 2
+    min: 4
     max: 4
     cpuThresholdPercentage: 75
   ingresses:
