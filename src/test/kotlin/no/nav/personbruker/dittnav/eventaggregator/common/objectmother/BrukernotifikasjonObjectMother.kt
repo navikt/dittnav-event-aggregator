@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.common.exceptions.objectmother
+package no.nav.personbruker.dittnav.eventaggregator.common.objectmother
 
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon

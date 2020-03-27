@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.common.exceptions.kafka
+package no.nav.personbruker.dittnav.eventaggregator.common.kafka
 
 import io.mockk.*
 import kotlinx.coroutines.delay
@@ -9,8 +9,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorSer
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.objectmother.ConsumerRecordsObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
+import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.ConsumerRecordsObjectMother
 import org.amshove.kluent.`should be equal to`
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.errors.DisconnectException
@@ -129,7 +128,7 @@ class ConsumerTest {
     }
 
     @Test
-    fun `Skal alltid commit-e mot kafka hvis event-er har blitt funnet`() {
+    fun `Skal ikke commit-e mot kafka hvis det IKKE har blitt funnet noen event-er`() {
         val topic = "dummyTopicNoRecordsFound"
         every { kafkaConsumer.poll(any<Duration>()) } returns ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(0, topic)
 

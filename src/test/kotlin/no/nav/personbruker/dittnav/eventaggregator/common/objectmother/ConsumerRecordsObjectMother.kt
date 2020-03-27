@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.common.exceptions.objectmother
+package no.nav.personbruker.dittnav.eventaggregator.common.objectmother
 
 import no.nav.brukernotifikasjon.schemas.*
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMother
