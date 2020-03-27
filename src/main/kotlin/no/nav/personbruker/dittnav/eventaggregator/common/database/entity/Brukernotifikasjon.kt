@@ -11,9 +11,11 @@ data class Brukernotifikasjon(
 ) {
 
     fun isRepresentsSameEventAs(doneEvent: Done): Boolean {
-        return (eventId == doneEvent.eventId &&
-                produsent == doneEvent.produsent &&
-                fodselsnummer == doneEvent.fodselsnummer)
+        if (eventId != doneEvent.eventId) return false
+        if (fodselsnummer != doneEvent.fodselsnummer) return false
+        if (produsent != doneEvent.produsent) return false
+
+        return true
     }
 
 }
