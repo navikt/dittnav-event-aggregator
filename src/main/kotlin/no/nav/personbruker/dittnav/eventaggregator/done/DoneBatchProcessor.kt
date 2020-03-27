@@ -9,11 +9,12 @@ class DoneBatchProcessor(private val existingEntitiesInDatabase: List<Brukernoti
 
     private val log: Logger = LoggerFactory.getLogger(DoneBatchProcessor::class.java)
 
-    val foundBeskjed = mutableListOf<Done>()
-    val foundOppgave = mutableListOf<Done>()
-    val foundInnboks = mutableListOf<Done>()
-    val allFoundEvents = mutableListOf<Done>()
-    val notFoundEvents = mutableListOf<Done>()
+    private val maxPossibleRequiredCapacity = existingEntitiesInDatabase.size
+    val foundBeskjed = ArrayList<Done>(maxPossibleRequiredCapacity)
+    val foundOppgave = ArrayList<Done>(maxPossibleRequiredCapacity)
+    val foundInnboks = ArrayList<Done>(maxPossibleRequiredCapacity)
+    val allFoundEvents = ArrayList<Done>(maxPossibleRequiredCapacity)
+    val notFoundEvents = ArrayList<Done>(maxPossibleRequiredCapacity)
 
     fun process(batchOfEntities: List<Done>) {
         batchOfEntities.forEach { entityToLookFor ->
