@@ -41,7 +41,6 @@ class CachedDoneEventConsumer(
     suspend fun processDoneEvents() {
         try {
             val allDone = doneRepository.fetchAllDoneEvents()
-            log.info("Skal behandle ${allDone.size} done-eventer som er plassert i ventetabellen.")
 
             val doneEventsGroupedByActiveEvents = processActiveEventsOnly(allDone)
             if (doneEventsGroupedByActiveEvents.isMoreEventsToProcess()) {
@@ -64,8 +63,6 @@ class CachedDoneEventConsumer(
         groupedDoneEvents.process(allDone)
         updateTheDatabase(groupedDoneEvents)
 
-        val totalNumberOfEvents = groupedDoneEvents.allFoundEvents.size
-        log.info("Fikk $totalNumberOfEvents treff tilsamme for done-eventer, fjerner nå disse fra ventetabellen.")
         return groupedDoneEvents
     }
 
@@ -85,8 +82,6 @@ class CachedDoneEventConsumer(
         val groupedDoneEvents = fetchInactiveEvents()
         groupedDoneEvents.process(remainingEventsToLookFor)
 
-        val totalNumberOfEvents = groupedDoneEvents.allFoundEvents.size
-        log.info("Fikk $totalNumberOfEvents treff tilsamme for done-eventer, fjerner nå disse fra ventetabellen.")
         return groupedDoneEvents
     }
 
