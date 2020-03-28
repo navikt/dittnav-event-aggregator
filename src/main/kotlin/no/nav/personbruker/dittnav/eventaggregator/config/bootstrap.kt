@@ -23,7 +23,7 @@ fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()
 
 private fun Application.configureStartupHook(appContext: ApplicationContext) {
     environment.monitor.subscribe(ApplicationStarted) {
-//        Flyway.runFlywayMigrations(appContext.environment)
+        Flyway.runFlywayMigrations(appContext.environment)
         KafkaConsumerSetup.startAllKafkaPollers(appContext)
         appContext.cachedDoneEventConsumer.poll()
     }
