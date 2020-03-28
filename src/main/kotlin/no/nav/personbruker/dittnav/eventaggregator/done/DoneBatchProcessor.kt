@@ -26,10 +26,8 @@ class DoneBatchProcessor(private val existingEntitiesInDatabase: List<Brukernoti
 
             } else {
                 notFoundEvents.add(entityToLookFor)
-                log.warn("Fant ikke matchende event for done-event med eventId $entityToLookFor")
             }
         }
-        log.info(toString())
     }
 
     private fun groupEventsByType(matchingEntityInTheCache: Brukernotifikasjon, matchedDoneEntity: Done) {
