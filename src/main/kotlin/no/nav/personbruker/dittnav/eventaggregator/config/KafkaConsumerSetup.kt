@@ -23,7 +23,7 @@ object KafkaConsumerSetup {
         }
     }
 
-    fun stopAllKafkaConsumers(appContext: ApplicationContext) {
+    suspend fun stopAllKafkaConsumers(appContext: ApplicationContext) {
         log.info("Begynner å stoppe kafka-pollerne...")
         appContext.beskjedConsumer.stopPolling()
         appContext.oppgaveConsumer.stopPolling()

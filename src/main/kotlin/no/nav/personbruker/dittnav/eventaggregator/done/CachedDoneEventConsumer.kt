@@ -1,9 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.coroutines.time.delay
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
@@ -23,9 +20,9 @@ class CachedDoneEventConsumer(
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default + job
 
-    fun cancel() {
+    suspend fun stopPolling() {
         log.info("Stopper db-consumer")
-        job.cancel()
+        job.cancelAndJoin()
     }
 
     fun poll() {
