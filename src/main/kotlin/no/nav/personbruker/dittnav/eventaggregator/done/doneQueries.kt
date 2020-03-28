@@ -8,7 +8,7 @@ import java.sql.Statement
 import java.sql.Types
 
 fun Connection.getAllDoneEvent(): List<Done> =
-        prepareStatement("""SELECT * FROM ytest_done""")
+        prepareStatement("""SELECT * FROM done""")
                 .use {
                     it.executeQuery().list {
                         toDoneEvent()
@@ -16,7 +16,7 @@ fun Connection.getAllDoneEvent(): List<Done> =
                 }
 
 fun Connection.createDoneEvent(done: Done): Int =
-        prepareStatement("""INSERT INTO ytest_done(produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId)
+        prepareStatement("""INSERT INTO done(produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId)
             VALUES (?, ?, ?, ?, ?)""", Statement.RETURN_GENERATED_KEYS).use {
             it.setString(1, done.produsent)
             it.setObject(2, done.eventTidspunkt, Types.TIMESTAMP)
@@ -29,7 +29,7 @@ fun Connection.createDoneEvent(done: Done): Int =
         }
 
 fun Connection.deleteDoneEvent(doneEventToDelete: Done): Boolean =
-        prepareStatement("""DELETE FROM ytest_done WHERE eventId = ? AND produsent = ? AND fodselsnummer = ?""")
+        prepareStatement("""DELETE FROM done WHERE eventId = ? AND produsent = ? AND fodselsnummer = ?""")
                 .use {
                     it.setString(1, doneEventToDelete.eventId)
                     it.setString(2, doneEventToDelete.produsent)

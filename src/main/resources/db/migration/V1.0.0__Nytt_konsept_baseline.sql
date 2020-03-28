@@ -1,5 +1,5 @@
 
-CREATE TABLE IF NOT EXISTS ytest_beskjed (
+CREATE TABLE IF NOT EXISTS beskjed (
     id serial primary key,
     produsent character varying(100),
     eventtidspunkt timestamp without time zone,
@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS ytest_beskjed (
     uid character varying(100)
 );
 
-CREATE TABLE IF NOT EXISTS ytest_oppgave (
+CREATE TABLE IF NOT EXISTS oppgave (
     id serial primary key,
     produsent character varying(100),
     eventtidspunkt timestamp without time zone,
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS ytest_oppgave (
     aktiv boolean
 );
 
-CREATE TABLE IF NOT EXISTS ytest_innboks (
+CREATE TABLE IF NOT EXISTS innboks (
     id serial primary key,
     produsent character varying(100),
     eventtidspunkt timestamp without time zone,
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS ytest_innboks (
     aktiv boolean
 );
 
-CREATE TABLE IF NOT EXISTS ytest_done (
+CREATE TABLE IF NOT EXISTS done (
     id serial primary key,
     produsent character varying(100),
     eventtidspunkt timestamp without time zone,
@@ -52,16 +52,16 @@ CREATE TABLE IF NOT EXISTS ytest_done (
     grupperingsid character varying(100)
 );
 
-ALTER TABLE YTEST_BESKJED DROP CONSTRAINT IF EXISTS ytest_beskjedEventIdProdusent;
-ALTER TABLE YTEST_BESKJED ADD CONSTRAINT ytest_beskjedEventIdProdusent UNIQUE (eventid, produsent);
-ALTER TABLE YTEST_OPPGAVE DROP CONSTRAINT IF EXISTS oppgaveEventIdProdusent;
-ALTER TABLE YTEST_OPPGAVE ADD CONSTRAINT ytest_oppgaveEventIdProdusent UNIQUE (eventid, produsent);
-ALTER TABLE YTEST_INNBOKS DROP CONSTRAINT IF EXISTS ytest_innboksEventIdProdusent;
-ALTER TABLE YTEST_INNBOKS ADD CONSTRAINT ytest_innboksEventIdProdusent UNIQUE (eventid, produsent);
+ALTER TABLE BESKJED DROP CONSTRAINT IF EXISTS beskjedEventIdProdusent;
+ALTER TABLE BESKJED ADD CONSTRAINT beskjedEventIdProdusent UNIQUE (eventid, produsent);
+ALTER TABLE OPPGAVE DROP CONSTRAINT IF EXISTS oppgaveEventIdProdusent;
+ALTER TABLE OPPGAVE ADD CONSTRAINT oppgaveEventIdProdusent UNIQUE (eventid, produsent);
+ALTER TABLE INNBOKS DROP CONSTRAINT IF EXISTS innboksEventIdProdusent;
+ALTER TABLE INNBOKS ADD CONSTRAINT innboksEventIdProdusent UNIQUE (eventid, produsent);
 
-CREATE OR REPLACE VIEW ytest_brukernotifikasjon_view AS
-SELECT eventId, produsent, 'beskjed' as type, fodselsnummer FROM YTEST_BESKJED
+CREATE OR REPLACE VIEW brukernotifikasjon_view AS
+SELECT eventId, produsent, 'beskjed' as type, fodselsnummer FROM BESKJED
 UNION
-SELECT eventId, produsent, 'oppgave' as type, fodselsnummer FROM YTEST_OPPGAVE
+SELECT eventId, produsent, 'oppgave' as type, fodselsnummer FROM OPPGAVE
 UNION
-SELECT eventId, produsent, 'innboks' as type, fodselsnummer FROM YTEST_INNBOKS;
+SELECT eventId, produsent, 'innboks' as type, fodselsnummer FROM INNBOKS;

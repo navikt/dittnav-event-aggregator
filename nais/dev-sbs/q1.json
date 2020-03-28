@@ -3,7 +3,7 @@
   "cluster": "preprod",
   "environment": "dev",
   "ingresses": [
-    "https://dittnav-event-aggregator-ytest-q1.dev-sbs.nais.io",
-    "https://dittnav-event-aggregator-ytest-q1.nais.oera-q.local"
+    "https://dittnav-event-aggregator-q1.dev-sbs.nais.io",
+    "https://dittnav-event-aggregator-q1.nais.oera-q.local"
   ]
 }

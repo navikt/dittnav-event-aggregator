@@ -11,7 +11,7 @@ import java.sql.Types
 import java.time.LocalDateTime
 
 fun Connection.getAllBeskjed(): List<Beskjed> =
-        prepareStatement("""SELECT * FROM ytest_beskjed""")
+        prepareStatement("""SELECT * FROM beskjed""")
                 .use {
                     it.executeQuery().list {
                         toBeskjed()
@@ -19,7 +19,7 @@ fun Connection.getAllBeskjed(): List<Beskjed> =
                 }
 
 fun Connection.createBeskjed(beskjed: Beskjed): PersistActionResult =
-        executePersistQuery("""INSERT INTO ytest_beskjed (uid, produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv)
+        executePersistQuery("""INSERT INTO beskjed (uid, produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""") {
             setString(1, beskjed.uid)
             setString(2, beskjed.produsent)
@@ -36,7 +36,7 @@ fun Connection.createBeskjed(beskjed: Beskjed): PersistActionResult =
         }
 
 fun Connection.setBeskjedAktivFlag(eventId: String, produsent: String, fodselsnummer: String, aktiv: Boolean): Int =
-        prepareStatement("""UPDATE ytest_beskjed SET aktiv = ? WHERE eventId = ? AND produsent = ? AND fodselsnummer = ?""").use {
+        prepareStatement("""UPDATE beskjed SET aktiv = ? WHERE eventId = ? AND produsent = ? AND fodselsnummer = ?""").use {
             it.setBoolean(1, aktiv)
             it.setString(2, eventId)
             it.setString(3, produsent)
@@ -45,7 +45,7 @@ fun Connection.setBeskjedAktivFlag(eventId: String, produsent: String, fodselsnu
         }
 
 fun Connection.getAllBeskjedByAktiv(aktiv: Boolean): List<Beskjed> =
-        prepareStatement("""SELECT * FROM ytest_beskjed WHERE aktiv = ?""")
+        prepareStatement("""SELECT * FROM beskjed WHERE aktiv = ?""")
                 .use {
                     it.setBoolean(1, aktiv)
                     it.executeQuery().list {
@@ -54,7 +54,7 @@ fun Connection.getAllBeskjedByAktiv(aktiv: Boolean): List<Beskjed> =
                 }
 
 fun Connection.getBeskjedByFodselsnummer(fodselsnummer: String): List<Beskjed> =
-        prepareStatement("""SELECT * FROM ytest_beskjed WHERE fodselsnummer = ?""")
+        prepareStatement("""SELECT * FROM beskjed WHERE fodselsnummer = ?""")
                 .use {
                     it.setString(1, fodselsnummer)
                     it.executeQuery().list {
@@ -63,7 +63,7 @@ fun Connection.getBeskjedByFodselsnummer(fodselsnummer: String): List<Beskjed> =
                 }
 
 fun Connection.getBeskjedById(id: Int): Beskjed =
-        prepareStatement("""SELECT * FROM ytest_beskjed WHERE id = ?""")
+        prepareStatement("""SELECT * FROM beskjed WHERE id = ?""")
                 .use {
                     it.setInt(1, id)
                     it.executeQuery().singleResult() {
@@ -72,7 +72,7 @@ fun Connection.getBeskjedById(id: Int): Beskjed =
                 }
 
 fun Connection.getBeskjedByEventId(eventId: String): Beskjed =
-        prepareStatement("""SELECT * FROM ytest_beskjed WHERE eventId = ?""")
+        prepareStatement("""SELECT * FROM beskjed WHERE eventId = ?""")
                 .use {
                     it.setString(1, eventId)
                     it.executeQuery().singleResult() {

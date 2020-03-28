@@ -10,7 +10,7 @@ import java.sql.ResultSet
 import java.sql.Types
 
 fun Connection.getAllInnboks(): List<Innboks> =
-        prepareStatement("""SELECT * FROM ytest_innboks""")
+        prepareStatement("""SELECT * FROM innboks""")
                 .use {
                     it.executeQuery().list {
                         toInnboks()
@@ -18,7 +18,7 @@ fun Connection.getAllInnboks(): List<Innboks> =
                 }
 
 fun Connection.getInnboksById(entityId: Int): Innboks =
-        prepareStatement("""SELECT * FROM ytest_innboks WHERE id = ?""")
+        prepareStatement("""SELECT * FROM innboks WHERE id = ?""")
                 .use {
                     it.setInt(1, entityId)
                     it.executeQuery().singleResult {
@@ -27,7 +27,7 @@ fun Connection.getInnboksById(entityId: Int): Innboks =
                 }
 
 fun Connection.createInnboks(innboks: Innboks): PersistActionResult =
-        executePersistQuery("""INSERT INTO ytest_innboks(produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv)
+        executePersistQuery("""INSERT INTO innboks(produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv)
             VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""") {
             setString(1, innboks.produsent)
             setObject(2, innboks.eventTidspunkt, Types.TIMESTAMP)
@@ -42,7 +42,7 @@ fun Connection.createInnboks(innboks: Innboks): PersistActionResult =
         }
 
 fun Connection.setInnboksAktivFlag(eventId: String, produsent: String, fodselsnummer: String, aktiv: Boolean): Int =
-        prepareStatement("""UPDATE ytest_innboks SET aktiv = ? WHERE eventId = ? AND produsent = ? AND fodselsnummer = ?""")
+        prepareStatement("""UPDATE innboks SET aktiv = ? WHERE eventId = ? AND produsent = ? AND fodselsnummer = ?""")
                 .use {
                     it.setBoolean(1, aktiv)
                     it.setString(2, eventId)
@@ -52,7 +52,7 @@ fun Connection.setInnboksAktivFlag(eventId: String, produsent: String, fodselsnu
                 }
 
 fun Connection.getAllInnboksByAktiv(aktiv: Boolean): List<Innboks> =
-        prepareStatement("""SELECT * FROM ytest_innboks WHERE aktiv = ?""")
+        prepareStatement("""SELECT * FROM innboks WHERE aktiv = ?""")
                 .use {
                     it.setBoolean(1, aktiv)
                     it.executeQuery().list {
@@ -61,7 +61,7 @@ fun Connection.getAllInnboksByAktiv(aktiv: Boolean): List<Innboks> =
                 }
 
 fun Connection.getInnboksByFodselsnummer(fodselsnummer: String): List<Innboks> =
-        prepareStatement("""SELECT * FROM ytest_innboks WHERE fodselsnummer = ?""")
+        prepareStatement("""SELECT * FROM innboks WHERE fodselsnummer = ?""")
                 .use {
                     it.setString(1, fodselsnummer)
                     it.executeQuery().list {
@@ -70,7 +70,7 @@ fun Connection.getInnboksByFodselsnummer(fodselsnummer: String): List<Innboks> =
                 }
 
 fun Connection.getInnboksByEventId(eventId: String): Innboks =
-        prepareStatement("""SELECT * FROM ytest_innboks WHERE eventId = ?""")
+        prepareStatement("""SELECT * FROM innboks WHERE eventId = ?""")
                 .use {
                     it.setString(1, eventId)
                     it.executeQuery().singleResult {

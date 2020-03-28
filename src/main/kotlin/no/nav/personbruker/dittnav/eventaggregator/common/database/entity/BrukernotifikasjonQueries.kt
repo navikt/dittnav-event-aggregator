@@ -6,7 +6,7 @@ import java.sql.Connection
 import java.sql.ResultSet
 
 fun Connection.getBrukernotifikasjonFromViewByAktiv(aktiv: Boolean): List<Brukernotifikasjon> =
-        prepareStatement("""SELECT * FROM ytest_brukernotifikasjon_view where aktiv = ?""")
+        prepareStatement("""SELECT * FROM brukernotifikasjon_view where aktiv = ?""")
                 .use {
                     it.setBoolean(1, aktiv)
                     it.executeQuery().list {
