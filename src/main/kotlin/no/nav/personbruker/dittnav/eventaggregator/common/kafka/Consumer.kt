@@ -6,7 +6,6 @@ import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorSer
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
-import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.errors.RetriableException
 import org.slf4j.Logger
@@ -31,8 +30,8 @@ class Consumer<T>(
         return job.isActive
     }
 
-    fun stopPolling() {
-        job.cancel()
+    suspend fun stopPolling() {
+        job.cancelAndJoin()
     }
 
     fun startPolling() {
@@ -51,13 +50,13 @@ class Consumer<T>(
         try {
             withContext(Dispatchers.IO) {
                 kafkaConsumer.poll(Duration.of(100, ChronoUnit.MILLIS))
-            }.takeIf {
-                records -> records.count() > 0
+            }.takeIf { records ->
+                records.count() > 0
             }?.let { records ->
                 eventBatchProcessorService.processEvents(records)
-                logDebugOutput(records)
                 commitSync()
             }
+
         } catch (rde: RetriableDatabaseException) {
             log.warn("Klarte ikke å skrive til databasen, prøver igjen senrere. Topic: $topic", rde)
 
@@ -73,14 +72,13 @@ class Consumer<T>(
             log.error("Det skjedde en alvorlig feil mot databasen, stopper videre polling. Topic: $topic", ude)
             stopPolling()
 
+        } catch (ce: CancellationException) {
+            log.info("Denne coroutine-en ble stoppet. ${ce.message}", ce)
+
         } catch (e: Exception) {
             log.error("Noe uventet feilet, stopper polling. Topic: $topic", e)
             stopPolling()
         }
-    }
-
-    private fun logDebugOutput(records: ConsumerRecords<Nokkel, T>) {
-        log.info("Fant ${records.count()} eventer funnet på topic-en: $topic.")
     }
 
     private suspend fun commitSync() {

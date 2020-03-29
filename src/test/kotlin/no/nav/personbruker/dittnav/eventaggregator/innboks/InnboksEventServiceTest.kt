@@ -3,7 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.innboks
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.objectmother.ConsumerRecordsObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.ConsumerRecordsObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should throw`
@@ -97,7 +97,7 @@ class InnboksEventServiceTest {
 
     private fun createANumberOfTransformedInnboksRecords(number: Int): List<Innboks> {
         return (1..number).map {
-            InnboksObjectMother.giveMeInnboks(it.toString(), "12345")
+            InnboksObjectMother.giveMeAktivInnboks(it.toString(), "12345")
         }
     }
 

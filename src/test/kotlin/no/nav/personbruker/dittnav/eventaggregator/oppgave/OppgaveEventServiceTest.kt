@@ -3,7 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.oppgave
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.objectmother.ConsumerRecordsObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.ConsumerRecordsObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should throw`
@@ -98,7 +98,7 @@ class OppgaveEventServiceTest {
 
     private fun createANumberOfTransformedOppgaveRecords(number: Int): List<Oppgave> {
         return (1..number).map {
-            OppgaveObjectMother.giveMeOppgave(it.toString(), "12345")
+            OppgaveObjectMother.giveMeAktivOppgave(it.toString(), "12345")
         }
     }
 }

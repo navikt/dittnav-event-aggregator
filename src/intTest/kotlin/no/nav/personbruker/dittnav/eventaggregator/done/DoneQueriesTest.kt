@@ -10,9 +10,9 @@ import org.junit.jupiter.api.Test
 class DoneQueriesTest {
 
     private val database = H2Database()
-    private val done1 = DoneObjectMother.createDone("1")
-    private val done2 = DoneObjectMother.createDone("2")
-    private val done3 = DoneObjectMother.createDone("3")
+    private val done1 = DoneObjectMother.giveMeDone("1")
+    private val done2 = DoneObjectMother.giveMeDone("2")
+    private val done3 = DoneObjectMother.giveMeDone("3")
     private val allEvents = listOf(done1, done2, done3)
 
     init {
@@ -43,7 +43,7 @@ class DoneQueriesTest {
 
     @Test
     fun `skal slette et spesifikt done-event`() {
-        val doneEventToInsertAndThenDelete = DoneObjectMother.createDone("876543", "dummtProdusent", "123")
+        val doneEventToInsertAndThenDelete = DoneObjectMother.giveMeDone("876543", "dummtProdusent", "123")
         runBlocking {
             database.dbQuery { createDoneEvent(doneEventToInsertAndThenDelete) }
             val antallDoneEventerForSletting = database.dbQuery { getAllDoneEvent() }

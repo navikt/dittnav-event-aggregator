@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory
 
 class BeskjedRepository(private val database: Database) {
 
-    val log: Logger = LoggerFactory.getLogger(BeskjedRepository::class.java)
+    private val log: Logger = LoggerFactory.getLogger(BeskjedRepository::class.java)
 
     suspend fun writeEventsToCache(entities: List<Beskjed>) {
         database.queryWithExceptionTranslation {
@@ -23,28 +23,6 @@ class BeskjedRepository(private val database: Database) {
                 }
             }
         }
-    }
-
-    suspend fun fetchAll(): List<Beskjed> {
-        var resultat = emptyList<Beskjed>()
-        database.queryWithExceptionTranslation {
-            resultat = getAllBeskjed()
-        }
-        if (resultat.isEmpty()) {
-            log.warn("Fant ingen beskjed-eventer i databasen")
-        }
-        return resultat
-    }
-
-    suspend fun fetchActive(): List<Beskjed> {
-        var resultat = emptyList<Beskjed>()
-        database.queryWithExceptionTranslation {
-            resultat = getAllBeskjedByAktiv(true)
-        }
-        if (resultat.isEmpty()) {
-            log.warn("Fant ingen aktive beskjed-eventer i databasen")
-        }
-        return resultat
     }
 
 }

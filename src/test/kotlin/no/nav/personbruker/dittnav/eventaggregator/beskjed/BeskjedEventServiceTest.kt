@@ -3,7 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.objectmother.ConsumerRecordsObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.ConsumerRecordsObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.PrometheusMetricsCollector
 import org.amshove.kluent.`should be`
@@ -99,7 +99,7 @@ class BeskjedEventServiceTest {
     private fun createANumberOfTransformedRecords(numberOfRecords: Int): MutableList<Beskjed> {
         val transformedRecords = mutableListOf<Beskjed>()
         for (i in 0 until numberOfRecords) {
-            transformedRecords.add(BeskjedObjectMother.giveMeBeskjed("$i", "{$i}12345"))
+            transformedRecords.add(BeskjedObjectMother.giveMeAktivBeskjed("$i", "{$i}12345"))
         }
         return transformedRecords
     }

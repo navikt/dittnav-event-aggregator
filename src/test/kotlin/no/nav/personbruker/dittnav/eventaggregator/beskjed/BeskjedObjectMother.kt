@@ -6,16 +6,16 @@ import kotlin.random.Random
 
 object BeskjedObjectMother {
 
-    fun giveMeBeskjed(): Beskjed {
-        return giveMeBeskjed("b-1", "123")
+    fun giveMeAktivBeskjed(): Beskjed {
+        return giveMeAktivBeskjed("b-1", "123")
     }
 
-    fun giveMeBeskjed(eventId: String, fodselsnummer: String): Beskjed {
+    fun giveMeAktivBeskjed(eventId: String, fodselsnummer: String): Beskjed {
         val produsent = "DittNAV"
-        return giveMeBeskjed(eventId, fodselsnummer, produsent)
+        return giveMeAktivBeskjed(eventId, fodselsnummer, produsent)
     }
 
-    fun giveMeBeskjed(eventId: String, fodselsnummer: String, produsent: String): Beskjed {
+    fun giveMeAktivBeskjed(eventId: String, fodselsnummer: String, produsent: String): Beskjed {
         return Beskjed(
                 uid = Random.nextInt(1,100).toString(),
                 produsent = produsent,
@@ -23,12 +23,28 @@ object BeskjedObjectMother {
                 synligFremTil = LocalDateTime.now(ZoneId.of("UTC")),
                 fodselsnummer = fodselsnummer,
                 eventId = eventId,
-                grupperingsId = "100$fodselsnummer",
+                grupperingsId = "systemA010",
                 tekst = "Dette er beskjed til brukeren",
-                link = "https://nav.no/systemX/$fodselsnummer",
+                link = "https://nav.no/systemX/$eventId",
                 sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
                 sikkerhetsnivaa = 4,
                 aktiv = true)
+    }
+
+    fun giveMeInaktivBeskjed(): Beskjed {
+        return Beskjed(
+                uid = Random.nextInt(1,100).toString(),
+                produsent = "DittNAV",
+                eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
+                synligFremTil = LocalDateTime.now(ZoneId.of("UTC")),
+                fodselsnummer = "123",
+                eventId = "b-2",
+                grupperingsId = "65432",
+                tekst = "Dette er beskjed til brukeren",
+                link = "https://nav.no/systemX/",
+                sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
+                sikkerhetsnivaa = 4,
+                aktiv = false)
     }
 
 }

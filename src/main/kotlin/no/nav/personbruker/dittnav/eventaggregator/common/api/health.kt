@@ -18,7 +18,7 @@ fun Routing.healthApi(appContext: ApplicationContext) {
     }
 
     get("/isReady") {
-        if (isAllConsumersRunning(appContext) && isDataSourceRunning(appContext)) {
+        if (isAtLeastOneConsumerRunning(appContext) && isDataSourceRunning(appContext)) {
             call.respondText(text = "READY", contentType = ContentType.Text.Plain)
         } else {
             call.respondText(text = "NOTREADY", contentType = ContentType.Text.Plain, status = HttpStatusCode.FailedDependency)
@@ -38,17 +38,15 @@ fun Routing.healthApi(appContext: ApplicationContext) {
                 .append("Oppgaveconsumer running ${appContext.oppgaveConsumer.isRunning()}\r\n")
                 .append("Innboksconsumer running ${appContext.innboksConsumer.isRunning()}\r\n")
                 .append("Doneconsumer running ${appContext.doneConsumer.isRunning()}\r\n")
-        call.respondText ( text = selftest.toString(), contentType = ContentType.Text.Plain)
+        call.respondText(text = selftest.toString(), contentType = ContentType.Text.Plain)
     }
 }
 
-private fun isAllConsumersRunning(appContext: ApplicationContext): Boolean {
-    val allConsumersRunning =
-            appContext.beskjedConsumer.isRunning() &&
-            appContext.oppgaveConsumer.isRunning() &&
-            appContext.innboksConsumer.isRunning() &&
+private fun isAtLeastOneConsumerRunning(appContext: ApplicationContext): Boolean {
+    return appContext.beskjedConsumer.isRunning() ||
+            appContext.oppgaveConsumer.isRunning() ||
+            appContext.innboksConsumer.isRunning() ||
             appContext.doneConsumer.isRunning()
-    return allConsumersRunning
 }
 
 fun isDataSourceRunning(appContext: ApplicationContext): Boolean {

@@ -1,10 +1,19 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.*
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.getBeskjedByEventId
 import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
-import no.nav.personbruker.dittnav.eventaggregator.innboks.*
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.*
+import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
+import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
+import no.nav.personbruker.dittnav.eventaggregator.innboks.getInnboksByEventId
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.getOppgaveByEventId
 import org.amshove.kluent.*
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
@@ -13,16 +22,15 @@ class CachedDoneEventConsumerTest {
 
     private val database = H2Database()
     private val doneRepository = DoneRepository(database)
-    private val beskjedRepository = BeskjedRepository(database)
-    private val innboksRepository = InnboksRepository(database)
-    private val opgpaveRepository = OppgaveRepository(database)
-    private val eventConsumer = CachedDoneEventConsumer(beskjedRepository, innboksRepository, opgpaveRepository, doneRepository)
+    private val eventConsumer = CachedDoneEventConsumer(doneRepository)
 
-    private val beskjed1 = BeskjedObjectMother.giveMeBeskjed("1", "12345")
-    private val oppgave1 = OppgaveObjectMother.giveMeOppgave("2", "12345")
-    private val done1 = DoneObjectMother.createDone("3")
-    private val done2 = DoneObjectMother.createDone("4")
-    private val done3 = DoneObjectMother.createDone("5")
+    private val produsent = "DittNAV"
+    private val fodselsnummer = "12345"
+    private val beskjed1 = BeskjedObjectMother.giveMeAktivBeskjed("1", fodselsnummer, produsent)
+    private val oppgave1 = OppgaveObjectMother.giveMeAktivOppgave("2", fodselsnummer, produsent)
+    private val done1 = DoneObjectMother.giveMeDone("3", produsent, fodselsnummer)
+    private val done2 = DoneObjectMother.giveMeDone("4", produsent, fodselsnummer)
+    private val done3 = DoneObjectMother.giveMeDone("5", produsent, fodselsnummer)
 
     init {
         runBlocking {
@@ -38,8 +46,8 @@ class CachedDoneEventConsumerTest {
 
     @AfterAll
     fun tearDown() {
-        eventConsumer.cancel()
         runBlocking {
+            eventConsumer.stopPolling()
             database.dbQuery {
                 deleteAllBeskjed()
                 deleteAllOppgave()
@@ -51,30 +59,34 @@ class CachedDoneEventConsumerTest {
 
     @Test
     fun `setter Beskjed-event inaktivt hvis Done-event med samme eventId tidligere er mottatt`() {
+        val beskjedWithExistingDoneEvent = BeskjedObjectMother.giveMeAktivBeskjed(done1.eventId, fodselsnummer, produsent)
         runBlocking {
-            database.dbQuery { createBeskjed(BeskjedObjectMother.giveMeBeskjed("3", "12345")) }
+            database.dbQuery { createBeskjed(beskjedWithExistingDoneEvent) }
             eventConsumer.processDoneEvents()
-            val beskjed = database.dbQuery { getBeskjedByEventId("3") }
+            val beskjed = database.dbQuery { getBeskjedByEventId(done1.eventId) }
             beskjed.aktiv.shouldBeFalse()
         }
     }
 
     @Test
     fun `setter Oppgave-event inaktivt hvis Done-event med samme eventId tidligere er mottatt`() {
+        val oppgaveWithExistingDoneEvent = OppgaveObjectMother.giveMeAktivOppgave(done2.eventId, fodselsnummer, produsent)
         runBlocking {
-            database.dbQuery { createOppgave(OppgaveObjectMother.giveMeOppgave("4", "12345")) }
+            database.dbQuery { createOppgave(oppgaveWithExistingDoneEvent) }
             eventConsumer.processDoneEvents()
-            val oppgave = database.dbQuery { getOppgaveByEventId("4") }
+            val oppgave = database.dbQuery { getOppgaveByEventId(done2.eventId) }
             oppgave.aktiv.shouldBeFalse()
         }
     }
 
     @Test
-    fun `flag Innboks-event as inactive if Done-event with same eventId exists`() {
+    fun `setter Innboks-event naktivt hvis Done-event med samme eventId tidligere er mottat`() {
+        val eventConsumer = CachedDoneEventConsumer(doneRepository)
+        val innboksWithExistingDone = InnboksObjectMother.giveMeAktivInnboks(done3.eventId, fodselsnummer, produsent)
         runBlocking {
-            database.dbQuery { createInnboks(InnboksObjectMother.giveMeInnboks("5", "12345")) }
+            database.dbQuery { createInnboks(innboksWithExistingDone) }
             eventConsumer.processDoneEvents()
-            val innboks = database.dbQuery { getInnboksByEventId("5") }
+            val innboks = database.dbQuery { getInnboksByEventId(done3.eventId) }
             innboks.aktiv.shouldBeFalse()
         }
     }
@@ -84,8 +96,8 @@ class CachedDoneEventConsumerTest {
         val expectedEventId = "50"
         val expectedFodselsnr = "45678"
         val expectedProdusent = "dummyProdusent"
-        val doneEvent = DoneObjectMother.createDone(expectedEventId, expectedProdusent, expectedFodselsnr)
-        val associatedBeskjed = BeskjedObjectMother.giveMeBeskjed(expectedEventId, expectedFodselsnr, expectedProdusent)
+        val doneEvent = DoneObjectMother.giveMeDone(expectedEventId, expectedProdusent, expectedFodselsnr)
+        val associatedBeskjed = BeskjedObjectMother.giveMeAktivBeskjed(expectedEventId, expectedFodselsnr, expectedProdusent)
 
         runBlocking {
             database.dbQuery { createDoneEvent(doneEvent) }
@@ -105,7 +117,7 @@ class CachedDoneEventConsumerTest {
     fun `feiler ikke hvis event med samme eventId som Done-event ikke er mottatt`() {
         invoking {
             runBlocking {
-                database.dbQuery { createDoneEvent(DoneObjectMother.createDone("-1")) }
+                database.dbQuery { createDoneEvent(DoneObjectMother.giveMeDone("-1")) }
                 eventConsumer.processDoneEvents()
             }
         } `should not throw` AnyException

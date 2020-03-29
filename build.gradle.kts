@@ -66,6 +66,7 @@ dependencies {
     compile("net.logstash.logback:logstash-logback-encoder:$logstashVersion")
     compile("io.prometheus:simpleclient_common:$prometheusVersion")
     compile("io.prometheus:simpleclient_hotspot:$prometheusVersion")
+    compile("io.prometheus:simpleclient_logback:$prometheusVersion")
     compile("io.ktor:ktor-server-netty:$ktorVersion")
     compile("org.apache.kafka:kafka-clients:$kafkaVersion")
     compile("io.confluent:kafka-avro-serializer:$confluentVersion")

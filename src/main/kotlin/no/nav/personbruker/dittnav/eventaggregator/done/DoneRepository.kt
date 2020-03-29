@@ -1,16 +1,13 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.setBeskjedAktivFlag
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
+import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon
+import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.getBrukernotifikasjonFromViewByAktiv
 import no.nav.personbruker.dittnav.eventaggregator.innboks.setInnboksAktivFlag
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.setOppgaveAktivFlag
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 class DoneRepository(private val database: Database) {
-
-    val log: Logger = LoggerFactory.getLogger(BeskjedRepository::class.java)
 
     suspend fun writeDoneEventsForBeskjedToCache(entities: List<Done>) {
         if (entities.isEmpty()) {
@@ -21,7 +18,6 @@ class DoneRepository(private val database: Database) {
                 setBeskjedAktivFlag(entity.eventId, entity.produsent, entity.fodselsnummer, false)
             }
         }
-        log.info("Har satt ${entities.size} beskjed-eventer til inaktiv.")
     }
 
     suspend fun writeDoneEventsForOppgaveToCache(entities: List<Done>) {
@@ -33,7 +29,6 @@ class DoneRepository(private val database: Database) {
                 setOppgaveAktivFlag(entity.eventId, entity.produsent, entity.fodselsnummer, false)
             }
         }
-        log.info("Har satt ${entities.size} oppgave-eventer til inaktiv.")
     }
 
     suspend fun writeDoneEventsForInnboksToCache(entities: List<Done>) {
@@ -45,7 +40,6 @@ class DoneRepository(private val database: Database) {
                 setInnboksAktivFlag(entity.eventId, entity.produsent, entity.fodselsnummer, false)
             }
         }
-        log.info("Har satt ${entities.size} innboks-eventer til inaktiv.")
     }
 
     suspend fun writeDoneEventToCache(entities: List<Done>) {
@@ -57,7 +51,22 @@ class DoneRepository(private val database: Database) {
                 createDoneEvent(entity)
             }
         }
-        log.info("Har skrevet ${entities.size} done-eventer til vente-tabellen.")
+    }
+
+    suspend fun fetchActiveBrukernotifikasjonerFromView(): List<Brukernotifikasjon> {
+        var resultat = emptyList<Brukernotifikasjon>()
+        database.queryWithExceptionTranslation {
+            resultat = getBrukernotifikasjonFromViewByAktiv(true)
+        }
+        return resultat
+    }
+
+    suspend fun fetchInaktiveBrukernotifikasjonerFromView(): List<Brukernotifikasjon> {
+        var resultat = emptyList<Brukernotifikasjon>()
+        database.queryWithExceptionTranslation {
+            resultat = getBrukernotifikasjonFromViewByAktiv(false)
+        }
+        return resultat
     }
 
     suspend fun fetchAllDoneEvents(): List<Done> {
@@ -74,7 +83,6 @@ class DoneRepository(private val database: Database) {
                 deleteDoneEvent(doneEvent)
             }
         }
-        log.info("Har fjernet ${doneEventsToDelete.size} done-evneter fra ventetabellen.")
     }
 
 }

@@ -5,15 +5,15 @@ import java.time.ZoneId
 
 object OppgaveObjectMother {
 
-    fun giveMeOppgave(): Oppgave {
-        return giveMeOppgave("o-1", "123")
+    fun giveMeAktivOppgave(): Oppgave {
+        return giveMeAktivOppgave("o-1", "123")
     }
 
-    fun giveMeOppgave(eventId: String, fodselsnummer: String): Oppgave {
-        return giveMeOppgave(eventId, fodselsnummer, "DittNAV")
+    fun giveMeAktivOppgave(eventId: String, fodselsnummer: String): Oppgave {
+        return giveMeAktivOppgave(eventId, fodselsnummer, "DittNAV")
     }
 
-    fun giveMeOppgave(eventId: String, fodselsnummer: String, produsent: String): Oppgave {
+    fun giveMeAktivOppgave(eventId: String, fodselsnummer: String, produsent: String): Oppgave {
         return Oppgave(
                 produsent = produsent,
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
@@ -25,6 +25,20 @@ object OppgaveObjectMother {
                 sikkerhetsinvaa = 4,
                 sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
                 aktiv = true)
+    }
+
+    fun giveMeInaktivOppgave(): Oppgave {
+        return Oppgave(
+                produsent = "DittNAV",
+                eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
+                fodselsnummer = "123",
+                eventId = "o-2",
+                grupperingsId = "Dok12345",
+                tekst = "Dette er en oppgave til brukeren",
+                link = "https://nav.no/systemX/",
+                sikkerhetsinvaa = 4,
+                sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
+                aktiv = false)
     }
 
 }

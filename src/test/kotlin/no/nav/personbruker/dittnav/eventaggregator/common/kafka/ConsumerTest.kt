@@ -1,6 +1,7 @@
-package no.nav.personbruker.dittnav.eventaggregator.common.exceptions.kafka
+package no.nav.personbruker.dittnav.eventaggregator.common.kafka
 
 import io.mockk.*
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.Beskjed
@@ -9,8 +10,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorSer
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.objectmother.ConsumerRecordsObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
+import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.ConsumerRecordsObjectMother
 import org.amshove.kluent.`should be equal to`
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.errors.DisconnectException
@@ -38,9 +38,10 @@ class ConsumerTest {
         runBlocking {
             consumer.startPolling()
             delay(300)
+
+            consumer.isRunning() `should be equal to` true
+            consumer.stopPolling()
         }
-        consumer.isRunning() `should be equal to` true
-        consumer.stopPolling()
         verify(atLeast = 1) { kafkaConsumer.commitSync() }
     }
 
@@ -105,9 +106,10 @@ class ConsumerTest {
         runBlocking {
             consumer.startPolling()
             `Vent litt for aa bevise at det fortsettes aa polle`()
+
+            consumer.isRunning() `should be equal to` true
+            consumer.stopPolling()
         }
-        consumer.isRunning() `should be equal to` true
-        consumer.stopPolling()
         verify(exactly = 0) { kafkaConsumer.commitSync() }
     }
 
@@ -122,14 +124,15 @@ class ConsumerTest {
         runBlocking {
             consumer.startPolling()
             `Vent litt for aa bevise at det fortsettes aa polle`()
+
+            consumer.isRunning() `should be equal to` true
+            consumer.stopPolling()
         }
-        consumer.isRunning() `should be equal to` true
-        consumer.stopPolling()
         verify(exactly = 0) { kafkaConsumer.commitSync() }
     }
 
     @Test
-    fun `Skal alltid commit-e mot kafka hvis event-er har blitt funnet`() {
+    fun `Skal ikke commit-e mot kafka hvis det IKKE har blitt funnet noen event-er`() {
         val topic = "dummyTopicNoRecordsFound"
         every { kafkaConsumer.poll(any<Duration>()) } returns ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(0, topic)
 
@@ -138,9 +141,24 @@ class ConsumerTest {
         runBlocking {
             consumer.startPolling()
             delay(30)
+
+            consumer.isRunning() `should be equal to` true
+            consumer.stopPolling()
         }
-        consumer.isRunning() `should be equal to` true
-        consumer.stopPolling()
+        verify(exactly = 0) { kafkaConsumer.commitSync() }
+    }
+
+    @Test
+    fun `Skal ikke commit-e mot kafka hvis det har skjedd en CancellationException, som skjer ved stopping av polling`() {
+        val topic = "dummyTopicCancellationException"
+        val cancellationException = CancellationException("Simulert feil i en test")
+        every { kafkaConsumer.poll(any<Duration>()) } throws cancellationException
+        val consumer: Consumer<Beskjed> = Consumer(topic, kafkaConsumer, eventBatchProcessorService)
+
+        runBlocking {
+            consumer.startPolling()
+            delay(10)
+        }
         verify(exactly = 0) { kafkaConsumer.commitSync() }
     }
 

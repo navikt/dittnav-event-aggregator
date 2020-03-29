@@ -5,7 +5,7 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
-import no.nav.personbruker.dittnav.eventaggregator.config.EventType
+import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.BrukernotifikasjonObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
@@ -20,20 +20,23 @@ import org.junit.jupiter.api.Test
 class BrukernotifikasjonQueriesTest {
 
     private val database = H2Database()
-    private val oppgave1 = OppgaveObjectMother.giveMeOppgave("1", "12")
-    private val beskjed1 = BeskjedObjectMother.giveMeBeskjed("2", "12")
-    private val innboks1 = InnboksObjectMother.giveMeInnboks("3", "12")
-    private val brukernotifikasjon1 = Brukernotifikasjon("1", "DittNAV", EventType.OPPGAVE, "12")
-    private val brukernotifikasjon2 = Brukernotifikasjon("2", "DittNAV", EventType.BESKJED, "12")
-    private val brukernotifikasjon3 = Brukernotifikasjon("3", "DittNAV", EventType.INNBOKS, "12")
-    private val allBrukernotifikasjonEvents = listOf(brukernotifikasjon1, brukernotifikasjon2, brukernotifikasjon3)
+    private val aktivOppgave = OppgaveObjectMother.giveMeAktivOppgave()
+    private val aktivBeskjed = BeskjedObjectMother.giveMeAktivBeskjed()
+    private val aktivInnboks = InnboksObjectMother.giveMeAktivInnboks()
+    private val inaktivOppgave = OppgaveObjectMother.giveMeInaktivOppgave()
+    private val inaktivBeskjed = BeskjedObjectMother.giveMeInaktivBeskjed()
+    private val inaktivInnboks = InnboksObjectMother.giveMeInaktivInnboks()
+
 
     init {
         runBlocking {
             database.dbQuery {
-                createOppgave(oppgave1)
-                createBeskjed(beskjed1)
-                createInnboks(innboks1)
+                createOppgave(aktivOppgave)
+                createBeskjed(aktivBeskjed)
+                createInnboks(aktivInnboks)
+                createOppgave(inaktivOppgave)
+                createBeskjed(inaktivBeskjed)
+                createInnboks(inaktivInnboks)
             }
         }
     }
@@ -50,11 +53,29 @@ class BrukernotifikasjonQueriesTest {
     }
 
     @Test
-    fun `Finner alle aggregerte Brukernotifikasjon-eventer fra databaseview`() {
+    fun `Finner alle aggregerte aktive Brukernotifikasjon-eventer fra databaseview`() {
+        val brukernotifikasjon1 = BrukernotifikasjonObjectMother.giveMeFor(aktivBeskjed)
+        val brukernotifikasjon3 = BrukernotifikasjonObjectMother.giveMeFor(aktivOppgave)
+        val brukernotifikasjon2 = BrukernotifikasjonObjectMother.giveMeFor(aktivInnboks)
+        val aktiveBrukernotifikasjonEventer = listOf(brukernotifikasjon1, brukernotifikasjon2, brukernotifikasjon3)
         runBlocking {
-            val result = database.dbQuery { getAllBrukernotifikasjonFromView() }
+            val result = database.dbQuery { getBrukernotifikasjonFromViewByAktiv(true) }
             result.size `should be equal to` 3
-            result `should contain all` allBrukernotifikasjonEvents
+            result `should contain all` aktiveBrukernotifikasjonEventer
         }
     }
+
+    @Test
+    fun `Finner alle aggregerte inaktive Brukernotifikasjon-eventer fra databaseview`() {
+        val brukernotifikasjon1 = BrukernotifikasjonObjectMother.giveMeFor(inaktivBeskjed)
+        val brukernotifikasjon3 = BrukernotifikasjonObjectMother.giveMeFor(inaktivOppgave)
+        val brukernotifikasjon2 = BrukernotifikasjonObjectMother.giveMeFor(inaktivInnboks)
+        val inaktiveBrukernotifikasjonEventer = listOf(brukernotifikasjon1, brukernotifikasjon2, brukernotifikasjon3)
+        runBlocking {
+            val result = database.dbQuery { getBrukernotifikasjonFromViewByAktiv(false) }
+            result.size `should be equal to` 3
+            result `should contain all` inaktiveBrukernotifikasjonEventer
+        }
+    }
+
 }
