@@ -13,10 +13,13 @@ class EventMetricsProbe(private val metricsReporter: MetricsReporter,
         val session = EventMetricsSession(eventType)
         block.invoke(session)
         val processingTime = session.timeElapsedSinceSessionStartNanos()
-        handleEventsSeen(session)
-        handleEventsProcessed(session)
-        handleEventsFailed(session)
-        handleEventsBatch(session, processingTime)
+
+        if (session.getEventsSeen() > 0) {
+            handleEventsSeen(session)
+            handleEventsProcessed(session)
+            handleEventsFailed(session)
+            handleEventsBatch(session, processingTime)
+        }
     }
 
     private suspend fun handleEventsSeen(session: EventMetricsSession) {
@@ -25,10 +28,8 @@ class EventMetricsProbe(private val metricsReporter: MetricsReporter,
             val eventTypeName = session.eventType.toString()
             val printableAlias = nameScrubber.getPublicAlias(producerName)
 
-            if (numberSeen > 0) {
-                reportEvents(numberSeen, eventTypeName, printableAlias, EVENTS_SEEN)
-                PrometheusMetricsCollector.registerEventsSeen(numberSeen, eventTypeName, printableAlias)
-            }
+            reportEvents(numberSeen, eventTypeName, printableAlias, EVENTS_SEEN)
+            PrometheusMetricsCollector.registerEventsSeen(numberSeen, eventTypeName, printableAlias)
         }
     }
 

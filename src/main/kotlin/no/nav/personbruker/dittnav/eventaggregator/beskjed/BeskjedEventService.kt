@@ -25,7 +25,7 @@ class BeskjedEventService(
         val successfullyTransformedEvents = mutableListOf<no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed>()
         val problematicEvents = mutableListOf<ConsumerRecord<Nokkel, Beskjed>>()
 
-        metricsProbe.runWithMetrics(eventType =  BESKJED) {
+        metricsProbe.runWithMetrics(eventType = BESKJED) {
             events.forEach { event ->
                 try {
                     val internalEvent = BeskjedTransformer.toInternal(event.getNonNullKey(), event.value())
