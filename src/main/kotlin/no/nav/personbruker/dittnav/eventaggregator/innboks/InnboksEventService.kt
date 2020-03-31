@@ -31,7 +31,6 @@ class InnboksEventService (
 
             } catch (e: NokkelNullException) {
                 metricsProbe.reportEventFailed(INNBOKS, event.systembruker)
-                problematicEvents.add(event)
                 log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", e)
 
             } catch (e: Exception) {

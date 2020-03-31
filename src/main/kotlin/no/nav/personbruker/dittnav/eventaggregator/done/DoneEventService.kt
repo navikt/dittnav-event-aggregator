@@ -32,7 +32,6 @@ class DoneEventService(
 
             } catch (e: NokkelNullException) {
                 eventMetricsProbe.reportEventFailed(DONE, event.systembruker)
-                problematicEvents.add(event)
                 log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", e)
 
             } catch (e: Exception) {
