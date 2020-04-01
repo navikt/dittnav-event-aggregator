@@ -1,6 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
 import no.nav.brukernotifikasjon.schemas.Nokkel
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.getNonNullField
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -11,7 +12,7 @@ object DoneTransformer {
         val internal = Done(nokkel.getSystembruker(),
                 nokkel.getEventId(),
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(external.getTidspunkt()), ZoneId.of("UTC")),
-                external.getFodselsnummer(),
+                getNonNullField(external.getFodselsnummer(), "Fødselsnummer"),
                 external.getGrupperingsId()
         )
         return internal

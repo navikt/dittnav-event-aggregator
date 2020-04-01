@@ -5,10 +5,10 @@ import java.time.Instant
 
 object AvroOppgaveObjectMother {
 
-    fun createOppgave(i: Int): Oppgave {
+    fun createOppgave(i: Int, fodselsnummer: String): Oppgave {
         return Oppgave(
                 Instant.now().toEpochMilli(),
-                "12345",
+                fodselsnummer,
                 "100$i",
                 "Dette er oppgave til brukeren",
                 "https://nav.no/systemX/$i",

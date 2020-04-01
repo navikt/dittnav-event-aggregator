@@ -5,11 +5,11 @@ import java.time.Instant
 
 object AvroBeskjedObjectMother {
 
-    fun createBeskjed(i: Int): Beskjed {
+    fun createBeskjed(i: Int, fodselsnummer: String): Beskjed {
         return Beskjed(
                 Instant.now().toEpochMilli(),
                 Instant.now().toEpochMilli(),
-                "12345",
+                fodselsnummer,
                 "100$i",
                 "Dette er Beskjed til brukeren",
                 "https://nav.no/systemX/$i",

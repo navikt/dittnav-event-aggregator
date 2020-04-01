@@ -1,9 +1,9 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
+import kotlinx.coroutines.runBlocking
+import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldNullException
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be null`
-import org.amshove.kluent.`should not be null`
+import org.amshove.kluent.*
 import org.junit.jupiter.api.Test
 import java.time.ZoneId
 
@@ -11,8 +11,10 @@ class BeskjedTransformerTest {
 
     @Test
     fun `should transform form external to internal`() {
-        val original = AvroBeskjedObjectMother.createBeskjed(1)
-        val nokkel = createNokkel(1)
+        val fodselsnummer = "12345"
+        val eventId = 1
+        val original = AvroBeskjedObjectMother.createBeskjed(eventId, fodselsnummer)
+        val nokkel = createNokkel(eventId)
 
         val transformed = BeskjedTransformer.toInternal(nokkel, original)
 
@@ -30,5 +32,19 @@ class BeskjedTransformerTest {
         transformed.aktiv `should be equal to` true
         transformed.sistOppdatert.`should not be null`()
         transformed.id.`should be null`()
+    }
+
+    @Test
+    fun `should throw FieldNullException when fodselsnummer is empty`() {
+        val fodselsnummerEmpty = ""
+        val eventid = 1
+        val event = AvroBeskjedObjectMother.createBeskjed(eventid, fodselsnummerEmpty)
+        val nokkel = createNokkel(eventid)
+
+        invoking {
+            runBlocking {
+                BeskjedTransformer.toInternal(nokkel, event)
+            }
+        }`should throw` FieldNullException::class
     }
 }

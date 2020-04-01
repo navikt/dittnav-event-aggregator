@@ -47,6 +47,7 @@ class DoneEventServiceTest {
     private val nokkel3 = createNokkel(3)
     private val nokkel4 = createNokkel(4)
     private val nokkel99 = createNokkel(99)
+    private val fodselsnummer = "12345"
 
     init {
         runBlocking {
@@ -73,7 +74,7 @@ class DoneEventServiceTest {
 
     @Test
     fun `Setter Beskjed-event inaktivt hvis Done-event mottas`() {
-        val record = ConsumerRecord<Nokkel, Done>(Kafka.beskjedTopicName, 1, 1, nokkel1, AvroDoneObjectMother.createDone("1"))
+        val record = ConsumerRecord<Nokkel, Done>(Kafka.beskjedTopicName, 1, 1, nokkel1, AvroDoneObjectMother.createDone("1", fodselsnummer))
         val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(record)
         runBlocking {
             doneEventService.processEvents(records)
@@ -85,7 +86,7 @@ class DoneEventServiceTest {
 
     @Test
     fun `Setter Oppgave-event inaktivt hvis Done-event mottas`() {
-        val record = ConsumerRecord<Nokkel, Done>(Kafka.oppgaveTopicName, 1, 1, nokkel2, AvroDoneObjectMother.createDone("2"))
+        val record = ConsumerRecord<Nokkel, Done>(Kafka.oppgaveTopicName, 1, 1, nokkel2, AvroDoneObjectMother.createDone("2", fodselsnummer))
         val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(record)
         runBlocking {
             doneEventService.processEvents(records)
@@ -97,7 +98,7 @@ class DoneEventServiceTest {
 
     @Test
     fun `Flag Innboks-event as inactive if Done event is received`() {
-        val record = ConsumerRecord<Nokkel, Done>(Kafka.innboksTopicName, 1, 1, nokkel3, AvroDoneObjectMother.createDone("3"))
+        val record = ConsumerRecord<Nokkel, Done>(Kafka.innboksTopicName, 1, 1, nokkel3, AvroDoneObjectMother.createDone("3", fodselsnummer))
         val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(record)
         runBlocking {
             doneEventService.processEvents(records)
@@ -109,7 +110,7 @@ class DoneEventServiceTest {
 
     @Test
     fun `Should not cache Done event if event with matching eventId exists`() {
-        val record = ConsumerRecord<Nokkel, Done>(Kafka.beskjedTopicName, 1, 1, nokkel4, AvroDoneObjectMother.createDone("4"))
+        val record = ConsumerRecord<Nokkel, Done>(Kafka.beskjedTopicName, 1, 1, nokkel4, AvroDoneObjectMother.createDone("4", fodselsnummer))
         val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(record)
         runBlocking {
             doneEventService.processEvents(records)
@@ -120,7 +121,7 @@ class DoneEventServiceTest {
 
     @Test
     fun `Lagrer Done-event i cache hvis event med matchende eventId ikke finnes`() {
-        val record = ConsumerRecord<Nokkel, Done>(Kafka.beskjedTopicName, 1, 1, nokkel99, AvroDoneObjectMother.createDone("99"))
+        val record = ConsumerRecord<Nokkel, Done>(Kafka.beskjedTopicName, 1, 1, nokkel99, AvroDoneObjectMother.createDone("99", fodselsnummer))
         val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(record)
         runBlocking {
             doneEventService.processEvents(records)

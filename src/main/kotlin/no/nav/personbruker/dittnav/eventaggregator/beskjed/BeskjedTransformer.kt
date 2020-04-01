@@ -1,6 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import no.nav.brukernotifikasjon.schemas.Nokkel
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.getNonNullField
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -15,7 +16,7 @@ object BeskjedTransformer {
                 externalNokkel.getSystembruker(),
                 externalNokkel.getEventId(),
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(externalValue.getTidspunkt()), ZoneId.of("UTC")),
-                externalValue.getFodselsnummer(),
+                getNonNullField(externalValue.getFodselsnummer(), "Fødselsnummer"),
                 externalValue.getGrupperingsId(),
                 externalValue.getTekst(),
                 externalValue.getLink(),
@@ -33,6 +34,5 @@ object BeskjedTransformer {
 
     private fun createRandomStringUUID(): String {
         return UUID.randomUUID().toString()
-
     }
 }

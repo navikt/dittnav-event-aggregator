@@ -5,10 +5,10 @@ import java.time.Instant
 
 object AvroInnboksObjectMother {
 
-    fun createInnboks(i: Int): Innboks {
+    fun createInnboks(i: Int, fodselsnummer: String): Innboks {
         return Innboks(
                 Instant.now().toEpochMilli(),
-                "12345",
+                fodselsnummer,
                 "100$i",
                 "Dette er innboksnotifikasjon til brukeren",
                 "https://nav.no/systemX/$i",
