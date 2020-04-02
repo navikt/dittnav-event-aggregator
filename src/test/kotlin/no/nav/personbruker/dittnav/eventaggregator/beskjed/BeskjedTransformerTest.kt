@@ -37,7 +37,7 @@ class BeskjedTransformerTest {
     fun `should throw FieldNullException when fodselsnummer is empty`() {
         val fodselsnummerEmpty = ""
         val eventid = 1
-        val event = AvroBeskjedObjectMother.createBeskjedWithFodselsnummer(eventid, fodselsnummerEmpty)
+        val event = AvroBeskjedObjectMother.createBeskjed(eventid, fodselsnummerEmpty)
         val nokkel = createNokkel(eventid)
 
         invoking {

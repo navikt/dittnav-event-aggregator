@@ -15,7 +15,7 @@ object AvroInnboksObjectMother {
                 4)
     }
 
-    fun createInnboksWithFodselsnummer(i: Int, fodselsnummer: String): Innboks {
+    fun createInnboks(i: Int, fodselsnummer: String): Innboks {
         return Innboks(
                 Instant.now().toEpochMilli(),
                 fodselsnummer,

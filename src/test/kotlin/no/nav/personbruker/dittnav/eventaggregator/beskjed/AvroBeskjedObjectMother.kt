@@ -16,7 +16,7 @@ object AvroBeskjedObjectMother {
                 4)
     }
 
-    fun createBeskjedWithFodselsnummer(i: Int, fodselsnummer: String): Beskjed {
+    fun createBeskjed(i: Int, fodselsnummer: String): Beskjed {
         return Beskjed(
                 Instant.now().toEpochMilli(),
                 Instant.now().toEpochMilli(),

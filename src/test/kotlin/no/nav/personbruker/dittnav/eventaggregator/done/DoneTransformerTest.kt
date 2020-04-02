@@ -32,7 +32,7 @@ class DoneTransformerTest {
     fun `should throw FieldNullException when fodselsnummer is empty`() {
         val fodselsnummer = ""
         val eventId = "123"
-        val event = AvroDoneObjectMother.createDoneWithFodselsnummer(eventId, fodselsnummer)
+        val event = AvroDoneObjectMother.createDone(eventId, fodselsnummer)
         val nokkel = createNokkel(123)
 
         invoking {

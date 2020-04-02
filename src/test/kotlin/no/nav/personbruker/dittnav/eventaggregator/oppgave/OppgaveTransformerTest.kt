@@ -11,7 +11,7 @@ class OppgaveTransformerTest {
 
     @Test
     fun `should transform external to internal`() {
-        val eventId = 123
+        val eventId = 1
         val external = AvroOppgaveObjectMother.createOppgave(eventId)
         val nokkel = createNokkel(eventId)
 
@@ -36,8 +36,8 @@ class OppgaveTransformerTest {
     @Test
     fun `should throw FieldNullException when fodselsnummer is empty`() {
         val fodselsnummer = ""
-        val eventId = 123
-        val event = AvroOppgaveObjectMother.createOppgaveWithFodselsnummer(eventId, fodselsnummer)
+        val eventId = 1
+        val event = AvroOppgaveObjectMother.createOppgave(eventId, fodselsnummer)
         val nokkel = createNokkel(eventId)
 
         invoking {

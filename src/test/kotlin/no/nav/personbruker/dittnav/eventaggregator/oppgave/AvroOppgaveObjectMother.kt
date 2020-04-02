@@ -15,7 +15,7 @@ object AvroOppgaveObjectMother {
                 4)
     }
 
-    fun createOppgaveWithFodselsnummer(i: Int, fodselsnummer: String): Oppgave {
+    fun createOppgave(i: Int, fodselsnummer: String): Oppgave {
         return Oppgave(
                 Instant.now().toEpochMilli(),
                 fodselsnummer,

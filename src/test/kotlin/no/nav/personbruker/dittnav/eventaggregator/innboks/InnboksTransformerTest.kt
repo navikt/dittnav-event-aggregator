@@ -37,7 +37,7 @@ class InnboksTransformerTest {
     fun `should throw FieldNullException when fodselsnummer is empty`() {
         val fodselsnummer = ""
         val eventId = 123
-        val event = AvroInnboksObjectMother.createInnboksWithFodselsnummer(eventId, fodselsnummer)
+        val event = AvroInnboksObjectMother.createInnboks(eventId, fodselsnummer)
         val nokkel = createNokkel(eventId)
 
         invoking {
