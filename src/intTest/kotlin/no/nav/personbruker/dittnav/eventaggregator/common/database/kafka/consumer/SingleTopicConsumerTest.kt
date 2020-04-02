@@ -24,11 +24,10 @@ class SingleTopicConsumerTest {
     private val topicen = "singleTopicConsumerTestBeskjed"
     private val embeddedEnv = KafkaTestUtil.createDefaultKafkaEmbeddedInstance(listOf(topicen))
     private val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
-    private val fodselsnummer = "12345"
 
     private val adminClient = embeddedEnv.adminClient
 
-    private val events = (1..10).map { createNokkel(it) to AvroBeskjedObjectMother.createBeskjed(it, fodselsnummer) }.toMap()
+    private val events = (1..10).map { createNokkel(it) to AvroBeskjedObjectMother.createBeskjed(it) }.toMap()
 
     init {
         embeddedEnv.start()

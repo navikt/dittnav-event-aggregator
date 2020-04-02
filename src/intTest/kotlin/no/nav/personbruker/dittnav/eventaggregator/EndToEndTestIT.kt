@@ -34,9 +34,8 @@ class EndToEndTestIT {
     val metricsProbe = EventMetricsProbe(metricsReporter, nameScrubber)
 
     val adminClient = embeddedEnv.adminClient
-    private val fodselsnummer = "12345"
 
-    val events = (1..10).map { createNokkel(it) to AvroBeskjedObjectMother.createBeskjed(it, fodselsnummer) }.toMap()
+    val events = (1..10).map { createNokkel(it) to AvroBeskjedObjectMother.createBeskjed(it) }.toMap()
 
     init {
         embeddedEnv.start()

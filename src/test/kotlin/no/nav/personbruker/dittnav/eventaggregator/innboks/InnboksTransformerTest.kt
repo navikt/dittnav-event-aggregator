@@ -11,9 +11,8 @@ class InnboksTransformerTest {
 
     @Test
     fun `should transform external to internal`() {
-        val fodselsnummer = "12345"
         val eventId = 123
-        val external = AvroInnboksObjectMother.createInnboks(eventId, fodselsnummer)
+        val external = AvroInnboksObjectMother.createInnboks(eventId)
         val nokkel = createNokkel(eventId)
 
         val internal = InnboksTransformer.toInternal(nokkel, external)
@@ -38,7 +37,7 @@ class InnboksTransformerTest {
     fun `should throw FieldNullException when fodselsnummer is empty`() {
         val fodselsnummer = ""
         val eventId = 123
-        val event = AvroInnboksObjectMother.createInnboks(eventId, fodselsnummer)
+        val event = AvroInnboksObjectMother.createInnboksWithFodselsnummer(eventId, fodselsnummer)
         val nokkel = createNokkel(eventId)
 
         invoking {

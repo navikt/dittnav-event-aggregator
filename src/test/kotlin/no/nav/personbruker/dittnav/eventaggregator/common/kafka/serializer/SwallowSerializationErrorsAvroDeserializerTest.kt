@@ -28,8 +28,7 @@ class SwallowSerializationErrorsAvroDeserializerTest {
 
     @Test
     fun `should serialize valid records successfully`() {
-        val fodselsnummer = "12345"
-        val original = AvroBeskjedObjectMother.createBeskjed(1, fodselsnummer)
+        val original = AvroBeskjedObjectMother.createBeskjed(1)
         val serialized = serializer.serialize(topic, original)
         val deserialized = deserializer.deserialize(topic, serialized)
 

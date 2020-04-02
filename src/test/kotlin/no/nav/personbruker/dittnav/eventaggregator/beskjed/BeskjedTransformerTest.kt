@@ -11,9 +11,8 @@ class BeskjedTransformerTest {
 
     @Test
     fun `should transform form external to internal`() {
-        val fodselsnummer = "12345"
         val eventId = 1
-        val original = AvroBeskjedObjectMother.createBeskjed(eventId, fodselsnummer)
+        val original = AvroBeskjedObjectMother.createBeskjed(eventId)
         val nokkel = createNokkel(eventId)
 
         val transformed = BeskjedTransformer.toInternal(nokkel, original)
@@ -38,7 +37,7 @@ class BeskjedTransformerTest {
     fun `should throw FieldNullException when fodselsnummer is empty`() {
         val fodselsnummerEmpty = ""
         val eventid = 1
-        val event = AvroBeskjedObjectMother.createBeskjed(eventid, fodselsnummerEmpty)
+        val event = AvroBeskjedObjectMother.createBeskjedWithFodselsnummer(eventid, fodselsnummerEmpty)
         val nokkel = createNokkel(eventid)
 
         invoking {

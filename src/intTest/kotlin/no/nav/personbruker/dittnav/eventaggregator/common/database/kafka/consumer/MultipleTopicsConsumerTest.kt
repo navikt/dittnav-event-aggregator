@@ -31,15 +31,14 @@ class MultipleTopicsConsumerTest {
     private val embeddedEnv = KafkaTestUtil.createDefaultKafkaEmbeddedInstance(topics)
     private val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
     private val adminClient = embeddedEnv.adminClient
-    private val fodselsnummer = "12345"
 
     private val beskjedEventProcessor = SimpleEventCounterService<Beskjed>()
     private val oppgaveEventProcessor = SimpleEventCounterService<Oppgave>()
     private val innboksEventProcessor = SimpleEventCounterService<Innboks>()
 
-    private val beskjedEvents = (1..10).map { createNokkel(it) to AvroBeskjedObjectMother.createBeskjed(it, fodselsnummer) }.toMap()
-    private val oppgaveEvents = (1..11).map { createNokkel(it) to AvroOppgaveObjectMother.createOppgave(it, fodselsnummer) }.toMap()
-    private val innboksEvents = (1..12).map { createNokkel(it) to AvroInnboksObjectMother.createInnboks(it, fodselsnummer) }.toMap()
+    private val beskjedEvents = (1..10).map { createNokkel(it) to AvroBeskjedObjectMother.createBeskjed(it) }.toMap()
+    private val oppgaveEvents = (1..11).map { createNokkel(it) to AvroOppgaveObjectMother.createOppgave(it) }.toMap()
+    private val innboksEvents = (1..12).map { createNokkel(it) to AvroInnboksObjectMother.createInnboks(it) }.toMap()
 
     init {
         embeddedEnv.start()

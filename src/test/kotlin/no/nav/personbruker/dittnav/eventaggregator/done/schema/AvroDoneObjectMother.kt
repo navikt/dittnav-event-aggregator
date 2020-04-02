@@ -5,7 +5,15 @@ import java.time.Instant
 
 object AvroDoneObjectMother {
 
-    fun createDone(eventId: String, fodselsnummer: String): Done {
+    fun createDone(eventId: String): Done {
+        return Done(
+                Instant.now().toEpochMilli(),
+                "12345",
+                "100${eventId}"
+        )
+    }
+
+    fun createDoneWithFodselsnummer(eventId: String, fodselsnummer: String): Done {
         return Done(
                 Instant.now().toEpochMilli(),
                 fodselsnummer,

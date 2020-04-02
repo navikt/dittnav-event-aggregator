@@ -14,9 +14,8 @@ class DoneTransformerTest {
 
     @Test
     fun `should transform form external to internal`() {
-        val fodselsnummer = "12345"
         val eventId = "123"
-        val original = AvroDoneObjectMother.createDone(eventId, fodselsnummer)
+        val original = AvroDoneObjectMother.createDone(eventId)
         val nokkel = createNokkel(123)
         val transformed = DoneTransformer.toInternal(nokkel, original)
 
@@ -33,7 +32,7 @@ class DoneTransformerTest {
     fun `should throw FieldNullException when fodselsnummer is empty`() {
         val fodselsnummer = ""
         val eventId = "123"
-        val event = AvroDoneObjectMother.createDone(eventId, fodselsnummer)
+        val event = AvroDoneObjectMother.createDoneWithFodselsnummer(eventId, fodselsnummer)
         val nokkel = createNokkel(123)
 
         invoking {

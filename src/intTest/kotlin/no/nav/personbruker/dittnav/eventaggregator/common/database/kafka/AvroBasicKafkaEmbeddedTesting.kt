@@ -27,9 +27,8 @@ class AvroBasicKafkaEmbeddedTesting {
     private val username = "srvkafkaclient"
     private val password = "kafkaclient"
     private val embeddedEnv = KafkaTestUtil.createDefaultKafkaEmbeddedInstance(listOf(topicen))
-    private val fodselsnummer = "12345"
 
-    private val events = (1..9).map { createNokkel(it) to AvroBeskjedObjectMother.createBeskjed(it, fodselsnummer) }.toMap()
+    private val events = (1..9).map { createNokkel(it) to AvroBeskjedObjectMother.createBeskjed(it) }.toMap()
 
     init {
         embeddedEnv.start()
