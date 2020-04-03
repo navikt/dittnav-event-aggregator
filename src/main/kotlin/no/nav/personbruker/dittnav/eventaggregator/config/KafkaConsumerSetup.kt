@@ -13,7 +13,7 @@ object KafkaConsumerSetup {
     private val log: Logger = LoggerFactory.getLogger(KafkaConsumerSetup::class.java)
 
     fun startAllKafkaPollers(appContext: ApplicationContext) {
-        //appContext.beskjedConsumer.startPolling()
+        appContext.beskjedConsumer.startPolling()
         appContext.oppgaveConsumer.startPolling()
         appContext.doneConsumer.startPolling()
         if (isOtherEnvironmentThanProd()) {
@@ -25,7 +25,7 @@ object KafkaConsumerSetup {
 
     suspend fun stopAllKafkaConsumers(appContext: ApplicationContext) {
         log.info("Begynner å stoppe kafka-pollerne...")
-        //appContext.beskjedConsumer.stopPolling()
+        appContext.beskjedConsumer.stopPolling()
         appContext.oppgaveConsumer.stopPolling()
         appContext.doneConsumer.stopPolling()
         if (isOtherEnvironmentThanProd()) {
