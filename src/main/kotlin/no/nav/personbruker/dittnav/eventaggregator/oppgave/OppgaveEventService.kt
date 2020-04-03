@@ -35,7 +35,7 @@ class OppgaveEventService(
                     countFailedEventForProducer(event.systembruker)
                     log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", e)
                 } catch (e: FieldNullException) {
-                    metricsProbe.reportEventFailed(OPPGAVE, event.systembruker)
+                    countFailedEventForProducer(event.systembruker)
                     log.warn("Obligatorisk felt var tomt eller null. EventId: ${event.getNonNullKey().getEventId()}", e)
                 } catch (e: Exception) {
                     countFailedEventForProducer(event.systembruker)
