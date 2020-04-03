@@ -3,6 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.innboks
 import no.nav.brukernotifikasjon.schemas.Innboks
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
+import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldNullException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.NokkelNullException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.getNonNullKey
@@ -32,7 +33,9 @@ class InnboksEventService (
             } catch (e: NokkelNullException) {
                 metricsProbe.reportEventFailed(INNBOKS, event.systembruker)
                 log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", e)
-
+            } catch (e: FieldNullException) {
+                metricsProbe.reportEventFailed(INNBOKS, event.systembruker)
+                log.warn("Obligatorisk felt var tomt eller null. EventId: ${event.getNonNullKey().getEventId()}", e)
             } catch (e: Exception) {
                 metricsProbe.reportEventFailed(INNBOKS, event.systembruker)
                 problematicEvents.add(event)

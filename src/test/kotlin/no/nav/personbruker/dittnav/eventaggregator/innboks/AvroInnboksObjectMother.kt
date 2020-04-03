@@ -15,4 +15,14 @@ object AvroInnboksObjectMother {
                 4)
     }
 
+    fun createInnboks(i: Int, fodselsnummer: String): Innboks {
+        return Innboks(
+                Instant.now().toEpochMilli(),
+                fodselsnummer,
+                "100$i",
+                "Dette er innboksnotifikasjon til brukeren",
+                "https://nav.no/systemX/$i",
+                4)
+    }
+
 }

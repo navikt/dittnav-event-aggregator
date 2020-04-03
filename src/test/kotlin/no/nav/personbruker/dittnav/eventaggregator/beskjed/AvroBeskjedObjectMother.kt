@@ -16,4 +16,15 @@ object AvroBeskjedObjectMother {
                 4)
     }
 
+    fun createBeskjed(i: Int, fodselsnummer: String): Beskjed {
+        return Beskjed(
+                Instant.now().toEpochMilli(),
+                Instant.now().toEpochMilli(),
+                fodselsnummer,
+                "100$i",
+                "Dette er Beskjed til brukeren",
+                "https://nav.no/systemX/$i",
+                4)
+    }
+
 }

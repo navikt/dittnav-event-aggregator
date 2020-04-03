@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.oppgave
+package no.nav.personbruker.dittnav.eventaggregator.innboks
 
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldNullException
@@ -7,15 +7,15 @@ import org.amshove.kluent.*
 import org.junit.jupiter.api.Test
 import java.time.ZoneId
 
-class OppgaveTransformerTest {
+class InnboksTransformerTest {
 
     @Test
     fun `should transform external to internal`() {
-        val eventId = 1
-        val external = AvroOppgaveObjectMother.createOppgave(eventId)
+        val eventId = 123
+        val external = AvroInnboksObjectMother.createInnboks(eventId)
         val nokkel = createNokkel(eventId)
 
-        val internal = OppgaveTransformer.toInternal(nokkel, external)
+        val internal = InnboksTransformer.toInternal(nokkel, external)
 
         internal.fodselsnummer `should be equal to` external.getFodselsnummer()
         internal.grupperingsId `should be equal to` external.getGrupperingsId()
@@ -36,13 +36,13 @@ class OppgaveTransformerTest {
     @Test
     fun `should throw FieldNullException when fodselsnummer is empty`() {
         val fodselsnummer = ""
-        val eventId = 1
-        val event = AvroOppgaveObjectMother.createOppgave(eventId, fodselsnummer)
+        val eventId = 123
+        val event = AvroInnboksObjectMother.createInnboks(eventId, fodselsnummer)
         val nokkel = createNokkel(eventId)
 
         invoking {
             runBlocking {
-                OppgaveTransformer.toInternal(nokkel, event)
+                InnboksTransformer.toInternal(nokkel, event)
             }
         } `should throw` FieldNullException::class
     }

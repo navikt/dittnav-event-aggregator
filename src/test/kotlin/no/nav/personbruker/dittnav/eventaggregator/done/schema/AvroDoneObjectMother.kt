@@ -12,4 +12,12 @@ object AvroDoneObjectMother {
                 "100${eventId}"
         )
     }
+
+    fun createDone(eventId: String, fodselsnummer: String): Done {
+        return Done(
+                Instant.now().toEpochMilli(),
+                fodselsnummer,
+                "100${eventId}"
+        )
+    }
 }
