@@ -24,7 +24,7 @@ class InnboksEventService (
         val successfullyTransformedEvents = mutableListOf<no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks>()
         val problematicEvents = mutableListOf<ConsumerRecord<Nokkel, Innboks>>()
 
-        metricsProbe.runWithMetrics(INNBOKS) {
+        metricsProbe.runWithMetrics(eventType = INNBOKS) {
             events.forEach { event ->
                 try {
                     val internalEvent = InnboksTransformer.toInternal(event.getNonNullKey(), event.value())
