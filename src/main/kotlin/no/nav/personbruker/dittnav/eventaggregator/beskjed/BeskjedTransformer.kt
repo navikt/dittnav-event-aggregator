@@ -1,7 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import no.nav.brukernotifikasjon.schemas.Nokkel
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldNullException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.getNonNullField
 import java.time.Instant
@@ -37,10 +36,10 @@ object BeskjedTransformer {
     }
 
     private fun no.nav.brukernotifikasjon.schemas.Beskjed.getTekstIfValid(): String {
-        if(getTekst().isNullOrBlank()) {
-            throw FieldNullException("Feltet tekst må ha en verdi satt.")
+        if (getTekst().isNullOrBlank()) {
+            throw FieldValidationException("Feltet tekst må ha en verdi satt, men var null eller blank.")
 
-        } else if(getTekst().length > MAX_TEXT_FIELD_LENGTH) {
+        } else if (getTekst().length > MAX_TEXT_FIELD_LENGTH) {
             val fve = FieldValidationException("Feltet tekst kan ikke inneholde mer enn $MAX_TEXT_FIELD_LENGTH tegn.")
             fve.addContext("rejectedField", getTekst())
             throw fve

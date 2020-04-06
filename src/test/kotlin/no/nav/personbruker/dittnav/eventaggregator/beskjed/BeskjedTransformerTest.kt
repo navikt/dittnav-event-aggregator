@@ -1,7 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldNullException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import org.amshove.kluent.*
@@ -37,7 +36,7 @@ class BeskjedTransformerTest {
     }
 
     @Test
-    fun `should throw FieldNullException when fodselsnummer is empty`() {
+    fun `should throw FieldValidationException when fodselsnummer is empty`() {
         val fodselsnummerEmpty = ""
         val event = AvroBeskjedObjectMother.createBeskjedWithFodselsnummer(fodselsnummerEmpty)
 
@@ -45,7 +44,7 @@ class BeskjedTransformerTest {
             runBlocking {
                 BeskjedTransformer.toInternal(dummyNokkel, event)
             }
-        } `should throw` FieldNullException::class
+        } `should throw` FieldValidationException::class
     }
 
     @Test

@@ -3,7 +3,6 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldNullException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.NokkelNullException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
@@ -36,10 +35,6 @@ class BeskjedEventService(
                 } catch (nne: NokkelNullException) {
                     countFailedEventForProducer(event.systembruker)
                     log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", nne)
-
-                } catch (fne: FieldNullException) {
-                    countFailedEventForProducer(event.systembruker)
-                    log.warn("Obligatorisk felt var tomt eller null. EventId: ${event.getNonNullKey().getEventId()}, context: ${fne.context}", fne)
 
                 } catch (fve: FieldValidationException) {
                     countFailedEventForProducer(event.systembruker)

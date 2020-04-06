@@ -1,7 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldNullException
+import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import org.amshove.kluent.*
 import org.junit.jupiter.api.Test
@@ -34,7 +34,7 @@ class InnboksTransformerTest {
     }
 
     @Test
-    fun `should throw FieldNullException when fodselsnummer is empty`() {
+    fun `should throw FieldValidationException when fodselsnummer is empty`() {
         val fodselsnummer = ""
         val eventId = 123
         val event = AvroInnboksObjectMother.createInnboks(eventId, fodselsnummer)
@@ -44,6 +44,6 @@ class InnboksTransformerTest {
             runBlocking {
                 InnboksTransformer.toInternal(nokkel, event)
             }
-        } `should throw` FieldNullException::class
+        } `should throw` FieldValidationException::class
     }
 }
