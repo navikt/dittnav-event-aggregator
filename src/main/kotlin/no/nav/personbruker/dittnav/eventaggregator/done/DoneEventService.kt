@@ -24,27 +24,32 @@ class DoneEventService(
     override suspend fun processEvents(events: ConsumerRecords<Nokkel, Done>) {
         val successfullyTransformedEvents = mutableListOf<no.nav.personbruker.dittnav.eventaggregator.done.Done>()
         val problematicEvents = mutableListOf<ConsumerRecord<Nokkel, Done>>()
-        events.forEach { event ->
-            try {
-                eventMetricsProbe.reportEventSeen(DONE, event.systembruker)
-                val internalEvent = DoneTransformer.toInternal(event.getNonNullKey(), event.value())
-                successfullyTransformedEvents.add(internalEvent)
-                eventMetricsProbe.reportEventProcessed(DONE, event.systembruker)
 
-            } catch (e: NokkelNullException) {
-                eventMetricsProbe.reportEventFailed(DONE, event.systembruker)
-                log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", e)
-            } catch (e: FieldNullException) {
-                eventMetricsProbe.reportEventFailed(DONE, event.systembruker)
-                log.warn("Obligatorisk felt var tomt eller null. EventId: ${event.getNonNullKey().getEventId()}", e)
-            } catch (e: Exception) {
-                eventMetricsProbe.reportEventFailed(DONE, event.systembruker)
-                problematicEvents.add(event)
-                log.warn("Transformasjon av done-event fra Kafka feilet.", e)
+        eventMetricsProbe.runWithMetrics(eventType = DONE) {
+
+            events.forEach { event ->
+                try {
+                    val internalEvent = DoneTransformer.toInternal(event.getNonNullKey(), event.value())
+                    successfullyTransformedEvents.add(internalEvent)
+                    countSuccessfulEventForProducer(event.systembruker)
+
+                } catch (e: NokkelNullException) {
+                    countFailedEventForProducer(event.systembruker)
+                    log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", e)
+                } catch (e: FieldNullException) {
+                    countFailedEventForProducer(event.systembruker)
+                    log.warn("Obligatorisk felt var tomt eller null. EventId: ${event.getNonNullKey().getEventId()}", e)
+                } catch (e: Exception) {
+                    countFailedEventForProducer(event.systembruker)
+                    problematicEvents.add(event)
+                    log.warn("Transformasjon av done-event fra Kafka feilet.", e)
+                }
             }
+
+            val groupedDoneEvents = groupDoneEventsByAssociatedEventType(successfullyTransformedEvents)
+            writeDoneEventsToCache(groupedDoneEvents)
         }
-        val groupedDoneEvents = groupDoneEventsByAssociatedEventType(successfullyTransformedEvents)
-        writeDoneEventsToCache(groupedDoneEvents)
+
         kastExceptionHvisMislykkedeTransformasjoner(problematicEvents)
     }
 
