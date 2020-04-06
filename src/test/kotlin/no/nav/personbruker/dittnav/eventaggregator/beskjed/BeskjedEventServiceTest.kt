@@ -112,6 +112,53 @@ class BeskjedEventServiceTest {
         coVerify (exactly = numberOfRecords) { metricsSession.countSuccessfulEventForProducer(any()) }
     }
 
+    @Test
+    fun `skal forkaste eventer som mangler tekst i tekstfeltet`() {
+        val beskjedWithoutText = AvroBeskjedObjectMother.createBeskjedWithText("")
+        val cr = ConsumerRecordsObjectMother.createConsumerRecord("beskjed", beskjedWithoutText)
+        val records = ConsumerRecordsObjectMother.giveMeConsumerRecordsWithThisConsumerRecord(cr)
+
+        val slot = slot<suspend EventMetricsSession.() -> Unit>()
+        coEvery { eventMetricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
+            slot.captured.invoke(metricsSession)
+        }
+
+        val capturedNumberOfEntitiesWrittenToTheDb = slot<List<Beskjed>>()
+        coEvery { beskjedRepository.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns Unit
+
+        runBlocking {
+            eventService.processEvents(records)
+        }
+
+        capturedNumberOfEntitiesWrittenToTheDb.captured.size `should be` 0
+
+        coVerify (exactly = 1) { metricsSession.countFailedEventForProducer(any()) }
+    }
+
+    @Test
+    fun `skal forkaste eventer som har for lang tekst i tekstfeltet`() {
+        val tooLongText = "A".repeat(501)
+        val beskjedWithoutTooLongText = AvroBeskjedObjectMother.createBeskjedWithText(tooLongText)
+        val cr = ConsumerRecordsObjectMother.createConsumerRecord("beskjed", beskjedWithoutTooLongText)
+        val records = ConsumerRecordsObjectMother.giveMeConsumerRecordsWithThisConsumerRecord(cr)
+
+        val slot = slot<suspend EventMetricsSession.() -> Unit>()
+        coEvery { eventMetricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
+            slot.captured.invoke(metricsSession)
+        }
+
+        val capturedNumberOfEntitiesWrittenToTheDb = slot<List<Beskjed>>()
+        coEvery { beskjedRepository.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns Unit
+
+        runBlocking {
+            eventService.processEvents(records)
+        }
+
+        capturedNumberOfEntitiesWrittenToTheDb.captured.size `should be` 0
+
+        coVerify (exactly = 1) { metricsSession.countFailedEventForProducer(any()) }
+    }
+
     private fun createANumberOfTransformedRecords(numberOfRecords: Int): MutableList<Beskjed> {
         val transformedRecords = mutableListOf<Beskjed>()
         for (i in 0 until numberOfRecords) {

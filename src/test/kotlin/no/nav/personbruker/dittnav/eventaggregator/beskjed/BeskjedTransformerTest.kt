@@ -2,12 +2,15 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldNullException
+import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import org.amshove.kluent.*
 import org.junit.jupiter.api.Test
 import java.time.ZoneId
 
 class BeskjedTransformerTest {
+
+    private val dummyNokkel = createNokkel(1)
 
     @Test
     fun `should transform form external to internal`() {
@@ -36,14 +39,47 @@ class BeskjedTransformerTest {
     @Test
     fun `should throw FieldNullException when fodselsnummer is empty`() {
         val fodselsnummerEmpty = ""
-        val eventid = 1
-        val event = AvroBeskjedObjectMother.createBeskjed(eventid, fodselsnummerEmpty)
-        val nokkel = createNokkel(eventid)
+        val event = AvroBeskjedObjectMother.createBeskjedWithFodselsnummer(fodselsnummerEmpty)
 
         invoking {
             runBlocking {
-                BeskjedTransformer.toInternal(nokkel, event)
+                BeskjedTransformer.toInternal(dummyNokkel, event)
             }
-        }`should throw` FieldNullException::class
+        } `should throw` FieldNullException::class
     }
+
+    @Test
+    fun `should throw FieldValidationException if text field is too long`() {
+        val tooLongText = "A".repeat(501)
+        val event = AvroBeskjedObjectMother.createBeskjedWithText(tooLongText)
+
+        invoking {
+            runBlocking {
+                BeskjedTransformer.toInternal(dummyNokkel, event)
+            }
+        } `should throw` FieldValidationException::class
+    }
+
+    @Test
+    fun `should allow text length up to the limit`() {
+        val textWithMaxAllowedLength = "B".repeat(500)
+        val event = AvroBeskjedObjectMother.createBeskjedWithText(textWithMaxAllowedLength)
+
+        runBlocking {
+            BeskjedTransformer.toInternal(dummyNokkel, event)
+        }
+    }
+
+    @Test
+    fun `should not allow empty text`() {
+        val emptyText = ""
+        val event = AvroBeskjedObjectMother.createBeskjedWithText(emptyText)
+
+        invoking {
+            runBlocking {
+                BeskjedTransformer.toInternal(dummyNokkel, event)
+            }
+        } `should throw` FieldValidationException::class
+    }
+
 }

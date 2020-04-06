@@ -5,24 +5,25 @@ import java.time.Instant
 
 object AvroBeskjedObjectMother {
 
-    fun createBeskjed(i: Int): Beskjed {
-        return Beskjed(
-                Instant.now().toEpochMilli(),
-                Instant.now().toEpochMilli(),
-                "12345",
-                "100$i",
-                "Dette er Beskjed til brukeren",
-                "https://nav.no/systemX/$i",
-                4)
+    fun createBeskjedWithText(text: String): Beskjed {
+        return createBeskjed(1, "12345", text)
     }
 
-    fun createBeskjed(i: Int, fodselsnummer: String): Beskjed {
+    fun createBeskjed(i: Int): Beskjed {
+        return createBeskjed(i, "12345", "Dette er Beskjed til brukeren")
+    }
+
+    fun createBeskjedWithFodselsnummer(fodselsnummer: String): Beskjed {
+        return createBeskjed(1, fodselsnummer, "Dette er Beskjed til brukeren")
+    }
+
+    fun createBeskjed(i: Int, fodselsnummer: String, tekst: String): Beskjed {
         return Beskjed(
                 Instant.now().toEpochMilli(),
                 Instant.now().toEpochMilli(),
                 fodselsnummer,
                 "100$i",
-                "Dette er Beskjed til brukeren",
+                tekst,
                 "https://nav.no/systemX/$i",
                 4)
     }
