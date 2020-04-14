@@ -18,7 +18,7 @@ class OppgaveEventServiceTest {
     private val repository = mockk<OppgaveRepository>(relaxed = true)
     private val metricsProbe = mockk<EventMetricsProbe>(relaxed = true)
     private val metricsSession = mockk<EventMetricsSession>(relaxed = true)
-    private val oppgaveService = OppgaveEventService(repository, metricsProbe)
+    private val service = OppgaveEventService(repository, metricsProbe)
 
     @BeforeEach
     fun resetMocks() {
@@ -48,7 +48,7 @@ class OppgaveEventServiceTest {
         }
 
         runBlocking {
-            oppgaveService.processEvents(records)
+            service.processEvents(records)
         }
 
         verify(exactly = records.count()) { OppgaveTransformer.toInternal(any(), any()) }
@@ -84,7 +84,7 @@ class OppgaveEventServiceTest {
 
         invoking {
             runBlocking {
-                oppgaveService.processEvents(records)
+                service.processEvents(records)
             }
         } `should throw` UntransformableRecordException::class
 
@@ -110,10 +110,34 @@ class OppgaveEventServiceTest {
         }
 
         runBlocking {
-            oppgaveService.processEvents(records)
+            service.processEvents(records)
         }
 
-        coVerify (exactly = numberOfRecords) { metricsSession.countSuccessfulEventForProducer(any()) }
+        coVerify(exactly = numberOfRecords) { metricsSession.countSuccessfulEventForProducer(any()) }
+    }
+
+    @Test
+    fun `skal forkaste eventer som har valideringsfeil`() {
+        val tooLongText = "A".repeat(501)
+        val oppgaveWithTooLongText = AvroOppgaveObjectMother.createOppgave(tooLongText)
+        val cr = ConsumerRecordsObjectMother.createConsumerRecord("oppgave", oppgaveWithTooLongText)
+        val records = ConsumerRecordsObjectMother.giveMeConsumerRecordsWithThisConsumerRecord(cr)
+
+        val slot = slot<suspend EventMetricsSession.() -> Unit>()
+        coEvery { metricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
+            slot.captured.invoke(metricsSession)
+        }
+
+        val capturedNumberOfEntitiesWrittenToTheDb = slot<List<Oppgave>>()
+        coEvery { repository.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns Unit
+
+        runBlocking {
+            service.processEvents(records)
+        }
+
+        capturedNumberOfEntitiesWrittenToTheDb.captured.size `should be` 0
+
+        coVerify(exactly = 1) { metricsSession.countFailedEventForProducer(any()) }
     }
 
     private fun createANumberOfTransformedOppgaveRecords(number: Int): List<Oppgave> {

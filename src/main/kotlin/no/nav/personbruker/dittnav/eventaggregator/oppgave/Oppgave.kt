@@ -1,5 +1,8 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
+import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateMaxLength
+import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateNonNullFieldMaxLength
+import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateSikkerhetsnivaa
 import java.time.LocalDateTime
 
 data class Oppgave(
@@ -23,7 +26,7 @@ data class Oppgave(
             grupperingsId: String,
             tekst: String,
             link: String,
-            sikkerhetsinvaa: Int,
+            sikkerhetsnivaa: Int,
             sistOppdatert: LocalDateTime,
             aktiv: Boolean
     ) : this(null,
@@ -34,10 +37,18 @@ data class Oppgave(
             grupperingsId,
             tekst,
             link,
-            sikkerhetsinvaa,
+            sikkerhetsnivaa,
             sistOppdatert,
             aktiv
-    )
+    ) {
+        validateNonNullFieldMaxLength(produsent, "systembruker", 100)
+        validateNonNullFieldMaxLength(eventId, "eventId", 50)
+        validateNonNullFieldMaxLength(fodselsnummer, "fodselsnummer", 11)
+        validateNonNullFieldMaxLength(grupperingsId, "grupperingsId", 100)
+        validateNonNullFieldMaxLength(tekst, "tekst", 500)
+        validateMaxLength(link, "link", 200)
+        validateSikkerhetsnivaa(sikkerhetsnivaa)
+    }
 
     override fun toString(): String {
         return "Oppgave(" +

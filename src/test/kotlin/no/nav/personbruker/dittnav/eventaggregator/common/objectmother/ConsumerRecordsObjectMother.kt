@@ -12,8 +12,8 @@ import org.apache.kafka.common.TopicPartition
 
 object ConsumerRecordsObjectMother {
 
-    fun giveMeConsumerRecordsWithThisConsumerRecord(concreteRecord : ConsumerRecord<Nokkel, Beskjed>): ConsumerRecords<Nokkel, Beskjed> {
-        val records = mutableMapOf<TopicPartition, List<ConsumerRecord<Nokkel, Beskjed>>>()
+    fun <T> giveMeConsumerRecordsWithThisConsumerRecord(concreteRecord: ConsumerRecord<Nokkel, T>): ConsumerRecords<Nokkel, T> {
+        val records = mutableMapOf<TopicPartition, List<ConsumerRecord<Nokkel, T>>>()
         records[TopicPartition(concreteRecord.topic(), 1)] = listOf(concreteRecord)
         return ConsumerRecords(records)
     }
@@ -35,9 +35,9 @@ object ConsumerRecordsObjectMother {
         return allRecords
     }
 
-    fun createConsumerRecord(topicName: String, beskjed: Beskjed): ConsumerRecord<Nokkel, Beskjed> {
+    fun <T> createConsumerRecord(topicName: String, actualEvent: T): ConsumerRecord<Nokkel, T> {
         val nokkel = createNokkel(1)
-        return ConsumerRecord(topicName, 1, 0, nokkel, beskjed)
+        return ConsumerRecord(topicName, 1, 0, nokkel, actualEvent)
     }
 
     fun giveMeANumberOfDoneRecords(numberOfRecords: Int, topicName: String): ConsumerRecords<Nokkel, Done> {

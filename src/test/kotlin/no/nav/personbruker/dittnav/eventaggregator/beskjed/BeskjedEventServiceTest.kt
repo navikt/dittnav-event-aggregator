@@ -15,16 +15,16 @@ import org.junit.jupiter.api.Test
 
 class BeskjedEventServiceTest {
 
-    private val beskjedRepository = mockk<BeskjedRepository>(relaxed = true)
-    private val eventMetricsProbe = mockk<EventMetricsProbe>(relaxed = true)
+    private val repository = mockk<BeskjedRepository>(relaxed = true)
+    private val metricsProbe = mockk<EventMetricsProbe>(relaxed = true)
     private val metricsSession = mockk<EventMetricsSession>(relaxed = true)
-    private val eventService = BeskjedEventService(beskjedRepository, eventMetricsProbe)
+    private val service = BeskjedEventService(repository, metricsProbe)
 
     @BeforeEach
     private fun resetMocks() {
         mockkObject(BeskjedTransformer)
-        clearMocks(beskjedRepository)
-        clearMocks(eventMetricsProbe)
+        clearMocks(repository)
+        clearMocks(metricsProbe)
         clearMocks(metricsSession)
     }
 
@@ -38,24 +38,24 @@ class BeskjedEventServiceTest {
         val records = ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(5, "dummyTopic")
 
         val capturedListOfEntities = slot<List<Beskjed>>()
-        coEvery { beskjedRepository.writeEventsToCache(capture(capturedListOfEntities)) } returns Unit
+        coEvery { repository.writeEventsToCache(capture(capturedListOfEntities)) } returns Unit
 
         val slot = slot<suspend EventMetricsSession.() -> Unit>()
 
-        coEvery { eventMetricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
+        coEvery { metricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
             slot.captured.invoke(metricsSession)
         }
 
         runBlocking {
-            eventService.processEvents(records)
+            service.processEvents(records)
         }
 
         verify(exactly = records.count()) { BeskjedTransformer.toInternal(any(), any()) }
-        coVerify(exactly = 1) { beskjedRepository.writeEventsToCache(allAny()) }
+        coVerify(exactly = 1) { repository.writeEventsToCache(allAny()) }
         capturedListOfEntities.captured.size `should be` records.count()
 
         confirmVerified(BeskjedTransformer)
-        confirmVerified(beskjedRepository)
+        confirmVerified(repository)
     }
 
     @Test
@@ -68,30 +68,30 @@ class BeskjedEventServiceTest {
         val transformedRecords = createANumberOfTransformedRecords(numberOfSuccessfulTransformations)
 
         val capturedListOfEntities = slot<List<Beskjed>>()
-        coEvery { beskjedRepository.writeEventsToCache(capture(capturedListOfEntities)) } returns Unit
+        coEvery { repository.writeEventsToCache(capture(capturedListOfEntities)) } returns Unit
 
         val retriableExp = UntransformableRecordException("Simulert feil i en test")
         every { BeskjedTransformer.toInternal(any(), any()) } throws retriableExp andThenMany transformedRecords
 
         val slot = slot<suspend EventMetricsSession.() -> Unit>()
 
-        coEvery { eventMetricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
+        coEvery { metricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
             slot.captured.invoke(metricsSession)
         }
 
         invoking {
             runBlocking {
-                eventService.processEvents(records)
+                service.processEvents(records)
             }
         } `should throw` UntransformableRecordException::class
 
         coVerify(exactly = totalNumberOfRecords) { BeskjedTransformer.toInternal(any(), any()) }
-        coVerify(exactly = 1) { beskjedRepository.writeEventsToCache(allAny()) }
+        coVerify(exactly = 1) { repository.writeEventsToCache(allAny()) }
         coVerify(exactly = numberOfFailedTransformations) { metricsSession.countFailedEventForProducer(any()) }
         capturedListOfEntities.captured.size `should be` numberOfSuccessfulTransformations
 
         confirmVerified(BeskjedTransformer)
-        confirmVerified(beskjedRepository)
+        confirmVerified(repository)
     }
 
     @Test
@@ -101,12 +101,12 @@ class BeskjedEventServiceTest {
         val records = ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(numberOfRecords, "beskjed")
         val slot = slot<suspend EventMetricsSession.() -> Unit>()
 
-        coEvery { eventMetricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
+        coEvery { metricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
             slot.captured.invoke(metricsSession)
         }
 
         runBlocking {
-            eventService.processEvents(records)
+            service.processEvents(records)
         }
 
         coVerify (exactly = numberOfRecords) { metricsSession.countSuccessfulEventForProducer(any()) }
@@ -119,15 +119,15 @@ class BeskjedEventServiceTest {
         val records = ConsumerRecordsObjectMother.giveMeConsumerRecordsWithThisConsumerRecord(cr)
 
         val slot = slot<suspend EventMetricsSession.() -> Unit>()
-        coEvery { eventMetricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
+        coEvery { metricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
             slot.captured.invoke(metricsSession)
         }
 
         val capturedNumberOfEntitiesWrittenToTheDb = slot<List<Beskjed>>()
-        coEvery { beskjedRepository.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns Unit
+        coEvery { repository.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns Unit
 
         runBlocking {
-            eventService.processEvents(records)
+            service.processEvents(records)
         }
 
         capturedNumberOfEntitiesWrittenToTheDb.captured.size `should be` 0
@@ -136,22 +136,22 @@ class BeskjedEventServiceTest {
     }
 
     @Test
-    fun `skal forkaste eventer som har for lang tekst i tekstfeltet`() {
+    fun `skal forkaste eventer som har valideringsfeil`() {
         val tooLongText = "A".repeat(501)
-        val beskjedWithoutTooLongText = AvroBeskjedObjectMother.createBeskjedWithText(tooLongText)
-        val cr = ConsumerRecordsObjectMother.createConsumerRecord("beskjed", beskjedWithoutTooLongText)
+        val beskjedWithTooLongText = AvroBeskjedObjectMother.createBeskjedWithText(tooLongText)
+        val cr = ConsumerRecordsObjectMother.createConsumerRecord("beskjed", beskjedWithTooLongText)
         val records = ConsumerRecordsObjectMother.giveMeConsumerRecordsWithThisConsumerRecord(cr)
 
         val slot = slot<suspend EventMetricsSession.() -> Unit>()
-        coEvery { eventMetricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
+        coEvery { metricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
             slot.captured.invoke(metricsSession)
         }
 
         val capturedNumberOfEntitiesWrittenToTheDb = slot<List<Beskjed>>()
-        coEvery { beskjedRepository.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns Unit
+        coEvery { repository.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns Unit
 
         runBlocking {
-            eventService.processEvents(records)
+            service.processEvents(records)
         }
 
         capturedNumberOfEntitiesWrittenToTheDb.captured.size `should be` 0

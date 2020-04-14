@@ -1,5 +1,8 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
+import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateMaxLength
+import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateNonNullFieldMaxLength
+import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateSikkerhetsnivaa
 import java.time.LocalDateTime
 
 data class Beskjed(
@@ -42,7 +45,16 @@ data class Beskjed(
             sistOppdatert,
             synligFremTil,
             aktiv
-    )
+    ) {
+        validateNonNullFieldMaxLength(produsent, "systembruker", 100)
+        validateNonNullFieldMaxLength(eventId, "eventId", 50)
+        validateNonNullFieldMaxLength(fodselsnummer, "fodselsnummer", 11)
+        validateNonNullFieldMaxLength(grupperingsId, "grupperingsId", 100)
+        validateNonNullFieldMaxLength(tekst, "tekst", 500)
+        validateMaxLength(link, "link", 200)
+        validateSikkerhetsnivaa(sikkerhetsnivaa)
+        validateNonNullFieldMaxLength(uid, "uid", 100)
+    }
 
     override fun toString(): String {
         return "Beskjed(" +

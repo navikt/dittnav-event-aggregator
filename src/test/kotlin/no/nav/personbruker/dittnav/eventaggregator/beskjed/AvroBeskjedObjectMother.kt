@@ -5,26 +5,30 @@ import java.time.Instant
 
 object AvroBeskjedObjectMother {
 
+    private val defaultLopenummer = 1
+    private val defaultFodselsnr = "12345"
+    private val defaultText = "Dette er Beskjed til brukeren"
+
     fun createBeskjedWithText(text: String): Beskjed {
-        return createBeskjed(1, "12345", text)
+        return createBeskjed(defaultLopenummer, defaultFodselsnr, text)
     }
 
-    fun createBeskjed(i: Int): Beskjed {
-        return createBeskjed(i, "12345", "Dette er Beskjed til brukeren")
+    fun createBeskjed(lopenummer: Int): Beskjed {
+        return createBeskjed(lopenummer, defaultFodselsnr, defaultText)
     }
 
     fun createBeskjedWithFodselsnummer(fodselsnummer: String): Beskjed {
-        return createBeskjed(1, fodselsnummer, "Dette er Beskjed til brukeren")
+        return createBeskjed(defaultLopenummer, fodselsnummer, defaultText)
     }
 
-    fun createBeskjed(i: Int, fodselsnummer: String, tekst: String): Beskjed {
+    fun createBeskjed(lopenummer: Int, fodselsnummer: String, text: String): Beskjed {
         return Beskjed(
                 Instant.now().toEpochMilli(),
                 Instant.now().toEpochMilli(),
                 fodselsnummer,
-                "100$i",
-                tekst,
-                "https://nav.no/systemX/$i",
+                "100$lopenummer",
+                text,
+                "https://nav.no/systemX/$lopenummer",
                 4)
     }
 
