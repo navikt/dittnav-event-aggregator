@@ -34,9 +34,11 @@ class InnboksEventService (
                 } catch (e: NokkelNullException) {
                     countFailedEventForProducer(event.systembruker)
                     log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", e)
+
                 } catch (e: FieldValidationException) {
                     countFailedEventForProducer(event.systembruker)
                     log.warn("Eventet kan ikke brukes fordi det inneholder valideringsfeil, eventet vil bli forkastet. EventId: ${event.getNonNullKey().getEventId()}", e)
+
                 } catch (e: Exception) {
                     countFailedEventForProducer(event.systembruker)
                     problematicEvents.add(event)
