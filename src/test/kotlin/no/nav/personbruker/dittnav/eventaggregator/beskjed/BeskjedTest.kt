@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
+import no.nav.personbruker.dittnav.eventaggregator.common.`with message containing`
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldValidationException
 import org.amshove.kluent.`should contain`
 import org.amshove.kluent.`should throw`
@@ -49,7 +50,7 @@ class BeskjedTest {
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
                     aktiv = true)
-        } `should throw` FieldValidationException::class
+        } `should throw` FieldValidationException::class `with message containing` "produsent"
     }
 
     @Test
@@ -69,7 +70,7 @@ class BeskjedTest {
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
                     aktiv = true)
-        } `should throw` FieldValidationException::class
+        } `should throw` FieldValidationException::class `with message containing` "fodselsnummer"
     }
 
     @Test
@@ -89,7 +90,7 @@ class BeskjedTest {
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
                     aktiv = true)
-        } `should throw` FieldValidationException::class
+        } `should throw` FieldValidationException::class `with message containing` "eventId"
     }
 
     @Test
@@ -109,7 +110,7 @@ class BeskjedTest {
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
                     aktiv = true)
-        } `should throw` FieldValidationException::class
+        } `should throw` FieldValidationException::class `with message containing` "grupperingsId"
     }
 
     @Test
@@ -129,7 +130,7 @@ class BeskjedTest {
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
                     aktiv = true)
-        } `should throw` FieldValidationException::class
+        } `should throw` FieldValidationException::class `with message containing` "tekst"
     }
 
     @Test
@@ -149,7 +150,7 @@ class BeskjedTest {
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
                     aktiv = true)
-        } `should throw` FieldValidationException::class
+        } `should throw` FieldValidationException::class `with message containing` "link"
     }
 
     @Test
@@ -169,7 +170,7 @@ class BeskjedTest {
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = invalidSikkerhetsnivaa,
                     aktiv = true)
-        } `should throw` FieldValidationException::class
+        } `should throw` FieldValidationException::class `with message containing` "Sikkerhetsnivaa"
     }
 
     @Test
@@ -189,7 +190,7 @@ class BeskjedTest {
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
                     aktiv = true)
-        } `should throw` FieldValidationException::class
+        } `should throw` FieldValidationException::class `with message containing` "uid"
     }
 
 }

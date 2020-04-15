@@ -46,7 +46,7 @@ data class Beskjed(
             synligFremTil,
             aktiv
     ) {
-        validateNonNullFieldMaxLength(produsent, "systembruker", 100)
+        validateNonNullFieldMaxLength(produsent, "produsent", 100)
         validateNonNullFieldMaxLength(eventId, "eventId", 50)
         validateNonNullFieldMaxLength(fodselsnummer, "fodselsnummer", 11)
         validateNonNullFieldMaxLength(grupperingsId, "grupperingsId", 100)
