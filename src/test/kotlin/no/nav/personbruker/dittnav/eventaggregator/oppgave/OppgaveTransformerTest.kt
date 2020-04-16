@@ -1,7 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldNullException
+import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import org.amshove.kluent.*
 import org.junit.jupiter.api.Test
@@ -34,7 +34,7 @@ class OppgaveTransformerTest {
     }
 
     @Test
-    fun `should throw FieldNullException when fodselsnummer is empty`() {
+    fun `should throw FieldValidationException when fodselsnummer is empty`() {
         val fodselsnummer = ""
         val eventId = 1
         val event = AvroOppgaveObjectMother.createOppgave(eventId, fodselsnummer)
@@ -44,6 +44,6 @@ class OppgaveTransformerTest {
             runBlocking {
                 OppgaveTransformer.toInternal(nokkel, event)
             }
-        } `should throw` FieldNullException::class
+        } `should throw` FieldValidationException::class
     }
 }

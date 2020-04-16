@@ -18,7 +18,7 @@ class InnboksEventServiceTest {
     private val repository = mockk<InnboksRepository>(relaxed = true)
     private val metricsProbe = mockk<EventMetricsProbe>(relaxed = true)
     private val metricsSession = mockk<EventMetricsSession>(relaxed = true)
-    private val innboksService = InnboksEventService(repository, metricsProbe)
+    private val service = InnboksEventService(repository, metricsProbe)
 
     @BeforeEach
     fun resetMocks() {
@@ -39,7 +39,7 @@ class InnboksEventServiceTest {
 
         val capturedStores = slot<List<Innboks>>()
 
-        coEvery { repository.writeEventsToCache(capture(capturedStores))} returns Unit
+        coEvery { repository.writeEventsToCache(capture(capturedStores)) } returns Unit
 
         val slot = slot<suspend EventMetricsSession.() -> Unit>()
 
@@ -48,7 +48,7 @@ class InnboksEventServiceTest {
         }
 
         runBlocking {
-            innboksService.processEvents(records)
+            service.processEvents(records)
         }
 
         verify(exactly = records.count()) { InnboksTransformer.toInternal(any(), any()) }
@@ -84,7 +84,7 @@ class InnboksEventServiceTest {
 
         invoking {
             runBlocking {
-                innboksService.processEvents(records)
+                service.processEvents(records)
             }
         } `should throw` UntransformableRecordException::class
 
@@ -110,11 +110,36 @@ class InnboksEventServiceTest {
         }
 
         runBlocking {
-            innboksService.processEvents(records)
+            service.processEvents(records)
         }
 
-        coVerify (exactly = numberOfRecords) { metricsSession.countSuccessfulEventForProducer(any()) }
+        coVerify(exactly = numberOfRecords) { metricsSession.countSuccessfulEventForProducer(any()) }
     }
+
+    @Test
+    fun `skal forkaste eventer som har valideringsfeil`() {
+        val tooLongText = "A".repeat(501)
+        val innboksWithTooLongText = AvroInnboksObjectMother.createInnboksWithText(tooLongText)
+        val cr = ConsumerRecordsObjectMother.createConsumerRecord("innboks", innboksWithTooLongText)
+        val records = ConsumerRecordsObjectMother.giveMeConsumerRecordsWithThisConsumerRecord(cr)
+
+        val slot = slot<suspend EventMetricsSession.() -> Unit>()
+        coEvery { metricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
+            slot.captured.invoke(metricsSession)
+        }
+
+        val capturedNumberOfEntitiesWrittenToTheDb = slot<List<Innboks>>()
+        coEvery { repository.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns Unit
+
+        runBlocking {
+            service.processEvents(records)
+        }
+
+        capturedNumberOfEntitiesWrittenToTheDb.captured.size `should be` 0
+
+        coVerify(exactly = 1) { metricsSession.countFailedEventForProducer(any()) }
+    }
+
 
     private fun createANumberOfTransformedInnboksRecords(number: Int): List<Innboks> {
         return (1..number).map {

@@ -22,7 +22,7 @@ object OppgaveObjectMother {
                 grupperingsId = "Dok12345",
                 tekst = "Dette er en oppgave til brukeren",
                 link = "https://nav.no/systemX/",
-                sikkerhetsinvaa = 4,
+                sikkerhetsnivaa = 4,
                 sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
                 aktiv = true)
     }
@@ -36,7 +36,7 @@ object OppgaveObjectMother {
                 grupperingsId = "Dok12345",
                 tekst = "Dette er en oppgave til brukeren",
                 link = "https://nav.no/systemX/",
-                sikkerhetsinvaa = 4,
+                sikkerhetsnivaa = 4,
                 sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
                 aktiv = false)
     }

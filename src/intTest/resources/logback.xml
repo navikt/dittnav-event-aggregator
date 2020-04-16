@@ -1,12 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <configuration debug="true">
-    <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>
-
-    <property name="loggingPattern"
-              value="%d [%-5level] [%thread] %logger{5} %replace(- [%X{consumerId}, %X{callId}, %X{userId}] ){'- \[, , \] ',''}- %m%n"/>
-
-    <appender name="metrics" class="io.prometheus.client.logback.InstrumentedAppender"/>
-
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+        </encoder>
+    </appender>
     <root level="INFO">
-        <appender-ref ref="stdout_json"/>
+        <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

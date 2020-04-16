@@ -3,7 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldNullException
+import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.NokkelNullException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.getNonNullKey
@@ -32,12 +32,15 @@ class BeskjedEventService(
                     successfullyTransformedEvents.add(internalEvent)
                     countSuccessfulEventForProducer(event.systembruker)
 
-                } catch (e: NokkelNullException) {
+                } catch (nne: NokkelNullException) {
                     countFailedEventForProducer(event.systembruker)
-                    log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", e)
-                } catch (e: FieldNullException) {
+                    log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", nne)
+
+                } catch (fve: FieldValidationException) {
                     countFailedEventForProducer(event.systembruker)
-                    log.warn("Obligatorisk felt var tomt eller null. EventId: ${event.getNonNullKey().getEventId()}", e)
+                    val eventId = event.getNonNullKey().getEventId()
+                    log.warn("Klarte ikke transformere eventet pga en valideringsfeil. EventId: $eventId, context: ${fve.context}", fve)
+
                 } catch (e: Exception) {
                     countFailedEventForProducer(event.systembruker)
                     problematicEvents.add(event)
