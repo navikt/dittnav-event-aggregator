@@ -81,4 +81,13 @@ class BeskjedTransformerTest {
         } `should throw` FieldValidationException::class
     }
 
+    @Test
+    fun `should allow synligFremTil to be null`() {
+        val beskjedUtenSynligTilSatt = AvroBeskjedObjectMother.createBeskjedWithotSynligFremTilSatt()
+
+        val transformed = BeskjedTransformer.toInternal(dummyNokkel, beskjedUtenSynligTilSatt)
+
+        transformed.synligFremTil.`should be null`()
+    }
+
 }

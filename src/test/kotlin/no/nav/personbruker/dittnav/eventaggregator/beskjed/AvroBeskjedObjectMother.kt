@@ -32,4 +32,15 @@ object AvroBeskjedObjectMother {
                 4)
     }
 
+    fun createBeskjedWithotSynligFremTilSatt(): Beskjed {
+        return Beskjed(
+                Instant.now().toEpochMilli(),
+                null,
+                defaultFodselsnr,
+                "100$defaultLopenummer",
+                defaultText,
+                "https://nav.no/systemX/$defaultLopenummer",
+                4)
+    }
+
 }
