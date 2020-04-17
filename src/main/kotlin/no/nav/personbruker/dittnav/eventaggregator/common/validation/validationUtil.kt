@@ -26,8 +26,8 @@ fun validateNonNullField(field: String?, fieldName: String): String {
     return field
 }
 
-fun timestampToUTCDateOrNull(timestamp: Long): LocalDateTime {
-    return timestamp.let { datetime ->
+fun timestampToUTCDateOrNull(timestamp: Long?): LocalDateTime? {
+    return timestamp?.let { datetime ->
         LocalDateTime.ofInstant(Instant.ofEpochMilli(datetime), ZoneId.of("UTC"))
     }
 }
