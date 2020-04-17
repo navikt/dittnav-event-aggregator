@@ -83,7 +83,7 @@ class BeskjedTransformerTest {
 
     @Test
     fun `should allow synligFremTil to be null`() {
-        val beskjedUtenSynligTilSatt = AvroBeskjedObjectMother.createBeskjedWithotSynligFremTilSatt()
+        val beskjedUtenSynligTilSatt = AvroBeskjedObjectMother.createBeskjedWithoutSynligFremTilSatt()
 
         val transformed = BeskjedTransformer.toInternal(dummyNokkel, beskjedUtenSynligTilSatt)
 

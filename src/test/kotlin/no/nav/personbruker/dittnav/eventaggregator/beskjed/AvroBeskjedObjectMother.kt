@@ -32,7 +32,7 @@ object AvroBeskjedObjectMother {
                 4)
     }
 
-    fun createBeskjedWithotSynligFremTilSatt(): Beskjed {
+    fun createBeskjedWithoutSynligFremTilSatt(): Beskjed {
         return Beskjed(
                 Instant.now().toEpochMilli(),
                 null,
