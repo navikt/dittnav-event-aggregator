@@ -12,6 +12,12 @@ import org.apache.kafka.common.TopicPartition
 
 object ConsumerRecordsObjectMother {
 
+    fun <T> giveMeConsumerRecordsWithThisConsumerRecord(listOfConcreteRecords: List<ConsumerRecord<Nokkel, T>>): ConsumerRecords<Nokkel, T> {
+        val records = mutableMapOf<TopicPartition, List<ConsumerRecord<Nokkel, T>>>()
+        records[TopicPartition(listOfConcreteRecords[0].topic(), 1)] = listOfConcreteRecords
+        return ConsumerRecords(records)
+    }
+
     fun <T> giveMeConsumerRecordsWithThisConsumerRecord(concreteRecord: ConsumerRecord<Nokkel, T>): ConsumerRecords<Nokkel, T> {
         val records = mutableMapOf<TopicPartition, List<ConsumerRecord<Nokkel, T>>>()
         records[TopicPartition(concreteRecord.topic(), 1)] = listOf(concreteRecord)

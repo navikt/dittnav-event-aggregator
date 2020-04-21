@@ -5,5 +5,5 @@ import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.NokkelNullE
 import org.apache.kafka.clients.consumer.ConsumerRecord
 
 fun <T> ConsumerRecord<Nokkel, T>.getNonNullKey(): Nokkel {
-    return key() ?: throw NokkelNullException()
+    return key() ?: throw NokkelNullException("Produsenten har ikke spesifisert en kafka-key for sitt event")
 }

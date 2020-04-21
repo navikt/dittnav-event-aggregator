@@ -11,7 +11,7 @@ import java.time.ZoneId
 
 class InnboksTest {
 
-    private val validProdusent = "DittNAV"
+    private val validProdusent = "dummyProducer"
     private val validFodselsnummer = "123"
     private val eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC"))
     private val sistOppdatert = LocalDateTime.now(ZoneId.of("UTC"))

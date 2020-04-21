@@ -5,6 +5,20 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 
+private val fodselsnummerRegEx = """[\d]{1,11}""".toRegex()
+
+fun validateFodselsnummer(field: String): String {
+    validateNonNullField(field, "fødselsnummer")
+    if (isNotValidFodselsnummer(field)) {
+        val fve = FieldValidationException("Feltet fodselsnummer kan kun innholde siffer, og maks antall er 11.")
+        fve.addContext("rejectedFieldValue", field)
+        throw fve
+    }
+    return field
+}
+
+private fun isNotValidFodselsnummer(field: String) = !fodselsnummerRegEx.matches(field)
+
 fun validateNonNullFieldMaxLength(field: String, fieldName: String, maxLength: Int): String {
     validateNonNullField(field, fieldName)
     return validateMaxLength(field, fieldName, maxLength)
@@ -13,7 +27,7 @@ fun validateNonNullFieldMaxLength(field: String, fieldName: String, maxLength: I
 fun validateMaxLength(field: String, fieldName: String, maxLength: Int): String {
     if (field.length > maxLength) {
         val fve = FieldValidationException("Feltet $fieldName kan ikke inneholde mer enn $maxLength tegn.")
-        fve.addContext("rejectedField", field)
+        fve.addContext("rejectedFieldValue", field)
         throw fve
     }
     return field

@@ -20,7 +20,7 @@ class InnboksQueriesTest {
     private val innboks2: Innboks
     private val innboks3: Innboks
 
-    private val produsent = "DittNAV"
+    private val produsent = "dummyProducer"
     private val eventId = "1"
 
     private val allInnboks: List<Innboks>

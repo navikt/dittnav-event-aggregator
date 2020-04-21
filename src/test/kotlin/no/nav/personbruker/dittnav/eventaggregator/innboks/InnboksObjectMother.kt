@@ -10,7 +10,7 @@ object InnboksObjectMother {
     }
 
     fun giveMeAktivInnboks(eventId: String, fodselsnummer: String): Innboks {
-        return giveMeAktivInnboks(eventId, fodselsnummer, "DittNAV")
+        return giveMeAktivInnboks(eventId, fodselsnummer, "dummyProducer")
     }
 
     fun giveMeAktivInnboks(eventId: String, fodselsnummer: String, produsent: String): Innboks {
@@ -29,7 +29,7 @@ object InnboksObjectMother {
 
     fun giveMeInaktivInnboks(): Innboks {
         return Innboks(
-                "DittNAV",
+                "dummyProducer",
                 "76543",
                 LocalDateTime.now(ZoneId.of("UTC")),
                 "123",
