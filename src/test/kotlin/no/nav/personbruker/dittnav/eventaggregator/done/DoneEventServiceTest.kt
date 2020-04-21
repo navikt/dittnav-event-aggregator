@@ -34,10 +34,10 @@ class DoneEventServiceTest {
         clearMocks(repository)
         clearMocks(metricsProbe)
         clearMocks(metricsSession)
-        mockSlikAtRunninMetricsAlltidKjores()
+        mockSlikAtInnholdetIRunWithMetricsAlltidKjores()
     }
 
-    private fun mockSlikAtRunninMetricsAlltidKjores() {
+    private fun mockSlikAtInnholdetIRunWithMetricsAlltidKjores() {
         val slot = slot<suspend EventMetricsSession.() -> Unit>()
         coEvery { metricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
             slot.captured.invoke(metricsSession)
