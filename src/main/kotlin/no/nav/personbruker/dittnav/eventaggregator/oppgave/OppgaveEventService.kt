@@ -32,7 +32,7 @@ class OppgaveEventService(
                     countSuccessfulEventForProducer(event.systembruker)
 
                 } catch (e: NokkelNullException) {
-                    countFailedEventForProducer(event.systembruker)
+                    countFailedEventForProducer("NoProducerSpecified")
                     log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", e)
 
                 } catch (e: FieldValidationException) {

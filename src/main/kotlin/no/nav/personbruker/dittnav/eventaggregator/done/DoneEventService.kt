@@ -34,11 +34,13 @@ class DoneEventService(
                     countSuccessfulEventForProducer(event.systembruker)
 
                 } catch (e: NokkelNullException) {
-                    countFailedEventForProducer(event.systembruker)
+                    countFailedEventForProducer("NoProducerSpecified")
                     log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", e)
+
                 } catch (e: FieldValidationException) {
                     countFailedEventForProducer(event.systembruker)
                     log.warn("Eventet kan ikke brukes fordi det inneholder valideringsfeil, eventet vil bli forkastet. EventId: ${event.getNonNullKey().getEventId()}", e)
+
                 } catch (e: Exception) {
                     countFailedEventForProducer(event.systembruker)
                     problematicEvents.add(event)
@@ -53,7 +55,7 @@ class DoneEventService(
         kastExceptionHvisMislykkedeTransformasjoner(problematicEvents)
     }
 
-    private suspend fun groupDoneEventsByAssociatedEventType(successfullyTransformedEvents: MutableList<no.nav.personbruker.dittnav.eventaggregator.done.Done>): DoneBatchProcessor {
+    private suspend fun groupDoneEventsByAssociatedEventType(successfullyTransformedEvents: List<no.nav.personbruker.dittnav.eventaggregator.done.Done>): DoneBatchProcessor {
         val aktiveBrukernotifikasjoner = doneRepository.fetchActiveBrukernotifikasjonerFromView()
         val batch = DoneBatchProcessor(aktiveBrukernotifikasjoner)
         batch.process(successfullyTransformedEvents)

@@ -33,7 +33,7 @@ class BeskjedEventService(
                     countSuccessfulEventForProducer(event.systembruker)
 
                 } catch (nne: NokkelNullException) {
-                    countFailedEventForProducer(event.systembruker)
+                    countFailedEventForProducer("NoProducerSpecified")
                     log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", nne)
 
                 } catch (fve: FieldValidationException) {
