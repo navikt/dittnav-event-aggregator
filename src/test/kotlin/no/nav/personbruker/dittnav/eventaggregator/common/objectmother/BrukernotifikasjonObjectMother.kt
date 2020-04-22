@@ -16,12 +16,24 @@ object BrukernotifikasjonObjectMother {
         return Brukernotifikasjon("b-1", "dummyProducer", EventType.BESKJED, "123")
     }
 
+    fun giveMeBeskjed(fodselsnummer: String): Brukernotifikasjon {
+        return Brukernotifikasjon("b-1", "dummyProducer", EventType.BESKJED, fodselsnummer)
+    }
+
     fun giveMeInnboks(): Brukernotifikasjon {
         return Brukernotifikasjon("i-1", "dummyProducer", EventType.INNBOKS, "123")
     }
 
+    fun giveMeInnboks(fodselsnummer: String): Brukernotifikasjon {
+        return Brukernotifikasjon("i-1", "dummyProducer", EventType.INNBOKS, fodselsnummer)
+    }
+
     fun giveMeOppgave(): Brukernotifikasjon {
         return Brukernotifikasjon("o-1", "dummyProducer", EventType.OPPGAVE, "123")
+    }
+
+    fun giveMeOppgave(fodselsnummer: String): Brukernotifikasjon {
+        return Brukernotifikasjon("o-1", "dummyProducer", EventType.OPPGAVE, fodselsnummer)
     }
 
     fun giveMeFor(beskjed: Beskjed): Brukernotifikasjon {

@@ -13,7 +13,7 @@ import kotlin.random.Random
 class BeskjedTest {
 
     private val uid = Random.nextInt(1, 100).toString()
-    private val validProdusent = "DittNAV"
+    private val validProdusent = "dummyProducer"
     private val validFodselsnummer = "123"
     private val eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC"))
     private val synligFremTil = LocalDateTime.now(ZoneId.of("UTC"))

@@ -18,7 +18,7 @@ class OppgaveQueriesTest {
     private val oppgave2: Oppgave
     private val oppgave3: Oppgave
 
-    private val produsent = "DittNAV"
+    private val produsent = "dummyProducer"
     private val eventId = "2"
 
     private val allEvents: List<Oppgave>

@@ -1,5 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
+import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateFodselsnummer
+import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateNonNullFieldMaxLength
 import java.time.LocalDateTime
 
 data class Done(
@@ -9,6 +11,13 @@ data class Done(
         val fodselsnummer: String,
         val grupperingsId: String
 ) {
+
+    init {
+        validateNonNullFieldMaxLength(produsent, "produsent", 100)
+        validateNonNullFieldMaxLength(eventId, "eventId", 50)
+        validateFodselsnummer(fodselsnummer)
+    }
+
     override fun toString(): String {
         return "Done(" +
                 "produsent=$produsent, " +

@@ -24,7 +24,7 @@ class CachedDoneEventConsumerTest {
     private val doneRepository = DoneRepository(database)
     private val eventConsumer = CachedDoneEventConsumer(doneRepository)
 
-    private val produsent = "DittNAV"
+    private val produsent = "dummyProducer"
     private val fodselsnummer = "12345"
     private val beskjed1 = BeskjedObjectMother.giveMeAktivBeskjed("1", fodselsnummer, produsent)
     private val oppgave1 = OppgaveObjectMother.giveMeAktivOppgave("2", fodselsnummer, produsent)
