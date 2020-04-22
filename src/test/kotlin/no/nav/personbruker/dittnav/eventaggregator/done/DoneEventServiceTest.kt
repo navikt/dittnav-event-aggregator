@@ -54,7 +54,8 @@ class DoneEventServiceTest {
         val beskjedInDbToMatch = BrukernotifikasjonObjectMother.giveMeBeskjed(dummyFnr)
         val records = createMatchingRecords(beskjedInDbToMatch)
 
-        val capturedNumberOfBeskjedEntitiesWrittenToTheDb = captureBeskjedEventsWrittenToDb()
+        val capturedNumberOfBeskjedEntitiesWrittenToTheDb = slot<List<Done>>()
+        coEvery { repository.writeDoneEventsForBeskjedToCache(capture(capturedNumberOfBeskjedEntitiesWrittenToTheDb)) } returns Unit
 
         coEvery {
             repository.fetchActiveBrukernotifikasjonerFromView()
@@ -77,7 +78,8 @@ class DoneEventServiceTest {
         val innboksEventInDbToMatch = BrukernotifikasjonObjectMother.giveMeInnboks(dummyFnr)
         val records = createMatchingRecords(innboksEventInDbToMatch)
 
-        val capturedNumberOfInnboksEntitiesWrittenToTheDb = captureInnboksEventsWrittenToDb()
+        val capturedNumberOfInnboksEntitiesWrittenToTheDb = slot<List<Done>>()
+        coEvery { repository.writeDoneEventsForInnboksToCache(capture(capturedNumberOfInnboksEntitiesWrittenToTheDb)) } returns Unit
 
         coEvery {
             repository.fetchActiveBrukernotifikasjonerFromView()
@@ -100,7 +102,8 @@ class DoneEventServiceTest {
         val oppgaveEventInDbToMatch = BrukernotifikasjonObjectMother.giveMeOppgave(dummyFnr)
         val records = createMatchingRecords(oppgaveEventInDbToMatch)
 
-        val capturedNumberOfOppgaveEntitiesWrittenToTheDb = captureOppgaveEventsWrittenToDb()
+        val capturedNumberOfOppgaveEntitiesWrittenToTheDb = slot<List<Done>>()
+        coEvery { repository.writeDoneEventsForOppgaveToCache(capture(capturedNumberOfOppgaveEntitiesWrittenToTheDb)) } returns Unit
 
         coEvery {
             repository.fetchActiveBrukernotifikasjonerFromView()
@@ -145,7 +148,8 @@ class DoneEventServiceTest {
         val doneEvent = AvroDoneObjectMother.createDoneRecord("eventIdUteMatch", beskjedInDbToMatch.fodselsnummer)
         val records = ConsumerRecordsObjectMother.giveMeConsumerRecordsWithThisConsumerRecord(doneEvent)
 
-        val capturedNumberOfDoneWrittenToTheDb = captureNumberOfDoneEntitiesWrittenToTheDb()
+        val capturedNumberOfDoneWrittenToTheDb = slot<List<Done>>()
+        coEvery { repository.writeDoneEventToCache(capture(capturedNumberOfDoneWrittenToTheDb)) } returns Unit
 
         coEvery {
             repository.fetchActiveBrukernotifikasjonerFromView()
@@ -171,7 +175,8 @@ class DoneEventServiceTest {
         val entitiesInDbToMatch = listOf(beskjedInDbToMatch1, beskjedInDbToMatch2, beskjedInDbToMatch3)
         val records = createMatchingRecords(entitiesInDbToMatch)
 
-        val capturedNumberOfBeskjedEntitiesWrittenToTheDb = captureBeskjedEventsWrittenToDb()
+        val capturedNumberOfBeskjedEntitiesWrittenToTheDb = slot<List<Done>>()
+        coEvery { repository.writeDoneEventsForBeskjedToCache(capture(capturedNumberOfBeskjedEntitiesWrittenToTheDb)) } returns Unit
 
         val simulertFeil = UntransformableRecordException("Simulert feil")
         val matchingDoneEvent2 = DoneObjectMother.giveMeMatchingDoneEvent(beskjedInDbToMatch2)
@@ -231,30 +236,6 @@ class DoneEventServiceTest {
     private fun createMatchingRecords(entityInDbToMatch: Brukernotifikasjon): ConsumerRecords<Nokkel, no.nav.brukernotifikasjon.schemas.Done> {
         val matchingDoneEvent = AvroDoneObjectMother.createDoneRecord(entityInDbToMatch.eventId, entityInDbToMatch.fodselsnummer)
         return ConsumerRecordsObjectMother.giveMeConsumerRecordsWithThisConsumerRecord(matchingDoneEvent)
-    }
-
-    private fun captureNumberOfDoneEntitiesWrittenToTheDb(): CapturingSlot<List<Done>> {
-        val capturedNumberOfDoneWrittenToTheDb = slot<List<Done>>()
-        coEvery { repository.writeDoneEventToCache(capture(capturedNumberOfDoneWrittenToTheDb)) } returns Unit
-        return capturedNumberOfDoneWrittenToTheDb
-    }
-
-    private fun captureBeskjedEventsWrittenToDb(): CapturingSlot<List<Done>> {
-        val numberOfEntities = slot<List<Done>>()
-        coEvery { repository.writeDoneEventsForBeskjedToCache(capture(numberOfEntities)) } returns Unit
-        return numberOfEntities
-    }
-
-    private fun captureInnboksEventsWrittenToDb(): CapturingSlot<List<Done>> {
-        val numberOfEntities = slot<List<Done>>()
-        coEvery { repository.writeDoneEventsForInnboksToCache(capture(numberOfEntities)) } returns Unit
-        return numberOfEntities
-    }
-
-    private fun captureOppgaveEventsWrittenToDb(): CapturingSlot<List<Done>> {
-        val numberOfEntities = slot<List<Done>>()
-        coEvery { repository.writeDoneEventsForOppgaveToCache(capture(numberOfEntities)) } returns Unit
-        return numberOfEntities
     }
 
 }
