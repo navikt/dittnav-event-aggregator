@@ -2,19 +2,16 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
-import no.nav.brukernotifikasjon.schemas.Nokkel
-import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.BrukernotifikasjonObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.ConsumerRecordsObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.ConsumerRecordsObjectMother.createMatchingRecords
 import no.nav.personbruker.dittnav.eventaggregator.done.schema.AvroDoneObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsSession
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should throw`
 import org.amshove.kluent.invoking
-import org.apache.kafka.clients.consumer.ConsumerRecord
-import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -29,15 +26,15 @@ class DoneEventServiceTest {
     private val dummyFnr = "1".repeat(11)
 
     @BeforeEach
-    private fun resetMocks() {
+    private fun `reset mocks`() {
         mockkObject(DoneTransformer)
         clearMocks(repository)
         clearMocks(metricsProbe)
         clearMocks(metricsSession)
-        mockSlikAtInnholdetIRunWithMetricsAlltidKjores()
+        `mock slik at innholdet i runWithMetrics alltid kjores`()
     }
 
-    private fun mockSlikAtInnholdetIRunWithMetricsAlltidKjores() {
+    private fun `mock slik at innholdet i runWithMetrics alltid kjores`() {
         val slot = slot<suspend EventMetricsSession.() -> Unit>()
         coEvery { metricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
             slot.captured.invoke(metricsSession)
@@ -45,7 +42,7 @@ class DoneEventServiceTest {
     }
 
     @AfterAll
-    private fun cleanUp() {
+    private fun `clean up`() {
         unmockkAll()
     }
 
@@ -222,20 +219,6 @@ class DoneEventServiceTest {
         coVerify(exactly = 1) { repository.writeDoneEventsForBeskjedToCache(emptyList()) }
         coVerify(exactly = 1) { repository.writeDoneEventsForInnboksToCache(emptyList()) }
         coVerify(exactly = 1) { repository.writeDoneEventsForOppgaveToCache(emptyList()) }
-    }
-
-    private fun createMatchingRecords(entitiesInDbToMatch: List<Brukernotifikasjon>): ConsumerRecords<Nokkel, no.nav.brukernotifikasjon.schemas.Done> {
-        val listOfConsumerRecord = mutableListOf<ConsumerRecord<Nokkel, no.nav.brukernotifikasjon.schemas.Done>>()
-        entitiesInDbToMatch.forEach { entity ->
-            val done = AvroDoneObjectMother.createDoneRecord(entity.eventId, entity.fodselsnummer)
-            listOfConsumerRecord.add(done)
-        }
-        return ConsumerRecordsObjectMother.giveMeConsumerRecordsWithThisConsumerRecord(listOfConsumerRecord)
-    }
-
-    private fun createMatchingRecords(entityInDbToMatch: Brukernotifikasjon): ConsumerRecords<Nokkel, no.nav.brukernotifikasjon.schemas.Done> {
-        val matchingDoneEvent = AvroDoneObjectMother.createDoneRecord(entityInDbToMatch.eventId, entityInDbToMatch.fodselsnummer)
-        return ConsumerRecordsObjectMother.giveMeConsumerRecordsWithThisConsumerRecord(matchingDoneEvent)
     }
 
 }
