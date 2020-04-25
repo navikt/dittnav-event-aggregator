@@ -79,7 +79,7 @@ class CachedDoneEventConsumer(
         val groupedDoneEvents = fetchInactiveEvents()
         groupedDoneEvents.process(remainingEventsToLookFor)
         updateTheDatabase(groupedDoneEvents)
-        log.info("Status for prosessering av done-eventer, opp mot deaktive eventer:\n$groupedDoneEvents")
+        log.info("Status for prosessering av done-eventer, opp mot deaktiverte eventer:\n$groupedDoneEvents")
         return groupedDoneEvents
     }
 
