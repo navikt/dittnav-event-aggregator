@@ -53,7 +53,10 @@ class DoneBatchProcessor(private val existingEntitiesInDatabase: List<Brukernoti
     }
 
     override fun toString(): String {
+        val antallDoneEventer = allFoundEvents.size + notFoundEvents.size
+        val antallBrukernotifikasjoner = existingEntitiesInDatabase.size
         return """
+            Prosesserte $antallDoneEventer done-eventer, opp mot $antallBrukernotifikasjoner brukernotifikasjoner:
             Fant ${foundBeskjed.size} done-eventer med tilhørende eventer i beskjed-tabellen.
             Fant ${foundInnboks.size} done-eventer med tilhørende eventer i innboks-tabellen.
             Fant ${foundOppgave.size} done-eventer med tilhørende eventer i oppgave-tabellen.

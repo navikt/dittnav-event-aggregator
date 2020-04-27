@@ -78,7 +78,8 @@ class CachedDoneEventConsumer(
     private suspend fun processDeactivatedEventsOnly(remainingEventsToLookFor: List<Done>): DoneBatchProcessor {
         val groupedDoneEvents = fetchInactiveEvents()
         groupedDoneEvents.process(remainingEventsToLookFor)
-        log.info("Status for prosessering av done-eventer, opp mot deaktive eventer:\n$groupedDoneEvents")
+        updateTheDatabase(groupedDoneEvents)
+        log.info("Status for prosessering av done-eventer, opp mot deaktiverte eventer:\n$groupedDoneEvents")
         return groupedDoneEvents
     }
 
