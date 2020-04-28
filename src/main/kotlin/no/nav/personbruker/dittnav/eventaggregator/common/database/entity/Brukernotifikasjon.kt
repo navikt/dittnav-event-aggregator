@@ -5,7 +5,7 @@ import no.nav.personbruker.dittnav.eventaggregator.done.Done
 
 data class Brukernotifikasjon(
         val eventId: String,
-        val produsent: String,
+        val systembruker: String,
         val type: EventType,
         val fodselsnummer: String
 ) {
@@ -13,7 +13,7 @@ data class Brukernotifikasjon(
     fun isRepresentsSameEventAs(doneEvent: Done): Boolean {
         if (eventId != doneEvent.eventId) return false
         if (fodselsnummer != doneEvent.fodselsnummer) return false
-        if (produsent != doneEvent.produsent) return false
+        if (systembruker != doneEvent.systembruker) return false
 
         return true
     }

@@ -18,7 +18,7 @@ class BrukernotifikasjonTest{
     @Test
     internal fun `skal ikke match med ikke-tilhorende done-eventer`() {
         val beskjed = BrukernotifikasjonObjectMother.giveMeBeskjed()
-        val ikkeMatchendeDoneEvent = DoneObjectMother.giveMeDone(beskjed.eventId, beskjed.produsent, "7654")
+        val ikkeMatchendeDoneEvent = DoneObjectMother.giveMeDone(beskjed.eventId, beskjed.systembruker, "7654")
 
         beskjed.isRepresentsSameEventAs(ikkeMatchendeDoneEvent) `should be equal to` false
     }

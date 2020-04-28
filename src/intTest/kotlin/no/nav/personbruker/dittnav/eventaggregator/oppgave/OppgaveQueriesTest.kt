@@ -18,7 +18,7 @@ class OppgaveQueriesTest {
     private val oppgave2: Oppgave
     private val oppgave3: Oppgave
 
-    private val produsent = "dummyProducer"
+    private val systembruker = "dummyProducer"
     private val eventId = "2"
 
     private val allEvents: List<Oppgave>
@@ -62,11 +62,11 @@ class OppgaveQueriesTest {
     @Test
     fun `Finner alle aktive cachede Oppgave-eventer`() {
         runBlocking {
-            database.dbQuery { setOppgaveAktivFlag(eventId, produsent, fodselsnummer2, false) }
+            database.dbQuery { setOppgaveAktivFlag(eventId, systembruker, fodselsnummer2, false) }
             val result = database.dbQuery { getAllOppgaveByAktiv(true) }
             result `should contain all` listOf(oppgave1, oppgave3)
             result `should not contain` oppgave2
-            database.dbQuery { setOppgaveAktivFlag(eventId, produsent, fodselsnummer2,  true) }
+            database.dbQuery { setOppgaveAktivFlag(eventId, systembruker, fodselsnummer2,  true) }
         }
     }
 

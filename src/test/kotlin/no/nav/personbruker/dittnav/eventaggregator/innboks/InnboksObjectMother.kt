@@ -13,9 +13,9 @@ object InnboksObjectMother {
         return giveMeAktivInnboks(eventId, fodselsnummer, "dummyProducer")
     }
 
-    fun giveMeAktivInnboks(eventId: String, fodselsnummer: String, produsent: String): Innboks {
+    fun giveMeAktivInnboks(eventId: String, fodselsnummer: String, systembruker: String): Innboks {
         return Innboks(
-                produsent,
+                systembruker,
                 eventId,
                 LocalDateTime.now(ZoneId.of("UTC")),
                 fodselsnummer,

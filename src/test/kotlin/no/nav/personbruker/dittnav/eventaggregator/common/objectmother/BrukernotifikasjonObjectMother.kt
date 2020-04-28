@@ -37,15 +37,15 @@ object BrukernotifikasjonObjectMother {
     }
 
     fun giveMeFor(beskjed: Beskjed): Brukernotifikasjon {
-        return Brukernotifikasjon(beskjed.eventId, beskjed.produsent, EventType.BESKJED, beskjed.fodselsnummer)
+        return Brukernotifikasjon(beskjed.eventId, beskjed.systembruker, EventType.BESKJED, beskjed.fodselsnummer)
     }
 
     fun giveMeFor(innboks: Innboks): Brukernotifikasjon {
-        return Brukernotifikasjon(innboks.eventId, innboks.produsent, EventType.INNBOKS, innboks.fodselsnummer)
+        return Brukernotifikasjon(innboks.eventId, innboks.systembruker, EventType.INNBOKS, innboks.fodselsnummer)
     }
 
     fun giveMeFor(oppgave: Oppgave): Brukernotifikasjon {
-        return Brukernotifikasjon(oppgave.eventId, oppgave.produsent, EventType.OPPGAVE, oppgave.fodselsnummer)
+        return Brukernotifikasjon(oppgave.eventId, oppgave.systembruker, EventType.OPPGAVE, oppgave.fodselsnummer)
     }
 
 }

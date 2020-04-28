@@ -27,9 +27,9 @@ fun Connection.getInnboksById(entityId: Int): Innboks =
                 }
 
 fun Connection.createInnboks(innboks: Innboks): PersistActionResult =
-        executePersistQuery("""INSERT INTO innboks(produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv)
+        executePersistQuery("""INSERT INTO innboks(systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv)
             VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""") {
-            setString(1, innboks.produsent)
+            setString(1, innboks.systembruker)
             setObject(2, innboks.eventTidspunkt, Types.TIMESTAMP)
             setString(3, innboks.fodselsnummer)
             setString(4, innboks.eventId)
@@ -41,12 +41,12 @@ fun Connection.createInnboks(innboks: Innboks): PersistActionResult =
             setBoolean(10, innboks.aktiv)
         }
 
-fun Connection.setInnboksAktivFlag(eventId: String, produsent: String, fodselsnummer: String, aktiv: Boolean): Int =
-        prepareStatement("""UPDATE innboks SET aktiv = ? WHERE eventId = ? AND produsent = ? AND fodselsnummer = ?""")
+fun Connection.setInnboksAktivFlag(eventId: String, systembruker: String, fodselsnummer: String, aktiv: Boolean): Int =
+        prepareStatement("""UPDATE innboks SET aktiv = ? WHERE eventId = ? AND systembruker = ? AND fodselsnummer = ?""")
                 .use {
                     it.setBoolean(1, aktiv)
                     it.setString(2, eventId)
-                    it.setString(3, produsent)
+                    it.setString(3, systembruker)
                     it.setString(4, fodselsnummer)
                     it.executeUpdate()
                 }
@@ -82,7 +82,7 @@ fun Connection.getInnboksByEventId(eventId: String): Innboks =
 private fun ResultSet.toInnboks(): Innboks {
     return Innboks(
             id = getInt("id"),
-            produsent = getString("produsent"),
+            systembruker = getString("systembruker"),
             eventTidspunkt = getUtcDateTime("eventTidspunkt"),
             fodselsnummer = getString("fodselsnummer"),
             eventId = getString("eventId"),

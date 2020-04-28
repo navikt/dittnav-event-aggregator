@@ -19,7 +19,7 @@ class DoneTransformerTest {
         val nokkel = createNokkel(123)
         val transformed = DoneTransformer.toInternal(nokkel, original)
 
-        transformed.produsent `should be equal to` nokkel.getSystembruker()
+        transformed.systembruker `should be equal to` nokkel.getSystembruker()
         transformed.fodselsnummer `should be equal to` original.getFodselsnummer()
         transformed.grupperingsId `should be equal to` original.getGrupperingsId()
         transformed.eventId `should be equal to` nokkel.getEventId()

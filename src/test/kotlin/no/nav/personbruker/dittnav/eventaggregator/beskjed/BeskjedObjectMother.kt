@@ -11,14 +11,14 @@ object BeskjedObjectMother {
     }
 
     fun giveMeAktivBeskjed(eventId: String, fodselsnummer: String): Beskjed {
-        val produsent = "dummyProducer"
-        return giveMeAktivBeskjed(eventId, fodselsnummer, produsent)
+        val systembruker = "dummyProducer"
+        return giveMeAktivBeskjed(eventId, fodselsnummer, systembruker)
     }
 
-    fun giveMeAktivBeskjed(eventId: String, fodselsnummer: String, produsent: String): Beskjed {
+    fun giveMeAktivBeskjed(eventId: String, fodselsnummer: String, systembruker: String): Beskjed {
         return Beskjed(
                 uid = Random.nextInt(1,100).toString(),
-                produsent = produsent,
+                systembruker = systembruker,
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
                 synligFremTil = LocalDateTime.now(ZoneId.of("UTC")),
                 fodselsnummer = fodselsnummer,
@@ -34,7 +34,7 @@ object BeskjedObjectMother {
     fun giveMeInaktivBeskjed(): Beskjed {
         return Beskjed(
                 uid = Random.nextInt(1, 100).toString(),
-                produsent = "dummyProducer",
+                systembruker = "dummyProducer",
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
                 synligFremTil = LocalDateTime.now(ZoneId.of("UTC")),
                 fodselsnummer = "123",

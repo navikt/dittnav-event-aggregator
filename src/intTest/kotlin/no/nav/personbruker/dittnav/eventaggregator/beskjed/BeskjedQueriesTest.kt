@@ -16,7 +16,7 @@ class BeskjedQueriesTest {
     private val Beskjed3: Beskjed
     private val Beskjed4: Beskjed
 
-    private val produsent = "dummyProducer"
+    private val systembruker = "dummyProducer"
     private val fodselsnummer = "12345"
     private val eventId = "2"
 
@@ -63,11 +63,11 @@ class BeskjedQueriesTest {
     @Test
     fun `Finner alle aktive cachede Beskjed-eventer`() {
         runBlocking {
-            database.dbQuery { setBeskjedAktivFlag(eventId, produsent, fodselsnummer, false) }
+            database.dbQuery { setBeskjedAktivFlag(eventId, systembruker, fodselsnummer, false) }
             val result = database.dbQuery { getAllBeskjedByAktiv(true) }
             result `should contain all` listOf(Beskjed1, Beskjed3, Beskjed4)
             result `should not contain` Beskjed2
-            database.dbQuery { setBeskjedAktivFlag(eventId, produsent, fodselsnummer, true) }
+            database.dbQuery { setBeskjedAktivFlag(eventId, systembruker, fodselsnummer, true) }
         }
     }
 
