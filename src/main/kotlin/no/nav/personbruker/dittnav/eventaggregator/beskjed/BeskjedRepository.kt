@@ -9,7 +9,13 @@ class BeskjedRepository(private val database: Database) {
 
     private val log: Logger = LoggerFactory.getLogger(BeskjedRepository::class.java)
 
-    suspend fun writeEventsToCache(entities: List<Beskjed>) {
+    suspend fun createBeskjederIEnBatch(entities: List<Beskjed>) {
+        database.queryWithExceptionTranslation {
+            createBeskjeder(entities)
+        }
+    }
+
+    suspend fun createOneByOneToFilterOutTheProblematicEvent(entities: List<Beskjed>) {
         database.queryWithExceptionTranslation {
             entities.forEach { entity ->
                 createBeskjed(entity).onFailure { reason ->

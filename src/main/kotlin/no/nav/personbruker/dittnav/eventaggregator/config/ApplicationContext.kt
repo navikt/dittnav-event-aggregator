@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedDatabaseService
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedEventService
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
@@ -20,7 +21,8 @@ class ApplicationContext {
     val metricsProbe = buildEventMetricsProbe(environment)
 
     val beskjedRepository = BeskjedRepository(database)
-    val beskjedEventProcessor = BeskjedEventService(beskjedRepository, metricsProbe)
+    val beskjedDatabaseService = BeskjedDatabaseService(beskjedRepository)
+    val beskjedEventProcessor = BeskjedEventService(beskjedDatabaseService, metricsProbe)
     val beskjedKafkaProps = Kafka.consumerProps(environment, EventType.BESKJED)
     val beskjedConsumer = KafkaConsumerSetup.setupConsumerForTheBeskjedTopic(beskjedKafkaProps, beskjedEventProcessor)
 

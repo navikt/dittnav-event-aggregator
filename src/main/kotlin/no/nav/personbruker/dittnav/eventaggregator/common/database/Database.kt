@@ -3,13 +3,11 @@ package no.nav.personbruker.dittnav.eventaggregator.common.database
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.ConstraintViolationDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
 import org.postgresql.util.PSQLException
-import java.sql.Connection
-import java.sql.SQLException
-import java.sql.SQLRecoverableException
-import java.sql.SQLTransientException
+import java.sql.*
 
 interface Database {
 
@@ -46,6 +44,10 @@ interface Database {
 inline fun translateExternalExceptionsToInternalOnes(databaseActions: () -> Unit) {
     try {
         databaseActions()
+
+    } catch (bue: BatchUpdateException) {
+        val msg = "Batch-operasjon mot databasen feilet"
+        throw ConstraintViolationDatabaseException(msg, bue)
 
     } catch (te: SQLTransientException) {
         val message = "Skriving til databasen feilet grunnet en periodisk feil."

@@ -15,7 +15,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class BeskjedEventService(
-        private val beskjedRepository: BeskjedRepository,
+        private val beskjedDatabaseService: BeskjedDatabaseService,
         private val metricsProbe: EventMetricsProbe
 ) : EventBatchProcessorService<Beskjed> {
 
@@ -48,7 +48,7 @@ class BeskjedEventService(
                 }
             }
 
-            beskjedRepository.writeEventsToCache(successfullyTransformedEvents)
+            beskjedDatabaseService.writeEventsToCache(successfullyTransformedEvents)
         }
 
         kastExceptionHvisMislykkedeTransformasjoner(problematicEvents)
