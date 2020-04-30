@@ -7,7 +7,7 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
 
-class BeskjedQueriesTest {
+class beskjedQueriesTest {
 
     private val database = H2Database()
 
