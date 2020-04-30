@@ -1,14 +1,21 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
+import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonRepository
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistFailureReason
 import org.slf4j.LoggerFactory
 
-class InnboksRepository(private val database: Database) {
+class InnboksRepository(private val database: Database) : BrukernotifikasjonRepository<Innboks> {
 
     val log = LoggerFactory.getLogger(InnboksRepository::class.java)
 
-    suspend fun writeEventsToCache(entities: List<Innboks>) {
+    override suspend fun createInOneBatch(entities: List<Innboks>) {
+        database.queryWithExceptionTranslation {
+            createInnboksEventer(entities)
+        }
+    }
+
+    override suspend fun createOneByOneToFilterOutTheProblematicEvents(entities: List<Innboks>) {
         database.queryWithExceptionTranslation {
             entities.forEach { entity ->
                 createInnboks(entity).onFailure { reason ->

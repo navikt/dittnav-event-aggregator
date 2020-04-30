@@ -1,11 +1,9 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executePersistQuery
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getUtcDateTime
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.singleResult
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.*
 import java.sql.Connection
+import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
 
@@ -26,20 +24,34 @@ fun Connection.getInnboksById(entityId: Int): Innboks =
                     }
                 }
 
-fun Connection.createInnboks(innboks: Innboks): PersistActionResult =
-        executePersistQuery("""INSERT INTO innboks(produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv)
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""") {
-            setString(1, innboks.produsent)
-            setObject(2, innboks.eventTidspunkt, Types.TIMESTAMP)
-            setString(3, innboks.fodselsnummer)
-            setString(4, innboks.eventId)
-            setString(5, innboks.grupperingsId)
-            setString(6, innboks.tekst)
-            setString(7, innboks.link)
-            setInt(8, innboks.sikkerhetsnivaa)
-            setObject(9, innboks.sistOppdatert, Types.TIMESTAMP)
-            setBoolean(10, innboks.aktiv)
+private val createQuery = """INSERT INTO innboks(produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+
+fun Connection.createInnboksEventer(innboksEventer: List<Innboks>) =
+        executeBatchUpdateQuery(createQuery) {
+            innboksEventer.forEach { innboks ->
+                buildPreparedStatementForSingleRow(innboks)
+                addBatch()
+            }
         }
+
+fun Connection.createInnboks(innboks: Innboks): PersistActionResult =
+        executePersistQuery(createQuery) {
+            buildPreparedStatementForSingleRow(innboks)
+        }
+
+private fun PreparedStatement.buildPreparedStatementForSingleRow(innboks: Innboks) {
+    setString(1, innboks.produsent)
+    setObject(2, innboks.eventTidspunkt, Types.TIMESTAMP)
+    setString(3, innboks.fodselsnummer)
+    setString(4, innboks.eventId)
+    setString(5, innboks.grupperingsId)
+    setString(6, innboks.tekst)
+    setString(7, innboks.link)
+    setInt(8, innboks.sikkerhetsnivaa)
+    setObject(9, innboks.sistOppdatert, Types.TIMESTAMP)
+    setBoolean(10, innboks.aktiv)
+}
 
 fun Connection.setInnboksAktivFlag(eventId: String, produsent: String, fodselsnummer: String, aktiv: Boolean): Int =
         prepareStatement("""UPDATE innboks SET aktiv = ? WHERE eventId = ? AND produsent = ? AND fodselsnummer = ?""")

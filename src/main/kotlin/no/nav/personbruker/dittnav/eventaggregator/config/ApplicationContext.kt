@@ -32,7 +32,8 @@ class ApplicationContext {
     val oppgaveConsumer = KafkaConsumerSetup.setupConsumerForTheOppgaveTopic(oppgaveKafkaProps, oppgaveEventProcessor)
 
     val innboksRepository = InnboksRepository(database)
-    val innboksEventProcessor = InnboksEventService(innboksRepository, metricsProbe)
+    val innboksPersistingService = BrukernotifikasjonPersistingService(innboksRepository)
+    val innboksEventProcessor = InnboksEventService(innboksPersistingService, metricsProbe)
     val innboksKafkaProps = Kafka.consumerProps(environment, EventType.INNBOKS)
     val innboksConsumer = KafkaConsumerSetup.setupConsumerForTheInnboksTopic(innboksKafkaProps, innboksEventProcessor)
 

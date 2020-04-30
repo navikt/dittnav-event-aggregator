@@ -3,6 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.innboks
 import no.nav.brukernotifikasjon.schemas.Innboks
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
+import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.NokkelNullException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
@@ -13,8 +14,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.slf4j.LoggerFactory
 
-class InnboksEventService (
-        private val innboksRepository: InnboksRepository,
+class InnboksEventService(
+        private val innboksPersistingService: BrukernotifikasjonPersistingService<no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks>,
         private val metricsProbe: EventMetricsProbe
 ) : EventBatchProcessorService<Innboks> {
 
@@ -46,7 +47,7 @@ class InnboksEventService (
                 }
             }
 
-            innboksRepository.writeEventsToCache(successfullyTransformedEvents)
+            innboksPersistingService.writeEventsToCache(successfullyTransformedEvents)
         }
 
         kastExceptionHvisMislykkedeTransformasjoner(problematicEvents)
