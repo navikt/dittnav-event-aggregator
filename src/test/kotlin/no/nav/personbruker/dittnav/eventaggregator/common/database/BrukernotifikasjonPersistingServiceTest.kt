@@ -14,14 +14,14 @@ import org.junit.jupiter.api.Test
 
 internal class BrukernotifikasjonPersistingServiceTest {
 
-    private val beskjedRepository = mockk<BrukernotifikasjonRepository<Beskjed>>(relaxed = true)
-    private val beskjedService = BrukernotifikasjonPersistingService(beskjedRepository)
+    private val repository = mockk<BrukernotifikasjonRepository<Beskjed>>(relaxed = true)
+    private val service = BrukernotifikasjonPersistingService(repository)
 
     private val entities = BeskjedObjectMother.giveMeTwoAktiveBeskjeder()
 
     @BeforeEach
     fun `reset mocks`() {
-        clearMocks(beskjedRepository)
+        clearMocks(repository)
     }
 
     @AfterAll
@@ -32,41 +32,47 @@ internal class BrukernotifikasjonPersistingServiceTest {
     @Test
     fun `event skrives som batch hvis alt gaar bra`() {
         runBlocking {
-            beskjedService.writeEventsToCache(entities)
+            service.writeEventsToCache(entities)
         }
 
-        coVerify(exactly = 1) { beskjedRepository.createInOneBatch(any()) }
-        coVerify(exactly = 0) { beskjedRepository.createOneByOneToFilterOutTheProblematicEvents(any()) }
+        coVerify(exactly = 1) { repository.createInOneBatch(any()) }
+        coVerify(exactly = 0) { repository.createOneByOneToFilterOutTheProblematicEvents(any()) }
+
+        confirmVerified(repository)
     }
 
     @Test
     fun `hvis det skjer en AggregatorBatchUpdateException saa skal det forsokes aa skrive eventer en etter en til databasen`() {
         coEvery {
-            beskjedRepository.createInOneBatch(any())
+            repository.createInOneBatch(any())
         } throws AggregatorBatchUpdateException("Simulert feil i en test")
 
         runBlocking {
-            beskjedService.writeEventsToCache(entities)
+            service.writeEventsToCache(entities)
         }
 
-        coVerify(exactly = 1) { beskjedRepository.createInOneBatch(any()) }
-        coVerify(exactly = 1) { beskjedRepository.createOneByOneToFilterOutTheProblematicEvents(any()) }
+        coVerify(exactly = 1) { repository.createInOneBatch(any()) }
+        coVerify(exactly = 1) { repository.createOneByOneToFilterOutTheProblematicEvents(any()) }
+
+        confirmVerified(repository)
     }
 
     @Test
     fun `uventede exceptions skal boble videre`() {
         coEvery {
-            beskjedRepository.createInOneBatch(any())
+            repository.createInOneBatch(any())
         } throws RetriableDatabaseException("Simulert feil i en test")
 
         invoking {
             runBlocking {
-                beskjedService.writeEventsToCache(entities)
+                service.writeEventsToCache(entities)
             }
         } `should throw` RetriableDatabaseException::class
 
-        coVerify(exactly = 1) { beskjedRepository.createInOneBatch(any()) }
-        coVerify(exactly = 0) { beskjedRepository.createOneByOneToFilterOutTheProblematicEvents(any()) }
+        coVerify(exactly = 1) { repository.createInOneBatch(any()) }
+        coVerify(exactly = 0) { repository.createOneByOneToFilterOutTheProblematicEvents(any()) }
+
+        confirmVerified(repository)
     }
 
 }
