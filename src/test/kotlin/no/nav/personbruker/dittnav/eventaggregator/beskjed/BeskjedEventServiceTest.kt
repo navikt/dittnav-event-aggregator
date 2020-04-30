@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 
 class BeskjedEventServiceTest {
 
-    private val beskjedService = mockk<BeskjedDatabaseService>(relaxed = true)
+    private val beskjedService = mockk<BeskjedPersistingService>(relaxed = true)
     private val metricsProbe = mockk<EventMetricsProbe>(relaxed = true)
     private val metricsSession = mockk<EventMetricsSession>(relaxed = true)
     private val beskjedEventService = BeskjedEventService(beskjedService, metricsProbe)

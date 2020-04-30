@@ -78,7 +78,7 @@ class EndToEndTestIT {
 
     fun `Les inn alle eventene og verifiser at de har blitt lagt til i databasen`() {
         val beskjedRepository = BeskjedRepository(database)
-        val beskjedDatabaseService = BeskjedDatabaseService(beskjedRepository)
+        val beskjedDatabaseService = BeskjedPersistingService(beskjedRepository)
         val eventProcessor = BeskjedEventService(beskjedDatabaseService, metricsProbe)
         val consumerProps = Kafka.consumerProps(testEnvironment, EventType.BESKJED, true)
         val kafkaConsumer = KafkaConsumer<Nokkel, Beskjed>(consumerProps)

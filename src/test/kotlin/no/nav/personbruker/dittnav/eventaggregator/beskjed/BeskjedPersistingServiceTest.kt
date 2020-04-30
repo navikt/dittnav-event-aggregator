@@ -7,10 +7,10 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-internal class BeskjedDatabaseServiceTest {
+internal class BeskjedPersistingServiceTest {
 
     private val beskjedRepository = mockk<BeskjedRepository>(relaxed = true)
-    private val beskjedService = BeskjedDatabaseService(beskjedRepository)
+    private val beskjedService = BeskjedPersistingService(beskjedRepository)
 
     private val entities = BeskjedObjectMother.giveMeTwoAktiveBeskjeder()
 

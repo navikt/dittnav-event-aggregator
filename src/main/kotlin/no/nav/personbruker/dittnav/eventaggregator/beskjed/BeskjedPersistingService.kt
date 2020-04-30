@@ -4,9 +4,9 @@ import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.ConstraintV
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class BeskjedDatabaseService(private val beskjedRepository: BeskjedRepository) {
+class BeskjedPersistingService(private val beskjedRepository: BeskjedRepository) {
 
-    private val log: Logger = LoggerFactory.getLogger(BeskjedDatabaseService::class.java)
+    private val log: Logger = LoggerFactory.getLogger(BeskjedPersistingService::class.java)
 
     suspend fun writeEventsToCache(entities: List<Beskjed>) {
         val allEventsCreated = createBeskjederIEnBatch(entities)
