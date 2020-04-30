@@ -7,7 +7,7 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
 
-class OppgaveQueriesTest {
+class oppgaveQueriesTest {
 
     private val database = H2Database()
 
@@ -37,7 +37,7 @@ class OppgaveQueriesTest {
         runBlocking {
             database.dbQuery {
                 val generatedId = createOppgave(oppgave).entityId
-                oppgave = oppgave.copy(id=generatedId)
+                oppgave = oppgave.copy(id = generatedId)
             }
         }
         return oppgave
@@ -66,7 +66,7 @@ class OppgaveQueriesTest {
             val result = database.dbQuery { getAllOppgaveByAktiv(true) }
             result `should contain all` listOf(oppgave1, oppgave3)
             result `should not contain` oppgave2
-            database.dbQuery { setOppgaveAktivFlag(eventId, produsent, fodselsnummer2,  true) }
+            database.dbQuery { setOppgaveAktivFlag(eventId, produsent, fodselsnummer2, true) }
         }
     }
 
@@ -132,4 +132,26 @@ class OppgaveQueriesTest {
             }
         }
     }
+
+    @Test
+    fun `Skal skrive eventer i batch`() {
+        val oppgave1 = OppgaveObjectMother.giveMeAktivOppgave("o-1", "123")
+        val oppgave2 = OppgaveObjectMother.giveMeAktivOppgave("o-2", "123")
+
+        runBlocking {
+            database.dbQuery {
+                createOppgaver(listOf(oppgave1, oppgave2))
+            }
+
+            val oppgave1FraDb = database.dbQuery { getOppgaveByEventId(oppgave1.eventId) }
+            val oppgave2FraDb = database.dbQuery { getOppgaveByEventId(oppgave2.eventId) }
+
+            oppgave1FraDb.eventId `should equal` oppgave1.eventId
+            oppgave2FraDb.eventId `should equal` oppgave2.eventId
+
+            database.dbQuery { deleteOppgaveWithEventId(oppgave1.eventId) }
+            database.dbQuery { deleteOppgaveWithEventId(oppgave2.eventId) }
+        }
+    }
+
 }

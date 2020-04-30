@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.innboks
 
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
+import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.ConsumerRecordsObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
@@ -15,15 +16,15 @@ import org.junit.jupiter.api.Test
 
 class InnboksEventServiceTest {
 
-    private val repository = mockk<InnboksRepository>(relaxed = true)
+    private val persistingService = mockk<BrukernotifikasjonPersistingService<Innboks>>(relaxed = true)
     private val metricsProbe = mockk<EventMetricsProbe>(relaxed = true)
     private val metricsSession = mockk<EventMetricsSession>(relaxed = true)
-    private val service = InnboksEventService(repository, metricsProbe)
+    private val eventService = InnboksEventService(persistingService, metricsProbe)
 
     @BeforeEach
     fun resetMocks() {
         mockkObject(InnboksTransformer)
-        clearMocks(repository)
+        clearMocks(persistingService)
         clearMocks(metricsProbe)
         clearMocks(metricsSession)
     }
@@ -39,7 +40,7 @@ class InnboksEventServiceTest {
 
         val capturedStores = slot<List<Innboks>>()
 
-        coEvery { repository.writeEventsToCache(capture(capturedStores)) } returns Unit
+        coEvery { persistingService.writeEventsToCache(capture(capturedStores)) } returns Unit
 
         val slot = slot<suspend EventMetricsSession.() -> Unit>()
 
@@ -48,14 +49,14 @@ class InnboksEventServiceTest {
         }
 
         runBlocking {
-            service.processEvents(records)
+            eventService.processEvents(records)
         }
 
         verify(exactly = records.count()) { InnboksTransformer.toInternal(any(), any()) }
-        coVerify(exactly = 1) { repository.writeEventsToCache(allAny()) }
+        coVerify(exactly = 1) { persistingService.writeEventsToCache(allAny()) }
         capturedStores.captured.size `should be` records.count()
 
-        confirmVerified(repository)
+        confirmVerified(persistingService)
         confirmVerified(InnboksTransformer)
     }
 
@@ -70,7 +71,7 @@ class InnboksEventServiceTest {
 
         val capturedStores = slot<List<Innboks>>()
 
-        coEvery { repository.writeEventsToCache(capture(capturedStores)) } returns Unit
+        coEvery { persistingService.writeEventsToCache(capture(capturedStores)) } returns Unit
 
         val mockedException = UntransformableRecordException("Simulated Exception")
 
@@ -84,16 +85,16 @@ class InnboksEventServiceTest {
 
         invoking {
             runBlocking {
-                service.processEvents(records)
+                eventService.processEvents(records)
             }
         } `should throw` UntransformableRecordException::class
 
         verify(exactly = numberOfRecords) { InnboksTransformer.toInternal(any(), any()) }
-        coVerify(exactly = 1) { repository.writeEventsToCache(allAny()) }
+        coVerify(exactly = 1) { persistingService.writeEventsToCache(allAny()) }
         coVerify(exactly = numberOfFailedTransformations) { metricsSession.countFailedEventForProducer(any()) }
         capturedStores.captured.size `should be` numberOfSuccessfulTransformations
 
-        confirmVerified(repository)
+        confirmVerified(persistingService)
         confirmVerified(InnboksTransformer)
     }
 
@@ -110,7 +111,7 @@ class InnboksEventServiceTest {
         }
 
         runBlocking {
-            service.processEvents(records)
+            eventService.processEvents(records)
         }
 
         coVerify(exactly = numberOfRecords) { metricsSession.countSuccessfulEventForProducer(any()) }
@@ -129,10 +130,10 @@ class InnboksEventServiceTest {
         }
 
         val capturedNumberOfEntitiesWrittenToTheDb = slot<List<Innboks>>()
-        coEvery { repository.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns Unit
+        coEvery { persistingService.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns Unit
 
         runBlocking {
-            service.processEvents(records)
+            eventService.processEvents(records)
         }
 
         capturedNumberOfEntitiesWrittenToTheDb.captured.size `should be` 0

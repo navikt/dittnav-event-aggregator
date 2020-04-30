@@ -3,6 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
+import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.NokkelNullException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
@@ -15,7 +16,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class BeskjedEventService(
-        private val beskjedRepository: BeskjedRepository,
+        private val persistingService: BrukernotifikasjonPersistingService<no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed>,
         private val metricsProbe: EventMetricsProbe
 ) : EventBatchProcessorService<Beskjed> {
 
@@ -48,7 +49,7 @@ class BeskjedEventService(
                 }
             }
 
-            beskjedRepository.writeEventsToCache(successfullyTransformedEvents)
+            persistingService.writeEventsToCache(successfullyTransformedEvents)
         }
 
         kastExceptionHvisMislykkedeTransformasjoner(problematicEvents)

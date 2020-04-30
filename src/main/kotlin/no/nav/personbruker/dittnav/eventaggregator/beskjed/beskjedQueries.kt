@@ -1,11 +1,9 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executePersistQuery
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getUtcDateTime
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.singleResult
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.*
 import java.sql.Connection
+import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
 import java.time.LocalDateTime
@@ -18,22 +16,36 @@ fun Connection.getAllBeskjed(): List<Beskjed> =
                     }
                 }
 
+private val createQuery = """INSERT INTO beskjed (uid, produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+
 fun Connection.createBeskjed(beskjed: Beskjed): PersistActionResult =
-        executePersistQuery("""INSERT INTO beskjed (uid, produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""") {
-            setString(1, beskjed.uid)
-            setString(2, beskjed.produsent)
-            setObject(3, beskjed.eventTidspunkt, Types.TIMESTAMP)
-            setString(4, beskjed.fodselsnummer)
-            setString(5, beskjed.eventId)
-            setString(6, beskjed.grupperingsId)
-            setString(7, beskjed.tekst)
-            setString(8, beskjed.link)
-            setInt(9, beskjed.sikkerhetsnivaa)
-            setObject(10, beskjed.sistOppdatert, Types.TIMESTAMP)
-            setObject(11, beskjed.synligFremTil, Types.TIMESTAMP)
-            setBoolean(12, beskjed.aktiv)
+        executePersistQuery(createQuery) {
+            buildStatementForSingleRow(beskjed)
         }
+
+fun Connection.createBeskjeder(beskjeder: List<Beskjed>) =
+        executeBatchUpdateQuery(createQuery) {
+            beskjeder.forEach { beskjed ->
+                buildStatementForSingleRow(beskjed)
+                addBatch()
+            }
+        }
+
+private fun PreparedStatement.buildStatementForSingleRow(beskjed: Beskjed) {
+    setString(1, beskjed.uid)
+    setString(2, beskjed.produsent)
+    setObject(3, beskjed.eventTidspunkt, Types.TIMESTAMP)
+    setString(4, beskjed.fodselsnummer)
+    setString(5, beskjed.eventId)
+    setString(6, beskjed.grupperingsId)
+    setString(7, beskjed.tekst)
+    setString(8, beskjed.link)
+    setInt(9, beskjed.sikkerhetsnivaa)
+    setObject(10, beskjed.sistOppdatert, Types.TIMESTAMP)
+    setObject(11, beskjed.synligFremTil, Types.TIMESTAMP)
+    setBoolean(12, beskjed.aktiv)
+}
 
 fun Connection.setBeskjedAktivFlag(eventId: String, produsent: String, fodselsnummer: String, aktiv: Boolean): Int =
         prepareStatement("""UPDATE beskjed SET aktiv = ? WHERE eventId = ? AND produsent = ? AND fodselsnummer = ?""").use {
@@ -97,7 +109,8 @@ private fun ResultSet.toBeskjed(): Beskjed {
             aktiv = getBoolean("aktiv")
     )
 }
+
 private fun ResultSet.getNullableLocalDateTime(label: String): LocalDateTime? {
-    return getTimestamp(label)?.let { timestamp -> timestamp.toLocalDateTime() }
+    return getTimestamp(label)?.toLocalDateTime()
 }
 

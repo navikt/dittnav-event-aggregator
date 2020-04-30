@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.database
 
+import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.AggregatorBatchUpdateException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
 import org.amshove.kluent.`should be`
@@ -8,6 +9,7 @@ import org.amshove.kluent.invoking
 import org.junit.jupiter.api.Test
 import org.postgresql.util.PSQLException
 import org.postgresql.util.PSQLState
+import java.sql.BatchUpdateException
 import java.sql.SQLException
 import java.sql.SQLTransientException
 
@@ -65,6 +67,15 @@ class DatabaseTest {
                 throw SQLTransientException("Simulert exception")
             }
         } `should throw` RetriableDatabaseException::class
+    }
+
+    @Test
+    fun `Skal haandtere BatchUpdateException, og mappe til intern exceptiontype`() {
+        invoking {
+            translateExternalExceptionsToInternalOnes {
+                throw BatchUpdateException("Simulert exception", IntArray(1))
+            }
+        } `should throw` AggregatorBatchUpdateException::class
     }
 
 }

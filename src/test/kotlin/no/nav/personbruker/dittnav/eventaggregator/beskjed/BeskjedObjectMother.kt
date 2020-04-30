@@ -6,6 +6,13 @@ import kotlin.random.Random
 
 object BeskjedObjectMother {
 
+    fun giveMeTwoAktiveBeskjeder(): List<Beskjed> {
+        return listOf(
+                giveMeAktivBeskjed("b-1", "123"),
+                giveMeAktivBeskjed("b-2", "123")
+        )
+    }
+
     fun giveMeAktivBeskjed(): Beskjed {
         return giveMeAktivBeskjed("b-1", "123")
     }
@@ -17,7 +24,7 @@ object BeskjedObjectMother {
 
     fun giveMeAktivBeskjed(eventId: String, fodselsnummer: String, produsent: String): Beskjed {
         return Beskjed(
-                uid = Random.nextInt(1,100).toString(),
+                uid = Random.nextInt(1, 100).toString(),
                 produsent = produsent,
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
                 synligFremTil = LocalDateTime.now(ZoneId.of("UTC")),
