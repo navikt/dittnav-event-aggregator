@@ -30,17 +30,17 @@ private val createQuery = """INSERT INTO innboks(produsent, eventTidspunkt, fods
 fun Connection.createInnboksEventer(innboksEventer: List<Innboks>) =
         executeBatchUpdateQuery(createQuery) {
             innboksEventer.forEach { innboks ->
-                buildPreparedStatementForSingleRow(innboks)
+                buildStatementForSingleRow(innboks)
                 addBatch()
             }
         }
 
 fun Connection.createInnboks(innboks: Innboks): PersistActionResult =
         executePersistQuery(createQuery) {
-            buildPreparedStatementForSingleRow(innboks)
+            buildStatementForSingleRow(innboks)
         }
 
-private fun PreparedStatement.buildPreparedStatementForSingleRow(innboks: Innboks) {
+private fun PreparedStatement.buildStatementForSingleRow(innboks: Innboks) {
     setString(1, innboks.produsent)
     setObject(2, innboks.eventTidspunkt, Types.TIMESTAMP)
     setString(3, innboks.fodselsnummer)

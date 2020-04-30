@@ -21,18 +21,18 @@ private val createQuery = """INSERT INTO beskjed (uid, produsent, eventTidspunkt
 
 fun Connection.createBeskjed(beskjed: Beskjed): PersistActionResult =
         executePersistQuery(createQuery) {
-            createPreparedStatementForSingleLine(beskjed)
+            buildStatementForSingleRow(beskjed)
         }
 
 fun Connection.createBeskjeder(beskjeder: List<Beskjed>) =
         executeBatchUpdateQuery(createQuery) {
             beskjeder.forEach { beskjed ->
-                createPreparedStatementForSingleLine(beskjed)
+                buildStatementForSingleRow(beskjed)
                 addBatch()
             }
         }
 
-private fun PreparedStatement.createPreparedStatementForSingleLine(beskjed: Beskjed) {
+private fun PreparedStatement.buildStatementForSingleRow(beskjed: Beskjed) {
     setString(1, beskjed.uid)
     setString(2, beskjed.produsent)
     setObject(3, beskjed.eventTidspunkt, Types.TIMESTAMP)
