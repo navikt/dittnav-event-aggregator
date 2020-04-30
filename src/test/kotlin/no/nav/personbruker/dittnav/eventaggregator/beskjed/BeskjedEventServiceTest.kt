@@ -16,15 +16,15 @@ import org.junit.jupiter.api.Test
 
 class BeskjedEventServiceTest {
 
-    private val beskjedPersistingService = mockk<BrukernotifikasjonPersistingService<Beskjed>>(relaxed = true)
+    private val persistingService = mockk<BrukernotifikasjonPersistingService<Beskjed>>(relaxed = true)
     private val metricsProbe = mockk<EventMetricsProbe>(relaxed = true)
     private val metricsSession = mockk<EventMetricsSession>(relaxed = true)
-    private val beskjedEventService = BeskjedEventService(beskjedPersistingService, metricsProbe)
+    private val eventService = BeskjedEventService(persistingService, metricsProbe)
 
     @BeforeEach
     private fun resetMocks() {
         mockkObject(BeskjedTransformer)
-        clearMocks(beskjedPersistingService)
+        clearMocks(persistingService)
         clearMocks(metricsProbe)
         clearMocks(metricsSession)
     }
@@ -39,7 +39,7 @@ class BeskjedEventServiceTest {
         val records = ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(5, "dummyTopic")
 
         val capturedListOfEntities = slot<List<Beskjed>>()
-        coEvery { beskjedPersistingService.writeEventsToCache(capture(capturedListOfEntities)) } returns Unit
+        coEvery { persistingService.writeEventsToCache(capture(capturedListOfEntities)) } returns Unit
 
         val slot = slot<suspend EventMetricsSession.() -> Unit>()
 
@@ -48,15 +48,15 @@ class BeskjedEventServiceTest {
         }
 
         runBlocking {
-            beskjedEventService.processEvents(records)
+            eventService.processEvents(records)
         }
 
         verify(exactly = records.count()) { BeskjedTransformer.toInternal(any(), any()) }
-        coVerify(exactly = 1) { beskjedPersistingService.writeEventsToCache(allAny()) }
+        coVerify(exactly = 1) { persistingService.writeEventsToCache(allAny()) }
         capturedListOfEntities.captured.size `should be` records.count()
 
         confirmVerified(BeskjedTransformer)
-        confirmVerified(beskjedPersistingService)
+        confirmVerified(persistingService)
     }
 
     @Test
@@ -69,7 +69,7 @@ class BeskjedEventServiceTest {
         val transformedRecords = createANumberOfTransformedRecords(numberOfSuccessfulTransformations)
 
         val capturedListOfEntities = slot<List<Beskjed>>()
-        coEvery { beskjedPersistingService.writeEventsToCache(capture(capturedListOfEntities)) } returns Unit
+        coEvery { persistingService.writeEventsToCache(capture(capturedListOfEntities)) } returns Unit
 
         val retriableExp = UntransformableRecordException("Simulert feil i en test")
         every { BeskjedTransformer.toInternal(any(), any()) } throws retriableExp andThenMany transformedRecords
@@ -82,17 +82,17 @@ class BeskjedEventServiceTest {
 
         invoking {
             runBlocking {
-                beskjedEventService.processEvents(records)
+                eventService.processEvents(records)
             }
         } `should throw` UntransformableRecordException::class
 
         coVerify(exactly = totalNumberOfRecords) { BeskjedTransformer.toInternal(any(), any()) }
-        coVerify(exactly = 1) { beskjedPersistingService.writeEventsToCache(allAny()) }
+        coVerify(exactly = 1) { persistingService.writeEventsToCache(allAny()) }
         coVerify(exactly = numberOfFailedTransformations) { metricsSession.countFailedEventForProducer(any()) }
         capturedListOfEntities.captured.size `should be` numberOfSuccessfulTransformations
 
         confirmVerified(BeskjedTransformer)
-        confirmVerified(beskjedPersistingService)
+        confirmVerified(persistingService)
     }
 
     @Test
@@ -107,7 +107,7 @@ class BeskjedEventServiceTest {
         }
 
         runBlocking {
-            beskjedEventService.processEvents(records)
+            eventService.processEvents(records)
         }
 
         coVerify (exactly = numberOfRecords) { metricsSession.countSuccessfulEventForProducer(any()) }
@@ -125,10 +125,10 @@ class BeskjedEventServiceTest {
         }
 
         val capturedNumberOfEntitiesWrittenToTheDb = slot<List<Beskjed>>()
-        coEvery { beskjedPersistingService.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns Unit
+        coEvery { persistingService.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns Unit
 
         runBlocking {
-            beskjedEventService.processEvents(records)
+            eventService.processEvents(records)
         }
 
         capturedNumberOfEntitiesWrittenToTheDb.captured.size `should be` 0
@@ -149,10 +149,10 @@ class BeskjedEventServiceTest {
         }
 
         val capturedNumberOfEntitiesWrittenToTheDb = slot<List<Beskjed>>()
-        coEvery { beskjedPersistingService.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns Unit
+        coEvery { persistingService.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns Unit
 
         runBlocking {
-            beskjedEventService.processEvents(records)
+            eventService.processEvents(records)
         }
 
         capturedNumberOfEntitiesWrittenToTheDb.captured.size `should be` 0
