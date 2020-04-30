@@ -27,7 +27,8 @@ class ApplicationContext {
     val beskjedConsumer = KafkaConsumerSetup.setupConsumerForTheBeskjedTopic(beskjedKafkaProps, beskjedEventProcessor)
 
     val oppgaveRepository = OppgaveRepository(database)
-    val oppgaveEventProcessor = OppgaveEventService(oppgaveRepository, metricsProbe)
+    val oppgavePersistingService = BrukernotifikasjonPersistingService(oppgaveRepository)
+    val oppgaveEventProcessor = OppgaveEventService(oppgavePersistingService, metricsProbe)
     val oppgaveKafkaProps = Kafka.consumerProps(environment, EventType.OPPGAVE)
     val oppgaveConsumer = KafkaConsumerSetup.setupConsumerForTheOppgaveTopic(oppgaveKafkaProps, oppgaveEventProcessor)
 

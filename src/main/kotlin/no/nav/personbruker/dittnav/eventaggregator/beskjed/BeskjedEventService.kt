@@ -16,7 +16,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class BeskjedEventService(
-        private val beskjedPersistingService: BrukernotifikasjonPersistingService<no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed>,
+        private val persistingService: BrukernotifikasjonPersistingService<no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed>,
         private val metricsProbe: EventMetricsProbe
 ) : EventBatchProcessorService<Beskjed> {
 
@@ -49,7 +49,7 @@ class BeskjedEventService(
                 }
             }
 
-            beskjedPersistingService.writeEventsToCache(successfullyTransformedEvents)
+            persistingService.writeEventsToCache(successfullyTransformedEvents)
         }
 
         kastExceptionHvisMislykkedeTransformasjoner(problematicEvents)

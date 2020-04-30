@@ -15,7 +15,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.slf4j.LoggerFactory
 
 class InnboksEventService(
-        private val innboksPersistingService: BrukernotifikasjonPersistingService<no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks>,
+        private val persistingService: BrukernotifikasjonPersistingService<no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks>,
         private val metricsProbe: EventMetricsProbe
 ) : EventBatchProcessorService<Innboks> {
 
@@ -47,7 +47,7 @@ class InnboksEventService(
                 }
             }
 
-            innboksPersistingService.writeEventsToCache(successfullyTransformedEvents)
+            persistingService.writeEventsToCache(successfullyTransformedEvents)
         }
 
         kastExceptionHvisMislykkedeTransformasjoner(problematicEvents)

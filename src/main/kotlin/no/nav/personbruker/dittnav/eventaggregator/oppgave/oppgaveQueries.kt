@@ -1,11 +1,9 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executePersistQuery
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getUtcDateTime
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.singleResult
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.*
 import java.sql.Connection
+import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
 
@@ -17,20 +15,34 @@ fun Connection.getAllOppgave(): List<Oppgave> =
                     }
                 }
 
-fun Connection.createOppgave(oppgave: Oppgave): PersistActionResult =
-        executePersistQuery("""INSERT INTO oppgave (produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?)""")
-        {
-            setString(1, oppgave.produsent)
-            setObject(2, oppgave.eventTidspunkt, Types.TIMESTAMP)
-            setString(3, oppgave.fodselsnummer)
-            setString(4, oppgave.eventId)
-            setString(5, oppgave.grupperingsId)
-            setString(6, oppgave.tekst)
-            setString(7, oppgave.link)
-            setInt(8, oppgave.sikkerhetsnivaa)
-            setObject(9, oppgave.sistOppdatert, Types.TIMESTAMP)
-            setBoolean(10, oppgave.aktiv)
+private val createQuery = """INSERT INTO oppgave (produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?)"""
+
+fun Connection.createOppgaver(oppgaver: List<Oppgave>) =
+        executeBatchUpdateQuery(createQuery) {
+            oppgaver.forEach { oppgave ->
+                buildStatementForSingleRow(oppgave)
+                addBatch()
+            }
         }
+
+fun Connection.createOppgave(oppgave: Oppgave): PersistActionResult =
+        executePersistQuery(createQuery) {
+            buildStatementForSingleRow(oppgave)
+            addBatch()
+        }
+
+private fun PreparedStatement.buildStatementForSingleRow(oppgave: Oppgave) {
+    setString(1, oppgave.produsent)
+    setObject(2, oppgave.eventTidspunkt, Types.TIMESTAMP)
+    setString(3, oppgave.fodselsnummer)
+    setString(4, oppgave.eventId)
+    setString(5, oppgave.grupperingsId)
+    setString(6, oppgave.tekst)
+    setString(7, oppgave.link)
+    setInt(8, oppgave.sikkerhetsnivaa)
+    setObject(9, oppgave.sistOppdatert, Types.TIMESTAMP)
+    setBoolean(10, oppgave.aktiv)
+}
 
 fun Connection.setOppgaveAktivFlag(eventId: String, produsent: String, fodselsnummer: String, aktiv: Boolean): Int =
         prepareStatement("""UPDATE oppgave SET aktiv = ? WHERE eventId = ? AND produsent = ? AND fodselsnummer = ?""").use {
