@@ -12,8 +12,10 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 internal class EventMetricsProbeTest {
-    val metricsReporter = mockk<MetricsReporter>()
-    val prometheusCollector = mockkObject(PrometheusMetricsCollector)
+
+    private val metricsReporter = mockk<MetricsReporter>()
+    private val prometheusCollector = mockkObject(PrometheusMetricsCollector)
+    private val producerNameResolver = mockk<ProducerNameResolver>()
 
     @BeforeEach
     fun cleanup() {
@@ -24,8 +26,9 @@ internal class EventMetricsProbeTest {
     fun shouldReplaceSystemNameWithAliasForEventProcessed() {
         val producerName = "sys-t-user"
         val producerAlias = "test-user"
-        val aliasEnvVariable = "$producerName:$producerAlias"
-        val nameScrubber = ProducerNameScrubber(aliasEnvVariable)
+
+        every { producerNameResolver.getProducerNameAliases() } returns mapOf(producerName to producerAlias)
+        val nameScrubber = ProducerNameScrubber(producerNameResolver)
         val metricsProbe = EventMetricsProbe(metricsReporter, nameScrubber)
 
         val producerNameForPrometheus = slot<String>()
@@ -53,8 +56,9 @@ internal class EventMetricsProbeTest {
     fun shouldReplaceSystemNameWithAliasForEventFailed() {
         val producerName = "sys-t-user"
         val producerAlias = "test-user"
-        val aliasEnvVariable = "$producerName:$producerAlias"
-        val nameScrubber = ProducerNameScrubber(aliasEnvVariable)
+
+        every { producerNameResolver.getProducerNameAliases() } returns mapOf(producerName to producerAlias)
+        val nameScrubber = ProducerNameScrubber(producerNameResolver)
         val metricsProbe = EventMetricsProbe(metricsReporter, nameScrubber)
 
         val capturedTags = slot<Map<String, String>>()
@@ -80,7 +84,11 @@ internal class EventMetricsProbeTest {
 
     @Test
     fun shouldReportCorrectNumberOfEvents() {
-        val nameScrubber = ProducerNameScrubber("")
+        val producerName = "sys-t-user"
+        val producerAlias = "test-user"
+
+        every { producerNameResolver.getProducerNameAliases() } returns mapOf(producerName to producerAlias)
+        val nameScrubber = ProducerNameScrubber(producerNameResolver)
         val metricsProbe = EventMetricsProbe(metricsReporter, nameScrubber)
 
         val capturedFieldsForSeen = slot<Map<String, Any>>()

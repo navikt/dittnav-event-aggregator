@@ -17,7 +17,7 @@ class ApplicationContext {
     var environment = Environment()
     val database: Database = PostgresDatabase(environment)
 
-    val metricsProbe = buildEventMetricsProbe(environment)
+    val metricsProbe = buildEventMetricsProbe(environment, database)
 
     val beskjedRepository = BeskjedRepository(database)
     val beskjedEventProcessor = BeskjedEventService(beskjedRepository, metricsProbe)

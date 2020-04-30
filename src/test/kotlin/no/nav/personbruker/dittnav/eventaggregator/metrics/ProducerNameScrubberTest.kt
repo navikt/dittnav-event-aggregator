@@ -1,16 +1,23 @@
 package no.nav.personbruker.dittnav.eventaggregator.metrics
 
+import io.mockk.every
+import io.mockk.mockk
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotSame
 
 internal class ProducerNameScrubberTest {
 
-    val producerName = "sys-t-user"
-    val producerAlias = "test-user"
-    val aliasEnvVariable = "$producerName:$producerAlias"
+    private val producerName = "sys-t-user"
+    private val producerAlias = "test-user"
+    private val producerNameResolver =  mockk<ProducerNameResolver>()
+    private val nameScrubber = ProducerNameScrubber(producerNameResolver)
 
-    val nameScrubber = ProducerNameScrubber(aliasEnvVariable)
+    @BeforeAll
+    fun setupMocks() {
+        every { producerNameResolver.getProducerNameAliases() } returns mapOf(producerName to producerAlias)
+    }
 
     @Test
     fun shouldUseAvailableAliasForProducerIfFound() {
@@ -32,9 +39,16 @@ internal class ProducerNameScrubberTest {
     fun shouldUseGenericSystemAliasIfNotFound() {
         val scrubbedName = nameScrubber.getPublicAlias("dummy")
 
-        assertEquals(nameScrubber.UNKNOW_USER, scrubbedName)
+        assertEquals(nameScrubber.UNKNOWN_USER, scrubbedName)
         assertNotSame(producerName, scrubbedName)
     }
 
+    @Test
+    fun shouldUseGenericSystemAliasIfAliasListIsEmpty() {
+        every { producerNameResolver.getProducerNameAliases() } returns emptyMap()
+        val scrubbedName = nameScrubber.getPublicAlias("dummy")
 
+        assertEquals(nameScrubber.UNKNOWN_USER, scrubbedName)
+        assertNotSame(producerName, scrubbedName)
+    }
 }
