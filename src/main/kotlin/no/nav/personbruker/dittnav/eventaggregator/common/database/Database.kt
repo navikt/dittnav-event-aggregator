@@ -3,7 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.common.database
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.ConstraintViolationDatabaseException
+import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.AggregatorBatchUpdateException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
 import org.postgresql.util.PSQLException
@@ -47,7 +47,7 @@ inline fun translateExternalExceptionsToInternalOnes(databaseActions: () -> Unit
 
     } catch (bue: BatchUpdateException) {
         val msg = "Batch-operasjon mot databasen feilet"
-        throw ConstraintViolationDatabaseException(msg, bue)
+        throw AggregatorBatchUpdateException(msg, bue)
 
     } catch (te: SQLTransientException) {
         val message = "Skriving til databasen feilet grunnet en periodisk feil."

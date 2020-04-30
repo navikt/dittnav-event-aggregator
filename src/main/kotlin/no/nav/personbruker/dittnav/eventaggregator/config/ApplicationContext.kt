@@ -1,8 +1,8 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedEventService
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
+import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.done.CachedDoneEventConsumer
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneEventService
@@ -21,7 +21,7 @@ class ApplicationContext {
     val metricsProbe = buildEventMetricsProbe(environment)
 
     val beskjedRepository = BeskjedRepository(database)
-    val beskjedPersistingService = BeskjedPersistingService(beskjedRepository)
+    val beskjedPersistingService = BrukernotifikasjonPersistingService(beskjedRepository)
     val beskjedEventProcessor = BeskjedEventService(beskjedPersistingService, metricsProbe)
     val beskjedKafkaProps = Kafka.consumerProps(environment, EventType.BESKJED)
     val beskjedConsumer = KafkaConsumerSetup.setupConsumerForTheBeskjedTopic(beskjedKafkaProps, beskjedEventProcessor)

@@ -1,6 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.database
 
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.ConstraintViolationDatabaseException
+import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.AggregatorBatchUpdateException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
 import org.amshove.kluent.`should be`
@@ -75,7 +75,7 @@ class DatabaseTest {
             translateExternalExceptionsToInternalOnes {
                 throw BatchUpdateException("Simulert exception", IntArray(1))
             }
-        } `should throw` ConstraintViolationDatabaseException::class
+        } `should throw` AggregatorBatchUpdateException::class
     }
 
 }
