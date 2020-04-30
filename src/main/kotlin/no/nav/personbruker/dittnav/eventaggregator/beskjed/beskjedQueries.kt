@@ -111,6 +111,6 @@ private fun ResultSet.toBeskjed(): Beskjed {
 }
 
 private fun ResultSet.getNullableLocalDateTime(label: String): LocalDateTime? {
-    return getTimestamp(label)?.let { timestamp -> timestamp.toLocalDateTime() }
+    return getTimestamp(label)?.toLocalDateTime()
 }
 
