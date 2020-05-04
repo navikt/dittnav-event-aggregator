@@ -11,7 +11,7 @@ import java.time.ZoneId
 
 class OppgaveTest {
 
-    private val validSystembruker = "dummyProducer"
+    private val validSystembruker = "dummySystembruker"
     private val validFodselsnummer = "123"
     private val eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC"))
     private val sistOppdatert = LocalDateTime.now(ZoneId.of("UTC"))

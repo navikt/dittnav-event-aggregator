@@ -24,7 +24,7 @@ class CachedDoneEventConsumerTest {
     private val doneRepository = DoneRepository(database)
     private val eventConsumer = CachedDoneEventConsumer(doneRepository)
 
-    private val systembruker = "dummyProducer"
+    private val systembruker = "dummySystembruker"
     private val fodselsnummer = "12345"
     private val beskjed1 = BeskjedObjectMother.giveMeAktivBeskjed("1", fodselsnummer, systembruker)
     private val oppgave1 = OppgaveObjectMother.giveMeAktivOppgave("2", fodselsnummer, systembruker)
@@ -95,7 +95,7 @@ class CachedDoneEventConsumerTest {
     fun `fjerner done-eventer fra ventetabellen hvis tilhorende event blir funnet og satt aktivt`() {
         val expectedEventId = "50"
         val expectedFodselsnr = "45678"
-        val expectedSystembruker = "dummyProdusent"
+        val expectedSystembruker = "dummySystembruker"
         val doneEvent = DoneObjectMother.giveMeDone(expectedEventId, expectedSystembruker, expectedFodselsnr)
         val associatedBeskjed = BeskjedObjectMother.giveMeAktivBeskjed(expectedEventId, expectedFodselsnr, expectedSystembruker)
 

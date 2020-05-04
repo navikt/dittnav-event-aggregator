@@ -7,7 +7,7 @@ import java.time.ZoneId
 object DoneObjectMother {
 
     fun giveMeDone(eventId: String): Done {
-        val systembruker = "dummyProducer"
+        val systembruker = "dummySystembruker"
         val fodselsnummer = "12345"
         return giveMeDone(eventId, systembruker, fodselsnummer)
     }

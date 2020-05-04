@@ -10,7 +10,7 @@ object OppgaveObjectMother {
     }
 
     fun giveMeAktivOppgave(eventId: String, fodselsnummer: String): Oppgave {
-        return giveMeAktivOppgave(eventId, fodselsnummer, "dummyProducer")
+        return giveMeAktivOppgave(eventId, fodselsnummer, "dummySystembruker")
     }
 
     fun giveMeAktivOppgave(eventId: String, fodselsnummer: String, systembruker: String): Oppgave {
@@ -29,7 +29,7 @@ object OppgaveObjectMother {
 
     fun giveMeInaktivOppgave(): Oppgave {
         return Oppgave(
-                systembruker = "dummyProducer",
+                systembruker = "dummySystembruker",
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
                 fodselsnummer = "123",
                 eventId = "o-2",

@@ -16,7 +16,7 @@ class BeskjedQueriesTest {
     private val Beskjed3: Beskjed
     private val Beskjed4: Beskjed
 
-    private val systembruker = "dummyProducer"
+    private val systembruker = "dummySystembruker"
     private val fodselsnummer = "12345"
     private val eventId = "2"
 

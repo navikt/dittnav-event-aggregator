@@ -12,7 +12,7 @@ object AvroDoneObjectMother {
     private val defaultDummtTopicName = "dummy"
 
     fun createDoneRecord(eventId: String, fodselsnr: String): ConsumerRecord<Nokkel, Done> {
-        val key = Nokkel("dummyProducer", eventId)
+        val key = Nokkel("dummySystembruker", eventId)
         val value = Done(
                 Instant.now().toEpochMilli(),
                 fodselsnr,

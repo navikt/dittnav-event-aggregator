@@ -18,7 +18,7 @@ class OppgaveQueriesTest {
     private val oppgave2: Oppgave
     private val oppgave3: Oppgave
 
-    private val systembruker = "dummyProducer"
+    private val systembruker = "dummySystembruker"
     private val eventId = "2"
 
     private val allEvents: List<Oppgave>
