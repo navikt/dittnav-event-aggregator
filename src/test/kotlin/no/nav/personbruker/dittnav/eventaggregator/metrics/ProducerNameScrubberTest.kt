@@ -1,6 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.metrics
 
-import io.mockk.every
+import io.mockk.coEvery
 import io.mockk.mockk
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -16,11 +16,11 @@ internal class ProducerNameScrubberTest {
 
     @BeforeAll
     fun setupMocks() {
-        every { producerNameResolver.getProducerNameAliases() } returns mapOf(producerName to producerAlias)
+        coEvery { producerNameResolver.getProducerNameAliasesFromCache() } returns mapOf(producerName to producerAlias)
     }
 
     @Test
-    fun shouldUseAvailableAliasForProducerIfFound() {
+    suspend fun shouldUseAvailableAliasForProducerIfFound() {
         val scrubbedName = nameScrubber.getPublicAlias(producerName)
 
         assertEquals(producerAlias, scrubbedName)
@@ -28,7 +28,7 @@ internal class ProducerNameScrubberTest {
     }
 
     @Test
-    fun shouldUseGenericNonSystemAliasIfNotFoundAndNameResemblesIdent() {
+    suspend fun shouldUseGenericNonSystemAliasIfNotFoundAndNameResemblesIdent() {
         val scrubbedName = nameScrubber.getPublicAlias("srvabcdefgh")
 
         assertEquals(nameScrubber.GENERIC_SYSTEM_USER, scrubbedName)
@@ -36,7 +36,7 @@ internal class ProducerNameScrubberTest {
     }
 
     @Test
-    fun shouldUseGenericSystemAliasIfNotFound() {
+    suspend fun shouldUseGenericSystemAliasIfNotFound() {
         val scrubbedName = nameScrubber.getPublicAlias("dummy")
 
         assertEquals(nameScrubber.UNKNOWN_USER, scrubbedName)
@@ -44,8 +44,8 @@ internal class ProducerNameScrubberTest {
     }
 
     @Test
-    fun shouldUseGenericSystemAliasIfAliasListIsEmpty() {
-        every { producerNameResolver.getProducerNameAliases() } returns emptyMap()
+    suspend fun shouldUseGenericSystemAliasIfAliasListIsEmpty() {
+        coEvery { producerNameResolver.getProducerNameAliasesFromCache() } returns emptyMap()
         val scrubbedName = nameScrubber.getPublicAlias("dummy")
 
         assertEquals(nameScrubber.UNKNOWN_USER, scrubbedName)

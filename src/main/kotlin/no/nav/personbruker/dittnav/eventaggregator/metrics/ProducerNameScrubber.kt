@@ -5,17 +5,9 @@ class ProducerNameScrubber(private val producerNameResolver: ProducerNameResolve
     val UNKNOWN_USER = "unknown-user"
     val GENERIC_SYSTEM_USER = "unmapped-system-user"
 
-    fun getPublicAlias(producerName: String): String {
-        val producerNameAliases = producerNameResolver.getProducerNameAliases()
+    suspend fun getPublicAlias(producerName: String): String {
+        val producerNameAliases = producerNameResolver.getProducerNameAliasesFromCache()
         return producerNameAliases[producerName] ?: findFallBackAlias(producerName)
-    }
-
-    private fun parseStringAsMap(varString: String): Map<String, String> {
-        return varString.split(",")
-                .map { keyValString -> keyValString.split(":") }
-                .filter { keyValPair -> keyValPair.size == 2 }
-                .map { keyValPair -> keyValPair[0] to keyValPair[1] }
-                .toMap()
     }
 
     private fun findFallBackAlias(producerName: String): String {

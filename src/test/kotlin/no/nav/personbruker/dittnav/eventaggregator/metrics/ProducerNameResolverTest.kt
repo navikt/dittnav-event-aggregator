@@ -15,28 +15,28 @@ internal class ProducerNameResolverTest {
     private val producernameResolver = ProducerNameResolver(database)
 
     @Test
-    fun `skal returnere produsentnavn`() {
+    suspend fun `skal returnere produsentnavn`() {
         coEvery {
             database.queryWithExceptionTranslation<List<Produsent>>(any())
         }.returns(listOf(Produsent("x-dittnav", "dittnav")))
 
-        val producernameAliases = producernameResolver.getProducerNameAliases()
+        val producernameAliases = producernameResolver.getProducerNameAliasesFromCache()
         producernameAliases.size `should be` 1
         producernameAliases.getValue("x-dittnav") `should be` "dittnav"
     }
 
     @Test
-    fun `skal returnere cachede produsentnavn hvis henting av nye feiler`() {
+    suspend fun `skal returnere cachede produsentnavn hvis henting av nye feiler`() {
         coEvery {
             database.queryWithExceptionTranslation<List<Produsent>>(any())
         }.returns(listOf(Produsent("x-dittnav", "dittnav")))
-        val originalProducernameAliases = producernameResolver.getProducerNameAliases()
+        val originalProducernameAliases = producernameResolver.getProducerNameAliasesFromCache()
 
         coEvery {
             database.queryWithExceptionTranslation<List<Produsent>>(any())
         }.throws(SQLException())
 
-        val newProducernameAliases = producernameResolver.getProducerNameAliases()
+        val newProducernameAliases = producernameResolver.getProducerNameAliasesFromCache()
         originalProducernameAliases `should equal` newProducernameAliases
     }
 }

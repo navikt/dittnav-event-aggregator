@@ -27,7 +27,7 @@ internal class EventMetricsProbeTest {
         val producerName = "sys-t-user"
         val producerAlias = "test-user"
 
-        every { producerNameResolver.getProducerNameAliases() } returns mapOf(producerName to producerAlias)
+        coEvery { producerNameResolver.getProducerNameAliasesFromCache() } returns mapOf(producerName to producerAlias)
         val nameScrubber = ProducerNameScrubber(producerNameResolver)
         val metricsProbe = EventMetricsProbe(metricsReporter, nameScrubber)
 
@@ -57,7 +57,7 @@ internal class EventMetricsProbeTest {
         val producerName = "sys-t-user"
         val producerAlias = "test-user"
 
-        every { producerNameResolver.getProducerNameAliases() } returns mapOf(producerName to producerAlias)
+        coEvery { producerNameResolver.getProducerNameAliasesFromCache() } returns mapOf(producerName to producerAlias)
         val nameScrubber = ProducerNameScrubber(producerNameResolver)
         val metricsProbe = EventMetricsProbe(metricsReporter, nameScrubber)
 
@@ -87,7 +87,7 @@ internal class EventMetricsProbeTest {
         val producerName = "sys-t-user"
         val producerAlias = "test-user"
 
-        every { producerNameResolver.getProducerNameAliases() } returns mapOf(producerName to producerAlias)
+        coEvery { producerNameResolver.getProducerNameAliasesFromCache() } returns mapOf(producerName to producerAlias)
         val nameScrubber = ProducerNameScrubber(producerNameResolver)
         val metricsProbe = EventMetricsProbe(metricsReporter, nameScrubber)
 

@@ -1,6 +1,8 @@
 package no.nav.personbruker.dittnav.eventaggregator.metrics
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.getProdusentnavn
 import org.slf4j.Logger
@@ -17,13 +19,19 @@ class ProducerNameResolver(private val database: Database) {
 
     private val log: Logger = LoggerFactory.getLogger(ProducerNameResolver::class.java)
 
-    fun getProducerNameAliases(): Map<String, String> {
-        return runBlocking {
-            if(shouldFetchNewValuesFromDB()) {
-                producerNameAliases = populateProducerNameCache()
-                lastRetrievedFromDB = LocalDateTime.now()
+    suspend fun getProducerNameAliasesFromCache(): Map<String, String> {
+        if(shouldFetchNewValuesFromDB()) {
+            withContext(Dispatchers.IO) {
+                updateCache()
             }
-            producerNameAliases
+        }
+        return producerNameAliases
+    }
+
+    private suspend fun updateCache() {
+        if(shouldFetchNewValuesFromDB()) {
+            producerNameAliases = populateProducerNameCache()
+            lastRetrievedFromDB = LocalDateTime.now()
         }
     }
 
