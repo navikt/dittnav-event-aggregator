@@ -19,17 +19,16 @@ class ProducerNameResolver(private val database: Database) {
     private val log: Logger = LoggerFactory.getLogger(ProducerNameResolver::class.java)
 
     suspend fun getProducerNameAlias(systembruker: String): String? {
-        if(shouldFetchNewValuesFromDB()) {
+        val containsAlias = producerNameAliases.containsKey(systembruker)
+        if(shouldFetchNewValuesFromDB() || !containsAlias) {
             withContext(Dispatchers.IO) {
                 updateCache()
             }
+            if(!containsAlias) {
+                log.warn("Manglet alias for oppgitt systembruker, forsøker å oppdatere cache på nytt.")
+            }
         }
-        var producerNameAlias = producerNameAliases[systembruker]
-        if(producerNameAlias == null) {
-            log.warn("Mangler alias for oppgitt systembruker, forsøker å oppdatere cache på nytt.")
-            updateCache()
-        }
-        return producerNameAlias
+        return producerNameAliases[systembruker]
     }
 
     private suspend fun updateCache() {
