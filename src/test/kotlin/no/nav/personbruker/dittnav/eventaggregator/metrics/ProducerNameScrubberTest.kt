@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.metrics
 
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -9,46 +10,47 @@ import kotlin.test.assertNotSame
 
 internal class ProducerNameScrubberTest {
 
-    private val producerName = "sys-t-user"
-    private val producerAlias = "test-user"
+    private val systemUser = "sys-t-user"
+    private val producerNameAlias = "test-user"
     private val producerNameResolver =  mockk<ProducerNameResolver>()
     private val nameScrubber = ProducerNameScrubber(producerNameResolver)
 
     @BeforeAll
     fun setupMocks() {
-        coEvery { producerNameResolver.getProducerNameAliasesFromCache() } returns mapOf(producerName to producerAlias)
+        coEvery { producerNameResolver.getProducerNameAlias(systemUser) } returns producerNameAlias
     }
 
     @Test
-    suspend fun shouldUseAvailableAliasForProducerIfFound() {
-        val scrubbedName = nameScrubber.getPublicAlias(producerName)
+    fun shouldUseAvailableAliasForProducerIfFound() {
+        runBlocking {
+            val scrubbedName = nameScrubber.getPublicAlias(systemUser)
 
-        assertEquals(producerAlias, scrubbedName)
-        assertNotSame(producerName, scrubbedName)
+            assertEquals(producerNameAlias, scrubbedName)
+            assertNotSame(systemUser, scrubbedName)
+        }
     }
 
     @Test
-    suspend fun shouldUseGenericNonSystemAliasIfNotFoundAndNameResemblesIdent() {
-        val scrubbedName = nameScrubber.getPublicAlias("srvabcdefgh")
+    fun shouldUseGenericNonSystemAliasIfNotFoundAndNameResemblesIdent() {
+        val unknownSystemUser = "srvabcdefgh"
+        coEvery { producerNameResolver.getProducerNameAlias(unknownSystemUser) } returns null
+        runBlocking {
+            val scrubbedName = nameScrubber.getPublicAlias(unknownSystemUser)
 
-        assertEquals(nameScrubber.GENERIC_SYSTEM_USER, scrubbedName)
-        assertNotSame(producerName, scrubbedName)
+            assertEquals(nameScrubber.GENERIC_SYSTEM_USER, scrubbedName)
+            assertNotSame(systemUser, scrubbedName)
+        }
     }
 
     @Test
-    suspend fun shouldUseGenericSystemAliasIfNotFound() {
-        val scrubbedName = nameScrubber.getPublicAlias("dummy")
+    fun shouldUseGenericSystemAliasIfNotFound() {
+        val unknownSystemUser = "dummy"
+        coEvery { producerNameResolver.getProducerNameAlias(unknownSystemUser) } returns null
+        runBlocking {
+            val scrubbedName = nameScrubber.getPublicAlias(unknownSystemUser)
 
-        assertEquals(nameScrubber.UNKNOWN_USER, scrubbedName)
-        assertNotSame(producerName, scrubbedName)
-    }
-
-    @Test
-    suspend fun shouldUseGenericSystemAliasIfAliasListIsEmpty() {
-        coEvery { producerNameResolver.getProducerNameAliasesFromCache() } returns emptyMap()
-        val scrubbedName = nameScrubber.getPublicAlias("dummy")
-
-        assertEquals(nameScrubber.UNKNOWN_USER, scrubbedName)
-        assertNotSame(producerName, scrubbedName)
+            assertEquals(nameScrubber.UNKNOWN_USER, scrubbedName)
+            assertNotSame(systemUser, scrubbedName)
+        }
     }
 }

@@ -5,13 +5,12 @@ class ProducerNameScrubber(private val producerNameResolver: ProducerNameResolve
     val UNKNOWN_USER = "unknown-user"
     val GENERIC_SYSTEM_USER = "unmapped-system-user"
 
-    suspend fun getPublicAlias(producerName: String): String {
-        val producerNameAliases = producerNameResolver.getProducerNameAliasesFromCache()
-        return producerNameAliases[producerName] ?: findFallBackAlias(producerName)
+    suspend fun getPublicAlias(systembruker: String): String {
+        return producerNameResolver.getProducerNameAlias(systembruker) ?: findFallBackAlias(systembruker)
     }
 
-    private fun findFallBackAlias(producerName: String): String {
-        return if (isSystemUser(producerName)) {
+    private fun findFallBackAlias(systembruker: String): String {
+        return if (isSystemUser(systembruker)) {
             GENERIC_SYSTEM_USER
         } else {
             UNKNOWN_USER

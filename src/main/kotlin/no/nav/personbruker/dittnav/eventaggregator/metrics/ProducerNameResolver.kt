@@ -1,7 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.metrics
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.getProdusentnavn
@@ -19,20 +18,23 @@ class ProducerNameResolver(private val database: Database) {
 
     private val log: Logger = LoggerFactory.getLogger(ProducerNameResolver::class.java)
 
-    suspend fun getProducerNameAliasesFromCache(): Map<String, String> {
+    suspend fun getProducerNameAlias(systembruker: String): String? {
         if(shouldFetchNewValuesFromDB()) {
             withContext(Dispatchers.IO) {
                 updateCache()
             }
         }
-        return producerNameAliases
+        var producerNameAlias = producerNameAliases[systembruker]
+        if(producerNameAlias == null) {
+            log.warn("Mangler alias for oppgitt systembruker, forsøker å oppdatere cache på nytt.")
+            updateCache()
+        }
+        return producerNameAlias
     }
 
     private suspend fun updateCache() {
-        if(shouldFetchNewValuesFromDB()) {
-            producerNameAliases = populateProducerNameCache()
-            lastRetrievedFromDB = LocalDateTime.now()
-        }
+        producerNameAliases = populateProducerNameCache()
+        lastRetrievedFromDB = LocalDateTime.now()
     }
 
     private fun shouldFetchNewValuesFromDB(): Boolean {

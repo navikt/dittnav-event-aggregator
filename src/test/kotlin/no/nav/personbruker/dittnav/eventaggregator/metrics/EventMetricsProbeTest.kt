@@ -27,7 +27,7 @@ internal class EventMetricsProbeTest {
         val producerName = "sys-t-user"
         val producerAlias = "test-user"
 
-        coEvery { producerNameResolver.getProducerNameAliasesFromCache() } returns mapOf(producerName to producerAlias)
+        coEvery { producerNameResolver.getProducerNameAlias(producerName) } returns producerAlias
         val nameScrubber = ProducerNameScrubber(producerNameResolver)
         val metricsProbe = EventMetricsProbe(metricsReporter, nameScrubber)
 
@@ -57,7 +57,7 @@ internal class EventMetricsProbeTest {
         val producerName = "sys-t-user"
         val producerAlias = "test-user"
 
-        coEvery { producerNameResolver.getProducerNameAliasesFromCache() } returns mapOf(producerName to producerAlias)
+        coEvery { producerNameResolver.getProducerNameAlias(producerName) } returns producerAlias
         val nameScrubber = ProducerNameScrubber(producerNameResolver)
         val metricsProbe = EventMetricsProbe(metricsReporter, nameScrubber)
 
@@ -84,10 +84,7 @@ internal class EventMetricsProbeTest {
 
     @Test
     fun shouldReportCorrectNumberOfEvents() {
-        val producerName = "sys-t-user"
-        val producerAlias = "test-user"
-
-        coEvery { producerNameResolver.getProducerNameAliasesFromCache() } returns mapOf(producerName to producerAlias)
+        coEvery { producerNameResolver.getProducerNameAlias(any()) } returns "test-user"
         val nameScrubber = ProducerNameScrubber(producerNameResolver)
         val metricsProbe = EventMetricsProbe(metricsReporter, nameScrubber)
 
