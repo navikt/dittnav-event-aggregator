@@ -10,12 +10,12 @@ object InnboksObjectMother {
     }
 
     fun giveMeAktivInnboks(eventId: String, fodselsnummer: String): Innboks {
-        return giveMeAktivInnboks(eventId, fodselsnummer, "dummyProducer")
+        return giveMeAktivInnboks(eventId, fodselsnummer, "dummySystembruker")
     }
 
-    fun giveMeAktivInnboks(eventId: String, fodselsnummer: String, produsent: String): Innboks {
+    fun giveMeAktivInnboks(eventId: String, fodselsnummer: String, systembruker: String): Innboks {
         return Innboks(
-                produsent,
+                systembruker,
                 eventId,
                 LocalDateTime.now(ZoneId.of("UTC")),
                 fodselsnummer,
@@ -29,7 +29,7 @@ object InnboksObjectMother {
 
     fun giveMeInaktivInnboks(): Innboks {
         return Innboks(
-                "dummyProducer",
+                "dummySystembruker",
                 "76543",
                 LocalDateTime.now(ZoneId.of("UTC")),
                 "123",

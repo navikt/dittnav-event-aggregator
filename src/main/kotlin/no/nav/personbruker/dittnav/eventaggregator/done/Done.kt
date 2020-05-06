@@ -5,7 +5,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateNon
 import java.time.LocalDateTime
 
 data class Done(
-        val produsent: String,
+        val systembruker: String,
         val eventId: String,
         val eventTidspunkt: LocalDateTime,
         val fodselsnummer: String,
@@ -13,14 +13,14 @@ data class Done(
 ) {
 
     init {
-        validateNonNullFieldMaxLength(produsent, "produsent", 100)
+        validateNonNullFieldMaxLength(systembruker, "systembruker", 100)
         validateNonNullFieldMaxLength(eventId, "eventId", 50)
         validateFodselsnummer(fodselsnummer)
     }
 
     override fun toString(): String {
         return "Done(" +
-                "produsent=$produsent, " +
+                "systembruker=***, " +
                 "eventId=$eventId, " +
                 "eventTidspunkt=$eventTidspunkt, " +
                 "fodselsnummer=***, " +
@@ -33,7 +33,7 @@ data class Done(
 
         other as Done
 
-        if (produsent != other.produsent) return false
+        if (systembruker != other.systembruker) return false
         if (eventId != other.eventId) return false
         if (eventTidspunkt != other.eventTidspunkt) return false
         if (fodselsnummer != other.fodselsnummer) return false
@@ -43,7 +43,7 @@ data class Done(
     }
 
     override fun hashCode(): Int {
-        var result = produsent.hashCode()
+        var result = systembruker.hashCode()
         result = 31 * result + eventId.hashCode()
         result = 31 * result + eventTidspunkt.hashCode()
         result = 31 * result + fodselsnummer.hashCode()

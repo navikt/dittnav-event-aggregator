@@ -13,39 +13,39 @@ object BrukernotifikasjonObjectMother {
     }
 
     fun giveMeBeskjed(): Brukernotifikasjon {
-        return Brukernotifikasjon("b-1", "dummyProducer", EventType.BESKJED, "123")
+        return Brukernotifikasjon("b-1", "dummySystembruker", EventType.BESKJED, "123")
     }
 
     fun giveMeBeskjed(fodselsnummer: String): Brukernotifikasjon {
-        return Brukernotifikasjon("b-1", "dummyProducer", EventType.BESKJED, fodselsnummer)
+        return Brukernotifikasjon("b-1", "dummySystembruker", EventType.BESKJED, fodselsnummer)
     }
 
     fun giveMeInnboks(): Brukernotifikasjon {
-        return Brukernotifikasjon("i-1", "dummyProducer", EventType.INNBOKS, "123")
+        return Brukernotifikasjon("i-1", "dummySystembruker", EventType.INNBOKS, "123")
     }
 
     fun giveMeInnboks(fodselsnummer: String): Brukernotifikasjon {
-        return Brukernotifikasjon("i-1", "dummyProducer", EventType.INNBOKS, fodselsnummer)
+        return Brukernotifikasjon("i-1", "dummySystembruker", EventType.INNBOKS, fodselsnummer)
     }
 
     fun giveMeOppgave(): Brukernotifikasjon {
-        return Brukernotifikasjon("o-1", "dummyProducer", EventType.OPPGAVE, "123")
+        return Brukernotifikasjon("o-1", "dummySystembruker", EventType.OPPGAVE, "123")
     }
 
     fun giveMeOppgave(fodselsnummer: String): Brukernotifikasjon {
-        return Brukernotifikasjon("o-1", "dummyProducer", EventType.OPPGAVE, fodselsnummer)
+        return Brukernotifikasjon("o-1", "dummySystembruker", EventType.OPPGAVE, fodselsnummer)
     }
 
     fun giveMeFor(beskjed: Beskjed): Brukernotifikasjon {
-        return Brukernotifikasjon(beskjed.eventId, beskjed.produsent, EventType.BESKJED, beskjed.fodselsnummer)
+        return Brukernotifikasjon(beskjed.eventId, beskjed.systembruker, EventType.BESKJED, beskjed.fodselsnummer)
     }
 
     fun giveMeFor(innboks: Innboks): Brukernotifikasjon {
-        return Brukernotifikasjon(innboks.eventId, innboks.produsent, EventType.INNBOKS, innboks.fodselsnummer)
+        return Brukernotifikasjon(innboks.eventId, innboks.systembruker, EventType.INNBOKS, innboks.fodselsnummer)
     }
 
     fun giveMeFor(oppgave: Oppgave): Brukernotifikasjon {
-        return Brukernotifikasjon(oppgave.eventId, oppgave.produsent, EventType.OPPGAVE, oppgave.fodselsnummer)
+        return Brukernotifikasjon(oppgave.eventId, oppgave.systembruker, EventType.OPPGAVE, oppgave.fodselsnummer)
     }
 
 }

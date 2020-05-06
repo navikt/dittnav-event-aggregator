@@ -1,34 +1,23 @@
 package no.nav.personbruker.dittnav.eventaggregator.metrics
 
-class ProducerNameScrubber(producerAliasesString: String) {
+class ProducerNameScrubber(private val producerNameResolver: ProducerNameResolver) {
 
-    private val producerNameAliases: Map<String, String> = parseStringAsMap(producerAliasesString)
-    
-    val UNKNOW_USER = "unknown-user"
+    val UNKNOWN_USER = "unknown-user"
     val GENERIC_SYSTEM_USER = "unmapped-system-user"
 
-    fun getPublicAlias(producerName: String): String {
-        return producerNameAliases[producerName] ?: findFallBackAlias(producerName)
+    suspend fun getPublicAlias(systembruker: String): String {
+        return producerNameResolver.getProducerNameAlias(systembruker) ?: findFallBackAlias(systembruker)
     }
 
-    private fun parseStringAsMap(varString: String): Map<String, String> {
-        return varString.split(",")
-                .map { keyValString -> keyValString.split(":") }
-                .filter { keyValPair -> keyValPair.size == 2 }
-                .map { keyValPair -> keyValPair[0] to keyValPair[1] }
-                .toMap()
-    }
-
-    private fun findFallBackAlias(producerName: String): String {
-        return if (isSystemUser(producerName)) {
+    private fun findFallBackAlias(systembruker: String): String {
+        return if (isSystemUser(systembruker)) {
             GENERIC_SYSTEM_USER
         } else {
-            UNKNOW_USER
+            UNKNOWN_USER
         }
     }
-    
+
     private fun isSystemUser(producer: String): Boolean {
         return "^srv.{1,12}\$".toRegex().matches(producer)
     }
 }
-

@@ -16,9 +16,9 @@ fun Connection.getAllDoneEvent(): List<Done> =
                 }
 
 fun Connection.createDoneEvent(done: Done): Int =
-        prepareStatement("""INSERT INTO done(produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId)
+        prepareStatement("""INSERT INTO done(systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId)
             VALUES (?, ?, ?, ?, ?)""", Statement.RETURN_GENERATED_KEYS).use {
-            it.setString(1, done.produsent)
+            it.setString(1, done.systembruker)
             it.setObject(2, done.eventTidspunkt, Types.TIMESTAMP)
             it.setString(3, done.fodselsnummer)
             it.setString(4, done.eventId)
@@ -29,10 +29,10 @@ fun Connection.createDoneEvent(done: Done): Int =
         }
 
 fun Connection.deleteDoneEvent(doneEventToDelete: Done): Boolean =
-        prepareStatement("""DELETE FROM done WHERE eventId = ? AND produsent = ? AND fodselsnummer = ?""")
+        prepareStatement("""DELETE FROM done WHERE eventId = ? AND systembruker = ? AND fodselsnummer = ?""")
                 .use {
                     it.setString(1, doneEventToDelete.eventId)
-                    it.setString(2, doneEventToDelete.produsent)
+                    it.setString(2, doneEventToDelete.systembruker)
                     it.setString(3, doneEventToDelete.fodselsnummer)
                     it.execute()
                 }
@@ -40,7 +40,7 @@ fun Connection.deleteDoneEvent(doneEventToDelete: Done): Boolean =
 private fun ResultSet.toDoneEvent(): Done {
     return Done(
             eventId = getString("eventId"),
-            produsent = getString("produsent"),
+            systembruker = getString("systembruker"),
             eventTidspunkt = getUtcDateTime("eventTidspunkt"),
             fodselsnummer = getString("fodselsnummer"),
             grupperingsId = getString("grupperingsId")

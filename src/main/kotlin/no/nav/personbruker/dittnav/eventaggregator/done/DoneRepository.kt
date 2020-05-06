@@ -15,7 +15,7 @@ class DoneRepository(private val database: Database) {
         }
         database.queryWithExceptionTranslation {
             entities.forEach { entity ->
-                setBeskjedAktivFlag(entity.eventId, entity.produsent, entity.fodselsnummer, false)
+                setBeskjedAktivFlag(entity.eventId, entity.systembruker, entity.fodselsnummer, false)
             }
         }
     }
@@ -26,7 +26,7 @@ class DoneRepository(private val database: Database) {
         }
         database.queryWithExceptionTranslation {
             entities.forEach { entity ->
-                setOppgaveAktivFlag(entity.eventId, entity.produsent, entity.fodselsnummer, false)
+                setOppgaveAktivFlag(entity.eventId, entity.systembruker, entity.fodselsnummer, false)
             }
         }
     }
@@ -37,7 +37,7 @@ class DoneRepository(private val database: Database) {
         }
         database.queryWithExceptionTranslation {
             entities.forEach { entity ->
-                setInnboksAktivFlag(entity.eventId, entity.produsent, entity.fodselsnummer, false)
+                setInnboksAktivFlag(entity.eventId, entity.systembruker, entity.fodselsnummer, false)
             }
         }
     }

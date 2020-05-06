@@ -7,14 +7,14 @@ import java.time.ZoneId
 object DoneObjectMother {
 
     fun giveMeDone(eventId: String): Done {
-        val produsent = "dummyProducer"
+        val systembruker = "dummySystembruker"
         val fodselsnummer = "12345"
-        return giveMeDone(eventId, produsent, fodselsnummer)
+        return giveMeDone(eventId, systembruker, fodselsnummer)
     }
 
-    fun giveMeDone(eventId: String, produsent: String, fodselsnummer: String): Done {
+    fun giveMeDone(eventId: String, systembruker: String, fodselsnummer: String): Done {
         return Done(
-                produsent,
+                systembruker,
                 eventId,
                 LocalDateTime.now(ZoneId.of("UTC")),
                 fodselsnummer,
@@ -27,7 +27,7 @@ object DoneObjectMother {
         brukernotifikasjoner.forEach { brukernotifikasjon ->
             val associatedDoneEvent = giveMeDone(
                     brukernotifikasjon.eventId,
-                    brukernotifikasjon.produsent,
+                    brukernotifikasjon.systembruker,
                     brukernotifikasjon.fodselsnummer
             )
             doneEvents.add(associatedDoneEvent)
@@ -38,7 +38,7 @@ object DoneObjectMother {
     fun giveMeMatchingDoneEvent(brukernotifikasjonToMatch: Brukernotifikasjon): Done {
         return giveMeDone(
                 brukernotifikasjonToMatch.eventId,
-                brukernotifikasjonToMatch.produsent,
+                brukernotifikasjonToMatch.systembruker,
                 brukernotifikasjonToMatch.fodselsnummer
         )
     }

@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 data class Beskjed(
         val uid: String,
         val id: Int?,
-        val produsent: String,
+        val systembruker: String,
         val eventId: String,
         val eventTidspunkt: LocalDateTime,
         val fodselsnummer: String,
@@ -21,7 +21,7 @@ data class Beskjed(
         val aktiv: Boolean
 ) {
     constructor(uid: String,
-                produsent: String,
+                systembruker: String,
                 eventId: String,
                 eventTidspunkt: LocalDateTime,
                 fodselsnummer: String,
@@ -34,7 +34,7 @@ data class Beskjed(
                 aktiv: Boolean
     ) : this(uid,
             null,
-            produsent,
+            systembruker,
             eventId,
             eventTidspunkt,
             fodselsnummer,
@@ -46,7 +46,7 @@ data class Beskjed(
             synligFremTil,
             aktiv
     ) {
-        validateNonNullFieldMaxLength(produsent, "produsent", 100)
+        validateNonNullFieldMaxLength(systembruker, "systembruker", 100)
         validateNonNullFieldMaxLength(eventId, "eventId", 50)
         validateNonNullFieldMaxLength(fodselsnummer, "fodselsnummer", 11)
         validateNonNullFieldMaxLength(grupperingsId, "grupperingsId", 100)
@@ -60,7 +60,7 @@ data class Beskjed(
         return "Beskjed(" +
                 "uid=$uid, " +
                 "id=$id, " +
-                "produsent=$produsent, " +
+                "systembruker=***, " +
                 "eventId=$eventId, " +
                 "eventTidspunkt=$eventTidspunkt, " +
                 "fodselsnummer=***, " +

@@ -32,8 +32,8 @@ interface Database {
     }
 
 
-    suspend fun queryWithExceptionTranslation(operationToExecute: Connection.() -> Unit) {
-        translateExternalExceptionsToInternalOnes {
+    suspend fun <T> queryWithExceptionTranslation(operationToExecute: Connection.() -> T): T {
+        return translateExternalExceptionsToInternalOnes {
             dbQuery {
                 operationToExecute()
             }
@@ -41,8 +41,8 @@ interface Database {
     }
 }
 
-inline fun translateExternalExceptionsToInternalOnes(databaseActions: () -> Unit) {
-    try {
+inline fun <T> translateExternalExceptionsToInternalOnes(databaseActions: () -> T): T {
+    return try {
         databaseActions()
 
     } catch (bue: BatchUpdateException) {

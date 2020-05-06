@@ -13,6 +13,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameResolver
 import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameScrubber
 import no.nav.personbruker.dittnav.eventaggregator.metrics.StubMetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
@@ -24,19 +25,20 @@ import org.junit.jupiter.api.Test
 
 class EndToEndTestIT {
 
-    val database = H2Database()
+    private val database = H2Database()
 
-    val topicen = "endToEndTestItBeskjed"
-    val embeddedEnv = KafkaTestUtil.createDefaultKafkaEmbeddedInstance(listOf(topicen))
-    val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
+    private val topicen = "endToEndTestItBeskjed"
+    private val embeddedEnv = KafkaTestUtil.createDefaultKafkaEmbeddedInstance(listOf(topicen))
+    private val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
 
-    val metricsReporter = StubMetricsReporter()
-    val nameScrubber = ProducerNameScrubber("")
-    val metricsProbe = EventMetricsProbe(metricsReporter, nameScrubber)
+    private val metricsReporter = StubMetricsReporter()
+    private val nameResolver = ProducerNameResolver(database)
+    private val nameScrubber = ProducerNameScrubber(nameResolver)
+    private val metricsProbe = EventMetricsProbe(metricsReporter, nameScrubber)
 
-    val adminClient = embeddedEnv.adminClient
+    private val adminClient = embeddedEnv.adminClient
 
-    val events = (1..10).map { createNokkel(it) to AvroBeskjedObjectMother.createBeskjed(it) }.toMap()
+    private val events = (1..10).map { createNokkel(it) to AvroBeskjedObjectMother.createBeskjed(it) }.toMap()
 
     init {
         embeddedEnv.start()

@@ -17,7 +17,7 @@ fun Connection.getBrukernotifikasjonFromViewByAktiv(aktiv: Boolean): List<Bruker
 private fun ResultSet.toBrukernotifikasjon(): Brukernotifikasjon {
     return Brukernotifikasjon(
             eventId = getString("eventId"),
-            produsent = getString("produsent"),
+            systembruker = getString("systembruker"),
             type = EventType.valueOf(getString("type").toUpperCase()),
             fodselsnummer = getString("fodselsnummer")
     )

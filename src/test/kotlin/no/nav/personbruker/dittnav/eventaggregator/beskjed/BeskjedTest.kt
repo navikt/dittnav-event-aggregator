@@ -13,7 +13,7 @@ import kotlin.random.Random
 class BeskjedTest {
 
     private val uid = Random.nextInt(1, 100).toString()
-    private val validProdusent = "dummyProducer"
+    private val validSystembruker = "dummySystembruker"
     private val validFodselsnummer = "123"
     private val eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC"))
     private val synligFremTil = LocalDateTime.now(ZoneId.of("UTC"))
@@ -34,12 +34,12 @@ class BeskjedTest {
     }
 
     @Test
-    fun `do not allow too long produsent`() {
-        val tooLongProdusent = "P".repeat(101)
+    fun `do not allow too long systembruker`() {
+        val tooLongSystembruker = "P".repeat(101)
         invoking {
             Beskjed(
                     uid = uid,
-                    produsent = tooLongProdusent,
+                    systembruker = tooLongSystembruker,
                     eventTidspunkt = eventTidspunkt,
                     synligFremTil = synligFremTil,
                     fodselsnummer = validFodselsnummer,
@@ -50,7 +50,7 @@ class BeskjedTest {
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
                     aktiv = true)
-        } `should throw` FieldValidationException::class `with message containing` "produsent"
+        } `should throw` FieldValidationException::class `with message containing` "systembruker"
     }
 
     @Test
@@ -59,7 +59,7 @@ class BeskjedTest {
         invoking {
             Beskjed(
                     uid = uid,
-                    produsent = validProdusent,
+                    systembruker = validSystembruker,
                     eventTidspunkt = eventTidspunkt,
                     synligFremTil = synligFremTil,
                     fodselsnummer = tooLongFnr,
@@ -79,7 +79,7 @@ class BeskjedTest {
         invoking {
             Beskjed(
                     uid = uid,
-                    produsent = validProdusent,
+                    systembruker = validSystembruker,
                     eventTidspunkt = eventTidspunkt,
                     synligFremTil = synligFremTil,
                     fodselsnummer = validFodselsnummer,
@@ -99,7 +99,7 @@ class BeskjedTest {
         invoking {
             Beskjed(
                     uid = uid,
-                    produsent = validProdusent,
+                    systembruker = validSystembruker,
                     eventTidspunkt = eventTidspunkt,
                     synligFremTil = synligFremTil,
                     fodselsnummer = validFodselsnummer,
@@ -119,7 +119,7 @@ class BeskjedTest {
         invoking {
             Beskjed(
                     uid = uid,
-                    produsent = validProdusent,
+                    systembruker = validSystembruker,
                     eventTidspunkt = eventTidspunkt,
                     synligFremTil = synligFremTil,
                     fodselsnummer = validFodselsnummer,
@@ -139,7 +139,7 @@ class BeskjedTest {
         invoking {
             Beskjed(
                     uid = uid,
-                    produsent = validProdusent,
+                    systembruker = validSystembruker,
                     eventTidspunkt = eventTidspunkt,
                     synligFremTil = synligFremTil,
                     fodselsnummer = validFodselsnummer,
@@ -159,7 +159,7 @@ class BeskjedTest {
         invoking {
             Beskjed(
                     uid = uid,
-                    produsent = validProdusent,
+                    systembruker = validSystembruker,
                     eventTidspunkt = eventTidspunkt,
                     synligFremTil = synligFremTil,
                     fodselsnummer = validFodselsnummer,
@@ -179,7 +179,7 @@ class BeskjedTest {
         invoking {
             Beskjed(
                     uid = tooLongUid,
-                    produsent = validProdusent,
+                    systembruker = validSystembruker,
                     eventTidspunkt = eventTidspunkt,
                     synligFremTil = synligFremTil,
                     fodselsnummer = validFodselsnummer,
