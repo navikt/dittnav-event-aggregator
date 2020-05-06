@@ -31,7 +31,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 
-class DoneEventServiceTest {
+class DoneEventServiceIT {
 
     private val database = H2Database()
     private val metricsReporter = StubMetricsReporter()

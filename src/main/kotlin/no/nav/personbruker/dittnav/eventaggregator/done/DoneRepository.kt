@@ -4,6 +4,7 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.setBeskjedAktivFlag
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon
 import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.getBrukernotifikasjonFromViewByAktiv
+import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.getBrukernotifikasjonFromViewForEventIdsByAktiv
 import no.nav.personbruker.dittnav.eventaggregator.innboks.setInnboksAktivFlag
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.setOppgaveAktivFlag
 
@@ -57,6 +58,14 @@ class DoneRepository(private val database: Database) {
         var resultat = emptyList<Brukernotifikasjon>()
         database.queryWithExceptionTranslation {
             resultat = getBrukernotifikasjonFromViewByAktiv(true)
+        }
+        return resultat
+    }
+
+    suspend fun fetchActiveBrukernotifikasjonerFromViewForEventIds(eventIds: List<String>): List<Brukernotifikasjon> {
+        var resultat = emptyList<Brukernotifikasjon>()
+        database.queryWithExceptionTranslation {
+            resultat = getBrukernotifikasjonFromViewForEventIdsByAktiv(eventIds, true)
         }
         return resultat
     }
