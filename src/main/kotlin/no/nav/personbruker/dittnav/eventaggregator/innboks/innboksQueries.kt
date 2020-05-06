@@ -24,7 +24,7 @@ fun Connection.getInnboksById(entityId: Int): Innboks =
                     }
                 }
 
-private val createQuery = """INSERT INTO innboks(produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv)
+private val createQuery = """INSERT INTO innboks(systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv)
             VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
 fun Connection.createInnboksEventer(innboksEventer: List<Innboks>) =
@@ -54,7 +54,7 @@ private fun PreparedStatement.buildStatementForSingleRow(innboks: Innboks) {
 }
 
 fun Connection.setInnboksAktivFlag(eventId: String, systembruker: String, fodselsnummer: String, aktiv: Boolean): Int =
-        prepareStatement("""UPDATE innboks SET aktiv = ? WHERE eventId = ? AND produsent = ? AND fodselsnummer = ?""")
+        prepareStatement("""UPDATE innboks SET aktiv = ? WHERE eventId = ? AND systembruker = ? AND fodselsnummer = ?""")
                 .use {
                     it.setBoolean(1, aktiv)
                     it.setString(2, eventId)

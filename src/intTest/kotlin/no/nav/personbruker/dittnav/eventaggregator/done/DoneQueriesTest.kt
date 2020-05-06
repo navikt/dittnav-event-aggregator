@@ -43,7 +43,7 @@ class DoneQueriesTest {
 
     @Test
     fun `skal slette et spesifikt done-event`() {
-        val doneEventToInsertAndThenDelete = DoneObjectMother.giveMeDone("876543", "dummtProdusent", "123")
+        val doneEventToInsertAndThenDelete = DoneObjectMother.giveMeDone("876543", "dummySystembruker", "123")
         runBlocking {
             database.dbQuery { createDoneEvent(doneEventToInsertAndThenDelete) }
             val antallDoneEventerForSletting = database.dbQuery { getAllDoneEvent() }

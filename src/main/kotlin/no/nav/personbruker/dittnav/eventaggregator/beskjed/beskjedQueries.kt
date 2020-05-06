@@ -16,7 +16,7 @@ fun Connection.getAllBeskjed(): List<Beskjed> =
                     }
                 }
 
-private val createQuery = """INSERT INTO beskjed (uid, produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv)
+private val createQuery = """INSERT INTO beskjed (uid, systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
 fun Connection.createBeskjed(beskjed: Beskjed): PersistActionResult =
@@ -48,7 +48,7 @@ private fun PreparedStatement.buildStatementForSingleRow(beskjed: Beskjed) {
 }
 
 fun Connection.setBeskjedAktivFlag(eventId: String, systembruker: String, fodselsnummer: String, aktiv: Boolean): Int =
-        prepareStatement("""UPDATE beskjed SET aktiv = ? WHERE eventId = ? AND produsent = ? AND fodselsnummer = ?""").use {
+        prepareStatement("""UPDATE beskjed SET aktiv = ? WHERE eventId = ? AND systembruker = ? AND fodselsnummer = ?""").use {
             it.setBoolean(1, aktiv)
             it.setString(2, eventId)
             it.setString(3, systembruker)
