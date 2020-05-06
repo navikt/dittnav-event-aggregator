@@ -16,6 +16,7 @@ import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.getAllInnboks
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameResolver
 import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameScrubber
 import no.nav.personbruker.dittnav.eventaggregator.metrics.StubMetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
@@ -34,7 +35,8 @@ class DoneEventServiceTest {
 
     private val database = H2Database()
     private val metricsReporter = StubMetricsReporter()
-    private val producerNameScrubber = ProducerNameScrubber("")
+    private val producerNameResolver = ProducerNameResolver(database)
+    private val producerNameScrubber = ProducerNameScrubber(producerNameResolver)
     private val metricsProbe = EventMetricsProbe(metricsReporter, producerNameScrubber)
     private val doneRepository = DoneRepository(database)
     private val doneEventService = DoneEventService(doneRepository, metricsProbe)
