@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.config
 
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedEventService
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
+import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.done.CachedDoneEventConsumer
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneEventService
@@ -20,17 +21,20 @@ class ApplicationContext {
     val metricsProbe = buildEventMetricsProbe(environment, database)
 
     val beskjedRepository = BeskjedRepository(database)
-    val beskjedEventProcessor = BeskjedEventService(beskjedRepository, metricsProbe)
+    val beskjedPersistingService = BrukernotifikasjonPersistingService(beskjedRepository)
+    val beskjedEventProcessor = BeskjedEventService(beskjedPersistingService, metricsProbe)
     val beskjedKafkaProps = Kafka.consumerProps(environment, EventType.BESKJED)
     val beskjedConsumer = KafkaConsumerSetup.setupConsumerForTheBeskjedTopic(beskjedKafkaProps, beskjedEventProcessor)
 
     val oppgaveRepository = OppgaveRepository(database)
-    val oppgaveEventProcessor = OppgaveEventService(oppgaveRepository, metricsProbe)
+    val oppgavePersistingService = BrukernotifikasjonPersistingService(oppgaveRepository)
+    val oppgaveEventProcessor = OppgaveEventService(oppgavePersistingService, metricsProbe)
     val oppgaveKafkaProps = Kafka.consumerProps(environment, EventType.OPPGAVE)
     val oppgaveConsumer = KafkaConsumerSetup.setupConsumerForTheOppgaveTopic(oppgaveKafkaProps, oppgaveEventProcessor)
 
     val innboksRepository = InnboksRepository(database)
-    val innboksEventProcessor = InnboksEventService(innboksRepository, metricsProbe)
+    val innboksPersistingService = BrukernotifikasjonPersistingService(innboksRepository)
+    val innboksEventProcessor = InnboksEventService(innboksPersistingService, metricsProbe)
     val innboksKafkaProps = Kafka.consumerProps(environment, EventType.INNBOKS)
     val innboksConsumer = KafkaConsumerSetup.setupConsumerForTheInnboksTopic(innboksKafkaProps, innboksEventProcessor)
 

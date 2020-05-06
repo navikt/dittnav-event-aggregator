@@ -7,7 +7,7 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
 
-class BeskjedQueriesTest {
+class beskjedQueriesTest {
 
     private val database = H2Database()
 
@@ -120,6 +120,27 @@ class BeskjedQueriesTest {
                 database.dbQuery { getBeskjedByEventId("-1") }
             }
         } shouldThrow SQLException::class `with message` "Found no rows"
+    }
+
+    @Test
+    fun `Skal skrive eventer i batch`() {
+        val beskjed1 = BeskjedObjectMother.giveMeAktivBeskjed("b-1", "123")
+        val beskjed2 = BeskjedObjectMother.giveMeAktivBeskjed("b-2", "123")
+
+        runBlocking {
+            database.dbQuery {
+                createBeskjeder(listOf(beskjed1, beskjed2))
+            }
+
+            val beskjed1FraDb = database.dbQuery { getBeskjedByEventId(beskjed1.eventId) }
+            val beskjed2FraDb = database.dbQuery { getBeskjedByEventId(beskjed2.eventId) }
+
+            beskjed1FraDb.eventId `should equal` beskjed1.eventId
+            beskjed2FraDb.eventId `should equal` beskjed2.eventId
+
+            database.dbQuery { deleteBeskjedWithEventId(beskjed1.eventId) }
+            database.dbQuery { deleteBeskjedWithEventId(beskjed2.eventId) }
+        }
     }
 
 }

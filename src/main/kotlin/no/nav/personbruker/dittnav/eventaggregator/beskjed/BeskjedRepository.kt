@@ -1,15 +1,22 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
+import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonRepository
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistFailureReason
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class BeskjedRepository(private val database: Database) {
+class BeskjedRepository(private val database: Database) : BrukernotifikasjonRepository<Beskjed> {
 
     private val log: Logger = LoggerFactory.getLogger(BeskjedRepository::class.java)
 
-    suspend fun writeEventsToCache(entities: List<Beskjed>) {
+    override suspend fun createInOneBatch(entities: List<Beskjed>) {
+        database.queryWithExceptionTranslation {
+            createBeskjeder(entities)
+        }
+    }
+
+    override suspend fun createOneByOneToFilterOutTheProblematicEvents(entities: List<Beskjed>) {
         database.queryWithExceptionTranslation {
             entities.forEach { entity ->
                 createBeskjed(entity).onFailure { reason ->
