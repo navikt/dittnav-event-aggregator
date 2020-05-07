@@ -23,20 +23,16 @@ internal class CachedDoneEventConsumerTest {
         } returns listOf(matchingDoneEvent, doneEventUtenMatch)
 
         coEvery {
-            doneRepo.fetchActiveBrukernotifikasjonerFromView()
+            doneRepo.fetchBrukernotifikasjonerFromViewForEventIds(any())
         } returns listOf(beskjed)
-
-        coEvery {
-            doneRepo.fetchInaktiveBrukernotifikasjonerFromView()
-        } returns emptyList()
 
         runBlocking {
             consumer.processDoneEvents()
         }
 
-        coVerify(exactly = 2) { doneRepo.writeDoneEventsForBeskjedToCache(any()) }
-        coVerify(exactly = 2) { doneRepo.writeDoneEventsForInnboksToCache(any()) }
-        coVerify(exactly = 2) { doneRepo.writeDoneEventsForOppgaveToCache(any()) }
-        coVerify(exactly = 2) { doneRepo.deleteDoneEventFromCache(any()) }
+        coVerify(exactly = 1) { doneRepo.writeDoneEventsForBeskjedToCache(any()) }
+        coVerify(exactly = 1) { doneRepo.writeDoneEventsForInnboksToCache(any()) }
+        coVerify(exactly = 1) { doneRepo.writeDoneEventsForOppgaveToCache(any()) }
+        coVerify(exactly = 1) { doneRepo.deleteDoneEventFromCache(any()) }
     }
 }

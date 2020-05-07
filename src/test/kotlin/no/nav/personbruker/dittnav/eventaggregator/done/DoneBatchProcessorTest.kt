@@ -15,56 +15,49 @@ internal class DoneBatchProcessorTest {
         val doneEventWithoutMatchingBeatification = DoneObjectMother.giveMeDone("4")
         doneEventsToProcess.add(doneEventWithoutMatchingBeatification)
 
-        val processor = DoneBatchProcessor(existingEntitiesInDatabase)
-        processor.process(doneEventsToProcess)
 
-        processor.foundBeskjed.size `should be` 1
-        processor.foundInnboks.size `should be` 1
-        processor.foundOppgave.size `should be` 1
-        processor.notFoundEvents.size `should be` 1
+        val result = DoneBatchProcessor.process(doneEventsToProcess, existingEntitiesInDatabase)
 
-        val totalNumberOfGroupedEvents = processor.allFoundEvents.size + processor.notFoundEvents.size
+        result.eventsMatchingBeskjed.size `should be` 1
+        result.eventsMatchingInnboks.size `should be` 1
+        result.eventsMatchingOppgave.size `should be` 1
+        result.eventsMatchingNone.size `should be` 1
+
+        val totalNumberOfGroupedEvents = result.eventsMatchingAny.size + result.eventsMatchingNone.size
         totalNumberOfGroupedEvents `should be equal to` doneEventsToProcess.size
     }
 
     @Test
     fun `skal haandtere at det ikke finnes eventer i databasen og at det ikke ble mottatt eventer`() {
-        val processor = DoneBatchProcessor(emptyList())
+        val result = DoneBatchProcessor.process(emptyList(), emptyList())
 
-        processor.process(emptyList())
-
-        processor.foundBeskjed.size `should be` 0
-        processor.foundInnboks.size `should be` 0
-        processor.foundOppgave.size `should be` 0
-        processor.notFoundEvents.size `should be` 0
+        result.eventsMatchingBeskjed.size `should be` 0
+        result.eventsMatchingInnboks.size `should be` 0
+        result.eventsMatchingOppgave.size `should be` 0
+        result.eventsMatchingNone.size `should be` 0
     }
 
     @Test
     fun `skal haandtere at det ikke ble mottatt eventer`() {
         val existingEntitiesInDatabase = BrukernotifikasjonObjectMother.giveMeOneOfEachEventType()
-        val processor = DoneBatchProcessor(existingEntitiesInDatabase)
+        val result = DoneBatchProcessor.process(emptyList(), existingEntitiesInDatabase)
 
-        processor.process(emptyList())
-
-        processor.foundBeskjed.size `should be` 0
-        processor.foundInnboks.size `should be` 0
-        processor.foundOppgave.size `should be` 0
-        processor.notFoundEvents.size `should be` 0
-        processor.isMoreEventsToProcess() `should be equal to` false
+        result.eventsMatchingBeskjed.size `should be` 0
+        result.eventsMatchingInnboks.size `should be` 0
+        result.eventsMatchingOppgave.size `should be` 0
+        result.eventsMatchingNone.size `should be` 0
     }
 
     @Test
     fun `skal haandtere at ingen av eventene ble funnet i databasen`() {
-        val processor = DoneBatchProcessor(emptyList())
         val batchOfEntities = listOf(DoneObjectMother.giveMeDone("1"), DoneObjectMother.giveMeDone("2"))
 
-        processor.process(batchOfEntities)
+        val result = DoneBatchProcessor.process(batchOfEntities, emptyList())
 
-        processor.foundBeskjed.size `should be` 0
-        processor.foundInnboks.size `should be` 0
-        processor.foundOppgave.size `should be` 0
-        processor.notFoundEvents.size `should be` 2
-        processor.isMoreEventsToProcess() `should be equal to` true
+        result.eventsMatchingBeskjed.size `should be` 0
+        result.eventsMatchingInnboks.size `should be` 0
+        result.eventsMatchingOppgave.size `should be` 0
+        result.eventsMatchingNone.size `should be` 2
     }
 
     @Test
@@ -72,10 +65,9 @@ internal class DoneBatchProcessorTest {
         val existingEntitiesInDatabase = BrukernotifikasjonObjectMother.giveMeOneOfEachEventType()
         val doneEventsToProcess = DoneObjectMother.giveMeOneDoneEventForEach(existingEntitiesInDatabase)
 
-        val processor = DoneBatchProcessor(existingEntitiesInDatabase)
-        processor.process(doneEventsToProcess)
+        val result = DoneBatchProcessor.process(doneEventsToProcess, existingEntitiesInDatabase)
 
-        processor.allFoundEvents `should contain all` doneEventsToProcess
+        result.allDoneEvents `should contain all` doneEventsToProcess
     }
 
 }

@@ -55,19 +55,17 @@ class DoneEventService(
         kastExceptionHvisMislykkedeTransformasjoner(problematicEvents)
     }
 
-    private suspend fun groupDoneEventsByAssociatedEventType(successfullyTransformedEvents: List<no.nav.personbruker.dittnav.eventaggregator.done.Done>): DoneBatchProcessor {
+    private suspend fun groupDoneEventsByAssociatedEventType(successfullyTransformedEvents: List<no.nav.personbruker.dittnav.eventaggregator.done.Done>): CachedDoneProcessingResult {
         val eventIds = successfullyTransformedEvents.map { it.eventId }.distinct()
-        val aktiveBrukernotifikasjoner = doneRepository.fetchActiveBrukernotifikasjonerFromViewForEventIds(eventIds)
-        val batch = DoneBatchProcessor(aktiveBrukernotifikasjoner)
-        batch.process(successfullyTransformedEvents)
-        return batch
+        val brukernotifikasjoner = doneRepository.fetchBrukernotifikasjonerFromViewForEventIds(eventIds)
+        return DoneBatchProcessor.process(successfullyTransformedEvents, brukernotifikasjoner)
     }
 
-    private suspend fun writeDoneEventsToCache(groupedDoneEvents: DoneBatchProcessor) {
-        doneRepository.writeDoneEventsForBeskjedToCache(groupedDoneEvents.foundBeskjed)
-        doneRepository.writeDoneEventsForOppgaveToCache(groupedDoneEvents.foundOppgave)
-        doneRepository.writeDoneEventsForInnboksToCache(groupedDoneEvents.foundInnboks)
-        doneRepository.writeDoneEventToCache(groupedDoneEvents.notFoundEvents)
+    private suspend fun writeDoneEventsToCache(groupedDoneEvents: CachedDoneProcessingResult) {
+        doneRepository.writeDoneEventsForBeskjedToCache(groupedDoneEvents.eventsMatchingBeskjed)
+        doneRepository.writeDoneEventsForOppgaveToCache(groupedDoneEvents.eventsMatchingOppgave)
+        doneRepository.writeDoneEventsForInnboksToCache(groupedDoneEvents.eventsMatchingInnboks)
+        doneRepository.writeDoneEventToCache(groupedDoneEvents.eventsMatchingNone)
     }
 
     private fun kastExceptionHvisMislykkedeTransformasjoner(problematicEvents: MutableList<ConsumerRecord<Nokkel, Done>>) {

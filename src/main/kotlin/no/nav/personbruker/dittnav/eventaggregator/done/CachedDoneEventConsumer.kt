@@ -39,10 +39,7 @@ class CachedDoneEventConsumer(
         try {
             val allDone = doneRepository.fetchAllDoneEvents()
 
-            val doneEventsGroupedByActiveEvents = processActiveEventsOnly(allDone)
-            if (doneEventsGroupedByActiveEvents.isMoreEventsToProcess()) {
-                processDeactivatedEventsOnly(doneEventsGroupedByActiveEvents.notFoundEvents)
-            }
+            processEvents(allDone)
 
         } catch (rde: RetriableDatabaseException) {
             log.warn("Behandling av done-eventer fra ventetabellen feilet. Klarte ikke å skrive til databasen, prøver igjen senere. Context: ${rde.context}", rde)
@@ -55,37 +52,23 @@ class CachedDoneEventConsumer(
         }
     }
 
-    private suspend fun processActiveEventsOnly(allDone: List<Done>): DoneBatchProcessor {
-        val groupedDoneEvents = fetchActiveEvents()
-        groupedDoneEvents.process(allDone)
+    private suspend fun updateTheDatabase(groupedDoneEvents: CachedDoneProcessingResult) {
+        doneRepository.writeDoneEventsForBeskjedToCache(groupedDoneEvents.eventsMatchingBeskjed)
+        doneRepository.writeDoneEventsForOppgaveToCache(groupedDoneEvents.eventsMatchingOppgave)
+        doneRepository.writeDoneEventsForInnboksToCache(groupedDoneEvents.eventsMatchingInnboks)
+        doneRepository.deleteDoneEventFromCache(groupedDoneEvents.eventsMatchingAny)
+    }
+
+    private suspend fun processEvents(allDone: List<Done>) {
+        val groupedDoneEvents = fetchMatchingEvents(allDone)
         updateTheDatabase(groupedDoneEvents)
         log.info("Status for prosessering av done-eventer, opp mot aktive eventer:\n$groupedDoneEvents")
-        return groupedDoneEvents
     }
 
-    private suspend fun fetchActiveEvents(): DoneBatchProcessor {
-        val activeBrukernotifikasjoner = doneRepository.fetchActiveBrukernotifikasjonerFromView()
-        return DoneBatchProcessor(activeBrukernotifikasjoner)
-    }
-
-    private suspend fun updateTheDatabase(groupedDoneEvents: DoneBatchProcessor) {
-        doneRepository.writeDoneEventsForBeskjedToCache(groupedDoneEvents.foundBeskjed)
-        doneRepository.writeDoneEventsForOppgaveToCache(groupedDoneEvents.foundOppgave)
-        doneRepository.writeDoneEventsForInnboksToCache(groupedDoneEvents.foundInnboks)
-        doneRepository.deleteDoneEventFromCache(groupedDoneEvents.allFoundEvents)
-    }
-
-    private suspend fun processDeactivatedEventsOnly(remainingEventsToLookFor: List<Done>): DoneBatchProcessor {
-        val groupedDoneEvents = fetchInactiveEvents()
-        groupedDoneEvents.process(remainingEventsToLookFor)
-        updateTheDatabase(groupedDoneEvents)
-        log.info("Status for prosessering av done-eventer, opp mot deaktiverte eventer:\n$groupedDoneEvents")
-        return groupedDoneEvents
-    }
-
-    private suspend fun fetchInactiveEvents(): DoneBatchProcessor {
-        val inactiveBrukernotifikasjoner = doneRepository.fetchInaktiveBrukernotifikasjonerFromView()
-        return DoneBatchProcessor(inactiveBrukernotifikasjoner)
+    private suspend fun fetchMatchingEvents(allDone: List<Done>): CachedDoneProcessingResult {
+        val eventIds = allDone.map { it.eventId }.distinct()
+        val matchingBrukernotifikasjoner = doneRepository.fetchBrukernotifikasjonerFromViewForEventIds(eventIds)
+        return DoneBatchProcessor.process(allDone, matchingBrukernotifikasjoner)
     }
 
 }

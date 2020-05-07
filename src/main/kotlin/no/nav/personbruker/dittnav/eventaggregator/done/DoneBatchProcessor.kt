@@ -2,66 +2,64 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 
 import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import org.slf4j.Logger
+import no.nav.personbruker.dittnav.eventaggregator.config.EventType.*
 import org.slf4j.LoggerFactory
 
-class DoneBatchProcessor(private val existingEntitiesInDatabase: List<Brukernotifikasjon>) {
+object DoneBatchProcessor {
 
-    private val log: Logger = LoggerFactory.getLogger(DoneBatchProcessor::class.java)
+    private val log = LoggerFactory.getLogger(DoneBatchProcessor::class.java)
 
-    private val maxPossibleRequiredCapacity = existingEntitiesInDatabase.size
-    val foundBeskjed = ArrayList<Done>(maxPossibleRequiredCapacity)
-    val foundOppgave = ArrayList<Done>(maxPossibleRequiredCapacity)
-    val foundInnboks = ArrayList<Done>(maxPossibleRequiredCapacity)
-    val allFoundEvents = ArrayList<Done>(maxPossibleRequiredCapacity)
-    val notFoundEvents = ArrayList<Done>(maxPossibleRequiredCapacity)
+    fun process(doneEvents: List<Done>, existingEvents: List<Brukernotifikasjon>): CachedDoneProcessingResult {
 
-    fun process(batchOfEntities: List<Done>) {
-        batchOfEntities.forEach { entityToLookFor ->
-            val foundMatchingEntity: Brukernotifikasjon? = existingEntitiesInDatabase.find { existingEntity ->
-                existingEntity.isRepresentsSameEventAs(entityToLookFor)
-            }
-            if (foundMatchingEntity != null) {
-                groupEventsByType(foundMatchingEntity, entityToLookFor)
+        val eventsByType = existingEvents.groupBy { event -> event.type }
 
-            } else {
-                notFoundEvents.add(entityToLookFor)
-            }
+        logInvalidEventsTypes(eventsByType)
+
+        val matchingBeskjed = findMatchingDoneEventsOfType(doneEvents, eventsByType, BESKJED)
+        val matchingOppgave = findMatchingDoneEventsOfType(doneEvents, eventsByType, OPPGAVE)
+        val matchingInnboks = findMatchingDoneEventsOfType(doneEvents, eventsByType, INNBOKS)
+
+        val matchingNone = doneEvents
+                .filter { done -> !matchingBeskjed.contains(done) }
+                .filter { done -> !matchingOppgave.contains(done) }
+                .filter { done -> !matchingInnboks.contains(done) }
+
+        return CachedDoneProcessingResult(
+                eventsMatchingBeskjed = matchingBeskjed,
+                eventsMatchingOppgave = matchingOppgave,
+                eventsMatchingInnboks = matchingInnboks,
+                eventsMatchingNone = matchingNone
+        )
+    }
+
+    private fun findMatchingDoneEventsOfType(doneEvents: List<Done>,
+                                             existingEventsByType: Map<EventType, List<Brukernotifikasjon>>,
+                                             type: EventType): List<Done> {
+
+        val matchesFoundForType = existingEventsByType[type]
+
+        return if (matchesFoundForType == null) {
+            emptyList()
+        } else {
+            findMatchingDoneEvents(doneEvents, matchesFoundForType)
         }
     }
 
-    private fun groupEventsByType(matchingEntityInTheCache: Brukernotifikasjon, matchedDoneEntity: Done) {
-        allFoundEvents.add(matchedDoneEntity)
-        when (matchingEntityInTheCache.type) {
-            EventType.OPPGAVE -> {
-                foundOppgave.add(matchedDoneEntity)
-            }
-            EventType.BESKJED -> {
-                foundBeskjed.add(matchedDoneEntity)
-            }
-            EventType.INNBOKS -> {
-                foundInnboks.add(matchedDoneEntity)
-            }
-            else -> {
-                log.warn("Fant ukjent eventtype ved behandling av done-events: $matchingEntityInTheCache")
-            }
+    private fun logInvalidEventsTypes(existingEventsByType: Map<EventType, List<Brukernotifikasjon>>) {
+        val knownTypes = listOf( BESKJED, OPPGAVE, INNBOKS)
+        val unknownTypes = existingEventsByType.keys.filter { key -> !knownTypes.contains(key) }
+
+        if (!unknownTypes.isEmpty()) {
+            log.warn("Fant ukjent(e) eventtype(r) ved behandling av done-events: $unknownTypes")
         }
     }
 
-    fun isMoreEventsToProcess(): Boolean {
-        return notFoundEvents.isNotEmpty()
-    }
-
-    override fun toString(): String {
-        val antallDoneEventer = allFoundEvents.size + notFoundEvents.size
-        val antallBrukernotifikasjoner = existingEntitiesInDatabase.size
-        return """
-            Prosesserte $antallDoneEventer done-eventer, opp mot $antallBrukernotifikasjoner brukernotifikasjoner:
-            Fant ${foundBeskjed.size} done-eventer med tilhørende eventer i beskjed-tabellen.
-            Fant ${foundInnboks.size} done-eventer med tilhørende eventer i innboks-tabellen.
-            Fant ${foundOppgave.size} done-eventer med tilhørende eventer i oppgave-tabellen.
-            Det er ${notFoundEvents.size} done-eventer det ikke ble funnet et tilhørende event for nå.
-        """.trimIndent()
+    private fun findMatchingDoneEvents(doneEvents: List<Done>, events: List<Brukernotifikasjon>): List<Done> {
+        return doneEvents.filter { done ->
+            events.any { event ->
+                event.representsSameEventAs(done)
+            }
+        }
     }
 
 }

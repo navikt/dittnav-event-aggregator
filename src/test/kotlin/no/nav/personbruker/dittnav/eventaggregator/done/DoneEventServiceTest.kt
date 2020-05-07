@@ -55,7 +55,7 @@ class DoneEventServiceTest {
         coEvery { repository.writeDoneEventsForBeskjedToCache(capture(capturedNumberOfBeskjedEntitiesWrittenToTheDb)) } returns Unit
 
         coEvery {
-            repository.fetchActiveBrukernotifikasjonerFromViewForEventIds(any())
+            repository.fetchBrukernotifikasjonerFromViewForEventIds(any())
         } returns listOf(beskjedInDbToMatch)
 
         runBlocking {
@@ -79,7 +79,7 @@ class DoneEventServiceTest {
         coEvery { repository.writeDoneEventsForInnboksToCache(capture(capturedNumberOfInnboksEntitiesWrittenToTheDb)) } returns Unit
 
         coEvery {
-            repository.fetchActiveBrukernotifikasjonerFromViewForEventIds(any())
+            repository.fetchBrukernotifikasjonerFromViewForEventIds(any())
         } returns listOf(innboksEventInDbToMatch)
 
         runBlocking {
@@ -103,7 +103,7 @@ class DoneEventServiceTest {
         coEvery { repository.writeDoneEventsForOppgaveToCache(capture(capturedNumberOfOppgaveEntitiesWrittenToTheDb)) } returns Unit
 
         coEvery {
-            repository.fetchActiveBrukernotifikasjonerFromViewForEventIds(any())
+            repository.fetchBrukernotifikasjonerFromViewForEventIds(any())
         } returns listOf(oppgaveEventInDbToMatch)
 
         runBlocking {
@@ -126,7 +126,7 @@ class DoneEventServiceTest {
         val records = ConsumerRecordsObjectMother.giveMeConsumerRecordsWithThisConsumerRecord(doneEventWithoutKey)
 
         coEvery {
-            repository.fetchActiveBrukernotifikasjonerFromViewForEventIds(any())
+            repository.fetchBrukernotifikasjonerFromViewForEventIds(any())
         } returns listOf(beskjedEventInDbToMatch)
 
         runBlocking {
@@ -142,14 +142,14 @@ class DoneEventServiceTest {
     @Test
     fun `skal skrive done-eventer det ikke blir funnet match for inn i ventetabellen`() {
         val beskjedInDbToMatch = BrukernotifikasjonObjectMother.giveMeBeskjed(dummyFnr)
-        val doneEvent = AvroDoneObjectMother.createDoneRecord("eventIdUteMatch", beskjedInDbToMatch.fodselsnummer)
+        val doneEvent = AvroDoneObjectMother.createDoneRecord("eventIdUtenMatch", beskjedInDbToMatch.fodselsnummer)
         val records = ConsumerRecordsObjectMother.giveMeConsumerRecordsWithThisConsumerRecord(doneEvent)
 
         val capturedNumberOfDoneWrittenToTheDb = slot<List<Done>>()
         coEvery { repository.writeDoneEventToCache(capture(capturedNumberOfDoneWrittenToTheDb)) } returns Unit
 
         coEvery {
-            repository.fetchActiveBrukernotifikasjonerFromViewForEventIds(any())
+            repository.fetchBrukernotifikasjonerFromViewForEventIds(any())
         } returns listOf(beskjedInDbToMatch)
 
         runBlocking {
@@ -184,7 +184,7 @@ class DoneEventServiceTest {
         } throws simulertFeil andThenMany matchingDoneEvents
 
         coEvery {
-            repository.fetchActiveBrukernotifikasjonerFromViewForEventIds(any())
+            repository.fetchBrukernotifikasjonerFromViewForEventIds(any())
         } returns listOf(beskjedInDbToMatch2, beskjedInDbToMatch3)
 
         invoking {
@@ -208,7 +208,7 @@ class DoneEventServiceTest {
         val records = createMatchingRecords(beskjedInDbToMatch)
 
         coEvery {
-            repository.fetchActiveBrukernotifikasjonerFromViewForEventIds(any())
+            repository.fetchBrukernotifikasjonerFromViewForEventIds(any())
         } returns listOf(beskjedInDbToMatch)
 
         runBlocking {

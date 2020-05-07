@@ -12,7 +12,7 @@ class BrukernotifikasjonTest{
         val beskjed = BrukernotifikasjonObjectMother.giveMeBeskjed()
         val matchendeDoneEvent = DoneObjectMother.giveMeMatchingDoneEvent(beskjed)
 
-        beskjed.isRepresentsSameEventAs(matchendeDoneEvent) `should be equal to` true
+        beskjed.representsSameEventAs(matchendeDoneEvent) `should be equal to` true
     }
 
     @Test
@@ -20,7 +20,7 @@ class BrukernotifikasjonTest{
         val beskjed = BrukernotifikasjonObjectMother.giveMeBeskjed()
         val ikkeMatchendeDoneEvent = DoneObjectMother.giveMeDone(beskjed.eventId, beskjed.systembruker, "7654")
 
-        beskjed.isRepresentsSameEventAs(ikkeMatchendeDoneEvent) `should be equal to` false
+        beskjed.representsSameEventAs(ikkeMatchendeDoneEvent) `should be equal to` false
     }
 
 }

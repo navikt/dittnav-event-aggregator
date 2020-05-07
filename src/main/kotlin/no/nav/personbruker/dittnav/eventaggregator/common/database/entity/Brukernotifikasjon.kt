@@ -10,12 +10,10 @@ data class Brukernotifikasjon(
         val fodselsnummer: String
 ) {
 
-    fun isRepresentsSameEventAs(doneEvent: Done): Boolean {
-        if (eventId != doneEvent.eventId) return false
-        if (fodselsnummer != doneEvent.fodselsnummer) return false
-        if (systembruker != doneEvent.systembruker) return false
-
-        return true
+    fun representsSameEventAs(doneEvent: Done): Boolean {
+        return eventId == doneEvent.eventId
+                && systembruker == doneEvent.systembruker
+                && fodselsnummer == doneEvent.fodselsnummer
     }
 
 }
