@@ -1,10 +1,9 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
+import kotlinx.coroutines.runBlocking
+import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be null`
-import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should not be null`
+import org.amshove.kluent.*
 import org.junit.jupiter.api.Test
 import java.time.ZoneId
 
@@ -12,8 +11,9 @@ class OppgaveTransformerTest {
 
     @Test
     fun `should transform external to internal`() {
-        val external = AvroOppgaveObjectMother.createOppgave(1)
-        val nokkel = createNokkel(1)
+        val eventId = 1
+        val external = AvroOppgaveObjectMother.createOppgave(eventId)
+        val nokkel = createNokkel(eventId)
 
         val internal = OppgaveTransformer.toInternal(nokkel, external)
 
@@ -22,7 +22,7 @@ class OppgaveTransformerTest {
         internal.eventId `should be equal to` nokkel.getEventId()
         internal.link `should be equal to` external.getLink()
         internal.tekst `should be equal to` external.getTekst()
-        internal.produsent `should be equal to` nokkel.getSystembruker()
+        internal.systembruker `should be equal to` nokkel.getSystembruker()
         internal.sikkerhetsnivaa `should be equal to` external.getSikkerhetsnivaa()
 
         val transformedEventTidspunktAsLong = internal.eventTidspunkt.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
@@ -31,5 +31,19 @@ class OppgaveTransformerTest {
         internal.aktiv `should be` true
         internal.sistOppdatert.`should not be null`()
         internal.id.`should be null`()
+    }
+
+    @Test
+    fun `should throw FieldValidationException when fodselsnummer is empty`() {
+        val fodselsnummer = ""
+        val eventId = 1
+        val event = AvroOppgaveObjectMother.createOppgave(eventId, fodselsnummer)
+        val nokkel = createNokkel(eventId)
+
+        invoking {
+            runBlocking {
+                OppgaveTransformer.toInternal(nokkel, event)
+            }
+        } `should throw` FieldValidationException::class
     }
 }

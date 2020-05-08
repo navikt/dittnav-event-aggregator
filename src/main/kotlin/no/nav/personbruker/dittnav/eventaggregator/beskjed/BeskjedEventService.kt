@@ -3,6 +3,8 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
+import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
+import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.NokkelNullException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.getNonNullKey
@@ -14,7 +16,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class BeskjedEventService(
-        private val beskjedRepository: BeskjedRepository,
+        private val persistingService: BrukernotifikasjonPersistingService<no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed>,
         private val metricsProbe: EventMetricsProbe
 ) : EventBatchProcessorService<Beskjed> {
 
@@ -23,23 +25,32 @@ class BeskjedEventService(
     override suspend fun processEvents(events: ConsumerRecords<Nokkel, Beskjed>) {
         val successfullyTransformedEvents = mutableListOf<no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed>()
         val problematicEvents = mutableListOf<ConsumerRecord<Nokkel, Beskjed>>()
-        events.forEach { event ->
-            try {
-                metricsProbe.reportEventSeen(BESKJED, event.systembruker)
-                val internalEvent = BeskjedTransformer.toInternal(event.getNonNullKey(), event.value())
-                successfullyTransformedEvents.add(internalEvent)
-                metricsProbe.reportEventProcessed(BESKJED, event.systembruker)
-            } catch (e: NokkelNullException) {
-                metricsProbe.reportEventFailed(BESKJED, event.systembruker)
-                log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", e)
-            } catch (e: Exception) {
-                metricsProbe.reportEventFailed(BESKJED, event.systembruker)
-                problematicEvents.add(event)
-                log.warn("Transformasjon av beskjed-event fra Kafka feilet, fullfører batch-en før pollig stoppes.", e)
-            }
-        }
 
-        beskjedRepository.writeEventsToCache(successfullyTransformedEvents)
+        metricsProbe.runWithMetrics(eventType = BESKJED) {
+            events.forEach { event ->
+                try {
+                    val internalEvent = BeskjedTransformer.toInternal(event.getNonNullKey(), event.value())
+                    successfullyTransformedEvents.add(internalEvent)
+                    countSuccessfulEventForProducer(event.systembruker)
+
+                } catch (nne: NokkelNullException) {
+                    countFailedEventForProducer("NoProducerSpecified")
+                    log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", nne)
+
+                } catch (fve: FieldValidationException) {
+                    countFailedEventForProducer(event.systembruker)
+                    val eventId = event.getNonNullKey().getEventId()
+                    log.warn("Klarte ikke transformere eventet pga en valideringsfeil. EventId: $eventId, context: ${fve.context}", fve)
+
+                } catch (e: Exception) {
+                    countFailedEventForProducer(event.systembruker)
+                    problematicEvents.add(event)
+                    log.warn("Transformasjon av beskjed-event fra Kafka feilet, fullfører batch-en før pollig stoppes.", e)
+                }
+            }
+
+            persistingService.writeEventsToCache(successfullyTransformedEvents)
+        }
 
         kastExceptionHvisMislykkedeTransformasjoner(problematicEvents)
     }

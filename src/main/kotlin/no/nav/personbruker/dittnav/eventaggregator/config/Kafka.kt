@@ -19,9 +19,9 @@ object Kafka {
     private val log: Logger = LoggerFactory.getLogger(Kafka::class.java)
 
     val doneTopicName = "aapen-brukernotifikasjon-done-v1"
-    val oppgaveTopicName = "aapen-brukernotifikasjon-nyOppgave-v1"
-    val innboksTopicName = "aapen-brukernotifikasjon-nyInnboks-v1"
     val beskjedTopicName = "aapen-brukernotifikasjon-nyBeskjed-v1"
+    val innboksTopicName = "aapen-brukernotifikasjon-nyInnboks-v1"
+    val oppgaveTopicName = "aapen-brukernotifikasjon-nyOppgave-v1"
 
     private fun credentialProps(env: Environment): Properties {
         return Properties().apply {

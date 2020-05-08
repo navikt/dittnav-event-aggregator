@@ -1,10 +1,13 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
+import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateMaxLength
+import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateNonNullFieldMaxLength
+import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateSikkerhetsnivaa
 import java.time.LocalDateTime
 
 data class Oppgave(
         val id: Int?,
-        val produsent: String,
+        val systembruker: String,
         val eventId: String,
         val eventTidspunkt: LocalDateTime,
         val fodselsnummer: String,
@@ -16,33 +19,41 @@ data class Oppgave(
         val aktiv: Boolean
 ) {
     constructor(
-            produsent: String,
+            systembruker: String,
             eventId: String,
             eventTidspunkt: LocalDateTime,
             fodselsnummer: String,
             grupperingsId: String,
             tekst: String,
             link: String,
-            sikkerhetsinvaa: Int,
+            sikkerhetsnivaa: Int,
             sistOppdatert: LocalDateTime,
             aktiv: Boolean
     ) : this(null,
-            produsent,
+            systembruker,
             eventId,
             eventTidspunkt,
             fodselsnummer,
             grupperingsId,
             tekst,
             link,
-            sikkerhetsinvaa,
+            sikkerhetsnivaa,
             sistOppdatert,
             aktiv
-    )
+    ) {
+        validateNonNullFieldMaxLength(systembruker, "systembruker", 100)
+        validateNonNullFieldMaxLength(eventId, "eventId", 50)
+        validateNonNullFieldMaxLength(fodselsnummer, "fodselsnummer", 11)
+        validateNonNullFieldMaxLength(grupperingsId, "grupperingsId", 100)
+        validateNonNullFieldMaxLength(tekst, "tekst", 500)
+        validateMaxLength(link, "link", 200)
+        validateSikkerhetsnivaa(sikkerhetsnivaa)
+    }
 
     override fun toString(): String {
         return "Oppgave(" +
                 "id=$id, " +
-                "produsent=$produsent, " +
+                "systembruker=***, " +
                 "eventId=$eventId, " +
                 "eventTidspunkt=$eventTidspunkt, " +
                 "fodselsnummer=***, " +
@@ -53,4 +64,5 @@ data class Oppgave(
                 "sistOppdatert=$sistOppdatert, " +
                 "aktiv=$aktiv"
     }
+
 }

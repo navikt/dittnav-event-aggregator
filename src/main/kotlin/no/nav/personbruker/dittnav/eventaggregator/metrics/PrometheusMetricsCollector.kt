@@ -7,49 +7,49 @@ object PrometheusMetricsCollector {
 
     val NAMESPACE = "dittnav_consumer"
 
-    val MESSAGES_SEEN_NAME = "kafka_messages_seen"
-    val MESSAGES_PROCESSED_NAME = "kafka_messages_processed"
-    val MESSAGES_FAILED_NAME = "kafka_messages_failed"
-    val MESSAGE_LAST_SEEN_NAME = "kafka_message_type_last_seen"
+    val EVENTS_SEEN_NAME = "kafka_events_seen"
+    val EVENTS_PROCESSED_NAME = "kafka_events_processed"
+    val EVENTS_FAILED_NAME = "kafka_events_failed"
+    val EVENT_LAST_SEEN_NAME = "kafka_event_type_last_seen"
 
     private val MESSAGES_SEEN: Counter = Counter.build()
-            .name(MESSAGES_SEEN_NAME)
+            .name(EVENTS_SEEN_NAME)
             .namespace(NAMESPACE)
-            .help("Messages read since last startup")
-            .labelNames("topic", "producer")
+            .help("Events read since last startup")
+            .labelNames("type", "producer")
             .register()
 
     private val MESSAGES_PROCESSED: Counter = Counter.build()
-            .name(MESSAGES_PROCESSED_NAME)
+            .name(EVENTS_PROCESSED_NAME)
             .namespace(NAMESPACE)
-            .help("Messages successfully processed since last startup")
-            .labelNames("topic", "producer")
+            .help("Events successfully processed since last startup")
+            .labelNames("type", "producer")
             .register()
 
     private val MESSAGES_FAILED: Counter = Counter.build()
-            .name(MESSAGES_FAILED_NAME)
+            .name(EVENTS_FAILED_NAME)
             .namespace(NAMESPACE)
-            .help("Messages failed since last startup")
-            .labelNames("topic", "producer")
+            .help("Events failed since last startup")
+            .labelNames("type", "producer")
             .register()
 
     private val MESSAGE_LAST_SEEN: Gauge = Gauge.build()
-            .name(MESSAGE_LAST_SEEN_NAME)
+            .name(EVENT_LAST_SEEN_NAME)
             .namespace(NAMESPACE)
-            .help("Last time topic was seen")
-            .labelNames("topic", "producer")
+            .help("Last time event type was seen")
+            .labelNames("type", "producer")
             .register()
 
-    fun registerMessageSeen(topic: String, producer: String) {
-        MESSAGES_SEEN.labels(topic, producer).inc()
-        MESSAGE_LAST_SEEN.labels(topic, producer).setToCurrentTime()
+    fun registerEventsSeen(count: Int, eventType: String, producer: String) {
+        MESSAGES_SEEN.labels(eventType, producer).inc(count.toDouble())
+        MESSAGE_LAST_SEEN.labels(eventType, producer).setToCurrentTime()
     }
 
-    fun registerMessageProcessed(topic: String, producer: String) {
-        MESSAGES_PROCESSED.labels(topic, producer).inc()
+    fun registerEventsProcessed(count: Int, topic: String, producer: String) {
+        MESSAGES_PROCESSED.labels(topic, producer).inc(count.toDouble())
     }
 
-    fun registerMessageFailed(topic: String, producer: String) {
-        MESSAGES_FAILED.labels(topic, producer).inc()
+    fun registerEventsFailed(count: Int, topic: String, producer: String) {
+        MESSAGES_FAILED.labels(topic, producer).inc(count.toDouble())
     }
 }

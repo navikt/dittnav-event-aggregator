@@ -1,28 +1,35 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
+import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonRepository
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistFailureReason
 import org.slf4j.LoggerFactory
 
-class InnboksRepository(private val database: Database) {
+class InnboksRepository(private val database: Database) : BrukernotifikasjonRepository<Innboks> {
 
     val log = LoggerFactory.getLogger(InnboksRepository::class.java)
 
-    suspend fun storeInnboksEventInCache(innboks: Innboks) {
+    override suspend fun createInOneBatch(entities: List<Innboks>) {
         database.queryWithExceptionTranslation {
-            createInnboks(innboks).onSuccess { entityId ->
-                val storedInnboks = getInnboksById(entityId)
-                log.info("Innboks hentet i databasen: $storedInnboks")
-            }.onFailure { reason ->
-                when(reason) {
-                    PersistFailureReason.CONFLICTING_KEYS ->
-                        log.warn("Hoppet over persistering av Innboks fordi produsent tidligere har brukt samme eventId: $innboks")
-                    else ->
-                        log.warn("Hoppet over persistering av Innboks: $innboks")
-                }
+            createInnboksEventer(entities)
+        }
+    }
 
+    override suspend fun createOneByOneToFilterOutTheProblematicEvents(entities: List<Innboks>) {
+        database.queryWithExceptionTranslation {
+            entities.forEach { entity ->
+                createInnboks(entity).onFailure { reason ->
+                    when (reason) {
+                        PersistFailureReason.CONFLICTING_KEYS ->
+                            log.warn("Hoppet over persistering av Innboks fordi produsent tidligere har brukt samme eventId: $entity")
+                        else ->
+                            log.warn("Hoppet over persistering av Innboks: $entity")
+                    }
+
+                }
             }
         }
+
     }
 
 }

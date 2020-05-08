@@ -7,13 +7,12 @@ import java.time.ZoneId
 
 object DoneTransformer {
 
-    fun toInternal(nokkel: Nokkel, external: no.nav.brukernotifikasjon.schemas.Done) : Done {
-        val internal = Done(nokkel.getSystembruker(),
+    fun toInternal(nokkel: Nokkel, external: no.nav.brukernotifikasjon.schemas.Done): Done {
+        return Done(nokkel.getSystembruker(),
                 nokkel.getEventId(),
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(external.getTidspunkt()), ZoneId.of("UTC")),
                 external.getFodselsnummer(),
                 external.getGrupperingsId()
         )
-        return internal
     }
 }

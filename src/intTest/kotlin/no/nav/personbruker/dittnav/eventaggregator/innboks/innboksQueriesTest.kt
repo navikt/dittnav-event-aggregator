@@ -9,8 +9,7 @@ import org.amshove.kluent.`should not contain`
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 
-
-class InnboksQueriesTest {
+class innboksQueriesTest {
     private val database = H2Database()
 
     private val fodselsnummer1 = "12345"
@@ -20,7 +19,7 @@ class InnboksQueriesTest {
     private val innboks2: Innboks
     private val innboks3: Innboks
 
-    private val produsent = "DittNAV"
+    private val systembruker = "dummySystembruker"
     private val eventId = "1"
 
     private val allInnboks: List<Innboks>
@@ -36,7 +35,7 @@ class InnboksQueriesTest {
     }
 
     private fun createInnboks(eventId: String, fodselsnummer: String): Innboks {
-        val innboks = InnboksObjectMother.createInnboks(eventId, fodselsnummer)
+        val innboks = InnboksObjectMother.giveMeAktivInnboks(eventId, fodselsnummer)
 
         return runBlocking {
             database.dbQuery {
@@ -81,11 +80,11 @@ class InnboksQueriesTest {
     fun `setter aktiv flag`() {
         runBlocking {
             database.dbQuery {
-                setInnboksAktivFlag(eventId, produsent, fodselsnummer1, false)
+                setInnboksAktivFlag(eventId, systembruker, fodselsnummer1, false)
                 var innboks = getInnboksByEventId(eventId)
                 innboks.aktiv `should be equal to` false
 
-                setInnboksAktivFlag(eventId, produsent, fodselsnummer1, true)
+                setInnboksAktivFlag(eventId, systembruker, fodselsnummer1, true)
                 innboks = getInnboksByEventId(eventId)
                 innboks.aktiv `should be equal to` true
             }
@@ -96,7 +95,7 @@ class InnboksQueriesTest {
     fun `finner Innboks etter aktiv flag`() {
         runBlocking {
             database.dbQuery {
-                setInnboksAktivFlag(innboks1.eventId, produsent, fodselsnummer1, false)
+                setInnboksAktivFlag(innboks1.eventId, systembruker, fodselsnummer1, false)
                 val aktiveInnboks = getAllInnboksByAktiv(true)
                 val inaktivInnboks = getAllInnboksByAktiv(false)
 
@@ -105,7 +104,7 @@ class InnboksQueriesTest {
                 inaktivInnboks.single { it.id == innboks1.id }
                 inaktivInnboks.size `should be equal to` 1
 
-                setInnboksAktivFlag(innboks1.eventId, produsent, fodselsnummer1, true)
+                setInnboksAktivFlag(innboks1.eventId, systembruker, fodselsnummer1, true)
             }
         }
     }
@@ -141,6 +140,27 @@ class InnboksQueriesTest {
                 createInnboks(innboks1)
                 getAllInnboks().size `should be equal to` numberOfEvents
             }
+        }
+    }
+
+    @Test
+    fun `Skal skrive eventer i batch`() {
+        val innboks1 = InnboksObjectMother.giveMeAktivInnboks("i-1", "123")
+        val innboks2 = InnboksObjectMother.giveMeAktivInnboks("i-2", "123")
+
+        runBlocking {
+            database.dbQuery {
+                createInnboksEventer(listOf(innboks1, innboks2))
+            }
+
+            val innboks1FraDb = database.dbQuery { getInnboksByEventId(innboks1.eventId) }
+            val innboks2FraDb = database.dbQuery { getInnboksByEventId(innboks2.eventId) }
+
+            innboks1FraDb.eventId `should equal` innboks1.eventId
+            innboks2FraDb.eventId `should equal` innboks2.eventId
+
+            database.dbQuery { deleteInnboksWithEventId(innboks1.eventId) }
+            database.dbQuery { deleteInnboksWithEventId(innboks2.eventId) }
         }
     }
 }

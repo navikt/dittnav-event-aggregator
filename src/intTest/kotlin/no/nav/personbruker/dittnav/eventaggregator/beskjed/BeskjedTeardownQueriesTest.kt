@@ -8,11 +8,11 @@ import org.junit.jupiter.api.Test
 
 class BeskjedTeardownQueriesTest {
 
-    val database = H2Database()
+    private val database = H2Database()
 
-    val beskjed1 = BeskjedObjectMother.createBeskjed("1", "12345")
-    val beskjed2 = BeskjedObjectMother.createBeskjed("2", "12345")
-    val beskjed3 = BeskjedObjectMother.createBeskjed("3", "12345")
+    private val beskjed1 = BeskjedObjectMother.giveMeAktivBeskjed("1", "12345")
+    private val beskjed2 = BeskjedObjectMother.giveMeAktivBeskjed("2", "12345")
+    private val beskjed3 = BeskjedObjectMother.giveMeAktivBeskjed("3", "12345")
 
     @Test
     fun `Verifiser at alle rader i Beskjedstabellen slettes`() {

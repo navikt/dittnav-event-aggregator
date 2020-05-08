@@ -1,49 +1,60 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executePersistQuery
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getUtcDateTime
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getEpochTimeInSeconds
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.singleResult
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.*
 import java.sql.Connection
+import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
 
 fun Connection.getAllOppgave(): List<Oppgave> =
-        prepareStatement("""SELECT * FROM OPPGAVE""")
+        prepareStatement("""SELECT * FROM oppgave""")
                 .use {
                     it.executeQuery().list {
                         toOppgave()
                     }
                 }
 
-fun Connection.createOppgave(oppgave: Oppgave): PersistActionResult =
-        executePersistQuery("""INSERT INTO OPPGAVE (produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?)""")
-        {
-            setString(1, oppgave.produsent)
-            setObject(2, oppgave.eventTidspunkt, Types.TIMESTAMP)
-            setString(3, oppgave.fodselsnummer)
-            setString(4, oppgave.eventId)
-            setString(5, oppgave.grupperingsId)
-            setString(6, oppgave.tekst)
-            setString(7, oppgave.link)
-            setInt(8, oppgave.sikkerhetsnivaa)
-            setObject(9, oppgave.sistOppdatert, Types.TIMESTAMP)
-            setBoolean(10, oppgave.aktiv)
+private val createQuery = """INSERT INTO oppgave (systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?)"""
+
+fun Connection.createOppgaver(oppgaver: List<Oppgave>) =
+        executeBatchUpdateQuery(createQuery) {
+            oppgaver.forEach { oppgave ->
+                buildStatementForSingleRow(oppgave)
+                addBatch()
+            }
         }
 
-fun Connection.setOppgaveAktivFlag(eventId: String, produsent: String, fodselsnummer: String, aktiv: Boolean): Int =
-        prepareStatement("""UPDATE OPPGAVE SET aktiv = ? WHERE eventId = ? AND produsent = ? AND fodselsnummer = ?""").use {
+fun Connection.createOppgave(oppgave: Oppgave): PersistActionResult =
+        executePersistQuery(createQuery) {
+            buildStatementForSingleRow(oppgave)
+            addBatch()
+        }
+
+private fun PreparedStatement.buildStatementForSingleRow(oppgave: Oppgave) {
+    setString(1, oppgave.systembruker)
+    setObject(2, oppgave.eventTidspunkt, Types.TIMESTAMP)
+    setString(3, oppgave.fodselsnummer)
+    setString(4, oppgave.eventId)
+    setString(5, oppgave.grupperingsId)
+    setString(6, oppgave.tekst)
+    setString(7, oppgave.link)
+    setInt(8, oppgave.sikkerhetsnivaa)
+    setObject(9, oppgave.sistOppdatert, Types.TIMESTAMP)
+    setBoolean(10, oppgave.aktiv)
+}
+
+fun Connection.setOppgaveAktivFlag(eventId: String, systembruker: String, fodselsnummer: String, aktiv: Boolean): Int =
+        prepareStatement("""UPDATE oppgave SET aktiv = ? WHERE eventId = ? AND systembruker = ? AND fodselsnummer = ?""").use {
             it.setBoolean(1, aktiv)
             it.setString(2, eventId)
-            it.setString(3, produsent)
+            it.setString(3, systembruker)
             it.setString(4, fodselsnummer)
             it.executeUpdate()
         }
 
 fun Connection.getAllOppgaveByAktiv(aktiv: Boolean): List<Oppgave> =
-        prepareStatement("""SELECT * FROM OPPGAVE WHERE aktiv = ?""")
+        prepareStatement("""SELECT * FROM oppgave WHERE aktiv = ?""")
                 .use {
                     it.setBoolean(1, aktiv)
                     it.executeQuery().list {
@@ -52,7 +63,7 @@ fun Connection.getAllOppgaveByAktiv(aktiv: Boolean): List<Oppgave> =
                 }
 
 fun Connection.getOppgaveByFodselsnummer(fodselsnummer: String): List<Oppgave> =
-        prepareStatement("""SELECT * FROM OPPGAVE WHERE fodselsnummer = ?""")
+        prepareStatement("""SELECT * FROM oppgave WHERE fodselsnummer = ?""")
                 .use {
                     it.setString(1, fodselsnummer)
                     it.executeQuery().list {
@@ -61,7 +72,7 @@ fun Connection.getOppgaveByFodselsnummer(fodselsnummer: String): List<Oppgave> =
                 }
 
 fun Connection.getOppgaveById(id: Int): Oppgave =
-        prepareStatement("""SELECT * FROM OPPGAVE WHERE id = ?""")
+        prepareStatement("""SELECT * FROM oppgave WHERE id = ?""")
                 .use {
                     it.setInt(1, id)
                     it.executeQuery().singleResult {
@@ -70,7 +81,7 @@ fun Connection.getOppgaveById(id: Int): Oppgave =
                 }
 
 fun Connection.getOppgaveByEventId(eventId: String): Oppgave =
-        prepareStatement("""SELECT * FROM OPPGAVE WHERE eventId = ?""")
+        prepareStatement("""SELECT * FROM oppgave WHERE eventId = ?""")
                 .use {
                     it.setString(1, eventId)
                     it.executeQuery().singleResult {
@@ -81,7 +92,7 @@ fun Connection.getOppgaveByEventId(eventId: String): Oppgave =
 private fun ResultSet.toOppgave(): Oppgave {
     return Oppgave(
             id = getInt("id"),
-            produsent = getString("produsent"),
+            systembruker = getString("systembruker"),
             eventTidspunkt = getUtcDateTime("eventTidspunkt"),
             fodselsnummer = getString("fodselsnummer"),
             eventId = getString("eventId"),

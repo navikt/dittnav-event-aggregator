@@ -1,11 +1,14 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
+import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateMaxLength
+import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateNonNullFieldMaxLength
+import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateSikkerhetsnivaa
 import java.time.LocalDateTime
 
 data class Beskjed(
         val uid: String,
         val id: Int?,
-        val produsent: String,
+        val systembruker: String,
         val eventId: String,
         val eventTidspunkt: LocalDateTime,
         val fodselsnummer: String,
@@ -18,7 +21,7 @@ data class Beskjed(
         val aktiv: Boolean
 ) {
     constructor(uid: String,
-                produsent: String,
+                systembruker: String,
                 eventId: String,
                 eventTidspunkt: LocalDateTime,
                 fodselsnummer: String,
@@ -31,7 +34,7 @@ data class Beskjed(
                 aktiv: Boolean
     ) : this(uid,
             null,
-            produsent,
+            systembruker,
             eventId,
             eventTidspunkt,
             fodselsnummer,
@@ -42,13 +45,22 @@ data class Beskjed(
             sistOppdatert,
             synligFremTil,
             aktiv
-    )
+    ) {
+        validateNonNullFieldMaxLength(systembruker, "systembruker", 100)
+        validateNonNullFieldMaxLength(eventId, "eventId", 50)
+        validateNonNullFieldMaxLength(fodselsnummer, "fodselsnummer", 11)
+        validateNonNullFieldMaxLength(grupperingsId, "grupperingsId", 100)
+        validateNonNullFieldMaxLength(tekst, "tekst", 500)
+        validateMaxLength(link, "link", 200)
+        validateSikkerhetsnivaa(sikkerhetsnivaa)
+        validateNonNullFieldMaxLength(uid, "uid", 100)
+    }
 
     override fun toString(): String {
         return "Beskjed(" +
                 "uid=$uid, " +
                 "id=$id, " +
-                "produsent=$produsent, " +
+                "systembruker=***, " +
                 "eventId=$eventId, " +
                 "eventTidspunkt=$eventTidspunkt, " +
                 "fodselsnummer=***, " +
@@ -60,4 +72,5 @@ data class Beskjed(
                 "synligFremTil=$synligFremTil, " +
                 "aktiv=$aktiv"
     }
+
 }

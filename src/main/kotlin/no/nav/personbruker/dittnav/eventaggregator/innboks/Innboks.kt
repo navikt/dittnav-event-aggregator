@@ -1,10 +1,13 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
+import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateMaxLength
+import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateNonNullFieldMaxLength
+import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateSikkerhetsnivaa
 import java.time.LocalDateTime
 
 data class Innboks (
         val id: Int?,
-        val produsent: String,
+        val systembruker: String,
         val eventId: String,
         val eventTidspunkt: LocalDateTime,
         val fodselsnummer: String,
@@ -16,7 +19,7 @@ data class Innboks (
         val aktiv: Boolean
 ) {
     constructor(
-            produsent: String,
+            systembruker: String,
             eventId: String,
             eventTidspunkt: LocalDateTime,
             fodselsnummer: String,
@@ -28,7 +31,7 @@ data class Innboks (
             aktiv: Boolean
     ) : this(
             null,
-            produsent,
+            systembruker,
             eventId,
             eventTidspunkt,
             fodselsnummer,
@@ -38,12 +41,20 @@ data class Innboks (
             sikkerhetsnivaa,
             sistOppdatert,
             aktiv
-    )
+    ) {
+        validateNonNullFieldMaxLength(systembruker, "systembruker", 100)
+        validateNonNullFieldMaxLength(eventId, "eventId", 50)
+        validateNonNullFieldMaxLength(fodselsnummer, "fodselsnummer", 11)
+        validateNonNullFieldMaxLength(grupperingsId, "grupperingsId", 100)
+        validateNonNullFieldMaxLength(tekst, "tekst", 500)
+        validateMaxLength(link, "link", 200)
+        validateSikkerhetsnivaa(sikkerhetsnivaa)
+    }
 
     override fun toString(): String {
         return "Innboks(" +
                 "id=$id, " +
-                "produsent=$produsent, " +
+                "systembruker=***, " +
                 "eventId=$eventId, " +
                 "eventTidspunkt=$eventTidspunkt, " +
                 "fodselsnummer=***, " +
@@ -54,4 +65,5 @@ data class Innboks (
                 "sistOppdatert=$sistOppdatert, " +
                 "aktiv=$aktiv"
     }
+
 }

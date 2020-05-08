@@ -1,11 +1,11 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.getBeskjedByEventId
+import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
@@ -21,13 +21,16 @@ import org.junit.jupiter.api.Test
 class CachedDoneEventConsumerTest {
 
     private val database = H2Database()
-    private val eventConsumer = CachedDoneEventConsumer(database)
+    private val doneRepository = DoneRepository(database)
+    private val eventConsumer = CachedDoneEventConsumer(doneRepository)
 
-    private val beskjed1 = BeskjedObjectMother.createBeskjed("1", "12345")
-    private val oppgave1 = OppgaveObjectMother.createOppgave("2", "12345")
-    private val done1 = DoneObjectMother.createDone("3")
-    private val done2 = DoneObjectMother.createDone("4")
-    private val done3 = DoneObjectMother.createDone("5")
+    private val systembruker = "dummySystembruker"
+    private val fodselsnummer = "12345"
+    private val beskjed1 = BeskjedObjectMother.giveMeAktivBeskjed("1", fodselsnummer, systembruker)
+    private val oppgave1 = OppgaveObjectMother.giveMeAktivOppgave("2", fodselsnummer, systembruker)
+    private val done1 = DoneObjectMother.giveMeDone("3", systembruker, fodselsnummer)
+    private val done2 = DoneObjectMother.giveMeDone("4", systembruker, fodselsnummer)
+    private val done3 = DoneObjectMother.giveMeDone("5", systembruker, fodselsnummer)
 
     init {
         runBlocking {
@@ -43,8 +46,8 @@ class CachedDoneEventConsumerTest {
 
     @AfterAll
     fun tearDown() {
-        eventConsumer.cancel()
         runBlocking {
+            eventConsumer.stopPolling()
             database.dbQuery {
                 deleteAllBeskjed()
                 deleteAllOppgave()
@@ -56,31 +59,57 @@ class CachedDoneEventConsumerTest {
 
     @Test
     fun `setter Beskjed-event inaktivt hvis Done-event med samme eventId tidligere er mottatt`() {
+        val beskjedWithExistingDoneEvent = BeskjedObjectMother.giveMeAktivBeskjed(done1.eventId, fodselsnummer, systembruker)
         runBlocking {
-            database.dbQuery { createBeskjed(BeskjedObjectMother.createBeskjed("3", "12345")) }
+            database.dbQuery { createBeskjed(beskjedWithExistingDoneEvent) }
             eventConsumer.processDoneEvents()
-            val beskjed = database.dbQuery { getBeskjedByEventId("3") }
+            val beskjed = database.dbQuery { getBeskjedByEventId(done1.eventId) }
             beskjed.aktiv.shouldBeFalse()
         }
     }
 
     @Test
     fun `setter Oppgave-event inaktivt hvis Done-event med samme eventId tidligere er mottatt`() {
+        val oppgaveWithExistingDoneEvent = OppgaveObjectMother.giveMeAktivOppgave(done2.eventId, fodselsnummer, systembruker)
         runBlocking {
-            database.dbQuery { createOppgave(OppgaveObjectMother.createOppgave("4", "12345")) }
+            database.dbQuery { createOppgave(oppgaveWithExistingDoneEvent) }
             eventConsumer.processDoneEvents()
-            val oppgave = database.dbQuery { getOppgaveByEventId("4") }
+            val oppgave = database.dbQuery { getOppgaveByEventId(done2.eventId) }
             oppgave.aktiv.shouldBeFalse()
         }
     }
 
     @Test
-    fun `flag Innboks event as inactive if Done event with same eventId exists`() {
+    fun `setter Innboks-event naktivt hvis Done-event med samme eventId tidligere er mottat`() {
+        val eventConsumer = CachedDoneEventConsumer(doneRepository)
+        val innboksWithExistingDone = InnboksObjectMother.giveMeAktivInnboks(done3.eventId, fodselsnummer, systembruker)
         runBlocking {
-            database.dbQuery { createInnboks(InnboksObjectMother.createInnboks("5", "12345")) }
+            database.dbQuery { createInnboks(innboksWithExistingDone) }
             eventConsumer.processDoneEvents()
-            val innboks = database.dbQuery { getInnboksByEventId("5") }
+            val innboks = database.dbQuery { getInnboksByEventId(done3.eventId) }
             innboks.aktiv.shouldBeFalse()
+        }
+    }
+
+    @Test
+    fun `fjerner done-eventer fra ventetabellen hvis tilhorende event blir funnet og satt aktivt`() {
+        val expectedEventId = "50"
+        val expectedFodselsnr = "45678"
+        val expectedSystembruker = "dummySystembruker"
+        val doneEvent = DoneObjectMother.giveMeDone(expectedEventId, expectedSystembruker, expectedFodselsnr)
+        val associatedBeskjed = BeskjedObjectMother.giveMeAktivBeskjed(expectedEventId, expectedFodselsnr, expectedSystembruker)
+
+        runBlocking {
+            database.dbQuery { createDoneEvent(doneEvent) }
+            database.dbQuery { createBeskjed(associatedBeskjed) }
+
+            val elementsInDoneTableBeforeProcessing = database.dbQuery { getAllDoneEvent() }
+            val expectedNumberOfEventsAfterProcessing = elementsInDoneTableBeforeProcessing.size - 1
+
+            eventConsumer.processDoneEvents()
+
+            val elementsInDoneTableAfterProcessing = database.dbQuery { getAllDoneEvent() }
+            elementsInDoneTableAfterProcessing.size `should be equal to` expectedNumberOfEventsAfterProcessing
         }
     }
 
@@ -88,7 +117,7 @@ class CachedDoneEventConsumerTest {
     fun `feiler ikke hvis event med samme eventId som Done-event ikke er mottatt`() {
         invoking {
             runBlocking {
-                database.dbQuery { createDoneEvent(DoneObjectMother.createDone("-1")) }
+                database.dbQuery { createDoneEvent(DoneObjectMother.giveMeDone("-1")) }
                 eventConsumer.processDoneEvents()
             }
         } `should not throw` AnyException

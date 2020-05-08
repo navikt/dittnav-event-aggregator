@@ -2,10 +2,11 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
+import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.objectmother.ConsumerRecordsObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.metrics.PrometheusMetricsCollector
+import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.ConsumerRecordsObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsSession
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should throw`
 import org.amshove.kluent.invoking
@@ -15,15 +16,17 @@ import org.junit.jupiter.api.Test
 
 class BeskjedEventServiceTest {
 
-    private val beskjedRepository = mockk<BeskjedRepository>(relaxed = true)
-    private val eventMetricsProbe = mockk<EventMetricsProbe>(relaxed = true)
-    private val eventService = BeskjedEventService(beskjedRepository, eventMetricsProbe)
+    private val persistingService = mockk<BrukernotifikasjonPersistingService<Beskjed>>(relaxed = true)
+    private val metricsProbe = mockk<EventMetricsProbe>(relaxed = true)
+    private val metricsSession = mockk<EventMetricsSession>(relaxed = true)
+    private val eventService = BeskjedEventService(persistingService, metricsProbe)
 
     @BeforeEach
     private fun resetMocks() {
         mockkObject(BeskjedTransformer)
-        clearMocks(beskjedRepository)
-        clearMocks(eventMetricsProbe)
+        clearMocks(persistingService)
+        clearMocks(metricsProbe)
+        clearMocks(metricsSession)
     }
 
     @AfterAll
@@ -36,18 +39,24 @@ class BeskjedEventServiceTest {
         val records = ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(5, "dummyTopic")
 
         val capturedListOfEntities = slot<List<Beskjed>>()
-        coEvery { beskjedRepository.writeEventsToCache(capture(capturedListOfEntities)) } returns Unit
+        coEvery { persistingService.writeEventsToCache(capture(capturedListOfEntities)) } returns Unit
+
+        val slot = slot<suspend EventMetricsSession.() -> Unit>()
+
+        coEvery { metricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
+            slot.captured.invoke(metricsSession)
+        }
 
         runBlocking {
             eventService.processEvents(records)
         }
 
         verify(exactly = records.count()) { BeskjedTransformer.toInternal(any(), any()) }
-        coVerify(exactly = 1) { beskjedRepository.writeEventsToCache(allAny()) }
+        coVerify(exactly = 1) { persistingService.writeEventsToCache(allAny()) }
         capturedListOfEntities.captured.size `should be` records.count()
 
         confirmVerified(BeskjedTransformer)
-        confirmVerified(beskjedRepository)
+        confirmVerified(persistingService)
     }
 
     @Test
@@ -60,10 +69,16 @@ class BeskjedEventServiceTest {
         val transformedRecords = createANumberOfTransformedRecords(numberOfSuccessfulTransformations)
 
         val capturedListOfEntities = slot<List<Beskjed>>()
-        coEvery { beskjedRepository.writeEventsToCache(capture(capturedListOfEntities)) } returns Unit
+        coEvery { persistingService.writeEventsToCache(capture(capturedListOfEntities)) } returns Unit
 
         val retriableExp = UntransformableRecordException("Simulert feil i en test")
         every { BeskjedTransformer.toInternal(any(), any()) } throws retriableExp andThenMany transformedRecords
+
+        val slot = slot<suspend EventMetricsSession.() -> Unit>()
+
+        coEvery { metricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
+            slot.captured.invoke(metricsSession)
+        }
 
         invoking {
             runBlocking {
@@ -72,34 +87,83 @@ class BeskjedEventServiceTest {
         } `should throw` UntransformableRecordException::class
 
         coVerify(exactly = totalNumberOfRecords) { BeskjedTransformer.toInternal(any(), any()) }
-        coVerify(exactly = 1) { beskjedRepository.writeEventsToCache(allAny()) }
-        coVerify(exactly = numberOfFailedTransformations) { eventMetricsProbe.reportEventFailed(any(), any()) }
+        coVerify(exactly = 1) { persistingService.writeEventsToCache(allAny()) }
+        coVerify(exactly = numberOfFailedTransformations) { metricsSession.countFailedEventForProducer(any()) }
         capturedListOfEntities.captured.size `should be` numberOfSuccessfulTransformations
 
         confirmVerified(BeskjedTransformer)
-        confirmVerified(beskjedRepository)
+        confirmVerified(persistingService)
     }
 
     @Test
-    fun shouldRegisterMetricsForEveryEvent() {
+    fun shouldReportEverySuccessfulEvent() {
         val numberOfRecords = 5
 
         val records = ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(numberOfRecords, "beskjed")
+        val slot = slot<suspend EventMetricsSession.() -> Unit>()
 
-        mockkObject(PrometheusMetricsCollector)
+        coEvery { metricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
+            slot.captured.invoke(metricsSession)
+        }
 
         runBlocking {
             eventService.processEvents(records)
         }
 
-        coVerify (exactly = numberOfRecords) { eventMetricsProbe.reportEventSeen(any(), any()) }
-        coVerify (exactly = numberOfRecords) { eventMetricsProbe.reportEventProcessed(any(), any()) }
+        coVerify (exactly = numberOfRecords) { metricsSession.countSuccessfulEventForProducer(any()) }
+    }
+
+    @Test
+    fun `skal forkaste eventer som mangler tekst i tekstfeltet`() {
+        val beskjedWithoutText = AvroBeskjedObjectMother.createBeskjedWithText("")
+        val cr = ConsumerRecordsObjectMother.createConsumerRecord("beskjed", beskjedWithoutText)
+        val records = ConsumerRecordsObjectMother.giveMeConsumerRecordsWithThisConsumerRecord(cr)
+
+        val slot = slot<suspend EventMetricsSession.() -> Unit>()
+        coEvery { metricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
+            slot.captured.invoke(metricsSession)
+        }
+
+        val capturedNumberOfEntitiesWrittenToTheDb = slot<List<Beskjed>>()
+        coEvery { persistingService.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns Unit
+
+        runBlocking {
+            eventService.processEvents(records)
+        }
+
+        capturedNumberOfEntitiesWrittenToTheDb.captured.size `should be` 0
+
+        coVerify (exactly = 1) { metricsSession.countFailedEventForProducer(any()) }
+    }
+
+    @Test
+    fun `skal forkaste eventer som har valideringsfeil`() {
+        val tooLongText = "A".repeat(501)
+        val beskjedWithTooLongText = AvroBeskjedObjectMother.createBeskjedWithText(tooLongText)
+        val cr = ConsumerRecordsObjectMother.createConsumerRecord("beskjed", beskjedWithTooLongText)
+        val records = ConsumerRecordsObjectMother.giveMeConsumerRecordsWithThisConsumerRecord(cr)
+
+        val slot = slot<suspend EventMetricsSession.() -> Unit>()
+        coEvery { metricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
+            slot.captured.invoke(metricsSession)
+        }
+
+        val capturedNumberOfEntitiesWrittenToTheDb = slot<List<Beskjed>>()
+        coEvery { persistingService.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns Unit
+
+        runBlocking {
+            eventService.processEvents(records)
+        }
+
+        capturedNumberOfEntitiesWrittenToTheDb.captured.size `should be` 0
+
+        coVerify (exactly = 1) { metricsSession.countFailedEventForProducer(any()) }
     }
 
     private fun createANumberOfTransformedRecords(numberOfRecords: Int): MutableList<Beskjed> {
         val transformedRecords = mutableListOf<Beskjed>()
         for (i in 0 until numberOfRecords) {
-            transformedRecords.add(BeskjedObjectMother.createBeskjed("$i", "{$i}12345"))
+            transformedRecords.add(BeskjedObjectMother.giveMeAktivBeskjed("$i", "{$i}12345"))
         }
         return transformedRecords
     }

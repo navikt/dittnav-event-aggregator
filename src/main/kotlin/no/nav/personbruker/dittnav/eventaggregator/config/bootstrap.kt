@@ -7,6 +7,7 @@ import io.ktor.application.install
 import io.ktor.features.DefaultHeaders
 import io.ktor.routing.routing
 import io.prometheus.client.hotspot.DefaultExports
+import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.api.healthApi
 
 fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()) {
@@ -24,20 +25,16 @@ fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()
 private fun Application.configureStartupHook(appContext: ApplicationContext) {
     environment.monitor.subscribe(ApplicationStarted) {
         Flyway.runFlywayMigrations(appContext.environment)
-        if (isOtherEnvironmentThanProd()) {
-            KafkaConsumerSetup.startAllKafkaPollers(appContext)
-            appContext.cachedDoneEventConsumer.poll()
-        }
+        KafkaConsumerSetup.startAllKafkaPollers(appContext)
+        appContext.cachedDoneEventConsumer.poll()
     }
 }
 
-private fun isOtherEnvironmentThanProd() = System.getenv("NAIS_CLUSTER_NAME") != "prod-sbs"
-
 private fun Application.configureShutdownHook(appContext: ApplicationContext) {
     environment.monitor.subscribe(ApplicationStopPreparing) {
-        if (isOtherEnvironmentThanProd()) {
+        runBlocking {
             KafkaConsumerSetup.stopAllKafkaConsumers(appContext)
-            appContext.cachedDoneEventConsumer.cancel()
+            appContext.cachedDoneEventConsumer.stopPolling()
         }
         appContext.database.dataSource.close()
     }

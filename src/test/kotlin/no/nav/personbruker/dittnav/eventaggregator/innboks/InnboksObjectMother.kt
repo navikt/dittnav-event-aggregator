@@ -5,17 +5,40 @@ import java.time.ZoneId
 
 object InnboksObjectMother {
 
-    fun createInnboks(eventId: String, fodselsnummer: String): Innboks {
+    fun giveMeAktivInnboks(): Innboks {
+        return giveMeAktivInnboks("i-1", "123")
+    }
+
+    fun giveMeAktivInnboks(eventId: String, fodselsnummer: String): Innboks {
+        return giveMeAktivInnboks(eventId, fodselsnummer, "dummySystembruker")
+    }
+
+    fun giveMeAktivInnboks(eventId: String, fodselsnummer: String, systembruker: String): Innboks {
         return Innboks(
-                "DittNAV",
+                systembruker,
                 eventId,
                 LocalDateTime.now(ZoneId.of("UTC")),
                 fodselsnummer,
-                "100$eventId",
+                "76543",
                 "Dette er innboksnotifikasjon til brukeren",
-                "https://nav.no/systemX/$fodselsnummer",
+                "https://nav.no/systemX/",
                 4,
                 LocalDateTime.now(ZoneId.of("UTC")),
                 true)
     }
+
+    fun giveMeInaktivInnboks(): Innboks {
+        return Innboks(
+                "dummySystembruker",
+                "76543",
+                LocalDateTime.now(ZoneId.of("UTC")),
+                "123",
+                "76543",
+                "Dette er innboksnotifikasjon til brukeren",
+                "https://nav.no/systemX/",
+                4,
+                LocalDateTime.now(ZoneId.of("UTC")),
+                false)
+    }
+
 }

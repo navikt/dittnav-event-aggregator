@@ -1,7 +1,8 @@
-package no.nav.personbruker.dittnav.eventaggregator.common.exceptions.objectmother
+package no.nav.personbruker.dittnav.eventaggregator.common.objectmother
 
 import no.nav.brukernotifikasjon.schemas.*
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon
 import no.nav.personbruker.dittnav.eventaggregator.done.schema.AvroDoneObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.innboks.AvroInnboksObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
@@ -11,6 +12,32 @@ import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.common.TopicPartition
 
 object ConsumerRecordsObjectMother {
+
+    fun createMatchingRecords(entitiesInDbToMatch: List<Brukernotifikasjon>): ConsumerRecords<Nokkel, Done> {
+        val listOfConsumerRecord = mutableListOf<ConsumerRecord<Nokkel, Done>>()
+        entitiesInDbToMatch.forEach { entity ->
+            val done = AvroDoneObjectMother.createDoneRecord(entity.eventId, entity.fodselsnummer)
+            listOfConsumerRecord.add(done)
+        }
+        return giveMeConsumerRecordsWithThisConsumerRecord(listOfConsumerRecord)
+    }
+
+    fun createMatchingRecords(entityInDbToMatch: Brukernotifikasjon): ConsumerRecords<Nokkel, Done> {
+        val matchingDoneEvent = AvroDoneObjectMother.createDoneRecord(entityInDbToMatch.eventId, entityInDbToMatch.fodselsnummer)
+        return giveMeConsumerRecordsWithThisConsumerRecord(matchingDoneEvent)
+    }
+
+    fun <T> giveMeConsumerRecordsWithThisConsumerRecord(listOfConcreteRecords: List<ConsumerRecord<Nokkel, T>>): ConsumerRecords<Nokkel, T> {
+        val records = mutableMapOf<TopicPartition, List<ConsumerRecord<Nokkel, T>>>()
+        records[TopicPartition(listOfConcreteRecords[0].topic(), 1)] = listOfConcreteRecords
+        return ConsumerRecords(records)
+    }
+
+    fun <T> giveMeConsumerRecordsWithThisConsumerRecord(concreteRecord: ConsumerRecord<Nokkel, T>): ConsumerRecords<Nokkel, T> {
+        val records = mutableMapOf<TopicPartition, List<ConsumerRecord<Nokkel, T>>>()
+        records[TopicPartition(concreteRecord.topic(), 1)] = listOf(concreteRecord)
+        return ConsumerRecords(records)
+    }
 
     fun giveMeANumberOfBeskjedRecords(numberOfRecords: Int, topicName: String): ConsumerRecords<Nokkel, Beskjed> {
         val records = mutableMapOf<TopicPartition, List<ConsumerRecord<Nokkel, Beskjed>>>()
@@ -27,6 +54,11 @@ object ConsumerRecordsObjectMother {
             allRecords.add(ConsumerRecord(topicName, i, i.toLong(), nokkel, schemaRecord))
         }
         return allRecords
+    }
+
+    fun <T> createConsumerRecord(topicName: String, actualEvent: T): ConsumerRecord<Nokkel, T> {
+        val nokkel = createNokkel(1)
+        return ConsumerRecord(topicName, 1, 0, nokkel, actualEvent)
     }
 
     fun giveMeANumberOfDoneRecords(numberOfRecords: Int, topicName: String): ConsumerRecords<Nokkel, Done> {

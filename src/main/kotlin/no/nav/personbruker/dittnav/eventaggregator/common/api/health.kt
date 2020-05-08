@@ -41,9 +41,9 @@ fun Routing.healthApi(appContext: ApplicationContext) {
 private fun isAllConsumersRunning(appContext: ApplicationContext): Boolean {
     val allConsumersRunning =
             appContext.beskjedConsumer.isRunning() &&
-            appContext.oppgaveConsumer.isRunning() &&
-            appContext.innboksConsumer.isRunning() &&
-            appContext.doneConsumer.isRunning()
+                    appContext.oppgaveConsumer.isRunning() &&
+                    appContext.innboksConsumer.isRunning() &&
+                    appContext.doneConsumer.isRunning()
     return allConsumersRunning
 }
 

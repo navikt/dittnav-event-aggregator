@@ -17,4 +17,8 @@ data class SensuEvent(
             }
         """.trimIndent()
     }
+
+    fun toCompactJson(): String {
+        return toJson().replace("\r", " ").replace("\n", " ").replace("\\s+".toRegex(), " ")
+    }
 }

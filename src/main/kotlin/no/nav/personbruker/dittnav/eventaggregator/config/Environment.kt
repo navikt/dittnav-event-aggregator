@@ -14,11 +14,12 @@ data class Environment(val bootstrapServers: String = getEnvVar("KAFKA_BOOTSTRAP
                        val clusterName: String = getEnvVar("NAIS_CLUSTER_NAME"),
                        val namespace: String = getEnvVar("NAIS_NAMESPACE"),
                        val sensuHost: String = getEnvVar("SENSU_HOST"),
-                       val sensuPort: String = getEnvVar("SENSU_PORT"),
-                       val producerAliases: String = getEnvVar("PRODUCER_ALIASES")
+                       val sensuPort: String = getEnvVar("SENSU_PORT")
 )
 
 fun getEnvVar(varName: String): String {
     return System.getenv(varName)
             ?: throw IllegalArgumentException("Appen kan ikke starte uten av miljøvariabelen $varName er satt.")
 }
+
+fun isOtherEnvironmentThanProd() = System.getenv("NAIS_CLUSTER_NAME") != "prod-sbs"

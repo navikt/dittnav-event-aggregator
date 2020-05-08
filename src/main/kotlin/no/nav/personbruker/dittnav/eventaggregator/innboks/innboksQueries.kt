@@ -1,16 +1,14 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executePersistQuery
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.singleResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.*
 import java.sql.Connection
+import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
 
 fun Connection.getAllInnboks(): List<Innboks> =
-        prepareStatement("""SELECT * FROM INNBOKS""")
+        prepareStatement("""SELECT * FROM innboks""")
                 .use {
                     it.executeQuery().list {
                         toInnboks()
@@ -18,7 +16,7 @@ fun Connection.getAllInnboks(): List<Innboks> =
                 }
 
 fun Connection.getInnboksById(entityId: Int): Innboks =
-        prepareStatement("""SELECT * FROM INNBOKS WHERE id = ?""")
+        prepareStatement("""SELECT * FROM innboks WHERE id = ?""")
                 .use {
                     it.setInt(1, entityId)
                     it.executeQuery().singleResult {
@@ -26,33 +24,47 @@ fun Connection.getInnboksById(entityId: Int): Innboks =
                     }
                 }
 
-fun Connection.createInnboks(innboks: Innboks): PersistActionResult =
-        executePersistQuery("""INSERT INTO INNBOKS(produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv)
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""") {
-            setString(1, innboks.produsent)
-            setObject(2, innboks.eventTidspunkt, Types.TIMESTAMP)
-            setString(3, innboks.fodselsnummer)
-            setString(4, innboks.eventId)
-            setString(5, innboks.grupperingsId)
-            setString(6, innboks.tekst)
-            setString(7, innboks.link)
-            setInt(8, innboks.sikkerhetsnivaa)
-            setObject(9, innboks.sistOppdatert, Types.TIMESTAMP)
-            setBoolean(10, innboks.aktiv)
+private val createQuery = """INSERT INTO innboks(systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+
+fun Connection.createInnboksEventer(innboksEventer: List<Innboks>) =
+        executeBatchUpdateQuery(createQuery) {
+            innboksEventer.forEach { innboks ->
+                buildStatementForSingleRow(innboks)
+                addBatch()
+            }
         }
 
-fun Connection.setInnboksAktivFlag(eventId: String, produsent: String, fodselsnummer: String, aktiv: Boolean): Int =
-        prepareStatement("""UPDATE INNBOKS SET aktiv = ? WHERE eventId = ? AND produsent = ? AND fodselsnummer = ?""")
+fun Connection.createInnboks(innboks: Innboks): PersistActionResult =
+        executePersistQuery(createQuery) {
+            buildStatementForSingleRow(innboks)
+        }
+
+private fun PreparedStatement.buildStatementForSingleRow(innboks: Innboks) {
+    setString(1, innboks.systembruker)
+    setObject(2, innboks.eventTidspunkt, Types.TIMESTAMP)
+    setString(3, innboks.fodselsnummer)
+    setString(4, innboks.eventId)
+    setString(5, innboks.grupperingsId)
+    setString(6, innboks.tekst)
+    setString(7, innboks.link)
+    setInt(8, innboks.sikkerhetsnivaa)
+    setObject(9, innboks.sistOppdatert, Types.TIMESTAMP)
+    setBoolean(10, innboks.aktiv)
+}
+
+fun Connection.setInnboksAktivFlag(eventId: String, systembruker: String, fodselsnummer: String, aktiv: Boolean): Int =
+        prepareStatement("""UPDATE innboks SET aktiv = ? WHERE eventId = ? AND systembruker = ? AND fodselsnummer = ?""")
                 .use {
                     it.setBoolean(1, aktiv)
                     it.setString(2, eventId)
-                    it.setString(3, produsent)
+                    it.setString(3, systembruker)
                     it.setString(4, fodselsnummer)
                     it.executeUpdate()
                 }
 
 fun Connection.getAllInnboksByAktiv(aktiv: Boolean): List<Innboks> =
-        prepareStatement("""SELECT * FROM INNBOKS WHERE aktiv = ?""")
+        prepareStatement("""SELECT * FROM innboks WHERE aktiv = ?""")
                 .use {
                     it.setBoolean(1, aktiv)
                     it.executeQuery().list {
@@ -61,7 +73,7 @@ fun Connection.getAllInnboksByAktiv(aktiv: Boolean): List<Innboks> =
                 }
 
 fun Connection.getInnboksByFodselsnummer(fodselsnummer: String): List<Innboks> =
-        prepareStatement("""SELECT * FROM INNBOKS WHERE fodselsnummer = ?""")
+        prepareStatement("""SELECT * FROM innboks WHERE fodselsnummer = ?""")
                 .use {
                     it.setString(1, fodselsnummer)
                     it.executeQuery().list {
@@ -70,7 +82,7 @@ fun Connection.getInnboksByFodselsnummer(fodselsnummer: String): List<Innboks> =
                 }
 
 fun Connection.getInnboksByEventId(eventId: String): Innboks =
-        prepareStatement("""SELECT * FROM INNBOKS WHERE eventId = ?""")
+        prepareStatement("""SELECT * FROM innboks WHERE eventId = ?""")
                 .use {
                     it.setString(1, eventId)
                     it.executeQuery().singleResult {
@@ -82,7 +94,7 @@ fun Connection.getInnboksByEventId(eventId: String): Innboks =
 private fun ResultSet.toInnboks(): Innboks {
     return Innboks(
             id = getInt("id"),
-            produsent = getString("produsent"),
+            systembruker = getString("systembruker"),
             eventTidspunkt = getUtcDateTime("eventTidspunkt"),
             fodselsnummer = getString("fodselsnummer"),
             eventId = getString("eventId"),

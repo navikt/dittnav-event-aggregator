@@ -5,13 +5,29 @@ import java.time.Instant
 
 object AvroOppgaveObjectMother {
 
-    fun createOppgave(i: Int): Oppgave {
+    private val defaultLopenummer = 1
+    private val defaultFodselsnr = "12345"
+    private val defaultTekst = "Dette er oppgave til brukeren"
+
+    fun createOppgave(lopenummer: Int): Oppgave {
+        return createOppgave(lopenummer, defaultFodselsnr, defaultTekst)
+    }
+
+    fun createOppgave(lopenummer: Int, fodselsnummer: String): Oppgave {
+        return createOppgave(lopenummer, fodselsnummer, defaultTekst)
+    }
+
+    fun createOppgave(tekst: String): Oppgave {
+        return createOppgave(defaultLopenummer, defaultFodselsnr, tekst)
+    }
+
+    fun createOppgave(lopenummer: Int, fodselsnummer: String, tekst: String): Oppgave {
         return Oppgave(
                 Instant.now().toEpochMilli(),
-                "12345",
-                "100$i",
-                "Dette er oppgave til brukeren",
-                "https://nav.no/systemX/$i",
+                fodselsnummer,
+                "100$lopenummer",
+                tekst,
+                "https://nav.no/systemX/$lopenummer",
                 4)
     }
 

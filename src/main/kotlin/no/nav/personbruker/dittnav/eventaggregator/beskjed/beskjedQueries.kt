@@ -1,52 +1,63 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executePersistQuery
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getUtcDateTime
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getEpochTimeInSeconds
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.singleResult
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.*
 import java.sql.Connection
+import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
 import java.time.LocalDateTime
 
 fun Connection.getAllBeskjed(): List<Beskjed> =
-        prepareStatement("""SELECT * FROM BESKJED""")
+        prepareStatement("""SELECT * FROM beskjed""")
                 .use {
                     it.executeQuery().list {
                         toBeskjed()
                     }
                 }
 
+private val createQuery = """INSERT INTO beskjed (uid, systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+
 fun Connection.createBeskjed(beskjed: Beskjed): PersistActionResult =
-        executePersistQuery("""INSERT INTO BESKJED (uid, produsent, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""") {
-            setString(1, beskjed.uid)
-            setString(2, beskjed.produsent)
-            setObject(3, beskjed.eventTidspunkt, Types.TIMESTAMP)
-            setString(4, beskjed.fodselsnummer)
-            setString(5, beskjed.eventId)
-            setString(6, beskjed.grupperingsId)
-            setString(7, beskjed.tekst)
-            setString(8, beskjed.link)
-            setInt(9, beskjed.sikkerhetsnivaa)
-            setObject(10, beskjed.sistOppdatert, Types.TIMESTAMP)
-            setObject(11, beskjed.synligFremTil, Types.TIMESTAMP)
-            setBoolean(12, beskjed.aktiv)
+        executePersistQuery(createQuery) {
+            buildStatementForSingleRow(beskjed)
         }
 
-fun Connection.setBeskjedAktivFlag(eventId: String, produsent: String, fodselsnummer: String, aktiv: Boolean): Int =
-        prepareStatement("""UPDATE BESKJED SET aktiv = ? WHERE eventId = ? AND produsent = ? AND fodselsnummer = ?""").use {
+fun Connection.createBeskjeder(beskjeder: List<Beskjed>) =
+        executeBatchUpdateQuery(createQuery) {
+            beskjeder.forEach { beskjed ->
+                buildStatementForSingleRow(beskjed)
+                addBatch()
+            }
+        }
+
+private fun PreparedStatement.buildStatementForSingleRow(beskjed: Beskjed) {
+    setString(1, beskjed.uid)
+    setString(2, beskjed.systembruker)
+    setObject(3, beskjed.eventTidspunkt, Types.TIMESTAMP)
+    setString(4, beskjed.fodselsnummer)
+    setString(5, beskjed.eventId)
+    setString(6, beskjed.grupperingsId)
+    setString(7, beskjed.tekst)
+    setString(8, beskjed.link)
+    setInt(9, beskjed.sikkerhetsnivaa)
+    setObject(10, beskjed.sistOppdatert, Types.TIMESTAMP)
+    setObject(11, beskjed.synligFremTil, Types.TIMESTAMP)
+    setBoolean(12, beskjed.aktiv)
+}
+
+fun Connection.setBeskjedAktivFlag(eventId: String, systembruker: String, fodselsnummer: String, aktiv: Boolean): Int =
+        prepareStatement("""UPDATE beskjed SET aktiv = ? WHERE eventId = ? AND systembruker = ? AND fodselsnummer = ?""").use {
             it.setBoolean(1, aktiv)
             it.setString(2, eventId)
-            it.setString(3, produsent)
+            it.setString(3, systembruker)
             it.setString(4, fodselsnummer)
             it.executeUpdate()
         }
 
 fun Connection.getAllBeskjedByAktiv(aktiv: Boolean): List<Beskjed> =
-        prepareStatement("""SELECT * FROM BESKJED WHERE aktiv = ?""")
+        prepareStatement("""SELECT * FROM beskjed WHERE aktiv = ?""")
                 .use {
                     it.setBoolean(1, aktiv)
                     it.executeQuery().list {
@@ -55,7 +66,7 @@ fun Connection.getAllBeskjedByAktiv(aktiv: Boolean): List<Beskjed> =
                 }
 
 fun Connection.getBeskjedByFodselsnummer(fodselsnummer: String): List<Beskjed> =
-        prepareStatement("""SELECT * FROM BESKJED WHERE fodselsnummer = ?""")
+        prepareStatement("""SELECT * FROM beskjed WHERE fodselsnummer = ?""")
                 .use {
                     it.setString(1, fodselsnummer)
                     it.executeQuery().list {
@@ -64,7 +75,7 @@ fun Connection.getBeskjedByFodselsnummer(fodselsnummer: String): List<Beskjed> =
                 }
 
 fun Connection.getBeskjedById(id: Int): Beskjed =
-        prepareStatement("""SELECT * FROM BESKJED WHERE id = ?""")
+        prepareStatement("""SELECT * FROM beskjed WHERE id = ?""")
                 .use {
                     it.setInt(1, id)
                     it.executeQuery().singleResult() {
@@ -73,7 +84,7 @@ fun Connection.getBeskjedById(id: Int): Beskjed =
                 }
 
 fun Connection.getBeskjedByEventId(eventId: String): Beskjed =
-        prepareStatement("""SELECT * FROM BESKJED WHERE eventId = ?""")
+        prepareStatement("""SELECT * FROM beskjed WHERE eventId = ?""")
                 .use {
                     it.setString(1, eventId)
                     it.executeQuery().singleResult() {
@@ -85,7 +96,7 @@ private fun ResultSet.toBeskjed(): Beskjed {
     return Beskjed(
             uid = getString("uid"),
             id = getInt("id"),
-            produsent = getString("produsent"),
+            systembruker = getString("systembruker"),
             eventTidspunkt = getUtcDateTime("eventTidspunkt"),
             fodselsnummer = getString("fodselsnummer"),
             eventId = getString("eventId"),
@@ -98,7 +109,8 @@ private fun ResultSet.toBeskjed(): Beskjed {
             aktiv = getBoolean("aktiv")
     )
 }
+
 private fun ResultSet.getNullableLocalDateTime(label: String): LocalDateTime? {
-    return getTimestamp(label)?.let { timestamp -> timestamp.toLocalDateTime() }
+    return getTimestamp(label)?.toLocalDateTime()
 }
 

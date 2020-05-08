@@ -5,9 +5,10 @@ import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import java.sql.Connection
 import java.sql.ResultSet
 
-fun Connection.getAllBrukernotifikasjonFromView(): List<Brukernotifikasjon> =
-        prepareStatement("""SELECT * FROM BRUKERNOTIFIKASJON_VIEW""")
+fun Connection.getBrukernotifikasjonFromViewByAktiv(aktiv: Boolean): List<Brukernotifikasjon> =
+        prepareStatement("""SELECT * FROM brukernotifikasjon_view where aktiv = ?""")
                 .use {
+                    it.setBoolean(1, aktiv)
                     it.executeQuery().list {
                         toBrukernotifikasjon()
                     }
@@ -16,7 +17,7 @@ fun Connection.getAllBrukernotifikasjonFromView(): List<Brukernotifikasjon> =
 private fun ResultSet.toBrukernotifikasjon(): Brukernotifikasjon {
     return Brukernotifikasjon(
             eventId = getString("eventId"),
-            produsent = getString("produsent"),
+            systembruker = getString("systembruker"),
             type = EventType.valueOf(getString("type").toUpperCase()),
             fodselsnummer = getString("fodselsnummer")
     )

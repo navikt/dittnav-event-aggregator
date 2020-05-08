@@ -19,6 +19,7 @@ spec:
   replicas:
     min: 2
     max: 4
+    cpuThresholdPercentage: 50
   ingresses:
   {{#each ingresses}}
     - "{{this}}"
@@ -33,7 +34,7 @@ spec:
   resources:
     limits:
       cpu: "3"
-      memory: 512Mi
+      memory: 1200Mi
     requests:
       cpu: "1"
-      memory: 512Mi
+      memory: 1024Mi

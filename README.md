@@ -1,5 +1,3 @@
-[![CircleCI](https://circleci.com/gh/navikt/dittnav-event-aggregator.svg?style=svg)](https://circleci.com/gh/navikt/dittnav-event-aggregator)
-
 # DittNAV event aggregator
 
 Microservice som brukes for å lese inn eventer fra DittNAV sine kafka-topics, og lagrer disse i DittNAV sin 
