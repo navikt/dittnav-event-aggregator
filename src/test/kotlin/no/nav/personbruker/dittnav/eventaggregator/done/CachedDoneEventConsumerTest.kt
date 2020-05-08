@@ -37,6 +37,6 @@ internal class CachedDoneEventConsumerTest {
         coVerify(exactly = 2) { doneRepo.writeDoneEventsForBeskjedToCache(any()) }
         coVerify(exactly = 2) { doneRepo.writeDoneEventsForInnboksToCache(any()) }
         coVerify(exactly = 2) { doneRepo.writeDoneEventsForOppgaveToCache(any()) }
-        coVerify(exactly = 2) { doneRepo.deleteDoneEventFromCache(any()) }
+        coVerify(exactly = 2) { doneRepo.deleteDoneEventsFromCache(any()) }
     }
 }

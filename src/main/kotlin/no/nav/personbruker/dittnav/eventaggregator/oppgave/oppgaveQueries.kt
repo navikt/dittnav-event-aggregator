@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.*
+import no.nav.personbruker.dittnav.eventaggregator.done.Done
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
@@ -44,14 +45,17 @@ private fun PreparedStatement.buildStatementForSingleRow(oppgave: Oppgave) {
     setBoolean(10, oppgave.aktiv)
 }
 
-fun Connection.setOppgaveAktivFlag(eventId: String, systembruker: String, fodselsnummer: String, aktiv: Boolean): Int =
-        prepareStatement("""UPDATE oppgave SET aktiv = ? WHERE eventId = ? AND systembruker = ? AND fodselsnummer = ?""").use {
-            it.setBoolean(1, aktiv)
-            it.setString(2, eventId)
-            it.setString(3, systembruker)
-            it.setString(4, fodselsnummer)
-            it.executeUpdate()
+fun Connection.setOppgaverAktivFlag(doneEvents: List<Done>, aktiv: Boolean) {
+    executeBatchUpdateQuery("""UPDATE oppgave SET aktiv = ? WHERE eventId = ? AND systembruker = ? AND fodselsnummer = ?""") {
+        doneEvents.forEach { done ->
+            setBoolean(1, aktiv)
+            setString(2, done.eventId)
+            setString(3, done.systembruker)
+            setString(4, done.fodselsnummer)
+            addBatch()
         }
+    }
+}
 
 fun Connection.getAllOppgaveByAktiv(aktiv: Boolean): List<Oppgave> =
         prepareStatement("""SELECT * FROM oppgave WHERE aktiv = ?""")

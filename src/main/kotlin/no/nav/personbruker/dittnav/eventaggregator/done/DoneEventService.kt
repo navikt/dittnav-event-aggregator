@@ -67,7 +67,7 @@ class DoneEventService(
         doneRepository.writeDoneEventsForBeskjedToCache(groupedDoneEvents.foundBeskjed)
         doneRepository.writeDoneEventsForOppgaveToCache(groupedDoneEvents.foundOppgave)
         doneRepository.writeDoneEventsForInnboksToCache(groupedDoneEvents.foundInnboks)
-        doneRepository.writeDoneEventToCache(groupedDoneEvents.notFoundEvents)
+        doneRepository.writeDoneEventsToCache(groupedDoneEvents.notFoundEvents)
     }
 
     private fun kastExceptionHvisMislykkedeTransformasjoner(problematicEvents: MutableList<ConsumerRecord<Nokkel, Done>>) {

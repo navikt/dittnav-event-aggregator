@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
+import no.nav.personbruker.dittnav.eventaggregator.done.DoneObjectMother
 import org.amshove.kluent.*
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
@@ -11,10 +12,10 @@ class beskjedQueriesTest {
 
     private val database = H2Database()
 
-    private val Beskjed1: Beskjed
-    private val Beskjed2: Beskjed
-    private val Beskjed3: Beskjed
-    private val Beskjed4: Beskjed
+    private val beskjed1: Beskjed
+    private val beskjed2: Beskjed
+    private val beskjed3: Beskjed
+    private val beskjed4: Beskjed
 
     private val systembruker = "dummySystembruker"
     private val fodselsnummer = "12345"
@@ -24,12 +25,12 @@ class beskjedQueriesTest {
     private val allEventsForSingleUser: List<Beskjed>
 
     init {
-        Beskjed1 = createBeskjed("1", "12345")
-        Beskjed2 = createBeskjed("2", "12345")
-        Beskjed3 = createBeskjed("3", "12345")
-        Beskjed4 = createBeskjed("4", "6789")
-        allEvents = listOf(Beskjed1, Beskjed2, Beskjed3, Beskjed4)
-        allEventsForSingleUser = listOf(Beskjed1, Beskjed2, Beskjed3)
+        beskjed1 = createBeskjed("1", "12345")
+        beskjed2 = createBeskjed("2", "12345")
+        beskjed3 = createBeskjed("3", "12345")
+        beskjed4 = createBeskjed("4", "6789")
+        allEvents = listOf(beskjed1, beskjed2, beskjed3, beskjed4)
+        allEventsForSingleUser = listOf(beskjed1, beskjed2, beskjed3)
     }
 
     private fun createBeskjed(eventId: String, fodselsnummer: String): Beskjed {
@@ -62,20 +63,21 @@ class beskjedQueriesTest {
 
     @Test
     fun `Finner alle aktive cachede Beskjed-eventer`() {
+        val doneEvent = DoneObjectMother.giveMeDone(eventId, systembruker, fodselsnummer)
         runBlocking {
-            database.dbQuery { setBeskjedAktivFlag(eventId, systembruker, fodselsnummer, false) }
+            database.dbQuery { setBeskjederAktivflagg(listOf(doneEvent), false) }
             val result = database.dbQuery { getAllBeskjedByAktiv(true) }
-            result `should contain all` listOf(Beskjed1, Beskjed3, Beskjed4)
-            result `should not contain` Beskjed2
-            database.dbQuery { setBeskjedAktivFlag(eventId, systembruker, fodselsnummer, true) }
+            result `should contain all` listOf(beskjed1, beskjed3, beskjed4)
+            result `should not contain` beskjed2
+            database.dbQuery { setBeskjederAktivflagg(listOf(doneEvent), true) }
         }
     }
 
     @Test
     fun `Finner cachet Beskjed-event med Id`() {
         runBlocking {
-            val result = database.dbQuery { Beskjed2.id?.let { getBeskjedById(it) } }
-            result `should equal` Beskjed2
+            val result = database.dbQuery { beskjed2.id?.let { getBeskjedById(it) } }
+            result `should equal` beskjed2
         }
     }
 
@@ -109,7 +111,7 @@ class beskjedQueriesTest {
     fun `Finner cachet Beskjed-event med eventId`() {
         runBlocking {
             val result = database.dbQuery { getBeskjedByEventId(eventId) }
-            result `should equal` Beskjed2
+            result `should equal` beskjed2
         }
     }
 
