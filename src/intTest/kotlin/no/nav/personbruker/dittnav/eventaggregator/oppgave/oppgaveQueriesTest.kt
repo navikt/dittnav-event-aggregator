@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
+import no.nav.personbruker.dittnav.eventaggregator.done.DoneObjectMother
 import org.amshove.kluent.*
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
@@ -61,12 +62,13 @@ class oppgaveQueriesTest {
 
     @Test
     fun `Finner alle aktive cachede Oppgave-eventer`() {
+        val doneEvent = DoneObjectMother.giveMeDone(eventId, systembruker, fodselsnummer2)
         runBlocking {
-            database.dbQuery { setOppgaveAktivFlag(eventId, systembruker, fodselsnummer2, false) }
+            database.dbQuery { setOppgaverAktivFlag(listOf(doneEvent), false) }
             val result = database.dbQuery { getAllOppgaveByAktiv(true) }
             result `should contain all` listOf(oppgave1, oppgave3)
             result `should not contain` oppgave2
-            database.dbQuery { setOppgaveAktivFlag(eventId, systembruker, fodselsnummer2,  true) }
+            database.dbQuery { setOppgaverAktivFlag(listOf(doneEvent), true) }
         }
     }
 

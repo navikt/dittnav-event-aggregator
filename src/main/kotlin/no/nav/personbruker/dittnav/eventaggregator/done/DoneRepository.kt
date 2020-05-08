@@ -1,55 +1,47 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.setBeskjedAktivFlag
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.setBeskjederAktivflagg
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon
 import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.getBrukernotifikasjonFromViewForEventIds
-import no.nav.personbruker.dittnav.eventaggregator.innboks.setInnboksAktivFlag
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.setOppgaveAktivFlag
+import no.nav.personbruker.dittnav.eventaggregator.innboks.setInnboksEventerAktivFlag
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.setOppgaverAktivFlag
 
 class DoneRepository(private val database: Database) {
 
-    suspend fun writeDoneEventsForBeskjedToCache(entities: List<Done>) {
-        if (entities.isEmpty()) {
+    suspend fun writeDoneEventsForBeskjedToCache(doneEvents: List<Done>) {
+        if (doneEvents.isEmpty()) {
             return
         }
         database.queryWithExceptionTranslation {
-            entities.forEach { entity ->
-                setBeskjedAktivFlag(entity.eventId, entity.systembruker, entity.fodselsnummer, false)
-            }
+            setBeskjederAktivflagg(doneEvents, false)
         }
     }
 
-    suspend fun writeDoneEventsForOppgaveToCache(entities: List<Done>) {
-        if (entities.isEmpty()) {
+    suspend fun writeDoneEventsForOppgaveToCache(doneEvents: List<Done>) {
+        if (doneEvents.isEmpty()) {
             return
         }
         database.queryWithExceptionTranslation {
-            entities.forEach { entity ->
-                setOppgaveAktivFlag(entity.eventId, entity.systembruker, entity.fodselsnummer, false)
-            }
+            setOppgaverAktivFlag(doneEvents, false)
         }
     }
 
-    suspend fun writeDoneEventsForInnboksToCache(entities: List<Done>) {
-        if (entities.isEmpty()) {
+    suspend fun writeDoneEventsForInnboksToCache(doneEvents: List<Done>) {
+        if (doneEvents.isEmpty()) {
             return
         }
         database.queryWithExceptionTranslation {
-            entities.forEach { entity ->
-                setInnboksAktivFlag(entity.eventId, entity.systembruker, entity.fodselsnummer, false)
-            }
+            setInnboksEventerAktivFlag(doneEvents, false)
         }
     }
 
-    suspend fun writeDoneEventToCache(entities: List<Done>) {
-        if (entities.isEmpty()) {
+    suspend fun writeDoneEventsToCache(doneEvents: List<Done>) {
+        if (doneEvents.isEmpty()) {
             return
         }
         database.queryWithExceptionTranslation {
-            entities.forEach { entity ->
-                createDoneEvent(entity)
-            }
+            createDoneEvents(doneEvents)
         }
     }
 
@@ -69,11 +61,9 @@ class DoneRepository(private val database: Database) {
         return resultat
     }
 
-    suspend fun deleteDoneEventFromCache(doneEventsToDelete: List<Done>) {
+    suspend fun deleteDoneEventsFromCache(doneEventsToDelete: List<Done>) {
         database.queryWithExceptionTranslation {
-            doneEventsToDelete.forEach { doneEvent ->
-                deleteDoneEvent(doneEvent)
-            }
+            deleteDoneEvents(doneEventsToDelete)
         }
     }
 

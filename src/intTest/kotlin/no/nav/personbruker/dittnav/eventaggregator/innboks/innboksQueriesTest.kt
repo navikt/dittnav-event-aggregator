@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.innboks
 
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
+import no.nav.personbruker.dittnav.eventaggregator.done.DoneObjectMother
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should contain all`
 import org.amshove.kluent.`should equal`
@@ -78,13 +79,14 @@ class innboksQueriesTest {
 
     @Test
     fun `setter aktiv flag`() {
+        val doneEvent = DoneObjectMother.giveMeDone(eventId, systembruker, fodselsnummer1)
         runBlocking {
             database.dbQuery {
-                setInnboksAktivFlag(eventId, systembruker, fodselsnummer1, false)
+                setInnboksEventerAktivFlag(listOf(doneEvent), false)
                 var innboks = getInnboksByEventId(eventId)
                 innboks.aktiv `should be equal to` false
 
-                setInnboksAktivFlag(eventId, systembruker, fodselsnummer1, true)
+                setInnboksEventerAktivFlag(listOf(doneEvent), true)
                 innboks = getInnboksByEventId(eventId)
                 innboks.aktiv `should be equal to` true
             }
@@ -93,9 +95,10 @@ class innboksQueriesTest {
 
     @Test
     fun `finner Innboks etter aktiv flag`() {
+        val doneEvent = DoneObjectMother.giveMeDone(innboks1.eventId, systembruker, fodselsnummer1)
         runBlocking {
             database.dbQuery {
-                setInnboksAktivFlag(innboks1.eventId, systembruker, fodselsnummer1, false)
+                setInnboksEventerAktivFlag(listOf(doneEvent), false)
                 val aktiveInnboks = getAllInnboksByAktiv(true)
                 val inaktivInnboks = getAllInnboksByAktiv(false)
 
@@ -104,7 +107,7 @@ class innboksQueriesTest {
                 inaktivInnboks.single { it.id == innboks1.id }
                 inaktivInnboks.size `should be equal to` 1
 
-                setInnboksAktivFlag(innboks1.eventId, systembruker, fodselsnummer1, true)
+                setInnboksEventerAktivFlag(listOf(doneEvent), true)
             }
         }
     }
