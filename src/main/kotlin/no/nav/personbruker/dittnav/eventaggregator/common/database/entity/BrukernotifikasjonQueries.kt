@@ -7,8 +7,7 @@ import java.sql.Connection
 import java.sql.ResultSet
 
 fun Connection.getBrukernotifikasjonFromViewForEventIds(eventIds: List<String>): List<Brukernotifikasjon> =
-        prepareStatement("""SELECT brukernotifikasjon_view.* FROM brukernotifikasjon_view 
-                INNER JOIN unnest(?) as params(eventId) on brukernotifikasjon_view.eventId = params.eventId""")
+        prepareStatement("""SELECT brukernotifikasjon_view.* FROM brukernotifikasjon_view WHERE eventid = ANY(?)""")
                 .use {
                     it.setArray(1, toVarcharArray(eventIds))
                     it.executeQuery().list {
