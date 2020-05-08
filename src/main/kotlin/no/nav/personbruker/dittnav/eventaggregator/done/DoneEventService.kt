@@ -56,7 +56,8 @@ class DoneEventService(
     }
 
     private suspend fun groupDoneEventsByAssociatedEventType(successfullyTransformedEvents: List<no.nav.personbruker.dittnav.eventaggregator.done.Done>): DoneBatchProcessor {
-        val aktiveBrukernotifikasjoner = doneRepository.fetchActiveBrukernotifikasjonerFromView()
+        val eventIds = successfullyTransformedEvents.map { it.eventId }.distinct()
+        val aktiveBrukernotifikasjoner = doneRepository.fetchActiveBrukernotifikasjonerFromViewForEventIds(eventIds)
         val batch = DoneBatchProcessor(aktiveBrukernotifikasjoner)
         batch.process(successfullyTransformedEvents)
         return batch
@@ -77,5 +78,4 @@ class DoneEventService(
             throw exception
         }
     }
-
 }
