@@ -53,28 +53,16 @@ class BrukernotifikasjonQueriesTest {
     }
 
     @Test
-    fun `Finner alle aggregerte aktive Brukernotifikasjon-eventer fra databaseview`() {
+    fun `Finner alle aggregerte Brukernotifikasjon-eventer fra databaseview for eventId-er`() {
         val brukernotifikasjon1 = BrukernotifikasjonObjectMother.giveMeFor(aktivBeskjed)
         val brukernotifikasjon3 = BrukernotifikasjonObjectMother.giveMeFor(aktivOppgave)
         val brukernotifikasjon2 = BrukernotifikasjonObjectMother.giveMeFor(aktivInnboks)
         val aktiveBrukernotifikasjonEventer = listOf(brukernotifikasjon1, brukernotifikasjon2, brukernotifikasjon3)
+        val eventIds = aktiveBrukernotifikasjonEventer.map { it.eventId }
         runBlocking {
-            val result = database.dbQuery { getBrukernotifikasjonFromViewByAktiv(true) }
+            val result = database.dbQuery { getBrukernotifikasjonFromViewForEventIds(eventIds) }
             result.size `should be equal to` 3
             result `should contain all` aktiveBrukernotifikasjonEventer
-        }
-    }
-
-    @Test
-    fun `Finner alle aggregerte inaktive Brukernotifikasjon-eventer fra databaseview`() {
-        val brukernotifikasjon1 = BrukernotifikasjonObjectMother.giveMeFor(inaktivBeskjed)
-        val brukernotifikasjon3 = BrukernotifikasjonObjectMother.giveMeFor(inaktivOppgave)
-        val brukernotifikasjon2 = BrukernotifikasjonObjectMother.giveMeFor(inaktivInnboks)
-        val inaktiveBrukernotifikasjonEventer = listOf(brukernotifikasjon1, brukernotifikasjon2, brukernotifikasjon3)
-        runBlocking {
-            val result = database.dbQuery { getBrukernotifikasjonFromViewByAktiv(false) }
-            result.size `should be equal to` 3
-            result `should contain all` inaktiveBrukernotifikasjonEventer
         }
     }
 
