@@ -6,22 +6,11 @@ import java.sql.Array
 import java.sql.Connection
 import java.sql.ResultSet
 
-fun Connection.getBrukernotifikasjonFromViewByAktiv(aktiv: Boolean): List<Brukernotifikasjon> =
-        prepareStatement("""SELECT * FROM brukernotifikasjon_view where aktiv = ?""")
-                .use {
-                    it.setBoolean(1, aktiv)
-                    it.executeQuery().list {
-                        toBrukernotifikasjon()
-                    }
-                }
-
-fun Connection.getBrukernotifikasjonFromViewForEventIdsByAktiv(eventIds: List<String>, aktiv: Boolean): List<Brukernotifikasjon> =
+fun Connection.getBrukernotifikasjonFromViewForEventIds(eventIds: List<String>): List<Brukernotifikasjon> =
         prepareStatement("""SELECT brukernotifikasjon_view.* FROM brukernotifikasjon_view 
-                INNER JOIN unnest(?) as params(eventId) on brukernotifikasjon_view.eventId = params.eventId
-                WHERE aktiv = ?""")
+                INNER JOIN unnest(?) as params(eventId) on brukernotifikasjon_view.eventId = params.eventId""")
                 .use {
                     it.setArray(1, toVarcharArray(eventIds))
-                    it.setBoolean(2, aktiv)
                     it.executeQuery().list {
                         toBrukernotifikasjon()
                     }

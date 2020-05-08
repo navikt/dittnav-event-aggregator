@@ -3,8 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.setBeskjederAktivflagg
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon
-import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.getBrukernotifikasjonFromViewByAktiv
-import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.getBrukernotifikasjonFromViewForEventIdsByAktiv
+import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.getBrukernotifikasjonFromViewForEventIds
 import no.nav.personbruker.dittnav.eventaggregator.innboks.setInnboksEventerAktivFlag
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.setOppgaverAktivFlag
 
@@ -46,26 +45,10 @@ class DoneRepository(private val database: Database) {
         }
     }
 
-    suspend fun fetchActiveBrukernotifikasjonerFromView(): List<Brukernotifikasjon> {
+    suspend fun fetchBrukernotifikasjonerFromViewForEventIds(eventIds: List<String>): List<Brukernotifikasjon> {
         var resultat = emptyList<Brukernotifikasjon>()
         database.queryWithExceptionTranslation {
-            resultat = getBrukernotifikasjonFromViewByAktiv(true)
-        }
-        return resultat
-    }
-
-    suspend fun fetchActiveBrukernotifikasjonerFromViewForEventIds(eventIds: List<String>): List<Brukernotifikasjon> {
-        var resultat = emptyList<Brukernotifikasjon>()
-        database.queryWithExceptionTranslation {
-            resultat = getBrukernotifikasjonFromViewForEventIdsByAktiv(eventIds, true)
-        }
-        return resultat
-    }
-
-    suspend fun fetchInaktiveBrukernotifikasjonerFromView(): List<Brukernotifikasjon> {
-        var resultat = emptyList<Brukernotifikasjon>()
-        database.queryWithExceptionTranslation {
-            resultat = getBrukernotifikasjonFromViewByAktiv(false)
+            resultat = getBrukernotifikasjonFromViewForEventIds(eventIds)
         }
         return resultat
     }
