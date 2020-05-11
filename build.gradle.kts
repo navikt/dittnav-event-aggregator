@@ -20,7 +20,6 @@ val kluentVersion = "1.52"
 val kafkaEmbeddedEnvVersion = "2.1.1"
 val mockkVersion = "1.9.3"
 val influxdbVersion = "2.8"
-val jacksonVersion = "2.9.9"
 
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin on the JVM.
@@ -74,11 +73,7 @@ dependencies {
     compile("no.nav:brukernotifikasjon-schemas:$brukernotifikasjonSchemaVersion")
     compile("org.influxdb:influxdb-java:$influxdbVersion")
     compile("io.ktor:ktor-html-builder:$ktorVersion")
-    compile("io.ktor:ktor-client-apache:$ktorVersion")
-    compile("io.ktor:ktor-client-json:$ktorVersion")
-    compile("io.ktor:ktor-client-serialization-jvm:$ktorVersion")
-    compile("io.ktor:ktor-client-jackson:$ktorVersion")
-    compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
+    testCompile("org.junit.jupiter:junit-jupiter-api:$junitVersion")
     testRuntime("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
     testCompile(kotlin("test-junit5"))
     testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedEnvVersion")
