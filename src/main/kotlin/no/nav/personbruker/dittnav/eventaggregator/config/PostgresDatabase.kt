@@ -2,8 +2,13 @@ package no.nav.personbruker.dittnav.eventaggregator.config
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
+import no.nav.personbruker.dittnav.eventaggregator.health.HealthStatus
+import no.nav.personbruker.dittnav.eventaggregator.health.Status
 import no.nav.vault.jdbc.hikaricp.HikariCPVaultUtil
+import java.sql.SQLException
 
 class PostgresDatabase(env: Environment) : Database {
 
@@ -16,6 +21,18 @@ class PostgresDatabase(env: Environment) : Database {
     override val dataSource: HikariDataSource
         get() = envDataSource
 
+    override suspend fun status(): HealthStatus {
+        val serviceName = "Database"
+        return withContext(Dispatchers.IO) {
+            try {
+                dbQuery { prepareStatement("""SELECT 1""").execute() }
+                HealthStatus(serviceName, Status.OK, "200 OK", includeInReadiness = true)
+            } catch (e: SQLException) {
+                HealthStatus(serviceName, Status.ERROR, "Feil mot DB", includeInReadiness = true)
+            } catch (e: Exception) {
+                HealthStatus(serviceName, Status.ERROR, "Feil mot DB", includeInReadiness = true)
+            }}
+    }
 
     private fun createCorrectConnectionForEnvironment(env: Environment): HikariDataSource {
         return when (ConfigUtil.isCurrentlyRunningOnNais()) {

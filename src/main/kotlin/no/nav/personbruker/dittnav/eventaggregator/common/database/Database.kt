@@ -6,10 +6,11 @@ import kotlinx.coroutines.withContext
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.AggregatorBatchUpdateException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
+import no.nav.personbruker.dittnav.eventaggregator.health.HealthCheck
 import org.postgresql.util.PSQLException
 import java.sql.*
 
-interface Database {
+interface Database: HealthCheck {
 
     val dataSource: HikariDataSource
 
