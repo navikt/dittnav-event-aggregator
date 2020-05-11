@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.innboks
 
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.*
+import no.nav.personbruker.dittnav.eventaggregator.done.Done
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
@@ -53,15 +54,17 @@ private fun PreparedStatement.buildStatementForSingleRow(innboks: Innboks) {
     setBoolean(10, innboks.aktiv)
 }
 
-fun Connection.setInnboksAktivFlag(eventId: String, systembruker: String, fodselsnummer: String, aktiv: Boolean): Int =
-        prepareStatement("""UPDATE innboks SET aktiv = ? WHERE eventId = ? AND systembruker = ? AND fodselsnummer = ?""")
-                .use {
-                    it.setBoolean(1, aktiv)
-                    it.setString(2, eventId)
-                    it.setString(3, systembruker)
-                    it.setString(4, fodselsnummer)
-                    it.executeUpdate()
-                }
+fun Connection.setInnboksEventerAktivFlag(doneEvents: List<Done>, aktiv: Boolean) {
+    executeBatchUpdateQuery("""UPDATE innboks SET aktiv = ? WHERE eventId = ? AND systembruker = ? AND fodselsnummer = ?""") {
+        doneEvents.forEach { done ->
+            setBoolean(1, aktiv)
+            setString(2, done.eventId)
+            setString(3, done.systembruker)
+            setString(4, done.fodselsnummer)
+            addBatch()
+        }
+    }
+}
 
 fun Connection.getAllInnboksByAktiv(aktiv: Boolean): List<Innboks> =
         prepareStatement("""SELECT * FROM innboks WHERE aktiv = ?""")

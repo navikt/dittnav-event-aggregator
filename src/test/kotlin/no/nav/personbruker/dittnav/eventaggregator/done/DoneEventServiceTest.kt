@@ -65,7 +65,7 @@ class DoneEventServiceTest {
         capturedNumberOfBeskjedEntitiesWrittenToTheDb.captured.size `should be` 1
 
         coVerify(exactly = 1) { repository.writeDoneEventsForBeskjedToCache(any()) }
-        coVerify(exactly = 1) { repository.writeDoneEventToCache(emptyList()) }
+        coVerify(exactly = 1) { repository.writeDoneEventsToCache(emptyList()) }
         coVerify(exactly = 1) { repository.writeDoneEventsForInnboksToCache(emptyList()) }
         coVerify(exactly = 1) { repository.writeDoneEventsForOppgaveToCache(emptyList()) }
     }
@@ -90,7 +90,7 @@ class DoneEventServiceTest {
 
         coVerify(exactly = 1) { repository.writeDoneEventsForInnboksToCache(any()) }
         coVerify(exactly = 1) { repository.writeDoneEventsForBeskjedToCache(emptyList()) }
-        coVerify(exactly = 1) { repository.writeDoneEventToCache(emptyList()) }
+        coVerify(exactly = 1) { repository.writeDoneEventsToCache(emptyList()) }
         coVerify(exactly = 1) { repository.writeDoneEventsForOppgaveToCache(emptyList()) }
     }
 
@@ -115,7 +115,7 @@ class DoneEventServiceTest {
         coVerify(exactly = 1) { repository.writeDoneEventsForOppgaveToCache(any()) }
         coVerify(exactly = 1) { repository.writeDoneEventsForInnboksToCache(emptyList()) }
         coVerify(exactly = 1) { repository.writeDoneEventsForBeskjedToCache(emptyList()) }
-        coVerify(exactly = 1) { repository.writeDoneEventToCache(emptyList()) }
+        coVerify(exactly = 1) { repository.writeDoneEventsToCache(emptyList()) }
     }
 
     @Test
@@ -133,7 +133,7 @@ class DoneEventServiceTest {
             service.processEvents(records)
         }
 
-        coVerify(exactly = 1) { repository.writeDoneEventToCache(emptyList()) }
+        coVerify(exactly = 1) { repository.writeDoneEventsToCache(emptyList()) }
         coVerify(exactly = 1) { repository.writeDoneEventsForOppgaveToCache(emptyList()) }
         coVerify(exactly = 1) { repository.writeDoneEventsForInnboksToCache(emptyList()) }
         coVerify(exactly = 1) { repository.writeDoneEventsForBeskjedToCache(emptyList()) }
@@ -146,7 +146,7 @@ class DoneEventServiceTest {
         val records = ConsumerRecordsObjectMother.giveMeConsumerRecordsWithThisConsumerRecord(doneEvent)
 
         val capturedNumberOfDoneWrittenToTheDb = slot<List<Done>>()
-        coEvery { repository.writeDoneEventToCache(capture(capturedNumberOfDoneWrittenToTheDb)) } returns Unit
+        coEvery { repository.writeDoneEventsToCache(capture(capturedNumberOfDoneWrittenToTheDb)) } returns Unit
 
         coEvery {
             repository.fetchBrukernotifikasjonerFromViewForEventIds(any())
@@ -158,7 +158,7 @@ class DoneEventServiceTest {
 
         capturedNumberOfDoneWrittenToTheDb.captured.size `should be` 1
 
-        coVerify(exactly = 1) { repository.writeDoneEventToCache(any()) }
+        coVerify(exactly = 1) { repository.writeDoneEventsToCache(any()) }
         coVerify(exactly = 1) { repository.writeDoneEventsForBeskjedToCache(emptyList()) }
         coVerify(exactly = 1) { repository.writeDoneEventsForInnboksToCache(emptyList()) }
         coVerify(exactly = 1) { repository.writeDoneEventsForOppgaveToCache(emptyList()) }
@@ -196,7 +196,7 @@ class DoneEventServiceTest {
         capturedNumberOfBeskjedEntitiesWrittenToTheDb.captured.size `should be` 2
 
         coVerify(exactly = 1) { repository.writeDoneEventsForBeskjedToCache(any()) }
-        coVerify(exactly = 1) { repository.writeDoneEventToCache(emptyList()) }
+        coVerify(exactly = 1) { repository.writeDoneEventsToCache(emptyList()) }
         coVerify(exactly = 1) { repository.writeDoneEventsForInnboksToCache(emptyList()) }
         coVerify(exactly = 1) { repository.writeDoneEventsForOppgaveToCache(emptyList()) }
     }
@@ -215,7 +215,7 @@ class DoneEventServiceTest {
             service.processEvents(records)
         }
 
-        coVerify(exactly = 1) { repository.writeDoneEventToCache(emptyList()) }
+        coVerify(exactly = 1) { repository.writeDoneEventsToCache(emptyList()) }
         coVerify(exactly = 1) { repository.writeDoneEventsForBeskjedToCache(emptyList()) }
         coVerify(exactly = 1) { repository.writeDoneEventsForInnboksToCache(emptyList()) }
         coVerify(exactly = 1) { repository.writeDoneEventsForOppgaveToCache(emptyList()) }

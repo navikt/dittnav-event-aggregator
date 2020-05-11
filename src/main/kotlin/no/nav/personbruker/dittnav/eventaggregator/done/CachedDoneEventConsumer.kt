@@ -70,7 +70,7 @@ class CachedDoneEventConsumer(
         doneRepository.writeDoneEventsForBeskjedToCache(groupedDoneEvents.foundBeskjed)
         doneRepository.writeDoneEventsForOppgaveToCache(groupedDoneEvents.foundOppgave)
         doneRepository.writeDoneEventsForInnboksToCache(groupedDoneEvents.foundInnboks)
-        doneRepository.deleteDoneEventFromCache(groupedDoneEvents.allFoundEvents)
+        doneRepository.deleteDoneEventsFromCache(groupedDoneEvents.allFoundEvents)
     }
 
 }

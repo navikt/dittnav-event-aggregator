@@ -37,9 +37,7 @@ class CachedDoneEventConsumerTest {
             database.dbQuery {
                 createBeskjed(beskjed1)
                 createOppgave(oppgave1)
-                createDoneEvent(done1)
-                createDoneEvent(done2)
-                createDoneEvent(done3)
+                createDoneEvents(listOf(done1, done2, done3))
             }
         }
     }
@@ -100,7 +98,7 @@ class CachedDoneEventConsumerTest {
         val associatedBeskjed = BeskjedObjectMother.giveMeAktivBeskjed(expectedEventId, expectedFodselsnr, expectedSystembruker)
 
         runBlocking {
-            database.dbQuery { createDoneEvent(doneEvent) }
+            database.dbQuery { createDoneEvents(listOf(doneEvent)) }
             database.dbQuery { createBeskjed(associatedBeskjed) }
 
             val elementsInDoneTableBeforeProcessing = database.dbQuery { getAllDoneEvent() }
@@ -117,7 +115,7 @@ class CachedDoneEventConsumerTest {
     fun `feiler ikke hvis event med samme eventId som Done-event ikke er mottatt`() {
         invoking {
             runBlocking {
-                database.dbQuery { createDoneEvent(DoneObjectMother.giveMeDone("-1")) }
+                database.dbQuery { createDoneEvents(listOf(DoneObjectMother.giveMeDone("-1"))) }
                 eventConsumer.processDoneEvents()
             }
         } `should not throw` AnyException
