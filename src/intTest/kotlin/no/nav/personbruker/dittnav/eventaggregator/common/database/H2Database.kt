@@ -6,11 +6,13 @@ import kotlinx.coroutines.withContext
 import no.nav.personbruker.dittnav.eventaggregator.health.HealthStatus
 import no.nav.personbruker.dittnav.eventaggregator.health.Status
 import org.flywaydb.core.Flyway
-import java.sql.SQLException
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class H2Database : Database {
 
     private val memDataSource: HikariDataSource
+    private val log: Logger = LoggerFactory.getLogger(H2Database::class.java)
 
     init {
         memDataSource = createDataSource()
@@ -25,11 +27,10 @@ class H2Database : Database {
         return withContext(Dispatchers.IO) {
             try {
                 dbQuery { prepareStatement("""SELECT 1""").execute() }
-                HealthStatus(serviceName, Status.OK, "200 OK", includeInReadiness = true)
-            } catch (e: SQLException) {
-                HealthStatus(serviceName, Status.ERROR, "Feil mot DB", includeInReadiness = true)
+                HealthStatus(serviceName, Status.OK, "200 OK")
             } catch (e: Exception) {
-                HealthStatus(serviceName, Status.ERROR, "Feil mot DB", includeInReadiness = true)
+                log.error("Selftest mot databasen feilet", e)
+                HealthStatus(serviceName, Status.ERROR, "Feil mot DB")
             }}
     }
 

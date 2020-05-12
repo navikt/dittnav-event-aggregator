@@ -36,9 +36,10 @@ class Consumer<T>(
     override suspend fun status(): HealthStatus {
         val serviceName = topic + "consumer"
         return if(job.isActive) {
-            HealthStatus(serviceName, Status.OK, "Consumer is running")
+            HealthStatus(serviceName, Status.OK, "Consumer is running", includeInReadiness = false)
         } else {
-            HealthStatus(serviceName, Status.ERROR, "Consumer is not running")
+            log.error("Selftest mot Kafka-consumere feilet, consumer kjører ikke.")
+            HealthStatus(serviceName, Status.ERROR, "Consumer is not running", includeInReadiness = false)
         }
     }
 

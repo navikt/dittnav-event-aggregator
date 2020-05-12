@@ -8,11 +8,13 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.health.HealthStatus
 import no.nav.personbruker.dittnav.eventaggregator.health.Status
 import no.nav.vault.jdbc.hikaricp.HikariCPVaultUtil
-import java.sql.SQLException
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class PostgresDatabase(env: Environment) : Database {
 
     private val envDataSource: HikariDataSource
+    private val log: Logger = LoggerFactory.getLogger(PostgresDatabase::class.java)
 
     init {
         envDataSource = createCorrectConnectionForEnvironment(env)
@@ -26,11 +28,10 @@ class PostgresDatabase(env: Environment) : Database {
         return withContext(Dispatchers.IO) {
             try {
                 dbQuery { prepareStatement("""SELECT 1""").execute() }
-                HealthStatus(serviceName, Status.OK, "200 OK", includeInReadiness = true)
-            } catch (e: SQLException) {
-                HealthStatus(serviceName, Status.ERROR, "Feil mot DB", includeInReadiness = true)
+                HealthStatus(serviceName, Status.OK, "200 OK")
             } catch (e: Exception) {
-                HealthStatus(serviceName, Status.ERROR, "Feil mot DB", includeInReadiness = true)
+                log.error("Selftest mot databasen feilet", e)
+                HealthStatus(serviceName, Status.ERROR, "Feil mot DB")
             }}
     }
 
