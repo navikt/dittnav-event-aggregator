@@ -9,10 +9,10 @@ spec:
   image: {{version}}
   port: 8080
   liveness:
-    path: /isAlive
+    path: /internal/isAlive
     initialDelay: 5
   readiness:
-    path: /isReady
+    path: /internal/isReady
     initialDelay: 5
   prometheus:
     path: /metrics

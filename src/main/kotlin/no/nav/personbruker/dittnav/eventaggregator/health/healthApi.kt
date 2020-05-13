@@ -24,7 +24,7 @@ fun Routing.healthApi(healthService: HealthService) {
         }
     }
 
-    get("/internal/metrics") {
+    get("/metrics") {
         val names = call.request.queryParameters.getAll("name")?.toSet() ?: emptySet()
         call.respondTextWriter(ContentType.parse(TextFormat.CONTENT_TYPE_004), HttpStatusCode.OK) {
             TextFormat.write004(this, CollectorRegistry.defaultRegistry.filteredMetricFamilySamples(names))
