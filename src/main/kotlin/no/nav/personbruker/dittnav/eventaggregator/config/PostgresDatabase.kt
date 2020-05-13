@@ -16,7 +16,6 @@ class PostgresDatabase(env: Environment) : Database {
     override val dataSource: HikariDataSource
         get() = envDataSource
 
-
     private fun createCorrectConnectionForEnvironment(env: Environment): HikariDataSource {
         return when (ConfigUtil.isCurrentlyRunningOnNais()) {
             true -> createConnectionViaVaultWithDbUser(env)
@@ -66,5 +65,4 @@ class PostgresDatabase(env: Environment) : Database {
             return config
         }
     }
-
 }

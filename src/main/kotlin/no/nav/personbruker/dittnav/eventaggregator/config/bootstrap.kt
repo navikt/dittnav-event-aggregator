@@ -8,13 +8,13 @@ import io.ktor.features.DefaultHeaders
 import io.ktor.routing.routing
 import io.prometheus.client.hotspot.DefaultExports
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.common.api.healthApi
+import no.nav.personbruker.dittnav.eventaggregator.health.healthApi
 
 fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()) {
     DefaultExports.initialize()
     install(DefaultHeaders)
     routing {
-        healthApi(appContext)
+        healthApi(appContext.healthService)
 
         configureStartupHook(appContext)
         configureShutdownHook(appContext)

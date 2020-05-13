@@ -30,5 +30,4 @@ class H2Database : Database {
                 .load()
                 .migrate()
     }
-
 }

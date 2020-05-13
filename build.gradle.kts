@@ -72,6 +72,7 @@ dependencies {
     compile("io.confluent:kafka-avro-serializer:$confluentVersion")
     compile("no.nav:brukernotifikasjon-schemas:$brukernotifikasjonSchemaVersion")
     compile("org.influxdb:influxdb-java:$influxdbVersion")
+    compile("io.ktor:ktor-html-builder:$ktorVersion")
     testCompile("org.junit.jupiter:junit-jupiter-api:$junitVersion")
     testRuntime("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
     testCompile(kotlin("test-junit5"))

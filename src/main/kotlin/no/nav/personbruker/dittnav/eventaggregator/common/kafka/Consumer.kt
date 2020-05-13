@@ -6,6 +6,9 @@ import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorSer
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
+import no.nav.personbruker.dittnav.eventaggregator.health.HealthCheck
+import no.nav.personbruker.dittnav.eventaggregator.health.HealthStatus
+import no.nav.personbruker.dittnav.eventaggregator.health.Status
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.errors.RetriableException
 import org.slf4j.Logger
@@ -19,19 +22,25 @@ class Consumer<T>(
         val kafkaConsumer: KafkaConsumer<Nokkel, T>,
         val eventBatchProcessorService: EventBatchProcessorService<T>,
         val job: Job = Job()
-) : CoroutineScope {
+) : CoroutineScope, HealthCheck {
 
     private val log: Logger = LoggerFactory.getLogger(Consumer::class.java)
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default + job
 
-    fun isRunning(): Boolean {
-        return job.isActive
-    }
-
     suspend fun stopPolling() {
         job.cancelAndJoin()
+    }
+
+    override suspend fun status(): HealthStatus {
+        val serviceName = topic + "consumer"
+        return if(job.isActive) {
+            HealthStatus(serviceName, Status.OK, "Consumer is running", includeInReadiness = false)
+        } else {
+            log.error("Selftest mot Kafka-consumere feilet, consumer kjører ikke.")
+            HealthStatus(serviceName, Status.ERROR, "Consumer is not running", includeInReadiness = false)
+        }
     }
 
     fun startPolling() {
