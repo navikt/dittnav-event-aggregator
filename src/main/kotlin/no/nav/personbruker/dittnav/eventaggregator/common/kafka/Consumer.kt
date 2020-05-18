@@ -9,6 +9,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.Untransform
 import no.nav.personbruker.dittnav.eventaggregator.health.HealthCheck
 import no.nav.personbruker.dittnav.eventaggregator.health.HealthStatus
 import no.nav.personbruker.dittnav.eventaggregator.health.Status
+import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.errors.RetriableException
 import org.slf4j.Logger
@@ -55,17 +56,13 @@ class Consumer<T>(
         }
     }
 
-    private suspend fun processBatchOfEvents() {
+    private suspend fun processBatchOfEvents() = withContext(Dispatchers.IO) {
         try {
-            withContext(Dispatchers.IO) {
-                kafkaConsumer.poll(Duration.of(100, ChronoUnit.MILLIS))
-            }.takeIf { records ->
-                records.count() > 0
-            }?.let { records ->
+            val records = kafkaConsumer.poll(Duration.of(100, ChronoUnit.MILLIS))
+            if(records.containsEvents()) {
                 eventBatchProcessorService.processEvents(records)
-                commitSync()
+                kafkaConsumer.commitSync()
             }
-
         } catch (rde: RetriableDatabaseException) {
             log.warn("Klarte ikke å skrive til databasen, prøver igjen senrere. Topic: $topic", rde)
 
@@ -90,9 +87,5 @@ class Consumer<T>(
         }
     }
 
-    private suspend fun commitSync() {
-        withContext(Dispatchers.IO) {
-            kafkaConsumer.commitSync()
-        }
-    }
+    fun ConsumerRecords<Nokkel, T>.containsEvents() = count() > 0
 }
