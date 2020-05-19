@@ -81,7 +81,6 @@ class Consumer<T>(
             stopPolling()
 
         } catch (ce: CancellationException) {
-            rollbackOffset()
             log.info("Denne coroutine-en ble stoppet. ${ce.message}", ce)
 
         } catch (e: Exception) {
