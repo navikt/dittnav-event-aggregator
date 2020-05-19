@@ -94,9 +94,7 @@ class Consumer<T>(
 
     private suspend fun rollbackOffset() {
         withContext(Dispatchers.IO) {
-            val partition = kafkaConsumer.assignment().first()
-            val lastCommitted = kafkaConsumer.committed(partition)
-            kafkaConsumer.seek(partition, lastCommitted.offset())
+            kafkaConsumer.rollbackToLastCommitted()
         }
     }
 }
