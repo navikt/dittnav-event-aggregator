@@ -52,11 +52,11 @@ class EventCounterService(environment: Environment) {
 
         val start = Instant.now()
         var counter: Long = 0
-        var records = consumer.poll(Duration.of(1000, ChronoUnit.MILLIS))
+        var records = consumer.poll(Duration.of(3000, ChronoUnit.MILLIS))
         counter += records.count()
 
         while (foundRecords(records)) {
-            records = consumer.poll(Duration.of(500, ChronoUnit.MILLIS))
+            records = consumer.poll(Duration.of(1000, ChronoUnit.MILLIS))
             counter += records.count()
         }
         logTimeUsed(start, counter, topic)
