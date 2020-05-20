@@ -9,12 +9,14 @@ import io.ktor.routing.routing
 import io.prometheus.client.hotspot.DefaultExports
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.health.healthApi
+import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.kafkaMetricsApi
 
 fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()) {
     DefaultExports.initialize()
     install(DefaultHeaders)
     routing {
         healthApi(appContext.healthService)
+        kafkaMetricsApi(appContext.eventCounter)
 
         configureStartupHook(appContext)
         configureShutdownHook(appContext)
