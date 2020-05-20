@@ -11,9 +11,7 @@ import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-class EventCounterService(environment: Environment) {
-
-    private var environmentWithCounterGroupId: Environment = environment.copy(groupId = "eventCounter005")
+class EventCounterService(val environment: Environment) {
 
     private val log = LoggerFactory.getLogger(EventCounterService::class.java)
 
@@ -79,7 +77,7 @@ class EventCounterService(environment: Environment) {
     }
 
     private fun <T> createCountConsumer(eventType: EventType): KafkaConsumer<Nokkel, T> {
-        val kafkaProps = Kafka.consumerProps(environmentWithCounterGroupId, eventType)
+        val kafkaProps = Kafka.counterConsumerProps(environment, eventType)
         return KafkaConsumer(kafkaProps)
     }
 

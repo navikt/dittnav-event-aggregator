@@ -38,21 +38,34 @@ object Kafka {
         }
     }
 
-    fun consumerProps(env: Environment, eventTypeToConsume: EventType, enableSecurity : Boolean = isCurrentlyRunningOnNais()): Properties {
+    fun consumerProps(env: Environment, eventTypeToConsume: EventType, enableSecurity: Boolean = isCurrentlyRunningOnNais()): Properties {
         val groupIdAndEventType = buildGroupIdIncludingEventType(env, eventTypeToConsume)
         return Properties().apply {
-            put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, env.bootstrapServers)
-            put(KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG, env.schemaRegistryUrl)
             put(ConsumerConfig.GROUP_ID_CONFIG, groupIdAndEventType)
             put(ConsumerConfig.CLIENT_ID_CONFIG, groupIdAndEventType + getHostname(InetSocketAddress(0)))
-            put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false)
-            put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, KafkaAvroDeserializer::class.java)
-            put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaAvroDeserializer::class.java)
-            put(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, true)
-            put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
-            if (enableSecurity) {
-                putAll(credentialProps(env))
-            }
+            commonProps(env, enableSecurity)
+        }
+    }
+
+    fun counterConsumerProps(env: Environment, eventTypeToConsume: EventType, enableSecurity: Boolean = isCurrentlyRunningOnNais()): Properties {
+        val groupIdAndEventType = env.counterGroupId + eventTypeToConsume.eventType
+        return Properties().apply {
+            put(ConsumerConfig.GROUP_ID_CONFIG, groupIdAndEventType)
+            put(ConsumerConfig.CLIENT_ID_CONFIG, groupIdAndEventType + getHostname(InetSocketAddress(0)))
+            commonProps(env, enableSecurity)
+        }
+    }
+
+    private fun Properties.commonProps(env: Environment, enableSecurity: Boolean) {
+        put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, env.bootstrapServers)
+        put(KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG, env.schemaRegistryUrl)
+        put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false)
+        put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, KafkaAvroDeserializer::class.java)
+        put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaAvroDeserializer::class.java)
+        put(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, true)
+        put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
+        if (enableSecurity) {
+            putAll(credentialProps(env))
         }
     }
 
