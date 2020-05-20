@@ -36,14 +36,14 @@ class EventCounterService(environment: Environment) {
 
     private fun <T> countEventsForTopic(eventType: EventType, topic: String): Long {
         var counter: Long = 0
-        createCountConsumer<T>(environmentWithCounterGroupId, eventType).use { consumer ->
+        createCountConsumer<T>(eventType).use { consumer ->
             counter = countEvents(consumer, topic)
         }
         return counter
     }
 
-    private fun <T> createCountConsumer(localhost: Environment, eventType: EventType): KafkaConsumer<Nokkel, T> {
-        val kafkaProps = Kafka.consumerProps(localhost, eventType)
+    private fun <T> createCountConsumer(eventType: EventType): KafkaConsumer<Nokkel, T> {
+        val kafkaProps = Kafka.consumerProps(environmentWithCounterGroupId, eventType)
         return KafkaConsumer(kafkaProps)
     }
 
