@@ -13,7 +13,7 @@ import java.time.temporal.ChronoUnit
 
 class EventCounterService(environment: Environment) {
 
-    private var environmentWithCounterGroupId: Environment = environment.copy(groupId = "eventCounter003")
+    private var environmentWithCounterGroupId: Environment = environment.copy(groupId = "eventCounter004")
 
     private val log = LoggerFactory.getLogger(EventCounterService::class.java)
 
