@@ -8,7 +8,7 @@ internal class EventCounterServiceTest {
     fun countEvents() {
         val counterService = EventCounterService(Environment())
 
-        val result = counterService.countEvents()
+        val result = counterService.countAllEvents()
 
         println(result)
     }

@@ -13,25 +13,61 @@ import java.time.temporal.ChronoUnit
 
 class EventCounterService(environment: Environment) {
 
-    private var environmentWithCounterGroupId: Environment = environment.copy(groupId = "eventCounter004")
+    private var environmentWithCounterGroupId: Environment = environment.copy(groupId = "eventCounter005")
 
     private val log = LoggerFactory.getLogger(EventCounterService::class.java)
 
-    fun countEvents(): NumberOfRecords {
-        val result = NumberOfRecords()
-        try {
-            result.beskjed = countEventsForTopic<Beskjed>(EventType.BESKJED, Kafka.beskjedTopicName)
-            result.innboks = countEventsForTopic<Innboks>(EventType.INNBOKS, Kafka.innboksTopicName)
-            result.oppgaver = countEventsForTopic<Oppgave>(EventType.OPPGAVE, Kafka.oppgaveTopicName)
-            result.done = countEventsForTopic<Done>(EventType.DONE, Kafka.doneTopicName)
-
-        } catch (e: Exception) {
-            log.warn("Klarte ikke å telle antall evener", e)
-        }
+    fun countAllEvents(): NumberOfRecords {
+        val result = NumberOfRecords(
+                beskjed = countBeskjeder(),
+                innboks = countInnboksEventer(),
+                oppgaver = countOppgaver(),
+                done = countDoneEvents()
+        )
 
         log.info("Fant følgende eventer:")
         log.info(result.toString())
         return result
+    }
+
+    fun countBeskjeder(): Long {
+        return try {
+            countEventsForTopic<Beskjed>(EventType.BESKJED, Kafka.beskjedTopicName)
+
+        } catch (e: Exception) {
+            log.warn("Klarte ikke å telle antall beskjed-eventer", e)
+            -1
+        }
+    }
+
+    fun countInnboksEventer(): Long {
+        return try {
+            countEventsForTopic<Innboks>(EventType.INNBOKS, Kafka.innboksTopicName)
+
+        } catch (e: Exception) {
+            log.warn("Klarte ikke å telle antall innboks-eventer", e)
+            -1
+        }
+    }
+
+    fun countOppgaver(): Long {
+        return try {
+            countEventsForTopic<Oppgave>(EventType.OPPGAVE, Kafka.oppgaveTopicName)
+
+        } catch (e: Exception) {
+            log.warn("Klarte ikke å telle antall oppgave-eventer", e)
+            -1
+        }
+    }
+
+    fun countDoneEvents(): Long {
+        return try {
+            countEventsForTopic<Done>(EventType.DONE, Kafka.doneTopicName)
+
+        } catch (e: Exception) {
+            log.warn("Klarte ikke å telle antall done-eventer", e)
+            -1
+        }
     }
 
     private fun <T> countEventsForTopic(eventType: EventType, topic: String): Long {
