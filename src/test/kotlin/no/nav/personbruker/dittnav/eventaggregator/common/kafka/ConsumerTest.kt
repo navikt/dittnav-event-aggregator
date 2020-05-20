@@ -25,8 +25,16 @@ class ConsumerTest {
     private val eventBatchProcessorService = mockk<EventBatchProcessorService<Beskjed>>(relaxed = true)
 
     @BeforeEach
+    fun initMocks() {
+        clearMocks()
+        staticMocks()
+    }
     fun clearMocks() {
         clearMocks(kafkaConsumer, eventBatchProcessorService)
+    }
+
+    fun staticMocks() {
+        mockkStatic("no.nav.personbruker.dittnav.eventaggregator.common.kafka.KafkaConsumerKt")
     }
 
     @Test
@@ -103,6 +111,7 @@ class ConsumerTest {
         val retriableKafkaException = DisconnectException("Simulert feil i en test")
         every { kafkaConsumer.poll(any<Duration>()) } throws retriableKafkaException
         val consumer: Consumer<Beskjed> = Consumer(topic, kafkaConsumer, eventBatchProcessorService)
+        every { kafkaConsumer.rollbackToLastCommitted() } returns Unit
 
         runBlocking {
             consumer.startPolling()
@@ -112,6 +121,7 @@ class ConsumerTest {
             consumer.stopPolling()
         }
         verify(exactly = 0) { kafkaConsumer.commitSync() }
+        verify(atLeast = 1) { kafkaConsumer.rollbackToLastCommitted() }
     }
 
     @Test
@@ -121,6 +131,8 @@ class ConsumerTest {
         val retriableDbExption = RetriableDatabaseException("Simulert feil i en test")
         coEvery { eventBatchProcessorService.processEvents(any()) } throws retriableDbExption
         val consumer: Consumer<Beskjed> = Consumer(topic, kafkaConsumer, eventBatchProcessorService)
+        every { kafkaConsumer.rollbackToLastCommitted() } returns Unit
+
 
         runBlocking {
             consumer.startPolling()
@@ -130,6 +142,7 @@ class ConsumerTest {
             consumer.stopPolling()
         }
         verify(exactly = 0) { kafkaConsumer.commitSync() }
+        verify(atLeast = 1) { kafkaConsumer.rollbackToLastCommitted() }
     }
 
     @Test

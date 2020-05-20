@@ -64,9 +64,11 @@ class Consumer<T>(
                 kafkaConsumer.commitSync()
             }
         } catch (rde: RetriableDatabaseException) {
+            rollbackOffset()
             log.warn("Klarte ikke å skrive til databasen, prøver igjen senrere. Topic: $topic", rde)
 
         } catch (re: RetriableException) {
+            rollbackOffset()
             log.warn("Polling mot Kafka feilet, prøver igjen senere. Topic: $topic", re)
 
         } catch (ure: UntransformableRecordException) {
@@ -88,4 +90,10 @@ class Consumer<T>(
     }
 
     fun ConsumerRecords<Nokkel, T>.containsEvents() = count() > 0
+
+    private suspend fun rollbackOffset() {
+        withContext(Dispatchers.IO) {
+            kafkaConsumer.rollbackToLastCommitted()
+        }
+    }
 }
