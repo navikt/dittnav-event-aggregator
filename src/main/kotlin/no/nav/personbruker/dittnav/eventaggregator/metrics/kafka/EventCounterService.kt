@@ -4,7 +4,6 @@ import no.nav.brukernotifikasjon.schemas.*
 import no.nav.personbruker.dittnav.eventaggregator.config.Environment
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
-import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory
@@ -16,7 +15,7 @@ class EventCounterService(environment: Environment) {
 
     private var environmentWithCounterGroupId: Environment = environment.copy(groupId = "eventCounter003")
 
-    private val log = LoggerFactory.getLogger(InnboksRepository::class.java)
+    private val log = LoggerFactory.getLogger(EventCounterService::class.java)
 
     fun countEvents(): NumberOfRecords {
         val result = NumberOfRecords()
