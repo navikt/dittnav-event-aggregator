@@ -24,12 +24,13 @@ class ConsumerTestIT {
 
     private val beskjedEvents = (1..10).map { createNokkel(it) to AvroBeskjedObjectMother.createBeskjed(it) }.toMap()
 
+    val topic = "kafkaConsumerStateTestTopic"
+
 
     @Test
     fun `Should attempt process each event exactly once if no exceptions are thrown`() {
 
-        val topic = "kafkaConsumerStateTestTopic"
-        val embeddedEnv = KafkaTestUtil.createDefaultKafkaEmbeddedInstance(listOf(topic))
+        val embeddedEnv = KafkaTestUtil.createKafkaEmbeddedInstanceWithNumPartitions(listOf(topic), 4)
         val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
         val consumerProps = Kafka.consumerProps(testEnvironment, EventType.BESKJED, true).apply {
             put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1)
@@ -57,8 +58,7 @@ class ConsumerTestIT {
     @Test
     fun `Should attempt to process some events multiple times if a retriable exception was raised`() {
 
-        val topic = "kafkaConsumerStateTestTopic"
-        val embeddedEnv = KafkaTestUtil.createDefaultKafkaEmbeddedInstance(listOf(topic))
+        val embeddedEnv = KafkaTestUtil.createKafkaEmbeddedInstanceWithNumPartitions(listOf(topic), 4)
         val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
         val consumerProps = Kafka.consumerProps(testEnvironment, EventType.BESKJED, true).apply {
             put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1)
@@ -86,8 +86,7 @@ class ConsumerTestIT {
     @Test
     fun `Should stop processing events if a non-retriable exception was raised`() {
 
-        val topic = "kafkaConsumerStateTestTopic"
-        val embeddedEnv = KafkaTestUtil.createDefaultKafkaEmbeddedInstance(listOf(topic))
+        val embeddedEnv = KafkaTestUtil.createKafkaEmbeddedInstanceWithNumPartitions(listOf(topic), 4)
         val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
         val consumerProps = Kafka.consumerProps(testEnvironment, EventType.BESKJED, true).apply {
             put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1)
