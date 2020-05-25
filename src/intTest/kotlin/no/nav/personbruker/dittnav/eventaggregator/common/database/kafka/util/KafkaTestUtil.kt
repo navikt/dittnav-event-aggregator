@@ -20,6 +20,17 @@ object KafkaTestUtil {
         )
     }
 
+    fun createKafkaEmbeddedInstanceWithNumPartitions(topics: List<String>, partitions: Int): KafkaEnvironment {
+        val topicInfos = topics.map { KafkaEnvironment.TopicInfo(it, partitions = partitions) }
+
+        return KafkaEnvironment(
+                topicInfos = topicInfos,
+                withSecurity = true,
+                withSchemaRegistry = true,
+                users = listOf(JAASCredential(username, password))
+        )
+    }
+
     fun createEnvironmentForEmbeddedKafka(embeddedEnv: KafkaEnvironment): Environment {
         return Environment(
                 bootstrapServers = embeddedEnv.brokersURL.substringAfterLast("/"),
