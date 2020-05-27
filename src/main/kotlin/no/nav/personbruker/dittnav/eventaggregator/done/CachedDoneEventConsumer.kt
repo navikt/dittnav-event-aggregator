@@ -4,6 +4,8 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.time.delay
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
+import no.nav.personbruker.dittnav.eventaggregator.config.EventType
+import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
@@ -11,6 +13,7 @@ import kotlin.coroutines.CoroutineContext
 
 class CachedDoneEventConsumer(
         private val doneRepository: DoneRepository,
+        private val dbMetricsProbe: DBMetricsProbe,
         private val job: Job = Job()
 ) : CoroutineScope {
 
@@ -38,9 +41,7 @@ class CachedDoneEventConsumer(
     suspend fun processDoneEvents() {
         try {
             val allDone = doneRepository.fetchAllDoneEvents()
-
             processEvents(allDone)
-
         } catch (rde: RetriableDatabaseException) {
             log.warn("Behandling av done-eventer fra ventetabellen feilet. Klarte ikke å skrive til databasen, prøver igjen senere. Context: ${rde.context}", rde)
 
@@ -56,7 +57,9 @@ class CachedDoneEventConsumer(
     private suspend fun processEvents(allDone: List<Done>) {
         val groupedDoneEvents = fetchRelatedEvents(allDone)
         groupedDoneEvents.process(allDone)
+        dbMetricsProbe.numberOfCachedEventsOfType(groupedDoneEvents.notFoundEvents.size, EventType.DONE)
         updateTheDatabase(groupedDoneEvents)
+        // Fjern logging etter metrikken er verifisert i Grafana
         log.info("Status for prosessering av done-eventer, opp mot aktive eventer:\n$groupedDoneEvents")
     }
 

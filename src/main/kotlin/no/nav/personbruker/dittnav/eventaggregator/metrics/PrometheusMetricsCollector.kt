@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.metrics
 
 import io.prometheus.client.Counter
 import io.prometheus.client.Gauge
+import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 
 object PrometheusMetricsCollector {
 
@@ -11,6 +12,7 @@ object PrometheusMetricsCollector {
     val EVENTS_PROCESSED_NAME = "kafka_events_processed"
     val EVENTS_FAILED_NAME = "kafka_events_failed"
     val EVENT_LAST_SEEN_NAME = "kafka_event_type_last_seen"
+    val DB_CACHED_EVENTS = "db_cached_events"
 
     private val MESSAGES_SEEN: Counter = Counter.build()
             .name(EVENTS_SEEN_NAME)
@@ -40,6 +42,13 @@ object PrometheusMetricsCollector {
             .labelNames("type", "producer")
             .register()
 
+    private val MESSAGES_CACHED: Counter = Counter.build()
+            .name(DB_CACHED_EVENTS)
+            .namespace(NAMESPACE)
+            .help("Number of events of type in DB-table")
+            .labelNames("type")
+            .register()
+
     fun registerEventsSeen(count: Int, eventType: String, producer: String) {
         MESSAGES_SEEN.labels(eventType, producer).inc(count.toDouble())
         MESSAGE_LAST_SEEN.labels(eventType, producer).setToCurrentTime()
@@ -51,5 +60,9 @@ object PrometheusMetricsCollector {
 
     fun registerEventsFailed(count: Int, topic: String, producer: String) {
         MESSAGES_FAILED.labels(topic, producer).inc(count.toDouble())
+    }
+
+    fun registerEventsCached(count: Int, eventType: EventType) {
+        MESSAGES_CACHED.labels(eventType.eventType).inc(count.toDouble())
     }
 }
