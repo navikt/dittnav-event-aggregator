@@ -39,8 +39,7 @@ class EventCounterService(val environment: Environment) {
                 done = countDoneEvents()
         )
 
-        log.info("Fant følgende eventer:")
-        log.info(result.toString())
+        log.info("Fant følgende eventer:\n$result")
         return result
     }
 
