@@ -63,8 +63,6 @@ class CachedDoneEventConsumer(
             }
         }
         updateTheDatabase(groupedDoneEvents)
-        // Fjern logging etter metrikken er verifisert i Grafana
-        log.info("Status for prosessering av done-eventer, opp mot aktive eventer:\n$groupedDoneEvents")
     }
 
     private suspend fun fetchRelatedEvents(allDone: List<Done>): DoneBatchProcessor {
