@@ -5,10 +5,10 @@ import no.nav.personbruker.dittnav.eventaggregator.common.kafka.resetTheGroupIds
 import no.nav.personbruker.dittnav.eventaggregator.config.Environment
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
+import no.nav.personbruker.dittnav.eventaggregator.config.isOtherEnvironmentThanProd
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.KafkaException
-import org.apache.kafka.common.PartitionInfo
 import org.apache.kafka.common.errors.InterruptException
 import org.slf4j.LoggerFactory
 import java.time.Duration
@@ -46,7 +46,7 @@ class EventCounterService(val environment: Environment) {
 
     fun countBeskjeder(): Long {
         return try {
-            countEvents(beskjedConsumer)
+            countEvents(beskjedConsumer, EventType.BESKJED)
 
         } catch (e: Exception) {
             log.warn("Klarte ikke å telle antall beskjed-eventer", e)
@@ -55,18 +55,22 @@ class EventCounterService(val environment: Environment) {
     }
 
     fun countInnboksEventer(): Long {
-        return try {
-            countEvents(innboksConsumer)
+        return if (isOtherEnvironmentThanProd()) {
+            try {
+                countEvents(innboksConsumer, EventType.INNBOKS)
 
-        } catch (e: Exception) {
-            log.warn("Klarte ikke å telle antall innboks-eventer", e)
-            -1
+            } catch (e: Exception) {
+                log.warn("Klarte ikke å telle antall innboks-eventer", e)
+                -1L
+            }
+        } else {
+            0
         }
     }
 
     fun countOppgaver(): Long {
         return try {
-            countEvents(oppgaveConsumer)
+            countEvents(oppgaveConsumer, EventType.OPPGAVE)
 
         } catch (e: Exception) {
             log.warn("Klarte ikke å telle antall oppgave-eventer", e)
@@ -76,7 +80,7 @@ class EventCounterService(val environment: Environment) {
 
     fun countDoneEvents(): Long {
         return try {
-            countEvents(doneConsumer)
+            countEvents(doneConsumer, EventType.DONE)
 
         } catch (e: Exception) {
             log.warn("Klarte ikke å telle antall done-eventer", e)
@@ -84,7 +88,7 @@ class EventCounterService(val environment: Environment) {
         }
     }
 
-    private fun <T> countEvents(consumer: KafkaConsumer<Nokkel, T>): Long {
+    private fun <T> countEvents(consumer: KafkaConsumer<Nokkel, T>, eventType: EventType): Long {
         val start = Instant.now()
         var counter: Long = 0
         var records = consumer.poll(Duration.of(5000, ChronoUnit.MILLIS))
@@ -95,7 +99,7 @@ class EventCounterService(val environment: Environment) {
             counter += records.count()
         }
 
-        logTimeUsed(start, counter, consumer.listTopics())
+        logTimeUsed(start, counter, eventType)
         consumer.resetTheGroupIdsOffsetToZero()
         return counter
     }
@@ -104,11 +108,10 @@ class EventCounterService(val environment: Environment) {
         return !isEmpty
     }
 
-    private fun logTimeUsed(start: Instant, counter: Long, consumersTopics: MutableMap<String, MutableList<PartitionInfo>>) {
-        val topicName = consumersTopics.values.first()[0].topic()
+    private fun logTimeUsed(start: Instant, counter: Long, eventType: EventType) {
         val end = Instant.now()
         val time = end.toEpochMilli() - start.toEpochMilli()
-        log.info("Fant $counter eventer, på topic-en $topicName, det tok ${time}ms")
+        log.info("Fant $counter $eventType-eventer, det tok ${time}ms")
     }
 
     fun closeAllConsumers() {

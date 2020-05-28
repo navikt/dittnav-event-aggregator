@@ -5,6 +5,7 @@ import io.ktor.http.ContentType
 import io.ktor.response.respondText
 import io.ktor.routing.Routing
 import io.ktor.routing.get
+import no.nav.personbruker.dittnav.eventaggregator.config.isOtherEnvironmentThanProd
 
 fun Routing.kafkaEventCountingApi(eventCounterService: EventCounterService) {
 
@@ -19,10 +20,12 @@ fun Routing.kafkaEventCountingApi(eventCounterService: EventCounterService) {
         call.respondText(text = responseText, contentType = ContentType.Text.Plain)
     }
 
-    get("/internal/count/innboks") {
-        val numberOfEvents = eventCounterService.countInnboksEventer()
-        val responseText = "Antall innboks-eventer: $numberOfEvents"
-        call.respondText(text = responseText, contentType = ContentType.Text.Plain)
+    if (isOtherEnvironmentThanProd()) {
+        get("/internal/count/innboks") {
+            val numberOfEvents = eventCounterService.countInnboksEventer()
+            val responseText = "Antall innboks-eventer: $numberOfEvents"
+            call.respondText(text = responseText, contentType = ContentType.Text.Plain)
+        }
     }
 
     get("/internal/count/oppgave") {
