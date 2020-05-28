@@ -89,12 +89,16 @@ class EventCounterService(val environment: Environment) {
         var records = consumer.poll(Duration.of(500, ChronoUnit.MILLIS))
         counter += records.count()
 
-        while (foundRecords(records)) {
+        while (foundRecords(records) || provAaPolleI20SekunderHvisResultatIkkeBleFunnet(counter, start)) {
             records = consumer.poll(Duration.of(500, ChronoUnit.MILLIS))
             counter += records.count()
         }
         logTimeUsed(start, counter, topic)
         return counter
+    }
+
+    private fun provAaPolleI20SekunderHvisResultatIkkeBleFunnet(counter: Long, start: Instant): Boolean {
+        return counter == 0L && (Instant.now().epochSecond - start.epochSecond < 20L)
     }
 
     private fun <T> foundRecords(records: ConsumerRecords<Nokkel, T>) =
