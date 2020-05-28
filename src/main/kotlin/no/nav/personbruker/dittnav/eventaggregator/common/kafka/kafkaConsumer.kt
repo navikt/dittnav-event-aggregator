@@ -9,3 +9,9 @@ fun <T> KafkaConsumer<Nokkel, T>.rollbackToLastCommitted() {
         seek(partition, lastCommitted.offset())
     }
 }
+
+fun <T> KafkaConsumer<Nokkel, T>.resetTheGroupIdsOffsetToZero() {
+    assignment().forEach { partition ->
+        seek(partition, 0)
+    }
+}

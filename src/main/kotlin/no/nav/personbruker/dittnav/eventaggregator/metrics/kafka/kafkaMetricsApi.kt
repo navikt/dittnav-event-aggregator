@@ -6,7 +6,7 @@ import io.ktor.response.respondText
 import io.ktor.routing.Routing
 import io.ktor.routing.get
 
-fun Routing.kafkaMetricsApi(eventCounterService: EventCounterService) {
+fun Routing.kafkaEventCountingApi(eventCounterService: EventCounterService) {
 
     get("/internal/count/all") {
         val numberOfEvents = eventCounterService.countAllEvents()

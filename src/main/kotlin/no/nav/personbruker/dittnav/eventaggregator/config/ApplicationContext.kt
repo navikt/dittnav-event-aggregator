@@ -50,5 +50,5 @@ class ApplicationContext {
     val cachedDoneEventConsumer = CachedDoneEventConsumer(doneRepository, dbMetricsProbe)
 
     val healthService = HealthService(this)
-    val eventCounter = EventCounterService(environment)
+    val eventCounterService = EventCounterService(environment)
 }

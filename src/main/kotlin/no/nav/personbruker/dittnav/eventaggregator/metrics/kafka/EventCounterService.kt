@@ -1,11 +1,15 @@
 package no.nav.personbruker.dittnav.eventaggregator.metrics.kafka
 
 import no.nav.brukernotifikasjon.schemas.*
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.resetTheGroupIdsOffsetToZero
 import no.nav.personbruker.dittnav.eventaggregator.config.Environment
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.apache.kafka.common.KafkaException
+import org.apache.kafka.common.PartitionInfo
+import org.apache.kafka.common.errors.InterruptException
 import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.Instant
@@ -14,6 +18,18 @@ import java.time.temporal.ChronoUnit
 class EventCounterService(val environment: Environment) {
 
     private val log = LoggerFactory.getLogger(EventCounterService::class.java)
+
+    private val beskjedConsumer = createCountConsumer<Beskjed>(EventType.BESKJED, Kafka.beskjedTopicName)
+    private val oppgaveConsumer = createCountConsumer<Oppgave>(EventType.OPPGAVE, Kafka.oppgaveTopicName)
+    private val innboksConsumer = createCountConsumer<Innboks>(EventType.INNBOKS, Kafka.innboksTopicName)
+    private val doneConsumer = createCountConsumer<Done>(EventType.DONE, Kafka.doneTopicName)
+
+    private fun <T> createCountConsumer(eventType: EventType, topic: String): KafkaConsumer<Nokkel, T> {
+        val kafkaProps = Kafka.counterConsumerProps(environment, eventType)
+        val consumer = KafkaConsumer<Nokkel, T>(kafkaProps)
+        consumer.subscribe(listOf(topic))
+        return consumer
+    }
 
     fun countAllEvents(): NumberOfRecords {
         val result = NumberOfRecords(
@@ -30,7 +46,7 @@ class EventCounterService(val environment: Environment) {
 
     fun countBeskjeder(): Long {
         return try {
-            countEventsForTopic<Beskjed>(EventType.BESKJED, Kafka.beskjedTopicName)
+            countEvents(beskjedConsumer)
 
         } catch (e: Exception) {
             log.warn("Klarte ikke å telle antall beskjed-eventer", e)
@@ -40,7 +56,7 @@ class EventCounterService(val environment: Environment) {
 
     fun countInnboksEventer(): Long {
         return try {
-            countEventsForTopic<Innboks>(EventType.INNBOKS, Kafka.innboksTopicName)
+            countEvents(innboksConsumer)
 
         } catch (e: Exception) {
             log.warn("Klarte ikke å telle antall innboks-eventer", e)
@@ -50,7 +66,7 @@ class EventCounterService(val environment: Environment) {
 
     fun countOppgaver(): Long {
         return try {
-            countEventsForTopic<Oppgave>(EventType.OPPGAVE, Kafka.oppgaveTopicName)
+            countEvents(oppgaveConsumer)
 
         } catch (e: Exception) {
             log.warn("Klarte ikke å telle antall oppgave-eventer", e)
@@ -60,7 +76,7 @@ class EventCounterService(val environment: Environment) {
 
     fun countDoneEvents(): Long {
         return try {
-            countEventsForTopic<Done>(EventType.DONE, Kafka.doneTopicName)
+            countEvents(doneConsumer)
 
         } catch (e: Exception) {
             log.warn("Klarte ikke å telle antall done-eventer", e)
@@ -68,42 +84,53 @@ class EventCounterService(val environment: Environment) {
         }
     }
 
-    private fun <T> countEventsForTopic(eventType: EventType, topic: String): Long {
-        var counter: Long = 0
-        createCountConsumer<T>(eventType).use { consumer ->
-            counter = countEvents(consumer, topic)
-        }
-        return counter
-    }
-
-    private fun <T> createCountConsumer(eventType: EventType): KafkaConsumer<Nokkel, T> {
-        val kafkaProps = Kafka.counterConsumerProps(environment, eventType)
-        return KafkaConsumer(kafkaProps)
-    }
-
-    private fun <T> countEvents(consumer: KafkaConsumer<Nokkel, T>, topic: String): Long {
-        consumer.subscribe(listOf(topic))
-
+    private fun <T> countEvents(consumer: KafkaConsumer<Nokkel, T>): Long {
         val start = Instant.now()
         var counter: Long = 0
         var records = consumer.poll(Duration.of(5000, ChronoUnit.MILLIS))
         counter += records.count()
 
-        while (foundRecords(records)) {
+        while (records.foundRecords()) {
             records = consumer.poll(Duration.of(500, ChronoUnit.MILLIS))
             counter += records.count()
         }
-        logTimeUsed(start, counter, topic)
+
+        logTimeUsed(start, counter, consumer.listTopics())
+        consumer.resetTheGroupIdsOffsetToZero()
         return counter
     }
 
-    private fun <T> foundRecords(records: ConsumerRecords<Nokkel, T>) =
-            !records.isEmpty
+    fun <T> ConsumerRecords<Nokkel, T>.foundRecords(): Boolean {
+        return !isEmpty
+    }
 
-    private fun logTimeUsed(start: Instant, counter: Long, topic: String) {
+    private fun logTimeUsed(start: Instant, counter: Long, consumersTopics: MutableMap<String, MutableList<PartitionInfo>>) {
+        val topicName = consumersTopics.values.first()[0].topic()
         val end = Instant.now()
         val time = end.toEpochMilli() - start.toEpochMilli()
-        log.info("Fant $counter eventer, på topic-en $topic, det tok ${time}ms")
+        log.info("Fant $counter eventer, på topic-en $topicName, det tok ${time}ms")
+    }
+
+    fun closeAllConsumers() {
+        closeConsumer(beskjedConsumer)
+        closeConsumer(innboksConsumer)
+        closeConsumer(oppgaveConsumer)
+        closeConsumer(doneConsumer)
+    }
+
+    private fun <T> closeConsumer(consumer: KafkaConsumer<Nokkel, T>) {
+        try {
+            consumer.close()
+
+        } catch (ie: InterruptException) {
+            log.warn("Det skjedde en uventet feil ved lukking av en kafka-counter-consumer", ie)
+
+        } catch (ke: KafkaException) {
+            log.warn("Det skjedde en uventet feil ved lukking av en kafka-counter-consumer", ke)
+
+        } catch (e: Exception) {
+            log.error("Det skjedde en uventet feil ved lukking av en kafka-counter-consumer", e)
+        }
     }
 
 }
