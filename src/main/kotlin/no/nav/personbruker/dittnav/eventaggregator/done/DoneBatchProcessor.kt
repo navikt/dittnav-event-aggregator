@@ -52,7 +52,6 @@ class DoneBatchProcessor(private val existingEntitiesInDatabase: List<Brukernoti
         return notFoundEvents.isNotEmpty()
     }
 
-    /** @TODO: Denne kan fjernes etter at metrikken for antall Done-eventer er verifisert i Grafana. **/
     override fun toString(): String {
         val antallDoneEventer = allFoundEvents.size + notFoundEvents.size
         val antallBrukernotifikasjoner = existingEntitiesInDatabase.size

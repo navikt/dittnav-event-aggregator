@@ -13,9 +13,11 @@ fun buildEventMetricsProbe(environment: Environment, database: Database): EventM
     return EventMetricsProbe(metricsReporter, nameScrubber)
 }
 
-fun buildDBMetricsProbe(environment: Environment): DBMetricsProbe {
+fun buildDBMetricsProbe(environment: Environment, database: Database): DBMetricsProbe {
     val metricsReporter = resolveMetricsReporter(environment)
-    return DBMetricsProbe(metricsReporter)
+    val nameResolver = ProducerNameResolver(database)
+    val nameScrubber = ProducerNameScrubber(nameResolver)
+    return DBMetricsProbe(metricsReporter, nameScrubber)
 }
 
 private fun resolveMetricsReporter(environment: Environment): MetricsReporter {

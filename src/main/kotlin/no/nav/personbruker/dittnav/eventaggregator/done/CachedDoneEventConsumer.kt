@@ -57,7 +57,11 @@ class CachedDoneEventConsumer(
     private suspend fun processEvents(allDone: List<Done>) {
         val groupedDoneEvents = fetchRelatedEvents(allDone)
         groupedDoneEvents.process(allDone)
-        dbMetricsProbe.numberOfCachedEventsOfType(groupedDoneEvents.notFoundEvents.size, EventType.DONE)
+        dbMetricsProbe.runWithMetrics(eventType = EventType.DONE) {
+            groupedDoneEvents.notFoundEvents.forEach { event ->
+                countCachedEventForProducer(event.systembruker)
+            }
+        }
         updateTheDatabase(groupedDoneEvents)
         // Fjern logging etter metrikken er verifisert i Grafana
         log.info("Status for prosessering av done-eventer, opp mot aktive eventer:\n$groupedDoneEvents")
@@ -75,5 +79,4 @@ class CachedDoneEventConsumer(
         doneRepository.writeDoneEventsForInnboksToCache(groupedDoneEvents.foundInnboks)
         doneRepository.deleteDoneEventsFromCache(groupedDoneEvents.allFoundEvents)
     }
-
 }

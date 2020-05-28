@@ -46,7 +46,7 @@ object PrometheusMetricsCollector {
             .name(DB_CACHED_EVENTS)
             .namespace(NAMESPACE)
             .help("Number of events of type in DB-table")
-            .labelNames("type")
+            .labelNames("type", "producer")
             .register()
 
     fun registerEventsSeen(count: Int, eventType: String, producer: String) {
@@ -62,7 +62,7 @@ object PrometheusMetricsCollector {
         MESSAGES_FAILED.labels(topic, producer).inc(count.toDouble())
     }
 
-    fun registerEventsCached(count: Int, eventType: EventType) {
-        MESSAGES_CACHED.labels(eventType.eventType).inc(count.toDouble())
+    fun registerEventsCached(count: Int, eventType: EventType, producer: String) {
+        MESSAGES_CACHED.labels(eventType.eventType, producer).inc(count.toDouble())
     }
 }

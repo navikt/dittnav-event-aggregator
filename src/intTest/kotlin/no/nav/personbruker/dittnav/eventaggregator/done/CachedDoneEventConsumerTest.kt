@@ -10,6 +10,8 @@ import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.getInnboksByEventId
+import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameResolver
+import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameScrubber
 import no.nav.personbruker.dittnav.eventaggregator.metrics.StubMetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveObjectMother
@@ -24,7 +26,8 @@ class CachedDoneEventConsumerTest {
 
     private val database = H2Database()
     private val doneRepository = DoneRepository(database)
-    private val dbMetricsProbe = DBMetricsProbe(StubMetricsReporter())
+    private val nameResolver = ProducerNameResolver(database)
+    private val dbMetricsProbe = DBMetricsProbe(StubMetricsReporter(), ProducerNameScrubber(nameResolver))
     private val eventConsumer = CachedDoneEventConsumer(doneRepository, dbMetricsProbe)
 
     private val systembruker = "dummySystembruker"

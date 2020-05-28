@@ -3,17 +3,20 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import io.mockk.slot
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.BrukernotifikasjonObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.config.EventType
+import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsSession
+import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsSession
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
 import org.junit.jupiter.api.Test
 
 internal class CachedDoneEventConsumerTest {
 
     private val doneRepo = mockk<DoneRepository>(relaxed = true)
-    private val dbMetricsProbe = mockk<DBMetricsProbe>(relaxed = true)
-    private val consumer = CachedDoneEventConsumer(doneRepo, dbMetricsProbe)
+    private val metricsProbe = mockk<DBMetricsProbe>(relaxed = true)
+    private val metricsSession = mockk<DBMetricsSession>(relaxed = true)
+    private val consumer = CachedDoneEventConsumer(doneRepo, metricsProbe)
 
     @Test
     fun `ved prosessering av done-eventer skal det kjores update mot databasen kun en gang`() {
@@ -47,6 +50,11 @@ internal class CachedDoneEventConsumerTest {
                 DoneObjectMother.giveMeDone("utenMatch1"),
                 DoneObjectMother.giveMeDone("utenMatch2"))
 
+        val slot = slot<suspend DBMetricsSession.() -> Unit>()
+        coEvery { metricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
+            slot.captured.invoke(metricsSession)
+        }
+
         coEvery {
             doneRepo.fetchAllDoneEvents()
         } returns doneEvents
@@ -59,6 +67,6 @@ internal class CachedDoneEventConsumerTest {
             consumer.processDoneEvents()
         }
 
-        coVerify(exactly = 1) { dbMetricsProbe.numberOfCachedEventsOfType(2, EventType.DONE) }
+        coVerify(exactly = 2) { metricsSession.countCachedEventForProducer("dummySystembruker") }
     }
 }

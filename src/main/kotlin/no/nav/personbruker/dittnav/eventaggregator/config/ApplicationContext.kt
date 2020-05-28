@@ -21,7 +21,7 @@ class ApplicationContext {
     val database: Database = PostgresDatabase(environment)
 
     val eventMetricsProbe = buildEventMetricsProbe(environment, database)
-    val dbMetricsProbe = buildDBMetricsProbe(environment)
+    val dbMetricsProbe = buildDBMetricsProbe(environment, database)
 
     val beskjedRepository = BeskjedRepository(database)
     val beskjedPersistingService = BrukernotifikasjonPersistingService(beskjedRepository)
