@@ -10,6 +10,10 @@ import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.getInnboksByEventId
+import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameResolver
+import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameScrubber
+import no.nav.personbruker.dittnav.eventaggregator.metrics.StubMetricsReporter
+import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
@@ -22,7 +26,9 @@ class CachedDoneEventConsumerTest {
 
     private val database = H2Database()
     private val doneRepository = DoneRepository(database)
-    private val eventConsumer = CachedDoneEventConsumer(doneRepository)
+    private val nameResolver = ProducerNameResolver(database)
+    private val dbMetricsProbe = DBMetricsProbe(StubMetricsReporter(), ProducerNameScrubber(nameResolver))
+    private val eventConsumer = CachedDoneEventConsumer(doneRepository, dbMetricsProbe)
 
     private val systembruker = "dummySystembruker"
     private val fodselsnummer = "12345"
@@ -78,8 +84,8 @@ class CachedDoneEventConsumerTest {
     }
 
     @Test
-    fun `setter Innboks-event naktivt hvis Done-event med samme eventId tidligere er mottat`() {
-        val eventConsumer = CachedDoneEventConsumer(doneRepository)
+    fun `setter Innboks-event inaktivt hvis Done-event med samme eventId tidligere er mottatt`() {
+        val eventConsumer = CachedDoneEventConsumer(doneRepository, dbMetricsProbe)
         val innboksWithExistingDone = InnboksObjectMother.giveMeAktivInnboks(done3.eventId, fodselsnummer, systembruker)
         runBlocking {
             database.dbQuery { createInnboks(innboksWithExistingDone) }
