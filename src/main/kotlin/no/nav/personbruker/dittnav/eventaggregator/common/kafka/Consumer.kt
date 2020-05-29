@@ -64,11 +64,11 @@ class Consumer<T>(
                 kafkaConsumer.commitSync()
             }
         } catch (rde: RetriableDatabaseException) {
-            rollbackOffset()
+            stopPolling()
             log.warn("Klarte ikke å skrive til databasen, prøver igjen senrere. Topic: $topic", rde)
 
         } catch (re: RetriableException) {
-            rollbackOffset()
+            stopPolling()
             log.warn("Polling mot Kafka feilet, prøver igjen senere. Topic: $topic", re)
 
         } catch (ure: UntransformableRecordException) {
