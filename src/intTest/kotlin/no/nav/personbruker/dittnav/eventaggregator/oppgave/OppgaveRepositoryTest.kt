@@ -3,7 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.oppgave
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
 import org.amshove.kluent.`should contain same`
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
 class OppgaveRepositoryTest {
@@ -16,7 +16,7 @@ class OppgaveRepositoryTest {
     private val oppgave2 = OppgaveObjectMother.giveMeAktivOppgave("2", "12345")
     private val oppgave3 = OppgaveObjectMother.giveMeAktivOppgave("3", "12345")
 
-    @BeforeEach
+    @AfterEach
     fun tearDown() {
         runBlocking {
             database.dbQuery {

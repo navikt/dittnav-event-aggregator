@@ -3,7 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
 import org.amshove.kluent.`should contain same`
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
 class BeskjedRepositoryTest {
@@ -16,7 +16,7 @@ class BeskjedRepositoryTest {
     private val beskjed2 = BeskjedObjectMother.giveMeAktivBeskjed("2", "12345")
     private val beskjed3 = BeskjedObjectMother.giveMeAktivBeskjed("3", "12345")
 
-    @BeforeEach
+    @AfterEach
     fun tearDown() {
         runBlocking {
             database.dbQuery {
