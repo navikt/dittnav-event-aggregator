@@ -37,7 +37,7 @@ class OppgaveRepositoryTest {
     }
 
     @Test
-    fun `Should return correct result for successful persists when all each event is persisted individually`() {
+    fun `Should return correct result for successful persists when each event is persisted individually`() {
         runBlocking {
             val toCreate = listOf(oppgave1, oppgave2, oppgave3)
 

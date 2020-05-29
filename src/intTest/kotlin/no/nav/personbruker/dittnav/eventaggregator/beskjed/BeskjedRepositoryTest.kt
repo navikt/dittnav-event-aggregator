@@ -37,7 +37,7 @@ class BeskjedRepositoryTest {
     }
 
     @Test
-    fun `Should return correct result for successful persists when all each event is persisted individually`() {
+    fun `Should return correct result for successful persists when each event is persisted individually`() {
         runBlocking {
             val toCreate = listOf(beskjed1, beskjed2, beskjed3)
 
