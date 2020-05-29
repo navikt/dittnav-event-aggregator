@@ -4,6 +4,7 @@ import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.common.emptyPersistResult
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.AggregatorBatchUpdateException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import org.amshove.kluent.`should throw`
@@ -31,6 +32,10 @@ internal class BrukernotifikasjonPersistingServiceTest {
 
     @Test
     fun `event skrives som batch hvis alt gaar bra`() {
+        coEvery {
+            repository.createInOneBatch(entities)
+        } returns emptyPersistResult()
+
         runBlocking {
             service.writeEventsToCache(entities)
         }
@@ -46,6 +51,10 @@ internal class BrukernotifikasjonPersistingServiceTest {
         coEvery {
             repository.createInOneBatch(any())
         } throws AggregatorBatchUpdateException("Simulert feil i en test")
+
+        coEvery {
+            repository.createOneByOneToFilterOutTheProblematicEvents(any())
+        } returns emptyPersistResult()
 
         runBlocking {
             service.writeEventsToCache(entities)
