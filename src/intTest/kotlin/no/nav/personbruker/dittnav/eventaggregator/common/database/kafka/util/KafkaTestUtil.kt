@@ -38,6 +38,7 @@ object KafkaTestUtil {
                 username = username,
                 password = password,
                 groupId = "groupId-for-tests",
+                counterGroupId = "counterGroupId-for-tests",
                 dbAdmin = "dbAdminIkkeIBrukHer",
                 dbHost = "dbHostIkkeIBrukHer",
                 dbMountPath = "dbMountPathIkkeIBrukHer",

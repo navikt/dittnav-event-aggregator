@@ -12,12 +12,13 @@ import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksEventService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildDBMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildEventMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.EventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveEventService
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
 
 class ApplicationContext {
 
-    var environment = Environment()
+    val environment = Environment()
     val database: Database = PostgresDatabase(environment)
 
     val eventMetricsProbe = buildEventMetricsProbe(environment, database)
@@ -49,4 +50,5 @@ class ApplicationContext {
     val cachedDoneEventConsumer = CachedDoneEventConsumer(doneRepository, dbMetricsProbe)
 
     val healthService = HealthService(this)
+    val eventCounterService = EventCounterService(environment)
 }
