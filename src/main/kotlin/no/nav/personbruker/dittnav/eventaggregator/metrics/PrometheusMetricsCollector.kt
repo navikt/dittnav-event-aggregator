@@ -11,6 +11,7 @@ object PrometheusMetricsCollector {
     val EVENTS_SEEN_NAME = "kafka_events_seen"
     val EVENTS_PROCESSED_NAME = "kafka_events_processed"
     val EVENTS_FAILED_NAME = "kafka_events_failed"
+    val EVENTS_DUPLICATE_KEY_NAME = "kafka_events_duplicate_key"
     val EVENT_LAST_SEEN_NAME = "kafka_event_type_last_seen"
     val DB_CACHED_EVENTS = "db_cached_events"
 
@@ -32,6 +33,13 @@ object PrometheusMetricsCollector {
             .name(EVENTS_FAILED_NAME)
             .namespace(NAMESPACE)
             .help("Events failed since last startup")
+            .labelNames("type", "producer")
+            .register()
+
+    private val MESSAGES_DUPLICATE_KEY: Counter = Counter.build()
+            .name(EVENTS_DUPLICATE_KEY_NAME)
+            .namespace(NAMESPACE)
+            .help("Events skipped due to duplicate keys since last startup")
             .labelNames("type", "producer")
             .register()
 
@@ -64,5 +72,9 @@ object PrometheusMetricsCollector {
 
     fun registerEventsCached(count: Int, eventType: EventType, producer: String) {
         MESSAGES_CACHED.labels(eventType.eventType, producer).inc(count.toDouble())
+    }
+
+    fun registerEventsDuplicateKey(count: Int, topic: String, producer: String) {
+        MESSAGES_DUPLICATE_KEY.labels(topic, producer).inc(count.toDouble())
     }
 }

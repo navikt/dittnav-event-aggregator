@@ -5,6 +5,7 @@ import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 class EventMetricsSession(val eventType: EventType) {
     private val numberProcessedByProducer = HashMap<String, Int>()
     private val numberFailedByProducer = HashMap<String, Int>()
+    private val numberDuplicateKeysByProducer = HashMap<String, Int>()
     private val startTime = System.nanoTime()
 
     fun countSuccessfulEventForProducer(producer: String) {
@@ -13,6 +14,10 @@ class EventMetricsSession(val eventType: EventType) {
 
     fun countFailedEventForProducer(producer: String) {
         numberFailedByProducer[producer] = numberFailedByProducer.getOrDefault(producer, 0).inc()
+    }
+
+    fun countDuplicateEventKeysByProducer(producer: String, number: Int = 1) {
+        numberDuplicateKeysByProducer[producer] = numberDuplicateKeysByProducer.getOrDefault(producer, 0) + number
     }
 
     fun getUniqueProducers(): List<String> {
@@ -34,6 +39,10 @@ class EventMetricsSession(val eventType: EventType) {
         return numberFailedByProducer.getOrDefault(producer, 0)
     }
 
+    fun getDuplicateKeyEvents(producer: String): Int {
+        return numberDuplicateKeysByProducer.getOrDefault(producer, 0)
+    }
+
     fun getEventsSeen(): Int {
         return getEventsProcessed() + getEventsFailed()
     }
@@ -44,6 +53,10 @@ class EventMetricsSession(val eventType: EventType) {
 
     fun getEventsFailed(): Int {
         return numberFailedByProducer.values.sum()
+    }
+
+    fun getDuplicateKeyEvents(): Int {
+        return numberDuplicateKeysByProducer.values.sum()
     }
 
     fun timeElapsedSinceSessionStartNanos(): Long {

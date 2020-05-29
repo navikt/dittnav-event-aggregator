@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
+import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.*
 import no.nav.personbruker.dittnav.eventaggregator.done.Done
@@ -25,13 +26,13 @@ fun Connection.createBeskjed(beskjed: Beskjed): PersistActionResult =
             buildStatementForSingleRow(beskjed)
         }
 
-fun Connection.createBeskjeder(beskjeder: List<Beskjed>) =
-        executeBatchUpdateQuery(createQuery) {
+fun Connection.createBeskjeder(beskjeder: List<Beskjed>): ListPersistActionResult<Beskjed> =
+        executeBatchPersistQuery(createQuery) {
             beskjeder.forEach { beskjed ->
                 buildStatementForSingleRow(beskjed)
                 addBatch()
             }
-        }
+        }.toBatchPersistResult(beskjeder)
 
 private fun PreparedStatement.buildStatementForSingleRow(beskjed: Beskjed) {
     setString(1, beskjed.uid)

@@ -19,12 +19,12 @@ fun Connection.getAllOppgave(): List<Oppgave> =
 private val createQuery = """INSERT INTO oppgave (systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?)"""
 
 fun Connection.createOppgaver(oppgaver: List<Oppgave>) =
-        executeBatchUpdateQuery(createQuery) {
+        executeBatchPersistQuery(createQuery) {
             oppgaver.forEach { oppgave ->
                 buildStatementForSingleRow(oppgave)
                 addBatch()
             }
-        }
+        }.toBatchPersistResult(oppgaver)
 
 fun Connection.createOppgave(oppgave: Oppgave): PersistActionResult =
         executePersistQuery(createQuery) {
