@@ -15,8 +15,11 @@ import no.nav.personbruker.dittnav.eventaggregator.metrics.buildEventMetricsProb
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.EventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveEventService
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
+import org.slf4j.LoggerFactory
 
 class ApplicationContext {
+
+    private val log = LoggerFactory.getLogger(ApplicationContext::class.java)
 
     val environment = Environment()
     val database: Database = PostgresDatabase(environment)
@@ -28,27 +31,47 @@ class ApplicationContext {
     val beskjedPersistingService = BrukernotifikasjonPersistingService(beskjedRepository)
     val beskjedEventProcessor = BeskjedEventService(beskjedPersistingService, eventMetricsProbe)
     val beskjedKafkaProps = Kafka.consumerProps(environment, EventType.BESKJED)
-    val beskjedConsumer = KafkaConsumerSetup.setupConsumerForTheBeskjedTopic(beskjedKafkaProps, beskjedEventProcessor)
+    var beskjedConsumer = initiateBeskjedConsumer()
 
     val oppgaveRepository = OppgaveRepository(database)
     val oppgavePersistingService = BrukernotifikasjonPersistingService(oppgaveRepository)
     val oppgaveEventProcessor = OppgaveEventService(oppgavePersistingService, eventMetricsProbe)
     val oppgaveKafkaProps = Kafka.consumerProps(environment, EventType.OPPGAVE)
-    val oppgaveConsumer = KafkaConsumerSetup.setupConsumerForTheOppgaveTopic(oppgaveKafkaProps, oppgaveEventProcessor)
+    var oppgaveConsumer = initiateOppgaveConsumer()
 
     val innboksRepository = InnboksRepository(database)
     val innboksPersistingService = BrukernotifikasjonPersistingService(innboksRepository)
     val innboksEventProcessor = InnboksEventService(innboksPersistingService, eventMetricsProbe)
     val innboksKafkaProps = Kafka.consumerProps(environment, EventType.INNBOKS)
-    val innboksConsumer = KafkaConsumerSetup.setupConsumerForTheInnboksTopic(innboksKafkaProps, innboksEventProcessor)
-
     val doneRepository = DoneRepository(database)
+    var innboksConsumer = initiateInnboksConsumer()
+
     val doneEventService = DoneEventService(doneRepository, eventMetricsProbe)
     val doneKafkaProps = Kafka.consumerProps(environment, EventType.DONE)
-    val doneConsumer = KafkaConsumerSetup.setupConsumerForTheDoneTopic(doneKafkaProps, doneEventService)
+    var doneConsumer = initiateDoneConsumer()
 
     val cachedDoneEventConsumer = CachedDoneEventConsumer(doneRepository, dbMetricsProbe)
 
     val healthService = HealthService(this)
     val eventCounterService = EventCounterService(environment)
+
+    private fun initiateBeskjedConsumer() =
+            KafkaConsumerSetup.setupConsumerForTheBeskjedTopic(beskjedKafkaProps, beskjedEventProcessor)
+
+    private fun initiateOppgaveConsumer() =
+            KafkaConsumerSetup.setupConsumerForTheOppgaveTopic(oppgaveKafkaProps, oppgaveEventProcessor)
+
+    private fun initiateInnboksConsumer() =
+            KafkaConsumerSetup.setupConsumerForTheInnboksTopic(innboksKafkaProps, innboksEventProcessor)
+
+    private fun initiateDoneConsumer() = KafkaConsumerSetup.setupConsumerForTheDoneTopic(doneKafkaProps, doneEventService)
+
+    fun reinitiateConsumers() {
+        beskjedConsumer = initiateBeskjedConsumer()
+        oppgaveConsumer = initiateOppgaveConsumer()
+        innboksConsumer = initiateInnboksConsumer()
+        doneConsumer = initiateDoneConsumer()
+        log.info("Alle konsumere har blitt reinstansiert")
+    }
+
 }
