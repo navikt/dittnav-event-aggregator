@@ -67,11 +67,33 @@ class ApplicationContext {
     private fun initiateDoneConsumer() = KafkaConsumerSetup.setupConsumerForTheDoneTopic(doneKafkaProps, doneEventService)
 
     fun reinitiateConsumers() {
-        beskjedConsumer = initiateBeskjedConsumer()
-        oppgaveConsumer = initiateOppgaveConsumer()
-        innboksConsumer = initiateInnboksConsumer()
-        doneConsumer = initiateDoneConsumer()
-        log.info("Alle konsumere har blitt reinstansiert")
+        if (beskjedConsumer.isCompleted()) {
+            beskjedConsumer = initiateBeskjedConsumer()
+            log.info("beskjedConsumer har blitt reinstansiert.")
+        } else {
+            log.warn("beskjedConsumer kunne ikke bli reinstansiert fordi den fortsatt er aktiv.")
+        }
+
+        if (oppgaveConsumer.isCompleted()) {
+            oppgaveConsumer = initiateOppgaveConsumer()
+            log.info("oppgaveConsumer har blitt reinstansiert.")
+        } else {
+            log.warn("oppgaveConsumer kunne ikke bli reinstansiert fordi den fortsatt er aktiv.")
+        }
+
+        if (innboksConsumer.isCompleted()) {
+            innboksConsumer = initiateInnboksConsumer()
+            log.info("innboksConsumer har blitt reinstansiert.")
+        } else {
+            log.warn("innboksConsumer kunne ikke bli reinstansiert fordi den fortsatt er aktiv.")
+        }
+
+        if (doneConsumer.isCompleted()) {
+            doneConsumer = initiateDoneConsumer()
+            log.info("doneConsumer har blitt reinstansiert.")
+        } else {
+            log.warn("doneConsumer kunne ikke bli reinstansiert fordi den fortsatt er aktiv.")
+        }
     }
 
 }
