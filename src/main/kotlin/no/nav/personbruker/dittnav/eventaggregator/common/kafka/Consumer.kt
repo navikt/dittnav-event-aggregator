@@ -34,9 +34,13 @@ class Consumer<T>(
         job.cancelAndJoin()
     }
 
+    fun isCompleted(): Boolean {
+        return job.isCompleted
+    }
+
     override suspend fun status(): HealthStatus {
         val serviceName = topic + "consumer"
-        return if(job.isActive) {
+        return if (job.isActive) {
             HealthStatus(serviceName, Status.OK, "Consumer is running", includeInReadiness = false)
         } else {
             log.error("Selftest mot Kafka-consumere feilet, consumer kjører ikke.")

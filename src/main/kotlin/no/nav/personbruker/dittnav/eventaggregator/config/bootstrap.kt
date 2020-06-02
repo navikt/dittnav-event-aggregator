@@ -10,6 +10,7 @@ import io.prometheus.client.hotspot.DefaultExports
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.health.healthApi
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.kafkaEventCountingApi
+import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.pollingApi
 
 fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()) {
     DefaultExports.initialize()
@@ -17,6 +18,7 @@ fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()
     routing {
         healthApi(appContext.healthService)
         kafkaEventCountingApi(appContext.eventCounterService)
+        pollingApi(appContext)
 
         configureStartupHook(appContext)
         configureShutdownHook(appContext)
