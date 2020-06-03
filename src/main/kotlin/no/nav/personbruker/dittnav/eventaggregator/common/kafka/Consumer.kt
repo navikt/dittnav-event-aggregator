@@ -34,9 +34,13 @@ class Consumer<T>(
         job.cancelAndJoin()
     }
 
+    fun isCompleted(): Boolean {
+        return job.isCompleted
+    }
+
     override suspend fun status(): HealthStatus {
         val serviceName = topic + "consumer"
-        return if(job.isActive) {
+        return if (job.isActive) {
             HealthStatus(serviceName, Status.OK, "Consumer is running", includeInReadiness = false)
         } else {
             log.error("Selftest mot Kafka-consumere feilet, consumer kjører ikke.")
@@ -64,12 +68,12 @@ class Consumer<T>(
                 kafkaConsumer.commitSync()
             }
         } catch (rde: RetriableDatabaseException) {
-            stopPolling()
             log.warn("Klarte ikke å skrive til databasen, prøver igjen senrere. Topic: $topic", rde)
+            stopPolling()
 
         } catch (re: RetriableException) {
-            stopPolling()
             log.warn("Polling mot Kafka feilet, prøver igjen senere. Topic: $topic", re)
+            stopPolling()
 
         } catch (ure: UntransformableRecordException) {
             val msg = "Et eller flere eventer kunne ikke transformeres, stopper videre polling. Topic: $topic. \n Bruker appen sisteversjon av brukernotifikasjon-schemas?"
