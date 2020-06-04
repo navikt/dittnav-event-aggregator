@@ -15,9 +15,9 @@ import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-class EventCounterService(val environment: Environment) {
+class KafkaEventCounterService(val environment: Environment) {
 
-    private val log = LoggerFactory.getLogger(EventCounterService::class.java)
+    private val log = LoggerFactory.getLogger(KafkaEventCounterService::class.java)
 
     private val beskjedConsumer = createCountConsumer<Beskjed>(EventType.BESKJED, Kafka.beskjedTopicName)
     private val oppgaveConsumer = createCountConsumer<Oppgave>(EventType.OPPGAVE, Kafka.oppgaveTopicName)
@@ -31,8 +31,8 @@ class EventCounterService(val environment: Environment) {
         return consumer
     }
 
-    fun countAllEvents(): NumberOfRecords {
-        val result = NumberOfRecords(
+    fun countAllEvents(): NumberOfKafkaRecords {
+        val result = NumberOfKafkaRecords(
                 beskjed = countBeskjeder(),
                 innboks = countInnboksEventer(),
                 oppgaver = countOppgaver(),
