@@ -2,6 +2,9 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.countTotalNumberOfEvents
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.countTotalNumberOfEventsByActiveStatus
+import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneObjectMother
 import org.amshove.kluent.*
 import org.junit.jupiter.api.AfterAll
@@ -143,6 +146,33 @@ class beskjedQueriesTest {
             database.dbQuery { deleteBeskjedWithEventId(beskjed1.eventId) }
             database.dbQuery { deleteBeskjedWithEventId(beskjed2.eventId) }
         }
+    }
+
+    @Test
+    fun `Skal telle det totale antall beskjeder`() {
+        runBlocking {
+            database.dbQuery {
+                countTotalNumberOfEvents(EventType.BESKJED)
+            }
+        } `should be equal to` allEvents.size.toLong()
+    }
+
+    @Test
+    fun `Skal telle det totale antall aktive beskjeder`() {
+        runBlocking {
+            database.dbQuery {
+                countTotalNumberOfEventsByActiveStatus(EventType.BESKJED, true)
+            }
+        } `should be equal to` allEvents.size.toLong()
+    }
+
+    @Test
+    fun `Skal telle det totale antall inaktive beskjeder`() {
+        runBlocking {
+            database.dbQuery {
+                countTotalNumberOfEventsByActiveStatus(EventType.BESKJED, false)
+            }
+        } `should be equal to` 0
     }
 
 }
