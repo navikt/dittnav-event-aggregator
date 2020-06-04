@@ -9,7 +9,9 @@ import io.ktor.routing.routing
 import io.prometheus.client.hotspot.DefaultExports
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.health.healthApi
-import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.kafkaEventCountingApi
+import no.nav.personbruker.dittnav.eventaggregator.metrics.db.cacheCountingApi
+import no.nav.personbruker.dittnav.eventaggregator.metrics.eventCountingApi
+import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.kafkaCountingApi
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.pollingApi
 
 fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()) {
@@ -17,7 +19,9 @@ fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()
     install(DefaultHeaders)
     routing {
         healthApi(appContext.healthService)
-        kafkaEventCountingApi(appContext.eventCounterService)
+        kafkaCountingApi(appContext.kafkaEventCounterService)
+        cacheCountingApi(appContext.cacheEventCounterService)
+        eventCountingApi(appContext.kafkaEventCounterService, appContext.cacheEventCounterService)
         pollingApi(appContext)
 
         configureStartupHook(appContext)
@@ -41,6 +45,6 @@ private fun Application.configureShutdownHook(appContext: ApplicationContext) {
             appContext.cachedDoneEventConsumer.stopPolling()
         }
         appContext.database.dataSource.close()
-        appContext.eventCounterService.closeAllConsumers()
+        appContext.kafkaEventCounterService.closeAllConsumers()
     }
 }
