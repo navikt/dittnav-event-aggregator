@@ -19,10 +19,10 @@ class KafkaEventCounterService(val environment: Environment) {
 
     private val log = LoggerFactory.getLogger(KafkaEventCounterService::class.java)
 
-    private val beskjedConsumer = createCountConsumer<Beskjed>(EventType.BESKJED, Kafka.beskjedTopicName)
-    private val oppgaveConsumer = createCountConsumer<Oppgave>(EventType.OPPGAVE, Kafka.oppgaveTopicName)
-    private val innboksConsumer = createCountConsumer<Innboks>(EventType.INNBOKS, Kafka.innboksTopicName)
-    private val doneConsumer = createCountConsumer<Done>(EventType.DONE, Kafka.doneTopicName)
+    private var beskjedConsumer = createCountConsumer<Beskjed>(EventType.BESKJED, Kafka.beskjedTopicName)
+    private var oppgaveConsumer = createCountConsumer<Oppgave>(EventType.OPPGAVE, Kafka.oppgaveTopicName)
+    private var innboksConsumer = createCountConsumer<Innboks>(EventType.INNBOKS, Kafka.innboksTopicName)
+    private var doneConsumer = createCountConsumer<Done>(EventType.DONE, Kafka.doneTopicName)
 
     private fun <T> createCountConsumer(eventType: EventType, topic: String): KafkaConsumer<Nokkel, T> {
         val kafkaProps = Kafka.counterConsumerProps(environment, eventType)
@@ -43,8 +43,11 @@ class KafkaEventCounterService(val environment: Environment) {
         return result
     }
 
-    fun countBeskjeder(): Long {
+    fun countBeskjeder(topicToCount: String? = null): Long {
         return try {
+            if(!topicToCount.isNullOrBlank()) {
+                beskjedConsumer = createCountConsumer(EventType.BESKJED, topicToCount)
+            }
             countEvents(beskjedConsumer, EventType.BESKJED)
 
         } catch (e: Exception) {
@@ -53,11 +56,13 @@ class KafkaEventCounterService(val environment: Environment) {
         }
     }
 
-    fun countInnboksEventer(): Long {
+    fun countInnboksEventer(topicToCount: String? = null): Long {
         return if (isOtherEnvironmentThanProd()) {
             try {
+                if(!topicToCount.isNullOrBlank()) {
+                    innboksConsumer = createCountConsumer(EventType.INNBOKS, topicToCount)
+                }
                 countEvents(innboksConsumer, EventType.INNBOKS)
-
             } catch (e: Exception) {
                 log.warn("Klarte ikke å telle antall innboks-eventer", e)
                 -1L
@@ -67,8 +72,11 @@ class KafkaEventCounterService(val environment: Environment) {
         }
     }
 
-    fun countOppgaver(): Long {
+    fun countOppgaver(topicToCount: String? = null): Long {
         return try {
+            if(!topicToCount.isNullOrBlank()) {
+                oppgaveConsumer = createCountConsumer(EventType.OPPGAVE, topicToCount)
+            }
             countEvents(oppgaveConsumer, EventType.OPPGAVE)
 
         } catch (e: Exception) {
@@ -77,8 +85,11 @@ class KafkaEventCounterService(val environment: Environment) {
         }
     }
 
-    fun countDoneEvents(): Long {
+    fun countDoneEvents(topicToCount: String? = null): Long {
         return try {
+            if(!topicToCount.isNullOrBlank()) {
+                doneConsumer = createCountConsumer(EventType.DONE, topicToCount)
+            }
             countEvents(doneConsumer, EventType.DONE)
 
         } catch (e: Exception) {
