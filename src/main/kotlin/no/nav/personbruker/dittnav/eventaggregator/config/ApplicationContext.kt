@@ -14,6 +14,7 @@ import no.nav.personbruker.dittnav.eventaggregator.metrics.buildDBMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildEventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.CacheEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.KafkaEventCounterService
+import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.KafkaTopicEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveEventService
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
 import org.slf4j.LoggerFactory
@@ -55,6 +56,7 @@ class ApplicationContext {
 
     val healthService = HealthService(this)
     val kafkaEventCounterService = KafkaEventCounterService(environment)
+    val kafkaTopicEventCounterService = KafkaTopicEventCounterService(environment)
     val cacheEventCounterService = CacheEventCounterService(environment, beskjedRepository, innboksRepository, oppgaveRepository, doneRepository)
 
     private fun initiateBeskjedConsumer() =

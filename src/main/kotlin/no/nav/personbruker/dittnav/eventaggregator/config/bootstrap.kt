@@ -19,7 +19,7 @@ fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()
     install(DefaultHeaders)
     routing {
         healthApi(appContext.healthService)
-        kafkaCountingApi(appContext.kafkaEventCounterService)
+        kafkaCountingApi(appContext.kafkaEventCounterService, appContext.kafkaTopicEventCounterService)
         cacheCountingApi(appContext.cacheEventCounterService)
         eventCountingApi(appContext.kafkaEventCounterService, appContext.cacheEventCounterService)
         pollingApi(appContext)
