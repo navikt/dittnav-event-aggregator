@@ -14,10 +14,10 @@ class KafkaEventCounterService(val environment: Environment) {
 
     private val log = LoggerFactory.getLogger(KafkaEventCounterService::class.java)
 
-    private var beskjedConsumer = createCountConsumer<Beskjed>(EventType.BESKJED, Kafka.beskjedTopicName, environment)
-    private var oppgaveConsumer = createCountConsumer<Oppgave>(EventType.OPPGAVE, Kafka.oppgaveTopicName, environment)
-    private var innboksConsumer = createCountConsumer<Innboks>(EventType.INNBOKS, Kafka.innboksTopicName, environment)
-    private var doneConsumer = createCountConsumer<Done>(EventType.DONE, Kafka.doneTopicName, environment)
+    private val beskjedConsumer = createCountConsumer<Beskjed>(EventType.BESKJED, Kafka.beskjedTopicName, environment)
+    private val oppgaveConsumer = createCountConsumer<Oppgave>(EventType.OPPGAVE, Kafka.oppgaveTopicName, environment)
+    private val innboksConsumer = createCountConsumer<Innboks>(EventType.INNBOKS, Kafka.innboksTopicName, environment)
+    private val doneConsumer = createCountConsumer<Done>(EventType.DONE, Kafka.doneTopicName, environment)
 
     fun countAllEvents(): NumberOfKafkaRecords {
         val result = NumberOfKafkaRecords(

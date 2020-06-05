@@ -11,7 +11,7 @@ class KafkaTopicEventCounterService(val environment: Environment) {
     private val log = LoggerFactory.getLogger(KafkaTopicEventCounterService::class.java)
 
     fun countEventsOnTopic(topicToCount: String, eventType: EventType): Long {
-        val consumer = initConsumer(eventType, topicToCount, environment)
+        val consumer = initConsumer(eventType, topicToCount)
         return try {
             countEvents(consumer, eventType)
         } catch (e: Exception) {
@@ -22,7 +22,7 @@ class KafkaTopicEventCounterService(val environment: Environment) {
         }
     }
 
-    private fun initConsumer(eventType: EventType, topicToCount: String, environment: Environment): KafkaConsumer<Nokkel, *> {
+    private fun initConsumer(eventType: EventType, topicToCount: String): KafkaConsumer<Nokkel, *> {
         return when (eventType) {
             EventType.BESKJED -> createCountConsumer<Beskjed>(eventType, topicToCount, environment)
             EventType.OPPGAVE -> createCountConsumer<Oppgave>(eventType, topicToCount, environment)
