@@ -23,7 +23,8 @@ fun Routing.pollingApi(appContext: ApplicationContext) {
     }
 }
 
-private fun restartPolling(appContext: ApplicationContext) {
+private suspend fun restartPolling(appContext: ApplicationContext) {
+    KafkaConsumerSetup.stopAllKafkaConsumers(appContext)
     appContext.reinitializeConsumers()
     KafkaConsumerSetup.startAllKafkaPollers(appContext)
 }
