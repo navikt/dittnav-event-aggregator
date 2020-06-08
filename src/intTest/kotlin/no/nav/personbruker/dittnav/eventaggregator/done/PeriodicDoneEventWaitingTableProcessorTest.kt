@@ -51,7 +51,7 @@ class PeriodicDoneEventWaitingTableProcessorTest {
     @AfterAll
     fun tearDown() {
         runBlocking {
-            eventConsumer.stopPolling()
+            eventConsumer.stop()
             database.dbQuery {
                 deleteAllBeskjed()
                 deleteAllOppgave()

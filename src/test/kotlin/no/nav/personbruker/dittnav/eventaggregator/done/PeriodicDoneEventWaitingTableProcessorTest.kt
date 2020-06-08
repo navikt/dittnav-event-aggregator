@@ -10,7 +10,7 @@ import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsSession
 import org.junit.jupiter.api.Test
 
-internal class CachedDoneEventConsumerTest {
+internal class PeriodicDoneEventWaitingTableProcessorTest {
 
     private val doneRepo = mockk<DoneRepository>(relaxed = true)
     private val metricsProbe = mockk<DBMetricsProbe>(relaxed = true)
@@ -24,7 +24,7 @@ internal class CachedDoneEventConsumerTest {
         val doneEventUtenMatch = DoneObjectMother.giveMeDone("utenMatch")
 
         coEvery {
-            doneRepo.fetchAllDoneEvents()
+            doneRepo.fetchAllDoneEventsWithLimit()
         } returns listOf(matchingDoneEvent, doneEventUtenMatch)
 
         coEvery {
@@ -55,7 +55,7 @@ internal class CachedDoneEventConsumerTest {
         }
 
         coEvery {
-            doneRepo.fetchAllDoneEvents()
+            doneRepo.fetchAllDoneEventsWithLimit()
         } returns doneEvents
 
         coEvery {

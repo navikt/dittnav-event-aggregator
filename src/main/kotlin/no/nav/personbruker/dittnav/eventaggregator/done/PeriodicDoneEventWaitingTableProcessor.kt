@@ -5,6 +5,8 @@ import kotlinx.coroutines.time.delay
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
+import no.nav.personbruker.dittnav.eventaggregator.health.HealthStatus
+import no.nav.personbruker.dittnav.eventaggregator.health.Status
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -23,16 +25,27 @@ class PeriodicDoneEventWaitingTableProcessor(
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default + job
 
-    suspend fun stopPolling() {
+    fun status(): HealthStatus {
+        return when (job.isActive) {
+            true -> HealthStatus("PeriodicDoneEventWaitingTableProcessor", Status.OK, "Processor is running", false)
+            false -> HealthStatus("PeriodicDoneEventWaitingTableProcessor", Status.ERROR, "Processor is not running", false)
+        }
+    }
+
+    suspend fun stop() {
         log.info("Stopper periodisk prosessering av ventetabellen for done-eventer")
         job.cancelAndJoin()
     }
 
-    fun poll() {
+    fun isCompleted(): Boolean {
+        return job.isCompleted
+    }
+
+    fun start() {
+        log.info("Periodisk prosessering av ventetabellen har blitt aktivert, første prosessering skjer om $minutesToWait minutter.")
         launch {
             while (job.isActive) {
                 delay(minutesToWait)
-                log.info("Det er $minutesToWait minutter siden sist vi prosesserte tidligere mottatte Done-eventer fra databasen, kjører igjen.")
                 processDoneEvents()
             }
         }
@@ -40,8 +53,9 @@ class PeriodicDoneEventWaitingTableProcessor(
 
     suspend fun processDoneEvents() {
         try {
-            val allDone = doneRepository.fetchAllDoneEvents()
-            processEvents(allDone)
+            val allDoneEventsWithinLimit = doneRepository.fetchAllDoneEventsWithLimit()
+            processEvents(allDoneEventsWithinLimit)
+
         } catch (rde: RetriableDatabaseException) {
             log.warn("Behandling av done-eventer fra ventetabellen feilet. Klarte ikke å skrive til databasen, prøver igjen senere. Context: ${rde.context}", rde)
 
