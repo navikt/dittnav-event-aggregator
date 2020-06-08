@@ -25,6 +25,7 @@ class InnboksRepository(private val database: Database) : BrukernotifikasjonRepo
                 createInnboks(entity)
             }
         }
+
     }
 
     override suspend fun getTotalNumberOfEvents(): Long {
