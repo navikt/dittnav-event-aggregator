@@ -4,9 +4,9 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedEventService
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
-import no.nav.personbruker.dittnav.eventaggregator.done.CachedDoneEventConsumer
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneEventService
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
+import no.nav.personbruker.dittnav.eventaggregator.done.PeriodicDoneEventWaitingTableProcessor
 import no.nav.personbruker.dittnav.eventaggregator.health.HealthService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksEventService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
@@ -51,7 +51,7 @@ class ApplicationContext {
     val doneKafkaProps = Kafka.consumerProps(environment, EventType.DONE)
     var doneConsumer = initiateDoneConsumer()
 
-    val cachedDoneEventConsumer = CachedDoneEventConsumer(doneRepository, dbMetricsProbe)
+    val periodicDoneEventWaitingTableProcessor = PeriodicDoneEventWaitingTableProcessor(doneRepository, dbMetricsProbe)
 
     val healthService = HealthService(this)
     val kafkaEventCounterService = KafkaEventCounterService(environment)

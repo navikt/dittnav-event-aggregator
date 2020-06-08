@@ -6,9 +6,8 @@ import io.mockk.mockk
 import io.mockk.slot
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.BrukernotifikasjonObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsSession
-import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsSession
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsSession
 import org.junit.jupiter.api.Test
 
 internal class CachedDoneEventConsumerTest {
@@ -16,7 +15,7 @@ internal class CachedDoneEventConsumerTest {
     private val doneRepo = mockk<DoneRepository>(relaxed = true)
     private val metricsProbe = mockk<DBMetricsProbe>(relaxed = true)
     private val metricsSession = mockk<DBMetricsSession>(relaxed = true)
-    private val consumer = CachedDoneEventConsumer(doneRepo, metricsProbe)
+    private val consumer = PeriodicDoneEventWaitingTableProcessor(doneRepo, metricsProbe)
 
     @Test
     fun `ved prosessering av done-eventer skal det kjores update mot databasen kun en gang`() {
@@ -43,7 +42,7 @@ internal class CachedDoneEventConsumerTest {
     }
 
     @Test
-    fun `skal telle og lage metrikk på antall done-eventer vi ikke fant tilhørende oppgave for`() {
+    fun `skal telle og lage metrikk paa antall done-eventer vi ikke fant tilhorende oppgave for`() {
         val beskjed = BrukernotifikasjonObjectMother.giveMeBeskjed()
         val doneEvents = listOf(
                 DoneObjectMother.giveMeMatchingDoneEvent(beskjed),

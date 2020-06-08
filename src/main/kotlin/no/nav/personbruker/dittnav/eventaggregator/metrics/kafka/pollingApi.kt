@@ -19,7 +19,7 @@ fun Routing.pollingApi(appContext: ApplicationContext) {
     get("/internal/polling/stop") {
         val responseText = "All polling etter eventer har blitt stoppet."
         KafkaConsumerSetup.stopAllKafkaConsumers(appContext)
-        appContext.cachedDoneEventConsumer.stopPolling()
+        appContext.periodicDoneEventWaitingTableProcessor.stopPolling()
         call.respondText(text = responseText, contentType = ContentType.Text.Plain)
     }
 
@@ -28,5 +28,5 @@ fun Routing.pollingApi(appContext: ApplicationContext) {
 private fun restartPolling(appContext: ApplicationContext) {
     appContext.reinitiateConsumers()
     KafkaConsumerSetup.startAllKafkaPollers(appContext)
-    appContext.cachedDoneEventConsumer.poll()
+    appContext.periodicDoneEventWaitingTableProcessor.poll()
 }

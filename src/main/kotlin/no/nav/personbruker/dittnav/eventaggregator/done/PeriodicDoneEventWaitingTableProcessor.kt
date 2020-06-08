@@ -11,20 +11,20 @@ import org.slf4j.LoggerFactory
 import java.time.Duration
 import kotlin.coroutines.CoroutineContext
 
-class CachedDoneEventConsumer(
+class PeriodicDoneEventWaitingTableProcessor(
         private val doneRepository: DoneRepository,
         private val dbMetricsProbe: DBMetricsProbe,
         private val job: Job = Job()
 ) : CoroutineScope {
 
-    private val log: Logger = LoggerFactory.getLogger(CachedDoneEventConsumer::class.java)
+    private val log: Logger = LoggerFactory.getLogger(PeriodicDoneEventWaitingTableProcessor::class.java)
     private val minutesToWait = Duration.ofMinutes(2)
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default + job
 
     suspend fun stopPolling() {
-        log.info("Stopper db-consumer")
+        log.info("Stopper periodisk prosessering av ventetabellen for done-eventer")
         job.cancelAndJoin()
     }
 

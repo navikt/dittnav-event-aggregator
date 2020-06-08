@@ -30,13 +30,11 @@ fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()
     configureShutdownHook(appContext)
 }
 
-}
-
 private fun Application.configureStartupHook(appContext: ApplicationContext) {
     environment.monitor.subscribe(ApplicationStarted) {
         Flyway.runFlywayMigrations(appContext.environment)
         KafkaConsumerSetup.startAllKafkaPollers(appContext)
-        appContext.cachedDoneEventConsumer.poll()
+        appContext.periodicDoneEventWaitingTableProcessor.poll()
     }
 }
 
@@ -44,7 +42,7 @@ private fun Application.configureShutdownHook(appContext: ApplicationContext) {
     environment.monitor.subscribe(ApplicationStopPreparing) {
         runBlocking {
             KafkaConsumerSetup.stopAllKafkaConsumers(appContext)
-            appContext.cachedDoneEventConsumer.stopPolling()
+            appContext.periodicDoneEventWaitingTableProcessor.stopPolling()
         }
         appContext.database.dataSource.close()
         appContext.kafkaEventCounterService.closeAllConsumers()
