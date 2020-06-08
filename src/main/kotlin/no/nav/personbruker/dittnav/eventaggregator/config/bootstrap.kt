@@ -24,9 +24,11 @@ fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()
         eventCountingApi(appContext.kafkaEventCounterService, appContext.cacheEventCounterService)
         pollingApi(appContext)
 
-        configureStartupHook(appContext)
-        configureShutdownHook(appContext)
     }
+
+    configureStartupHook(appContext)
+    configureShutdownHook(appContext)
+}
 
 }
 
