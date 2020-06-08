@@ -12,9 +12,9 @@ class InnboksRepositoryTest {
 
     val innboksRepository = InnboksRepository(database)
 
-    private val innboks1 = InnboksObjectMother.giveMeAktivInnboks("1", "12345")
-    private val innboks2 = InnboksObjectMother.giveMeAktivInnboks("2", "12345")
-    private val innboks3 = InnboksObjectMother.giveMeAktivInnboks("3", "12345")
+    private val innboks1 = InnboksObjectMother.giveMeAktivInnboks("11", "12345")
+    private val innboks2 = InnboksObjectMother.giveMeAktivInnboks("12", "12345")
+    private val innboks3 = InnboksObjectMother.giveMeAktivInnboks("13", "12345")
 
     @AfterEach
     fun tearDown() {

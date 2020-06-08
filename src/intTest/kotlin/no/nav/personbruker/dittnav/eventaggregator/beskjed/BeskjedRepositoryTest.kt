@@ -12,9 +12,9 @@ class BeskjedRepositoryTest {
 
     val beskjedRepository = BeskjedRepository(database)
 
-    private val beskjed1 = BeskjedObjectMother.giveMeAktivBeskjed("1", "12345")
-    private val beskjed2 = BeskjedObjectMother.giveMeAktivBeskjed("2", "12345")
-    private val beskjed3 = BeskjedObjectMother.giveMeAktivBeskjed("3", "12345")
+    private val beskjed1 = BeskjedObjectMother.giveMeAktivBeskjed("11", "12345")
+    private val beskjed2 = BeskjedObjectMother.giveMeAktivBeskjed("12", "12345")
+    private val beskjed3 = BeskjedObjectMother.giveMeAktivBeskjed("13", "12345")
 
     @AfterEach
     fun tearDown() {

@@ -12,9 +12,9 @@ class OppgaveRepositoryTest {
 
     val oppgaveRepository = OppgaveRepository(database)
 
-    private val oppgave1 = OppgaveObjectMother.giveMeAktivOppgave("1", "12345")
-    private val oppgave2 = OppgaveObjectMother.giveMeAktivOppgave("2", "12345")
-    private val oppgave3 = OppgaveObjectMother.giveMeAktivOppgave("3", "12345")
+    private val oppgave1 = OppgaveObjectMother.giveMeAktivOppgave("11", "12345")
+    private val oppgave2 = OppgaveObjectMother.giveMeAktivOppgave("12", "12345")
+    private val oppgave3 = OppgaveObjectMother.giveMeAktivOppgave("13", "12345")
 
     @AfterEach
     fun tearDown() {
