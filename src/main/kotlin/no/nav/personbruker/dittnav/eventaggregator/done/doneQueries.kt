@@ -7,10 +7,21 @@ import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.Types
 
+private const val allDoneQuery = "SELECT * FROM done"
+
 fun Connection.getAllDoneEvent(): List<Done> =
-        prepareStatement("""SELECT * FROM done""")
+        prepareStatement(allDoneQuery)
                 .use {
                     it.executeQuery().list {
+                        toDoneEvent()
+                    }
+                }
+
+fun Connection.getAllDoneEventWithLimit(limit: Int): List<Done> =
+        prepareStatement("$allDoneQuery LIMIT ?")
+                .use { pStatement ->
+                    pStatement.setInt(1, limit)
+                    pStatement.executeQuery().list {
                         toDoneEvent()
                     }
                 }

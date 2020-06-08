@@ -63,6 +63,14 @@ class DoneRepository(private val database: Database) {
         return resultat
     }
 
+    suspend fun fetchAllDoneEventsWithLimit(): List<Done> {
+        var resultat = emptyList<Done>()
+        database.queryWithExceptionTranslation {
+            resultat = getAllDoneEventWithLimit(10000)
+        }
+        return resultat
+    }
+
     suspend fun deleteDoneEventsFromCache(doneEventsToDelete: List<Done>) {
         database.queryWithExceptionTranslation {
             deleteDoneEvents(doneEventsToDelete)
