@@ -60,11 +60,11 @@ fun countUniqueEvents(consumer: KafkaConsumer<Nokkel, GenericRecord>, eventType:
     return Pair(numberOfUniqueEvents, duplicationCounter)
 }
 
-private fun countBatch(records: ConsumerRecords<Nokkel, GenericRecord>, uniqueConstraints: HashSet<UniqueKafkaEventIdentifier>): Int {
+private fun countBatch(records: ConsumerRecords<Nokkel, GenericRecord>, uniqueEvents: HashSet<UniqueKafkaEventIdentifier>): Int {
     var duplicateCounter = 0
     records.forEach { record ->
         val event = transformToInternal(record)
-        val wasNewUniqueEvent = uniqueConstraints.add(event)
+        val wasNewUniqueEvent = uniqueEvents.add(event)
         if (!wasNewUniqueEvent) {
             duplicateCounter++
         }
