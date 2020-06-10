@@ -5,6 +5,8 @@ import no.nav.personbruker.dittnav.eventaggregator.common.kafka.resetTheGroupIds
 import no.nav.personbruker.dittnav.eventaggregator.config.Environment
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
+import org.apache.avro.generic.GenericRecord
+import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.KafkaException
@@ -39,6 +41,46 @@ fun <T> countEvents(consumer: KafkaConsumer<Nokkel, T>, eventType: EventType): L
     return counter
 }
 
+fun countUniqueEvents(consumer: KafkaConsumer<Nokkel, GenericRecord>, eventType: EventType): Pair<Long, Long> {
+    val start = Instant.now()
+    var records = consumer.poll(Duration.of(5000, ChronoUnit.MILLIS))
+    var duplicationCounter: Long = 0
+    val uniqueEvents = HashSet<UniqueKafkaEventIdentifier>(25000000)
+
+    duplicationCounter += countBatch(records, uniqueEvents)
+
+    while (records.foundRecords()) {
+        records = consumer.poll(Duration.of(500, ChronoUnit.MILLIS))
+        duplicationCounter += countBatch(records, uniqueEvents)
+    }
+
+    val numberOfUniqueEvents = uniqueEvents.size.toLong()
+    logTimeUsed(start, numberOfUniqueEvents, duplicationCounter, eventType)
+    consumer.resetTheGroupIdsOffsetToZero()
+    return Pair(numberOfUniqueEvents, duplicationCounter)
+}
+
+private fun countBatch(records: ConsumerRecords<Nokkel, GenericRecord>, uniqueEvents: HashSet<UniqueKafkaEventIdentifier>): Int {
+    var duplicateCounter = 0
+    records.forEach { record ->
+        val event = transformToInternal(record)
+        val wasNewUniqueEvent = uniqueEvents.add(event)
+        if (!wasNewUniqueEvent) {
+            duplicateCounter++
+        }
+    }
+    return duplicateCounter
+}
+
+private fun transformToInternal(record: ConsumerRecord<Nokkel, GenericRecord>): UniqueKafkaEventIdentifier {
+    val key = record.key()
+    return UniqueKafkaEventIdentifier(
+            key.getEventId(),
+            key.getSystembruker(),
+            record.value().get("fodselsnummer") as String
+    )
+}
+
 fun <T> closeConsumer(consumer: KafkaConsumer<Nokkel, T>) {
     try {
         consumer.close()
@@ -71,4 +113,10 @@ private fun logTimeUsed(start: Instant, counter: Long, eventType: EventType) {
     val end = Instant.now()
     val time = end.toEpochMilli() - start.toEpochMilli()
     log.info("Fant $counter $eventType-eventer, det tok ${time}ms")
+}
+
+private fun logTimeUsed(start: Instant, counter: Long, uniqueEvents: Long, eventType: EventType) {
+    val end = Instant.now()
+    val time = end.toEpochMilli() - start.toEpochMilli()
+    log.info("Fant $counter unike $eventType-eventer, og $uniqueEvents duplikater, det tok ${time}ms")
 }
