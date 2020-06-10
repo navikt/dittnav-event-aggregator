@@ -15,6 +15,11 @@ fun Routing.kafkaCountingApi(kafkaEventCounterService: KafkaEventCounterService,
         call.respondText(text = numberOfEvents.toString(), contentType = ContentType.Text.Plain)
     }
 
+    get("/internal/kafka/count/unique") {
+        val numberOfEvents = kafkaEventCounterService.countUniqueEvents()
+        call.respondText(text = numberOfEvents.toString(), contentType = ContentType.Text.Plain)
+    }
+
     get("/internal/kafka/count/beskjed") {
         var kafkaTopicParameter: String? = call.request.queryParameters["topic"]
         val responseText = countEventsOfType(kafkaTopicParameter, EventType.BESKJED, kafkaEventCounterService, kafkaTopicEventCounterService)

@@ -11,6 +11,16 @@ import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.KafkaEventCount
 fun Routing.eventCountingApi(kafkaEventCounterService: KafkaEventCounterService, cacheEventCounterService: CacheEventCounterService) {
 
     get("/internal/count/all") {
+        val kafkaEvents = kafkaEventCounterService.countUniqueEvents()
+        val cachedEvents = cacheEventCounterService.countAllEvents()
+        val responseText = """
+            $kafkaEvents
+            $cachedEvents
+        """.trimIndent()
+        call.respondText(text = responseText, contentType = ContentType.Text.Plain)
+    }
+
+    get("/internal/count/all-legacy") {
         val kafkaEvents = kafkaEventCounterService.countAllEvents()
         val cachedEvents = cacheEventCounterService.countAllEvents()
         val responseText = """

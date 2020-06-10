@@ -1,13 +1,12 @@
 package no.nav.personbruker.dittnav.eventaggregator.metrics.kafka
 
-import no.nav.brukernotifikasjon.schemas.Beskjed
-import no.nav.brukernotifikasjon.schemas.Done
-import no.nav.brukernotifikasjon.schemas.Innboks
-import no.nav.brukernotifikasjon.schemas.Oppgave
+import no.nav.brukernotifikasjon.schemas.*
 import no.nav.personbruker.dittnav.eventaggregator.config.Environment
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
 import no.nav.personbruker.dittnav.eventaggregator.config.isOtherEnvironmentThanProd
+import org.apache.avro.generic.GenericRecord
+import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory
 
 class KafkaEventCounterService(val environment: Environment) {
@@ -69,6 +68,67 @@ class KafkaEventCounterService(val environment: Environment) {
         } catch (e: Exception) {
             log.warn("Klarte ikke å telle antall done-eventer", e)
             -1
+        }
+    }
+
+    fun countUniqueEvents(): NumberOfUniqueKafkaRecords {
+        val beskjedPair = countUniqueBeskjeder()
+        val innboksPair = countUniqueInnboksEventer()
+        val oppgaverPair = countUniqueOppgaver()
+        val donePair = countUniqueDoneEvents()
+        val result = NumberOfUniqueKafkaRecords(
+                beskjed = beskjedPair.first,
+                beskjedDuplicates = beskjedPair.second,
+                innboks = innboksPair.first,
+                innboksDuplicates = innboksPair.second,
+                oppgaver = oppgaverPair.first,
+                oppgaverDuplicates = oppgaverPair.second,
+                done = donePair.first,
+                doneDuplicates = donePair.second
+        )
+
+        log.info("Fant følgende unike eventer:\n$result")
+        return result
+    }
+
+    fun countUniqueBeskjeder(): Pair<Long, Long> {
+        return try {
+            countUniqueEvents(beskjedConsumer as KafkaConsumer<Nokkel, GenericRecord>, EventType.BESKJED)
+        } catch (e: Exception) {
+            log.warn("Klarte ikke å telle antall beskjed-eventer", e)
+            Pair(-1, -1)
+        }
+    }
+
+    fun countUniqueInnboksEventer(): Pair<Long, Long> {
+        return if (isOtherEnvironmentThanProd()) {
+            try {
+                countUniqueEvents(innboksConsumer as KafkaConsumer<Nokkel, GenericRecord>, EventType.INNBOKS)
+            } catch (e: Exception) {
+                log.warn("Klarte ikke å telle antall innboks-eventer", e)
+                Pair(-1L, -1L)
+            }
+        } else {
+            Pair(0L, 0L)
+        }
+    }
+
+    fun countUniqueOppgaver(): Pair<Long, Long> {
+        return try {
+            countUniqueEvents(oppgaveConsumer as KafkaConsumer<Nokkel, GenericRecord>, EventType.OPPGAVE)
+        } catch (e: Exception) {
+            log.warn("Klarte ikke å telle antall oppgave-eventer", e)
+            Pair(-1, -1)
+        }
+    }
+
+    fun countUniqueDoneEvents(): Pair<Long, Long> {
+        return try {
+            countUniqueEvents(doneConsumer as KafkaConsumer<Nokkel, GenericRecord>, EventType.DONE)
+
+        } catch (e: Exception) {
+            log.warn("Klarte ikke å telle antall done-eventer", e)
+            Pair(-1, -1)
         }
     }
 
