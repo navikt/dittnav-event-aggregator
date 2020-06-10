@@ -4,7 +4,7 @@ import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
-import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.*
+import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.DB_EVENTS_CACHED
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -31,7 +31,7 @@ class DBMetricsProbeTest {
 
         val producerNameForPrometheus = slot<String>()
 
-        coEvery { metricsReporter.registerDataPoint(EVENTS_CACHED, any(), any()) } returns Unit
+        coEvery { metricsReporter.registerDataPoint(DB_EVENTS_CACHED, any(), any()) } returns Unit
         every { PrometheusMetricsCollector.registerEventsCached(any(), any(), capture(producerNameForPrometheus)) } returns Unit
 
         runBlocking {
@@ -40,8 +40,8 @@ class DBMetricsProbeTest {
             }
         }
 
-        coVerify(exactly = 1) { metricsReporter.registerDataPoint(EVENTS_CACHED, any(), any()) }
-        verify(exactly = 1) { PrometheusMetricsCollector.registerEventsCached(any() , any(), any()) }
+        coVerify(exactly = 1) { metricsReporter.registerDataPoint(DB_EVENTS_CACHED, any(), any()) }
+        verify(exactly = 1) { PrometheusMetricsCollector.registerEventsCached(any(), any(), any()) }
 
         assertEquals(producerAlias, producerNameForPrometheus.captured)
     }
@@ -52,7 +52,7 @@ class DBMetricsProbeTest {
         val nameScrubber = ProducerNameScrubber(producerNameResolver)
         val metricsProbe = DBMetricsProbe(metricsReporter, nameScrubber)
         val capturedFieldsForCachedEvents = slot<Map<String, Any>>()
-        coEvery { metricsReporter.registerDataPoint(EVENTS_CACHED, capture(capturedFieldsForCachedEvents), any()) } returns Unit
+        coEvery { metricsReporter.registerDataPoint(DB_EVENTS_CACHED, capture(capturedFieldsForCachedEvents), any()) } returns Unit
 
         runBlocking {
             metricsProbe.runWithMetrics(EventType.DONE) {
@@ -62,7 +62,7 @@ class DBMetricsProbeTest {
         }
 
         coVerify(exactly = 1) { metricsReporter.registerDataPoint(
-                EVENTS_CACHED,
+                DB_EVENTS_CACHED,
                 listOf("counter" to 2).toMap(),
                 listOf("eventType" to EventType.DONE.toString(), "producer" to "test-user").toMap()) }
         verify(exactly = 1) { PrometheusMetricsCollector.registerEventsCached(2, EventType.DONE, "test-user") }
