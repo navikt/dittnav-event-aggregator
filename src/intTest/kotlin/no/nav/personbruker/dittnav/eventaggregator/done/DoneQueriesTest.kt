@@ -40,14 +40,17 @@ class DoneQueriesTest {
     }
 
     @Test
-    fun `skal slette et spesifikt done-event`() {
-        val doneEventToInsertAndThenDelete = DoneObjectMother.giveMeDone("876543", "dummySystembruker", "123")
-        runBlocking {
-            database.dbQuery { createDoneEvents(listOf(doneEventToInsertAndThenDelete)) }
-            val antallDoneEventerForSletting = database.dbQuery { getAllDoneEvent() }
-            val expectedAntallDoneEventerEtterSletting = antallDoneEventerForSletting.size - 1
+    fun `skal slette spesifikke done-eventer`() {
+        val doneEvent1 = DoneObjectMother.giveMeDone("111", "dummySystembruker", "123")
+        val doneEvent2 = DoneObjectMother.giveMeDone("222", "dummySystembruker", "123")
+        val doneEventsToInsertAndThenDelete = listOf(doneEvent1, doneEvent2)
 
-            database.dbQuery { deleteDoneEvents(listOf(doneEventToInsertAndThenDelete)) }
+        runBlocking {
+            database.dbQuery { createDoneEvents(doneEventsToInsertAndThenDelete) }
+            val antallDoneEventerForSletting = database.dbQuery { getAllDoneEvent() }
+            val expectedAntallDoneEventerEtterSletting = antallDoneEventerForSletting.size - doneEventsToInsertAndThenDelete.size
+
+            database.dbQuery { deleteDoneEvents(doneEventsToInsertAndThenDelete) }
 
             val antallDoneEventerEtterSletting = database.dbQuery { getAllDoneEvent() }
             antallDoneEventerEtterSletting.size `should be equal to` expectedAntallDoneEventerEtterSletting

@@ -53,9 +53,9 @@ private fun countEventsOfType(kafkaTopicParameter: String?,
                               kafkaTopicEventCounterService: KafkaTopicEventCounterService): String {
     var topicName: String
     var numberOfEvents: Long
-    if(kafkaTopicParameter.isNullOrBlank()) {
+    if (kafkaTopicParameter.isNullOrBlank()) {
         topicName = getDefaultTopicName(eventType)
-        numberOfEvents = when(eventType) {
+        numberOfEvents = when (eventType) {
             EventType.OPPGAVE -> kafkaEventCounterService.countOppgaver()
             EventType.BESKJED -> kafkaEventCounterService.countBeskjeder()
             EventType.INNBOKS -> kafkaEventCounterService.countInnboksEventer()

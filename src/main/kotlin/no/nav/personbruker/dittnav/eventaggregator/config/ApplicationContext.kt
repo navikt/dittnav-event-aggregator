@@ -4,9 +4,9 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedEventService
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
-import no.nav.personbruker.dittnav.eventaggregator.done.CachedDoneEventConsumer
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneEventService
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
+import no.nav.personbruker.dittnav.eventaggregator.done.PeriodicDoneEventWaitingTableProcessor
 import no.nav.personbruker.dittnav.eventaggregator.health.HealthService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksEventService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
@@ -33,70 +33,81 @@ class ApplicationContext {
     val beskjedPersistingService = BrukernotifikasjonPersistingService(beskjedRepository)
     val beskjedEventProcessor = BeskjedEventService(beskjedPersistingService, eventMetricsProbe)
     val beskjedKafkaProps = Kafka.consumerProps(environment, EventType.BESKJED)
-    var beskjedConsumer = initiateBeskjedConsumer()
+    var beskjedConsumer = initializeBeskjedConsumer()
 
     val oppgaveRepository = OppgaveRepository(database)
     val oppgavePersistingService = BrukernotifikasjonPersistingService(oppgaveRepository)
     val oppgaveEventProcessor = OppgaveEventService(oppgavePersistingService, eventMetricsProbe)
     val oppgaveKafkaProps = Kafka.consumerProps(environment, EventType.OPPGAVE)
-    var oppgaveConsumer = initiateOppgaveConsumer()
+    var oppgaveConsumer = initializeOppgaveConsumer()
 
     val innboksRepository = InnboksRepository(database)
     val innboksPersistingService = BrukernotifikasjonPersistingService(innboksRepository)
     val innboksEventProcessor = InnboksEventService(innboksPersistingService, eventMetricsProbe)
     val innboksKafkaProps = Kafka.consumerProps(environment, EventType.INNBOKS)
     val doneRepository = DoneRepository(database)
-    var innboksConsumer = initiateInnboksConsumer()
+    var innboksConsumer = initializeInnboksConsumer()
 
     val doneEventService = DoneEventService(doneRepository, eventMetricsProbe)
     val doneKafkaProps = Kafka.consumerProps(environment, EventType.DONE)
-    var doneConsumer = initiateDoneConsumer()
+    var doneConsumer = initializeDoneConsumer()
 
-    val cachedDoneEventConsumer = CachedDoneEventConsumer(doneRepository, dbMetricsProbe)
+    var periodicDoneEventWaitingTableProcessor = initializeDoneWaitingTableProcessor()
 
     val healthService = HealthService(this)
     val kafkaEventCounterService = KafkaEventCounterService(environment)
     val kafkaTopicEventCounterService = KafkaTopicEventCounterService(environment)
     val cacheEventCounterService = CacheEventCounterService(environment, beskjedRepository, innboksRepository, oppgaveRepository, doneRepository)
 
-    private fun initiateBeskjedConsumer() =
+    private fun initializeBeskjedConsumer() =
             KafkaConsumerSetup.setupConsumerForTheBeskjedTopic(beskjedKafkaProps, beskjedEventProcessor)
 
-    private fun initiateOppgaveConsumer() =
+    private fun initializeOppgaveConsumer() =
             KafkaConsumerSetup.setupConsumerForTheOppgaveTopic(oppgaveKafkaProps, oppgaveEventProcessor)
 
-    private fun initiateInnboksConsumer() =
+    private fun initializeInnboksConsumer() =
             KafkaConsumerSetup.setupConsumerForTheInnboksTopic(innboksKafkaProps, innboksEventProcessor)
 
-    private fun initiateDoneConsumer() = KafkaConsumerSetup.setupConsumerForTheDoneTopic(doneKafkaProps, doneEventService)
+    private fun initializeDoneConsumer() = KafkaConsumerSetup.setupConsumerForTheDoneTopic(doneKafkaProps, doneEventService)
 
-    fun reinitiateConsumers() {
+    fun reinitializeConsumers() {
         if (beskjedConsumer.isCompleted()) {
-            beskjedConsumer = initiateBeskjedConsumer()
+            beskjedConsumer = initializeBeskjedConsumer()
             log.info("beskjedConsumer har blitt reinstansiert.")
         } else {
             log.warn("beskjedConsumer kunne ikke bli reinstansiert fordi den fortsatt er aktiv.")
         }
 
         if (oppgaveConsumer.isCompleted()) {
-            oppgaveConsumer = initiateOppgaveConsumer()
+            oppgaveConsumer = initializeOppgaveConsumer()
             log.info("oppgaveConsumer har blitt reinstansiert.")
         } else {
             log.warn("oppgaveConsumer kunne ikke bli reinstansiert fordi den fortsatt er aktiv.")
         }
 
         if (innboksConsumer.isCompleted()) {
-            innboksConsumer = initiateInnboksConsumer()
+            innboksConsumer = initializeInnboksConsumer()
             log.info("innboksConsumer har blitt reinstansiert.")
         } else {
             log.warn("innboksConsumer kunne ikke bli reinstansiert fordi den fortsatt er aktiv.")
         }
 
         if (doneConsumer.isCompleted()) {
-            doneConsumer = initiateDoneConsumer()
+            doneConsumer = initializeDoneConsumer()
             log.info("doneConsumer har blitt reinstansiert.")
         } else {
             log.warn("doneConsumer kunne ikke bli reinstansiert fordi den fortsatt er aktiv.")
+        }
+    }
+
+    private fun initializeDoneWaitingTableProcessor() = PeriodicDoneEventWaitingTableProcessor(doneRepository, dbMetricsProbe)
+
+    fun reinitializeDoneWaitingTableProcessor() {
+        if (periodicDoneEventWaitingTableProcessor.isCompleted()) {
+            periodicDoneEventWaitingTableProcessor = initializeDoneWaitingTableProcessor()
+            log.info("periodicDoneEventWaitingTableProcessor har blitt reinstansiert.")
+        } else {
+            log.warn("periodicDoneEventWaitingTableProcessor kunne ikke bli reinstansiert fordi den fortsatt er aktiv.")
         }
     }
 

@@ -8,6 +8,7 @@ import io.ktor.features.DefaultHeaders
 import io.ktor.routing.routing
 import io.prometheus.client.hotspot.DefaultExports
 import kotlinx.coroutines.runBlocking
+import no.nav.personbruker.dittnav.eventaggregator.done.waitTableApi
 import no.nav.personbruker.dittnav.eventaggregator.health.healthApi
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.cacheCountingApi
 import no.nav.personbruker.dittnav.eventaggregator.metrics.eventCountingApi
@@ -23,18 +24,18 @@ fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()
         cacheCountingApi(appContext.cacheEventCounterService)
         eventCountingApi(appContext.kafkaEventCounterService, appContext.cacheEventCounterService)
         pollingApi(appContext)
-
-        configureStartupHook(appContext)
-        configureShutdownHook(appContext)
+        waitTableApi(appContext)
     }
 
+    configureStartupHook(appContext)
+    configureShutdownHook(appContext)
 }
 
 private fun Application.configureStartupHook(appContext: ApplicationContext) {
     environment.monitor.subscribe(ApplicationStarted) {
         Flyway.runFlywayMigrations(appContext.environment)
         KafkaConsumerSetup.startAllKafkaPollers(appContext)
-        appContext.cachedDoneEventConsumer.poll()
+        appContext.periodicDoneEventWaitingTableProcessor.start()
     }
 }
 
@@ -42,7 +43,7 @@ private fun Application.configureShutdownHook(appContext: ApplicationContext) {
     environment.monitor.subscribe(ApplicationStopPreparing) {
         runBlocking {
             KafkaConsumerSetup.stopAllKafkaConsumers(appContext)
-            appContext.cachedDoneEventConsumer.stopPolling()
+            appContext.periodicDoneEventWaitingTableProcessor.stop()
         }
         appContext.database.dataSource.close()
         appContext.kafkaEventCounterService.closeAllConsumers()

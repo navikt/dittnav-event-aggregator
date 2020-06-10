@@ -22,13 +22,13 @@ import org.amshove.kluent.*
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 
-class CachedDoneEventConsumerTest {
+class PeriodicDoneEventWaitingTableProcessorTest {
 
     private val database = H2Database()
     private val doneRepository = DoneRepository(database)
     private val nameResolver = ProducerNameResolver(database)
     private val dbMetricsProbe = DBMetricsProbe(StubMetricsReporter(), ProducerNameScrubber(nameResolver))
-    private val eventConsumer = CachedDoneEventConsumer(doneRepository, dbMetricsProbe)
+    private val eventConsumer = PeriodicDoneEventWaitingTableProcessor(doneRepository, dbMetricsProbe)
 
     private val systembruker = "dummySystembruker"
     private val fodselsnummer = "12345"
@@ -51,7 +51,7 @@ class CachedDoneEventConsumerTest {
     @AfterAll
     fun tearDown() {
         runBlocking {
-            eventConsumer.stopPolling()
+            eventConsumer.stop()
             database.dbQuery {
                 deleteAllBeskjed()
                 deleteAllOppgave()
@@ -85,7 +85,7 @@ class CachedDoneEventConsumerTest {
 
     @Test
     fun `setter Innboks-event inaktivt hvis Done-event med samme eventId tidligere er mottatt`() {
-        val eventConsumer = CachedDoneEventConsumer(doneRepository, dbMetricsProbe)
+        val eventConsumer = PeriodicDoneEventWaitingTableProcessor(doneRepository, dbMetricsProbe)
         val innboksWithExistingDone = InnboksObjectMother.giveMeAktivInnboks(done3.eventId, fodselsnummer, systembruker)
         runBlocking {
             database.dbQuery { createInnboks(innboksWithExistingDone) }
