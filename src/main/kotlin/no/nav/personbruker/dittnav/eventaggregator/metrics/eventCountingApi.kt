@@ -13,20 +13,14 @@ fun Routing.eventCountingApi(kafkaEventCounterService: KafkaEventCounterService,
     get("/internal/count/all") {
         val kafkaEvents = kafkaEventCounterService.countUniqueEvents()
         val cachedEvents = cacheEventCounterService.countAllEvents()
-        val responseText = """
-            $kafkaEvents
-            $cachedEvents
-        """.trimIndent()
+        val responseText = "$kafkaEvents\n$cachedEvents"
         call.respondText(text = responseText, contentType = ContentType.Text.Plain)
     }
 
     get("/internal/count/all-legacy") {
         val kafkaEvents = kafkaEventCounterService.countAllEvents()
         val cachedEvents = cacheEventCounterService.countAllEvents()
-        val responseText = """
-            $kafkaEvents
-            $cachedEvents
-        """.trimIndent()
+        val responseText = "$kafkaEvents\n$cachedEvents"
         call.respondText(text = responseText, contentType = ContentType.Text.Plain)
     }
 
