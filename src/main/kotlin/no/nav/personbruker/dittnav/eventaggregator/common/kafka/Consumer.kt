@@ -50,6 +50,7 @@ class Consumer<T>(
 
     fun startPolling() {
         launch {
+            log.info("Starter en coroutine for polling på topic-en $topic.")
             kafkaConsumer.use { consumer ->
                 consumer.subscribe(listOf(topic))
 
@@ -63,7 +64,7 @@ class Consumer<T>(
     private suspend fun processBatchOfEvents() = withContext(Dispatchers.IO) {
         try {
             val records = kafkaConsumer.poll(Duration.of(100, ChronoUnit.MILLIS))
-            if(records.containsEvents()) {
+            if (records.containsEvents()) {
                 eventBatchProcessorService.processEvents(records)
                 kafkaConsumer.commitSync()
             }
