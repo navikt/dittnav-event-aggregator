@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.database.util
 
+import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistFailureReason
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
@@ -31,6 +32,26 @@ fun Connection.executeBatchUpdateQuery(sql: String, paramInit: PreparedStatement
         statement.executeBatch()
     }
     commit()
+}
+
+fun Connection.executeBatchPersistQuery(sql: String, paramInit: PreparedStatement.() -> Unit): IntArray {
+    autoCommit = false
+    val result = prepareStatement("""$sql ON CONFLICT DO NOTHING""").use { statement ->
+        statement.paramInit()
+        statement.executeBatch()
+    }
+    commit()
+    return result
+}
+
+fun <T> IntArray.toBatchPersistResult(paramList: List<T>) = ListPersistActionResult.mapParamListToResultArray(paramList, this)
+
+inline fun <T> List<T>.persistEachIndividuallyAndAggregateResults(persistAction: (T) -> PersistActionResult): ListPersistActionResult<T> {
+    return map { entity ->
+        entity to persistAction(entity).persistOutcome
+    }.let { aggregate ->
+        ListPersistActionResult.mapListOfIndividualResults(aggregate)
+    }
 }
 
 fun Connection.executePersistQuery(sql: String, paramInit: PreparedStatement.() -> Unit): PersistActionResult =

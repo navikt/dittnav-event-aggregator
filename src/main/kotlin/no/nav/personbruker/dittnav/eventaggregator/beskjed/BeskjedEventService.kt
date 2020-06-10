@@ -4,12 +4,14 @@ import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
+import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.NokkelNullException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.getNonNullKey
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType.BESKJED
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsSession
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.slf4j.Logger
@@ -49,10 +51,29 @@ class BeskjedEventService(
                 }
             }
 
-            persistingService.writeEventsToCache(successfullyTransformedEvents)
+            val result = persistingService.writeEventsToCache(successfullyTransformedEvents)
+
+            countDuplicateKeyEvents(result)
         }
 
         kastExceptionHvisMislykkedeTransformasjoner(problematicEvents)
+    }
+
+    private fun EventMetricsSession.countDuplicateKeyEvents(result: ListPersistActionResult<no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed>) {
+        if (result.foundConflictingKeys()) {
+
+            val constraintErrors = result.getConflictingEntities().size
+            val totalEntities = result.getAllEntities().size
+
+            result.getConflictingEntities()
+                    .groupingBy { beskjed -> beskjed.systembruker }
+                    .eachCount()
+                    .forEach { (systembruker, duplicates) ->
+                        countDuplicateEventKeysByProducer(systembruker, duplicates)
+                    }
+
+            log.warn("Traff $constraintErrors feil på duplikate eventId-er ved behandling av $totalEntities beskjed-eventer.")
+        }
     }
 
     private fun kastExceptionHvisMislykkedeTransformasjoner(problematicEvents: MutableList<ConsumerRecord<Nokkel, Beskjed>>) {

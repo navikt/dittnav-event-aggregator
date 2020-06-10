@@ -3,12 +3,15 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
+import no.nav.personbruker.dittnav.eventaggregator.common.emptyPersistResult
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.ConsumerRecordsObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.common.successfulEvents
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsSession
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should throw`
+import org.amshove.kluent.any
 import org.amshove.kluent.invoking
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
@@ -39,7 +42,7 @@ class BeskjedEventServiceTest {
         val records = ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(5, "dummyTopic")
 
         val capturedListOfEntities = slot<List<Beskjed>>()
-        coEvery { persistingService.writeEventsToCache(capture(capturedListOfEntities)) } returns Unit
+        coEvery { persistingService.writeEventsToCache(capture(capturedListOfEntities)) } returns emptyPersistResult()
 
         val slot = slot<suspend EventMetricsSession.() -> Unit>()
 
@@ -68,8 +71,10 @@ class BeskjedEventServiceTest {
         val records = ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(totalNumberOfRecords, "dummyTopic")
         val transformedRecords = createANumberOfTransformedRecords(numberOfSuccessfulTransformations)
 
+        val persistResult = successfulEvents(transformedRecords)
+
         val capturedListOfEntities = slot<List<Beskjed>>()
-        coEvery { persistingService.writeEventsToCache(capture(capturedListOfEntities)) } returns Unit
+        coEvery { persistingService.writeEventsToCache(capture(capturedListOfEntities)) } returns persistResult
 
         val retriableExp = UntransformableRecordException("Simulert feil i en test")
         every { BeskjedTransformer.toInternal(any(), any()) } throws retriableExp andThenMany transformedRecords
@@ -102,6 +107,8 @@ class BeskjedEventServiceTest {
         val records = ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(numberOfRecords, "beskjed")
         val slot = slot<suspend EventMetricsSession.() -> Unit>()
 
+        coEvery{ persistingService.writeEventsToCache(any()) } returns emptyPersistResult()
+
         coEvery { metricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
             slot.captured.invoke(metricsSession)
         }
@@ -125,7 +132,7 @@ class BeskjedEventServiceTest {
         }
 
         val capturedNumberOfEntitiesWrittenToTheDb = slot<List<Beskjed>>()
-        coEvery { persistingService.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns Unit
+        coEvery { persistingService.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns emptyPersistResult()
 
         runBlocking {
             eventService.processEvents(records)
@@ -149,7 +156,7 @@ class BeskjedEventServiceTest {
         }
 
         val capturedNumberOfEntitiesWrittenToTheDb = slot<List<Beskjed>>()
-        coEvery { persistingService.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns Unit
+        coEvery { persistingService.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns emptyPersistResult()
 
         runBlocking {
             eventService.processEvents(records)

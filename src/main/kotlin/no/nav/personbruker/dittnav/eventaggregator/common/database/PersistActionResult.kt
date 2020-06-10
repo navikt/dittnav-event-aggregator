@@ -1,7 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.database
 
 class PersistActionResult private constructor(
-        val entityId: Int, val wasSuccessful: Boolean, val failureReason: PersistFailureReason) {
+        val entityId: Int, val wasSuccessful: Boolean, val persistOutcome: PersistFailureReason) {
 
     inline fun onSuccess(action: (Int) -> Unit): PersistActionResult {
         if (wasSuccessful) {
@@ -12,7 +12,7 @@ class PersistActionResult private constructor(
 
     inline fun onFailure(action: (PersistFailureReason) -> Unit): PersistActionResult {
         if (!wasSuccessful) {
-            action(failureReason)
+            action(persistOutcome)
         }
         return this
     }

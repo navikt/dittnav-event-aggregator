@@ -3,6 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.innboks
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
+import no.nav.personbruker.dittnav.eventaggregator.common.emptyPersistResult
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.ConsumerRecordsObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
@@ -40,7 +41,7 @@ class InnboksEventServiceTest {
 
         val capturedStores = slot<List<Innboks>>()
 
-        coEvery { persistingService.writeEventsToCache(capture(capturedStores)) } returns Unit
+        coEvery { persistingService.writeEventsToCache(capture(capturedStores)) } returns emptyPersistResult()
 
         val slot = slot<suspend EventMetricsSession.() -> Unit>()
 
@@ -71,7 +72,7 @@ class InnboksEventServiceTest {
 
         val capturedStores = slot<List<Innboks>>()
 
-        coEvery { persistingService.writeEventsToCache(capture(capturedStores)) } returns Unit
+        coEvery { persistingService.writeEventsToCache(capture(capturedStores)) } returns emptyPersistResult()
 
         val mockedException = UntransformableRecordException("Simulated Exception")
 
@@ -106,6 +107,8 @@ class InnboksEventServiceTest {
 
         val slot = slot<suspend EventMetricsSession.() -> Unit>()
 
+        coEvery{ persistingService.writeEventsToCache(any()) } returns emptyPersistResult()
+
         coEvery { metricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
             slot.captured.invoke(metricsSession)
         }
@@ -130,7 +133,7 @@ class InnboksEventServiceTest {
         }
 
         val capturedNumberOfEntitiesWrittenToTheDb = slot<List<Innboks>>()
-        coEvery { persistingService.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns Unit
+        coEvery { persistingService.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns emptyPersistResult()
 
         runBlocking {
             eventService.processEvents(records)

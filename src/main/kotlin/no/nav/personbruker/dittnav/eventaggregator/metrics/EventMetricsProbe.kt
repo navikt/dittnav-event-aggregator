@@ -1,10 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.metrics
 
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.EVENTS_BATCH
-import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.EVENTS_FAILED
-import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.EVENTS_PROCESSED
-import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.EVENTS_SEEN
+import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.*
 
 class EventMetricsProbe(private val metricsReporter: MetricsReporter,
                         private val nameScrubber: ProducerNameScrubber) {
@@ -18,12 +15,13 @@ class EventMetricsProbe(private val metricsReporter: MetricsReporter,
             handleEventsSeen(session)
             handleEventsProcessed(session)
             handleEventsFailed(session)
+            handleDuplicateEventKeys(session)
             handleEventsBatch(session, processingTime)
         }
     }
 
     private suspend fun handleEventsSeen(session: EventMetricsSession) {
-        session.getUniqueProducers().forEach{ producerName ->
+        session.getUniqueProducers().forEach { producerName ->
             val numberSeen = session.getEventsSeen(producerName)
             val eventTypeName = session.eventType.toString()
             val printableAlias = nameScrubber.getPublicAlias(producerName)
@@ -34,7 +32,7 @@ class EventMetricsProbe(private val metricsReporter: MetricsReporter,
     }
 
     private suspend fun handleEventsProcessed(session: EventMetricsSession) {
-        session.getUniqueProducers().forEach{ producerName ->
+        session.getUniqueProducers().forEach { producerName ->
             val numberProcessed = session.getEventsProcessed(producerName)
             val eventTypeName = session.eventType.toString()
             val printableAlias = nameScrubber.getPublicAlias(producerName)
@@ -47,7 +45,7 @@ class EventMetricsProbe(private val metricsReporter: MetricsReporter,
     }
 
     private suspend fun handleEventsFailed(session: EventMetricsSession) {
-        session.getUniqueProducers().forEach{ producerName ->
+        session.getUniqueProducers().forEach { producerName ->
             val numberFailed = session.getEventsFailed(producerName)
             val eventTypeName = session.eventType.toString()
             val printableAlias = nameScrubber.getPublicAlias(producerName)
@@ -55,6 +53,19 @@ class EventMetricsProbe(private val metricsReporter: MetricsReporter,
             if (numberFailed > 0) {
                 reportEvents(numberFailed, eventTypeName, printableAlias, EVENTS_FAILED)
                 PrometheusMetricsCollector.registerEventsFailed(numberFailed, eventTypeName, printableAlias)
+            }
+        }
+    }
+
+    private suspend fun handleDuplicateEventKeys(session: EventMetricsSession) {
+        session.getUniqueProducers().forEach { producerName ->
+            val numberDuplicateKeyEvents = session.getDuplicateKeyEvents(producerName)
+            val eventTypeName = session.eventType.toString()
+            val printableAlias = nameScrubber.getPublicAlias(producerName)
+
+            if (numberDuplicateKeyEvents > 0) {
+                reportEvents(numberDuplicateKeyEvents, eventTypeName, printableAlias, EVENTS_DUPLICATE_KEY)
+                PrometheusMetricsCollector.registerEventsDuplicateKey(numberDuplicateKeyEvents, eventTypeName, printableAlias)
             }
         }
     }
