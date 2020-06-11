@@ -9,7 +9,7 @@ object AvroDoneObjectMother {
 
     private val defaultOffset = 0L
     private val defaultPartition = 0
-    private val defaultDummtTopicName = "dummy"
+    private val defaultDummyTopicName = "dummy"
 
     fun createDoneRecord(eventId: String, fodselsnr: String): ConsumerRecord<Nokkel, Done> {
         val key = Nokkel("dummySystembruker", eventId)
@@ -18,15 +18,15 @@ object AvroDoneObjectMother {
                 fodselsnr,
                 "100${eventId}"
         )
-        return ConsumerRecord(defaultDummtTopicName, defaultPartition, defaultOffset, key, value)
+        return ConsumerRecord(defaultDummyTopicName, defaultPartition, defaultOffset, key, value)
     }
 
     fun createDoneRecord(key: Nokkel?, value: Done): ConsumerRecord<Nokkel, Done> {
         return if (key != null) {
-            ConsumerRecord(defaultDummtTopicName, defaultPartition, defaultOffset, key, value)
+            ConsumerRecord(defaultDummyTopicName, defaultPartition, defaultOffset, key, value)
 
         } else {
-            ConsumerRecord<Nokkel, Done>(defaultDummtTopicName, defaultPartition, defaultOffset, null, value)
+            ConsumerRecord<Nokkel, Done>(defaultDummyTopicName, defaultPartition, defaultOffset, null, value)
         }
     }
 
