@@ -12,9 +12,11 @@ import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksEventService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildDBMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildEventMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.metrics.buildTopicMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.CacheEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.KafkaEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.KafkaTopicEventCounterService
+import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.topic.TopicEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveEventService
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
 import org.slf4j.LoggerFactory
@@ -55,9 +57,13 @@ class ApplicationContext {
     var periodicDoneEventWaitingTableProcessor = initializeDoneWaitingTableProcessor()
 
     val healthService = HealthService(this)
+
     val kafkaEventCounterService = KafkaEventCounterService(environment)
     val kafkaTopicEventCounterService = KafkaTopicEventCounterService(environment)
     val cacheEventCounterService = CacheEventCounterService(environment, beskjedRepository, innboksRepository, oppgaveRepository, doneRepository)
+
+    val topicMetricsProbe = buildTopicMetricsProbe(environment, database)
+    val topicEventCounterService = TopicEventCounterService(environment, topicMetricsProbe)
 
     private fun initializeBeskjedConsumer() =
             KafkaConsumerSetup.setupConsumerForTheBeskjedTopic(beskjedKafkaProps, beskjedEventProcessor)

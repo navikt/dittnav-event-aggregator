@@ -5,8 +5,9 @@ import no.nav.personbruker.dittnav.eventaggregator.common.kafka.resetTheGroupIds
 import no.nav.personbruker.dittnav.eventaggregator.config.Environment
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
+import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.topic.UniqueKafkaEventIdentifierTransformer
+import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.topic.foundRecords
 import org.apache.avro.generic.GenericRecord
-import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.KafkaException
@@ -63,22 +64,13 @@ fun countUniqueEvents(consumer: KafkaConsumer<Nokkel, GenericRecord>, eventType:
 private fun countBatch(records: ConsumerRecords<Nokkel, GenericRecord>, uniqueEvents: HashSet<UniqueKafkaEventIdentifier>): Int {
     var duplicateCounter = 0
     records.forEach { record ->
-        val event = transformToInternal(record)
+        val event = UniqueKafkaEventIdentifierTransformer.toInternal(record)
         val wasNewUniqueEvent = uniqueEvents.add(event)
         if (!wasNewUniqueEvent) {
             duplicateCounter++
         }
     }
     return duplicateCounter
-}
-
-private fun transformToInternal(record: ConsumerRecord<Nokkel, GenericRecord>): UniqueKafkaEventIdentifier {
-    val key = record.key()
-    return UniqueKafkaEventIdentifier(
-            key.getEventId(),
-            key.getSystembruker(),
-            record.value().get("fodselsnummer") as String
-    )
 }
 
 fun <T> closeConsumer(consumer: KafkaConsumer<Nokkel, T>) {
@@ -105,9 +97,6 @@ fun getDefaultTopicName(eventType: EventType): String {
     }
 }
 
-private fun <T> ConsumerRecords<Nokkel, T>.foundRecords(): Boolean {
-    return !isEmpty
-}
 
 private fun logTimeUsed(start: Instant, counter: Long, eventType: EventType) {
     val end = Instant.now()

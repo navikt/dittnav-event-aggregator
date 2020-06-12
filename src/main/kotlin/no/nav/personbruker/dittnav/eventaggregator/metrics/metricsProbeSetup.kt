@@ -5,6 +5,7 @@ import no.nav.personbruker.dittnav.eventaggregator.config.Environment
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.InfluxMetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.SensuClient
+import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.topic.TopicMetricsProbe
 
 fun buildEventMetricsProbe(environment: Environment, database: Database): EventMetricsProbe {
     val metricsReporter = resolveMetricsReporter(environment)
@@ -18,6 +19,13 @@ fun buildDBMetricsProbe(environment: Environment, database: Database): DBMetrics
     val nameResolver = ProducerNameResolver(database)
     val nameScrubber = ProducerNameScrubber(nameResolver)
     return DBMetricsProbe(metricsReporter, nameScrubber)
+}
+
+fun buildTopicMetricsProbe(environment: Environment, database: Database): TopicMetricsProbe {
+    val metricsReporter = resolveMetricsReporter(environment)
+    val nameResolver = ProducerNameResolver(database)
+    val nameScrubber = ProducerNameScrubber(nameResolver)
+    return TopicMetricsProbe(metricsReporter, nameScrubber)
 }
 
 private fun resolveMetricsReporter(environment: Environment): MetricsReporter {

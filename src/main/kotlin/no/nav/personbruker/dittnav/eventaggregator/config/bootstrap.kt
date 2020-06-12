@@ -14,6 +14,7 @@ import no.nav.personbruker.dittnav.eventaggregator.metrics.db.cacheCountingApi
 import no.nav.personbruker.dittnav.eventaggregator.metrics.eventCountingApi
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.kafkaCountingApi
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.pollingApi
+import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.topic.topicCountingApi
 
 fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()) {
     DefaultExports.initialize()
@@ -25,6 +26,7 @@ fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()
         eventCountingApi(appContext.kafkaEventCounterService, appContext.cacheEventCounterService)
         pollingApi(appContext)
         waitTableApi(appContext)
+        topicCountingApi(appContext.topicEventCounterService)
     }
 
     configureStartupHook(appContext)
