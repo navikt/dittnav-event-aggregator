@@ -5,7 +5,7 @@ import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.UniqueKafkaEven
 
 class TopicMetricsSession(val eventType: EventType) {
 
-    private val treMillioner = 30000000
+    private val treMillioner = 3000000
 
     private var duplicatesByProdusent = HashMap<String, Int>(50)
     private var totalNumberOfEventsByProducer = HashMap<String, Int>(50)
