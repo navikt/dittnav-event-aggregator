@@ -14,6 +14,9 @@ object PrometheusMetricsCollector {
     val EVENTS_DUPLICATE_KEY_NAME = "kafka_events_duplicate_key"
     val EVENT_LAST_SEEN_NAME = "kafka_event_type_last_seen"
     val DB_CACHED_EVENTS = "db_cached_events"
+    val KAFKA_TOPIC_TOTAL_EVENTS = "kafka_topic_total_events"
+    val KAFKA_TOPIC_UNIQUE_EVENTS = "kafka_topic_unique_events"
+    val KAFKA_TOPIC_DUPLICATED_EVENTS = "kafka_topic_duplicated_events"
 
     private val MESSAGES_SEEN: Counter = Counter.build()
             .name(EVENTS_SEEN_NAME)
@@ -57,6 +60,27 @@ object PrometheusMetricsCollector {
             .labelNames("type", "producer")
             .register()
 
+    private val MESSAGES_UNIQUE: Gauge = Gauge.build()
+            .name(KAFKA_TOPIC_UNIQUE_EVENTS)
+            .namespace(NAMESPACE)
+            .help("Number of unique events of type on topic")
+            .labelNames("type", "producer")
+            .register()
+
+    private val MESSAGES_DUPLICATES: Gauge = Gauge.build()
+            .name(KAFKA_TOPIC_DUPLICATED_EVENTS)
+            .namespace(NAMESPACE)
+            .help("Number of duplicated events of type on topic")
+            .labelNames("type", "producer")
+            .register()
+
+    private val MESSAGES_TOTAL: Gauge = Gauge.build()
+            .name(KAFKA_TOPIC_TOTAL_EVENTS)
+            .namespace(NAMESPACE)
+            .help("Total number of events of type on topic")
+            .labelNames("type", "producer")
+            .register()
+
     fun registerEventsSeen(count: Int, eventType: String, producer: String) {
         MESSAGES_SEEN.labels(eventType, producer).inc(count.toDouble())
         MESSAGE_LAST_SEEN.labels(eventType, producer).setToCurrentTime()
@@ -77,4 +101,17 @@ object PrometheusMetricsCollector {
     fun registerEventsDuplicateKey(count: Int, topic: String, producer: String) {
         MESSAGES_DUPLICATE_KEY.labels(topic, producer).inc(count.toDouble())
     }
+
+    fun registerUniqueEvents(count: Int, eventType: EventType, producer: String) {
+        MESSAGES_UNIQUE.labels(eventType.eventType, producer).set(count.toDouble())
+    }
+
+    fun registerDuplicatedEventsOnTopic(count: Int, eventType: EventType, producer: String) {
+        MESSAGES_DUPLICATES.labels(eventType.eventType, producer).set(count.toDouble())
+    }
+
+    fun registerTotalNumberOfEvents(count: Int, eventType: EventType, producer: String) {
+        MESSAGES_TOTAL.labels(eventType.eventType, producer).set(count.toDouble())
+    }
+
 }

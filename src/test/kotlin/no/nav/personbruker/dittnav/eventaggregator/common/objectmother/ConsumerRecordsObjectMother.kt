@@ -61,6 +61,10 @@ object ConsumerRecordsObjectMother {
         return ConsumerRecord(topicName, 1, 0, nokkel, actualEvent)
     }
 
+    fun <T> createConsumerRecord(nokkel: Nokkel, actualEvent: T): ConsumerRecord<Nokkel, T> {
+        return ConsumerRecord("dummyTopic", 1, 0, nokkel, actualEvent)
+    }
+
     fun giveMeANumberOfDoneRecords(numberOfRecords: Int, topicName: String): ConsumerRecords<Nokkel, Done> {
         val records = mutableMapOf<TopicPartition, List<ConsumerRecord<Nokkel, Done>>>()
         val recordsForSingleTopic = createDoneRecords(topicName, numberOfRecords)

@@ -3,10 +3,10 @@ package no.nav.personbruker.dittnav.eventaggregator.metrics
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.EVENTS_BATCH
-import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.EVENTS_FAILED
-import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.EVENTS_PROCESSED
-import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.EVENTS_SEEN
+import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.KAFKA_EVENTS_BATCH
+import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.KAFKA_EVENTS_FAILED
+import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.KAFKA_EVENTS_PROCESSED
+import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.KAFKA_EVENTS_SEEN
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -34,8 +34,8 @@ internal class EventMetricsProbeTest {
         val producerNameForPrometheus = slot<String>()
         val capturedTags = slot<Map<String, String>>()
 
-        coEvery { metricsReporter.registerDataPoint(not(EVENTS_BATCH), any(), capture(capturedTags)) } returns Unit
-        coEvery { metricsReporter.registerDataPoint(EVENTS_BATCH, any(), any()) } returns Unit
+        coEvery { metricsReporter.registerDataPoint(not(KAFKA_EVENTS_BATCH), any(), capture(capturedTags)) } returns Unit
+        coEvery { metricsReporter.registerDataPoint(KAFKA_EVENTS_BATCH, any(), any()) } returns Unit
         every { PrometheusMetricsCollector.registerEventsSeen(any(), any(), capture(producerNameForPrometheus)) } returns Unit
 
         runBlocking {
@@ -44,9 +44,9 @@ internal class EventMetricsProbeTest {
             }
         }
 
-        coVerify(exactly = 2) { metricsReporter.registerDataPoint(not(EVENTS_BATCH), any(), any()) }
-        verify(exactly = 1) { PrometheusMetricsCollector.registerEventsSeen(any() , any(), any()) }
-        verify(exactly = 1) { PrometheusMetricsCollector.registerEventsProcessed(any() , any(), any()) }
+        coVerify(exactly = 2) { metricsReporter.registerDataPoint(not(KAFKA_EVENTS_BATCH), any(), any()) }
+        verify(exactly = 1) { PrometheusMetricsCollector.registerEventsSeen(any(), any(), any()) }
+        verify(exactly = 1) { PrometheusMetricsCollector.registerEventsProcessed(any(), any(), any()) }
 
         assertEquals(producerAlias, producerNameForPrometheus.captured)
         assertEquals(producerAlias, capturedTags.captured["producer"])
@@ -64,17 +64,17 @@ internal class EventMetricsProbeTest {
         val capturedTags = slot<Map<String, String>>()
         val producerNameForPrometheus = slot<String>()
 
-        coEvery { metricsReporter.registerDataPoint(not(EVENTS_BATCH), any(), capture(capturedTags)) } returns Unit
-        coEvery { metricsReporter.registerDataPoint(EVENTS_BATCH, any(), any())} returns Unit
+        coEvery { metricsReporter.registerDataPoint(not(KAFKA_EVENTS_BATCH), any(), capture(capturedTags)) } returns Unit
+        coEvery { metricsReporter.registerDataPoint(KAFKA_EVENTS_BATCH, any(), any()) } returns Unit
         every { PrometheusMetricsCollector.registerEventsFailed(any(), any(), capture(producerNameForPrometheus)) } returns Unit
 
         runBlocking {
-                metricsProbe.runWithMetrics(EventType.BESKJED) {
+            metricsProbe.runWithMetrics(EventType.BESKJED) {
                 countFailedEventForProducer(producerName)
             }
         }
 
-        coVerify(exactly = 2) { metricsReporter.registerDataPoint(not(EVENTS_BATCH), any(), any()) }
+        coVerify(exactly = 2) { metricsReporter.registerDataPoint(not(KAFKA_EVENTS_BATCH), any(), any()) }
         verify(exactly = 1) { PrometheusMetricsCollector.registerEventsSeen(any(), any(), any()) }
         verify(exactly = 1) { PrometheusMetricsCollector.registerEventsFailed(any(), any(), any()) }
 
@@ -92,10 +92,10 @@ internal class EventMetricsProbeTest {
         val capturedFieldsForProcessed = slot<Map<String, Any>>()
         val capturedFieldsForFailed = slot<Map<String, Any>>()
 
-        coEvery { metricsReporter.registerDataPoint(EVENTS_SEEN, capture(capturedFieldsForSeen), any()) } returns Unit
-        coEvery { metricsReporter.registerDataPoint(EVENTS_PROCESSED, capture(capturedFieldsForProcessed), any()) } returns Unit
-        coEvery { metricsReporter.registerDataPoint(EVENTS_FAILED, capture(capturedFieldsForFailed), any()) } returns Unit
-        coEvery { metricsReporter.registerDataPoint(EVENTS_BATCH, any(), any())} returns Unit
+        coEvery { metricsReporter.registerDataPoint(KAFKA_EVENTS_SEEN, capture(capturedFieldsForSeen), any()) } returns Unit
+        coEvery { metricsReporter.registerDataPoint(KAFKA_EVENTS_PROCESSED, capture(capturedFieldsForProcessed), any()) } returns Unit
+        coEvery { metricsReporter.registerDataPoint(KAFKA_EVENTS_FAILED, capture(capturedFieldsForFailed), any()) } returns Unit
+        coEvery { metricsReporter.registerDataPoint(KAFKA_EVENTS_BATCH, any(), any()) } returns Unit
 
         runBlocking {
             metricsProbe.runWithMetrics(EventType.BESKJED) {
