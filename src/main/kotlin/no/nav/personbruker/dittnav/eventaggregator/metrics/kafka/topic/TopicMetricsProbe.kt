@@ -19,15 +19,15 @@ class TopicMetricsProbe(private val metricsReporter: MetricsReporter,
         block.invoke(session)
 
         if (session.getNumberOfUniqueEvents() > 0) {
-            handleUniqueEvents(session)
-            handleDuplicatedEvents(session)
-            handleTotalNumberOfEvents(session)
+            handleUniqueEventsByProducer(session)
+            handleDuplicatedEventsByProducer(session)
+            handleTotalNumberOfEventsByProducer(session)
         }
     }
 
-    private suspend fun handleUniqueEvents(session: TopicMetricsSession) {
+    private suspend fun handleUniqueEventsByProducer(session: TopicMetricsSession) {
         session.getProducersWithUniqueEvents().forEach { producerName ->
-            val uniqueEvents = session.getNumberOfUniqueEvents()
+            val uniqueEvents = session.getNumberOfUniqueEvents(producerName)
             val eventTypeName = session.eventType.toString()
             val printableAlias = nameScrubber.getPublicAlias(producerName)
 
@@ -36,9 +36,9 @@ class TopicMetricsProbe(private val metricsReporter: MetricsReporter,
         }
     }
 
-    private suspend fun handleDuplicatedEvents(session: TopicMetricsSession) {
+    private suspend fun handleDuplicatedEventsByProducer(session: TopicMetricsSession) {
         session.getProducersWithDuplicatedEvents().forEach { producerName ->
-            val duplicates = session.getDuplicates()
+            val duplicates = session.getDuplicates(producerName)
             val eventTypeName = session.eventType.toString()
             val printableAlias = nameScrubber.getPublicAlias(producerName)
 
@@ -47,9 +47,9 @@ class TopicMetricsProbe(private val metricsReporter: MetricsReporter,
         }
     }
 
-    private suspend fun handleTotalNumberOfEvents(session: TopicMetricsSession) {
+    private suspend fun handleTotalNumberOfEventsByProducer(session: TopicMetricsSession) {
         session.getProducersWithEvents().forEach { producerName ->
-            val total = session.getTotalNumber()
+            val total = session.getTotalNumber(producerName)
             val eventTypeName = session.eventType.toString()
             val printableAlias = nameScrubber.getPublicAlias(producerName)
 
