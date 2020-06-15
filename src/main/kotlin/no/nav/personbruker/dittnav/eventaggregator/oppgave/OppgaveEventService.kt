@@ -40,7 +40,9 @@ class OppgaveEventService(
 
                 } catch (e: FieldValidationException) {
                     countFailedEventForProducer(event.systembruker)
-                    log.warn("Eventet kan ikke brukes fordi det inneholder valideringsfeil, eventet vil bli forkastet. EventId: ${event.getNonNullKey().getEventId()}", e)
+                    val eventId = event.getNonNullKey().getEventId()
+                    val msg = "Eventet kan ikke brukes fordi det inneholder valideringsfeil, eventet vil bli forkastet. EventId: $eventId"
+                    log.warn(msg, e.toString(), e)
 
                 } catch (e: Exception) {
                     countFailedEventForProducer(event.systembruker)
