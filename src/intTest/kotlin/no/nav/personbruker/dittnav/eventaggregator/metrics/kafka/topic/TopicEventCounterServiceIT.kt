@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.topics
+package no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.topic
 
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -7,9 +7,6 @@ import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util.KafkaTestUtil
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.topic.TopicEventCounterService
-import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.topic.TopicMetricsProbe
-import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.topic.TopicMetricsSession
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldEqualTo
