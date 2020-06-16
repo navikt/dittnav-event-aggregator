@@ -24,7 +24,7 @@ object BeskjedObjectMother {
 
     fun giveMeAktivBeskjed(eventId: String, fodselsnummer: String, systembruker: String): Beskjed {
         return Beskjed(
-                uid = Random.nextInt(1,100).toString(),
+                uid = Random.nextInt(1, 100).toString(),
                 systembruker = systembruker,
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
                 synligFremTil = LocalDateTime.now(ZoneId.of("UTC")),

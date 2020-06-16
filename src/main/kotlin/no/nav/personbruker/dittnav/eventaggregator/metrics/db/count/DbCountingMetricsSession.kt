@@ -28,4 +28,11 @@ class DbCountingMetricsSession(val eventType: EventType) {
         return total
     }
 
+    override fun toString(): String {
+        return """DbCountingMetricsSession(
+|                   eventType=$eventType, 
+|                   cachedEventsByProducer=$cachedEventsByProducer
+|                 )""".trimMargin()
+    }
+
 }

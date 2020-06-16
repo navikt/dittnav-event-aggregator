@@ -12,6 +12,11 @@ object DoneObjectMother {
         return giveMeDone(eventId, systembruker, fodselsnummer)
     }
 
+    fun giveMeDone(eventId: String, systembruker: String): Done {
+        val fodselsnummer = "12345"
+        return giveMeDone(eventId, systembruker, fodselsnummer)
+    }
+
     fun giveMeDone(eventId: String, systembruker: String, fodselsnummer: String): Done {
         return Done(
                 systembruker,
