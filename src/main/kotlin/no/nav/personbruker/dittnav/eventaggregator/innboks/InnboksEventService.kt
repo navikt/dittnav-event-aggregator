@@ -41,7 +41,8 @@ class InnboksEventService(
                 } catch (e: FieldValidationException) {
                     countFailedEventForProducer(event.systembruker)
                     val eventId = event.getNonNullKey().getEventId()
-                    val msg = "Eventet kan ikke brukes fordi det inneholder valideringsfeil, eventet vil bli forkastet. EventId: $eventId"
+                    val systembruker = event.getNonNullKey().getSystembruker()
+                    val msg = "Eventet kan ikke brukes fordi det inneholder valideringsfeil, eventet vil bli forkastet. EventId: $eventId, systembruker: $systembruker"
                     log.warn(msg, e.toString(), e)
 
                 } catch (e: Exception) {
