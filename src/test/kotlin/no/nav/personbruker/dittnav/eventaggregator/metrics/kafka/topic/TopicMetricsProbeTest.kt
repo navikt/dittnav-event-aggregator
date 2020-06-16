@@ -54,9 +54,9 @@ internal class TopicMetricsProbeTest {
         verify(exactly = 1) { PrometheusMetricsCollector.registerTotalNumberOfEvents(4, any(), any()) }
         verify(exactly = 1) { PrometheusMetricsCollector.registerDuplicatedEventsOnTopic(1, any(), any()) }
 
-        assertEquals(capturedFieldsForUnique.captured["counter"] as Int, 3)
-        assertEquals(capturedFieldsForTotalEvents.captured["counter"] as Int, 4)
-        assertEquals(capturedFieldsForDuplicated.captured["counter"] as Int, 1)
+        assertEquals(3, capturedFieldsForUnique.captured["counter"])
+        assertEquals(4, capturedFieldsForTotalEvents.captured["counter"])
+        assertEquals(1, capturedFieldsForDuplicated.captured["counter"])
     }
 
     @Test
