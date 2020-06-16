@@ -5,7 +5,7 @@ import io.ktor.http.ContentType
 import io.ktor.response.respondText
 import io.ktor.routing.Routing
 import io.ktor.routing.get
-import no.nav.personbruker.dittnav.eventaggregator.metrics.db.CacheEventCounterService
+import no.nav.personbruker.dittnav.eventaggregator.metrics.db.count.CacheEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.KafkaEventCounterService
 
 fun Routing.eventCountingApi(kafkaEventCounterService: KafkaEventCounterService, cacheEventCounterService: CacheEventCounterService) {

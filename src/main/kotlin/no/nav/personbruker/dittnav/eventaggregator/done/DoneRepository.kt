@@ -4,8 +4,6 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.setBeskjederAktivflag
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon
 import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.getBrukernotifikasjonFromViewForEventIds
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.countTotalNumberOfEvents
-import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.innboks.setInnboksEventerAktivFlag
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.setOppgaverAktivFlag
 
@@ -74,12 +72,6 @@ class DoneRepository(private val database: Database) {
     suspend fun deleteDoneEventsFromCache(doneEventsToDelete: List<Done>) {
         database.queryWithExceptionTranslation {
             deleteDoneEvents(doneEventsToDelete)
-        }
-    }
-
-    suspend fun getTotalNumberOfEvents(): Long {
-        return database.queryWithExceptionTranslation {
-            countTotalNumberOfEvents(EventType.DONE)
         }
     }
 

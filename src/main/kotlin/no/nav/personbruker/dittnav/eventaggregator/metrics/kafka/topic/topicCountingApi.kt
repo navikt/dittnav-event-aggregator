@@ -10,7 +10,7 @@ fun Routing.topicCountingApi(topicEventCounterService: TopicEventCounterService)
 
     get("/internal/metrics/report/topic") {
         topicEventCounterService.countEventsAndReportMetrics()
-        call.respondText(text = "Metrics har blitt rapporter", contentType = ContentType.Text.Plain)
+        call.respondText(text = "Metrics har blitt rapportert", contentType = ContentType.Text.Plain)
     }
 
 }
