@@ -25,7 +25,7 @@ internal class DbCountingMetricsSessionTest {
     @Test
     fun `Skal telle opp riktig totalantall eventer, og rapportere riktig per produsent`() {
         val session = DbCountingMetricsSession(EventType.BESKJED)
-        session.addEventsByProducent(beskjederGruppertPerProdusent)
+        session.addEventsByProducer(beskjederGruppertPerProdusent)
 
         session.getTotalNumber() `should be equal to` (produsent1Antall + produsent2Antall + produsent3Antall)
 
@@ -40,8 +40,8 @@ internal class DbCountingMetricsSessionTest {
     @Test
     fun `Skal telle opp riktig totalantall eventer, hvis eventer legges til flere ganger`() {
         val session = DbCountingMetricsSession(EventType.BESKJED)
-        session.addEventsByProducent(beskjederGruppertPerProdusent)
-        session.addEventsByProducent(beskjederGruppertPerProdusent)
+        session.addEventsByProducer(beskjederGruppertPerProdusent)
+        session.addEventsByProducer(beskjederGruppertPerProdusent)
 
         session.getTotalNumber() `should be equal to` (produsent1Antall + produsent2Antall + produsent3Antall) * 2
 

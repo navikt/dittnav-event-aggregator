@@ -6,9 +6,9 @@ class DbCountingMetricsSession(val eventType: EventType) {
 
     private val cachedEventsByProducer = HashMap<String, Int>(50)
 
-    fun addEventsByProducent(eventerPerProducer: Map<String, Int>) {
-        eventerPerProducer.forEach { produsent ->
-            cachedEventsByProducer[produsent.key] = cachedEventsByProducer.getOrDefault(produsent.key, 0).plus(produsent.value)
+    fun addEventsByProducer(eventsByProducer: Map<String, Int>) {
+        eventsByProducer.forEach { producer ->
+            cachedEventsByProducer[producer.key] = cachedEventsByProducer.getOrDefault(producer.key, 0).plus(producer.value)
         }
     }
 

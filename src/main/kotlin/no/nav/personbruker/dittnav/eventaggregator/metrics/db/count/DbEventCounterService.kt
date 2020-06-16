@@ -36,7 +36,7 @@ class DbEventCounterService(private val metricsProbe: DbCountingMetricsProbe,
         try {
             metricsProbe.runWithMetrics(EventType.BESKJED) {
                 val grupperPerProdusent = repository.getNumberOfBeskjedEventsGroupedByProdusent()
-                addEventsByProducent(grupperPerProdusent)
+                addEventsByProducer(grupperPerProdusent)
             }
 
         } catch (e: Exception) {
@@ -49,7 +49,7 @@ class DbEventCounterService(private val metricsProbe: DbCountingMetricsProbe,
             try {
                 metricsProbe.runWithMetrics(EventType.INNBOKS) {
                     val grupperPerProdusent = repository.getNumberOfInnboksEventsGroupedByProdusent()
-                    addEventsByProducent(grupperPerProdusent)
+                    addEventsByProducer(grupperPerProdusent)
                 }
 
             } catch (e: Exception) {
@@ -62,7 +62,7 @@ class DbEventCounterService(private val metricsProbe: DbCountingMetricsProbe,
         try {
             metricsProbe.runWithMetrics(EventType.OPPGAVE) {
                 val grupperPerProdusent = repository.getNumberOfOppgaveEventsGroupedByProdusent()
-                addEventsByProducent(grupperPerProdusent)
+                addEventsByProducer(grupperPerProdusent)
             }
 
         } catch (e: Exception) {
@@ -73,8 +73,8 @@ class DbEventCounterService(private val metricsProbe: DbCountingMetricsProbe,
     private suspend fun countAndReportMetricsForDoneEvents() {
         try {
             metricsProbe.runWithMetrics(EventType.DONE) {
-                addEventsByProducent(repository.getNumberOfDoneEventsInWaitingTableGroupedByProdusent())
-                addEventsByProducent(repository.getNumberOfInactiveBrukernotifikasjonerGroupedByProdusent())
+                addEventsByProducer(repository.getNumberOfDoneEventsInWaitingTableGroupedByProdusent())
+                addEventsByProducer(repository.getNumberOfInactiveBrukernotifikasjonerGroupedByProdusent())
             }
 
         } catch (e: Exception) {
