@@ -1,6 +1,5 @@
-package no.nav.personbruker.dittnav.eventaggregator.metrics.db
+package no.nav.personbruker.dittnav.eventaggregator.metrics.db.count
 
-import no.nav.personbruker.dittnav.eventaggregator.metrics.db.count.NumberOfCachedRecords
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 
