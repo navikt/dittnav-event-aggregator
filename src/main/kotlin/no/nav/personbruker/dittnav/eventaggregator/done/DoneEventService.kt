@@ -37,9 +37,12 @@ class DoneEventService(
                     countFailedEventForProducer("NoProducerSpecified")
                     log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", e)
 
-                } catch (e: FieldValidationException) {
+                } catch (fve: FieldValidationException) {
                     countFailedEventForProducer(event.systembruker)
-                    log.warn("Eventet kan ikke brukes fordi det inneholder valideringsfeil, eventet vil bli forkastet. EventId: ${event.getNonNullKey().getEventId()}", e)
+                    val eventId = event.getNonNullKey().getEventId()
+                    val systembruker = event.getNonNullKey().getSystembruker()
+                    val msg = "Eventet kan ikke brukes fordi det inneholder valideringsfeil, eventet vil bli forkastet. EventId: $eventId, systembruker: $systembruker, ${fve.toString()}"
+                    log.warn(msg, fve)
 
                 } catch (e: Exception) {
                     countFailedEventForProducer(event.systembruker)
