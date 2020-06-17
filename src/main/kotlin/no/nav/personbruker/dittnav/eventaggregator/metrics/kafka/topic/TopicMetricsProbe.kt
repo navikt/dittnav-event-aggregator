@@ -5,7 +5,7 @@ import no.nav.personbruker.dittnav.eventaggregator.metrics.MetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameScrubber
 import no.nav.personbruker.dittnav.eventaggregator.metrics.PrometheusMetricsCollector
 import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.KAFKA_DUPLICATE_EVENTS_ON_TOPIC
-import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.KAFKA_TOTAL_EVENTS_ON_TOPIC
+import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.KAFKA_TOTAL_EVENTS_ON_TOPIC_BY_PRODUCER
 import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.KAFKA_UNIQUE_EVENTS_ON_TOPIC
 import org.slf4j.LoggerFactory
 
@@ -53,8 +53,8 @@ class TopicMetricsProbe(private val metricsReporter: MetricsReporter,
             val eventTypeName = session.eventType.toString()
             val printableAlias = nameScrubber.getPublicAlias(producerName)
 
-            reportEvents(total, eventTypeName, printableAlias, KAFKA_TOTAL_EVENTS_ON_TOPIC)
-            PrometheusMetricsCollector.registerTotalNumberOfEvents(total, session.eventType, printableAlias)
+            reportEvents(total, eventTypeName, printableAlias, KAFKA_TOTAL_EVENTS_ON_TOPIC_BY_PRODUCER)
+            PrometheusMetricsCollector.registerTotalNumberOfEventsByProducer(total, session.eventType, printableAlias)
         }
     }
 

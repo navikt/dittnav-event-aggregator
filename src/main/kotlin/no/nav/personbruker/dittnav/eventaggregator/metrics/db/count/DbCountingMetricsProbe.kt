@@ -4,7 +4,7 @@ import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.metrics.MetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameScrubber
 import no.nav.personbruker.dittnav.eventaggregator.metrics.PrometheusMetricsCollector
-import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.DB_TOTAL_EVENTS_IN_CACHE
+import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.DB_TOTAL_EVENTS_IN_CACHE_BY_PRODUCER
 import org.slf4j.LoggerFactory
 
 class DbCountingMetricsProbe(private val metricsReporter: MetricsReporter,
@@ -27,8 +27,8 @@ class DbCountingMetricsProbe(private val metricsReporter: MetricsReporter,
             val eventTypeName = session.eventType.toString()
             val printableAlias = nameScrubber.getPublicAlias(producerName)
 
-            reportEvents(numberOfEvents, eventTypeName, printableAlias, DB_TOTAL_EVENTS_IN_CACHE)
-            PrometheusMetricsCollector.registerTotalNumberOfEventsInCache(numberOfEvents, session.eventType, printableAlias)
+            reportEvents(numberOfEvents, eventTypeName, printableAlias, DB_TOTAL_EVENTS_IN_CACHE_BY_PRODUCER)
+            PrometheusMetricsCollector.registerTotalNumberOfEventsInCacheByProducer(numberOfEvents, session.eventType, printableAlias)
         }
     }
 
