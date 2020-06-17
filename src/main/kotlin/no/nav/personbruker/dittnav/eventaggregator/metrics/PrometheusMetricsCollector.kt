@@ -16,6 +16,7 @@ object PrometheusMetricsCollector {
     const val KAFKA_TOPIC_TOTAL_EVENTS = "kafka_topic_total_events"
     const val KAFKA_TOPIC_TOTAL_EVENTS_BY_PRODUCER = "kafka_topic_total_events_by_producer"
     const val KAFKA_TOPIC_UNIQUE_EVENTS = "kafka_topic_unique_events"
+    const val KAFKA_TOPIC_UNIQUE_EVENTS_BY_PRODUCER = "kafka_topic_unique_events_by_producer"
     const val KAFKA_TOPIC_DUPLICATED_EVENTS = "kafka_topic_duplicated_events"
     const val DB_CACHED_EVENTS = "db_cached_events"
     const val DB_TOTAL_EVENTS = "db_total_events"
@@ -67,6 +68,13 @@ object PrometheusMetricsCollector {
             .name(KAFKA_TOPIC_UNIQUE_EVENTS)
             .namespace(NAMESPACE)
             .help("Number of unique events of type on topic")
+            .labelNames("type")
+            .register()
+
+    private val MESSAGES_UNIQUE_BY_PRODUCER: Gauge = Gauge.build()
+            .name(KAFKA_TOPIC_UNIQUE_EVENTS_BY_PRODUCER)
+            .namespace(NAMESPACE)
+            .help("Number of unique events of type on topic grouped by producer")
             .labelNames("type", "producer")
             .register()
 
@@ -126,8 +134,12 @@ object PrometheusMetricsCollector {
         MESSAGES_DUPLICATE_KEY.labels(topic, producer).inc(count.toDouble())
     }
 
-    fun registerUniqueEvents(count: Int, eventType: EventType, producer: String) {
-        MESSAGES_UNIQUE.labels(eventType.eventType, producer).set(count.toDouble())
+    fun registerUniqueEvents(count: Int, eventType: EventType) {
+        MESSAGES_UNIQUE.labels(eventType.eventType).set(count.toDouble())
+    }
+
+    fun registerUniqueEventsByProducer(count: Int, eventType: EventType, producer: String) {
+        MESSAGES_UNIQUE_BY_PRODUCER.labels(eventType.eventType, producer).set(count.toDouble())
     }
 
     fun registerDuplicatedEventsOnTopic(count: Int, eventType: EventType, producer: String) {

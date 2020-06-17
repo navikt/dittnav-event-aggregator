@@ -4,10 +4,7 @@ import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.metrics.MetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameScrubber
 import no.nav.personbruker.dittnav.eventaggregator.metrics.PrometheusMetricsCollector
-import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.KAFKA_DUPLICATE_EVENTS_ON_TOPIC
-import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.KAFKA_TOTAL_EVENTS_ON_TOPIC
-import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.KAFKA_TOTAL_EVENTS_ON_TOPIC_BY_PRODUCER
-import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.KAFKA_UNIQUE_EVENTS_ON_TOPIC
+import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.*
 import org.slf4j.LoggerFactory
 
 class TopicMetricsProbe(private val metricsReporter: MetricsReporter,
@@ -20,11 +17,20 @@ class TopicMetricsProbe(private val metricsReporter: MetricsReporter,
         block.invoke(session)
 
         if (session.getNumberOfUniqueEvents() > 0) {
+            handleUniqueEvents(session)
             handleTotalNumberOfEvents(session)
             handleUniqueEventsByProducer(session)
             handleDuplicatedEventsByProducer(session)
             handleTotalNumberOfEventsByProducer(session)
         }
+    }
+
+    private suspend fun handleUniqueEvents(session: TopicMetricsSession) {
+        val uniqueEvents = session.getNumberOfUniqueEvents()
+        val eventTypeName = session.eventType.toString()
+
+        reportEvents(uniqueEvents, eventTypeName, KAFKA_UNIQUE_EVENTS_ON_TOPIC)
+        PrometheusMetricsCollector.registerUniqueEvents(uniqueEvents, session.eventType)
     }
 
     private suspend fun handleTotalNumberOfEvents(session: TopicMetricsSession) {
@@ -41,8 +47,8 @@ class TopicMetricsProbe(private val metricsReporter: MetricsReporter,
             val eventTypeName = session.eventType.toString()
             val printableAlias = nameScrubber.getPublicAlias(producerName)
 
-            reportEvents(uniqueEvents, eventTypeName, printableAlias, KAFKA_UNIQUE_EVENTS_ON_TOPIC)
-            PrometheusMetricsCollector.registerUniqueEvents(uniqueEvents, session.eventType, printableAlias)
+            reportEvents(uniqueEvents, eventTypeName, printableAlias, KAFKA_UNIQUE_EVENTS_ON_TOPIC_BY_PRODUCER)
+            PrometheusMetricsCollector.registerUniqueEventsByProducer(uniqueEvents, session.eventType, printableAlias)
         }
     }
 
