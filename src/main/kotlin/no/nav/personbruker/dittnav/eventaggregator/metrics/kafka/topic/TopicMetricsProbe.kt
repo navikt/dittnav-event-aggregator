@@ -5,6 +5,7 @@ import no.nav.personbruker.dittnav.eventaggregator.metrics.MetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameScrubber
 import no.nav.personbruker.dittnav.eventaggregator.metrics.PrometheusMetricsCollector
 import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.KAFKA_DUPLICATE_EVENTS_ON_TOPIC
+import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.KAFKA_TOTAL_EVENTS_ON_TOPIC
 import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.KAFKA_TOTAL_EVENTS_ON_TOPIC_BY_PRODUCER
 import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.KAFKA_UNIQUE_EVENTS_ON_TOPIC
 import org.slf4j.LoggerFactory
@@ -19,10 +20,19 @@ class TopicMetricsProbe(private val metricsReporter: MetricsReporter,
         block.invoke(session)
 
         if (session.getNumberOfUniqueEvents() > 0) {
+            handleTotalNumberOfEvents(session)
             handleUniqueEventsByProducer(session)
             handleDuplicatedEventsByProducer(session)
             handleTotalNumberOfEventsByProducer(session)
         }
+    }
+
+    private suspend fun handleTotalNumberOfEvents(session: TopicMetricsSession) {
+        val total = session.getTotalNumber()
+        val eventTypeName = session.eventType.toString()
+
+        reportEvents(total, eventTypeName, KAFKA_TOTAL_EVENTS_ON_TOPIC)
+        PrometheusMetricsCollector.registerTotalNumberOfEvents(total, session.eventType)
     }
 
     private suspend fun handleUniqueEventsByProducer(session: TopicMetricsSession) {
@@ -66,4 +76,12 @@ class TopicMetricsProbe(private val metricsReporter: MetricsReporter,
 
     private fun createTagMap(eventType: String, producer: String): Map<String, String> =
             listOf("eventType" to eventType, "producer" to producer).toMap()
+
+    private suspend fun reportEvents(count: Int, eventType: String, metricName: String) {
+        metricsReporter.registerDataPoint(metricName, counterField(count), createTagMap(eventType))
+    }
+
+    private fun createTagMap(eventType: String): Map<String, String> =
+            listOf("eventType" to eventType).toMap()
+
 }
