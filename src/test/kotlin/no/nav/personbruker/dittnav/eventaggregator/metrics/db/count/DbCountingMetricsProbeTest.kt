@@ -8,6 +8,7 @@ import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameResolver
 import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameScrubber
 import no.nav.personbruker.dittnav.eventaggregator.metrics.PrometheusMetricsCollector
 import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.DB_TOTAL_EVENTS_IN_CACHE
+import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.DB_TOTAL_EVENTS_IN_CACHE_BY_PRODUCER
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -33,9 +34,10 @@ internal class DbCountingMetricsProbeTest {
         val nameScrubber = ProducerNameScrubber(producerNameResolver)
         val topicMetricsProbe = DbCountingMetricsProbe(metricsReporter, nameScrubber)
 
-        val capturedTotalEventsInCache = slot<Map<String, Any>>()
+        val capturedTotalEventsInCacheByProducer = slot<Map<String, Any>>()
 
-        coEvery { metricsReporter.registerDataPoint(DB_TOTAL_EVENTS_IN_CACHE, capture(capturedTotalEventsInCache), any()) } returns Unit
+        coEvery { metricsReporter.registerDataPoint(DB_TOTAL_EVENTS_IN_CACHE, any(), any()) } returns Unit
+        coEvery { metricsReporter.registerDataPoint(DB_TOTAL_EVENTS_IN_CACHE_BY_PRODUCER, capture(capturedTotalEventsInCacheByProducer), any()) } returns Unit
 
         runBlocking {
             topicMetricsProbe.runWithMetrics(EventType.BESKJED) {
@@ -43,11 +45,12 @@ internal class DbCountingMetricsProbeTest {
             }
         }
 
-        coVerify(exactly = 2) { metricsReporter.registerDataPoint(any(), any(), any()) }
-        verify(exactly = 1) { PrometheusMetricsCollector.registerTotalNumberOfEventsInCache(1, any(), any()) }
-        verify(exactly = 1) { PrometheusMetricsCollector.registerTotalNumberOfEventsInCache(2, any(), any()) }
+        coVerify(exactly = 3) { metricsReporter.registerDataPoint(any(), any(), any()) }
+        verify(exactly = 1) { PrometheusMetricsCollector.registerTotalNumberOfEventsInCache(3, any()) }
+        verify(exactly = 1) { PrometheusMetricsCollector.registerTotalNumberOfEventsInCacheByProducer(1, any(), any()) }
+        verify(exactly = 1) { PrometheusMetricsCollector.registerTotalNumberOfEventsInCacheByProducer(2, any(), any()) }
 
-        kotlin.test.assertEquals(1, capturedTotalEventsInCache.captured["counter"])
+        kotlin.test.assertEquals(1, capturedTotalEventsInCacheByProducer.captured["counter"])
     }
 
     @Test
@@ -60,10 +63,11 @@ internal class DbCountingMetricsProbeTest {
         val metricsProbe = DbCountingMetricsProbe(metricsReporter, nameScrubber)
 
         val producerNameForPrometheus = slot<String>()
-        val capturedTagsForTotal = slot<Map<String, String>>()
+        val capturedTagsForTotalByProducer = slot<Map<String, String>>()
 
-        coEvery { metricsReporter.registerDataPoint(DB_TOTAL_EVENTS_IN_CACHE, any(), capture(capturedTagsForTotal)) } returns Unit
-        every { PrometheusMetricsCollector.registerTotalNumberOfEventsInCache(any(), any(), capture(producerNameForPrometheus)) } returns Unit
+        coEvery { metricsReporter.registerDataPoint(DB_TOTAL_EVENTS_IN_CACHE, any(), any()) } returns Unit
+        coEvery { metricsReporter.registerDataPoint(DB_TOTAL_EVENTS_IN_CACHE_BY_PRODUCER, any(), capture(capturedTagsForTotalByProducer)) } returns Unit
+        every { PrometheusMetricsCollector.registerTotalNumberOfEventsInCacheByProducer(any(), any(), capture(producerNameForPrometheus)) } returns Unit
 
         runBlocking {
             metricsProbe.runWithMetrics(EventType.BESKJED) {
@@ -71,12 +75,12 @@ internal class DbCountingMetricsProbeTest {
             }
         }
 
-        coVerify(exactly = 1) { metricsReporter.registerDataPoint(DB_TOTAL_EVENTS_IN_CACHE, any(), any()) }
+        coVerify(exactly = 1) { metricsReporter.registerDataPoint(DB_TOTAL_EVENTS_IN_CACHE_BY_PRODUCER, any(), any()) }
 
-        verify(exactly = 1) { PrometheusMetricsCollector.registerTotalNumberOfEventsInCache(any(), any(), any()) }
+        verify(exactly = 1) { PrometheusMetricsCollector.registerTotalNumberOfEventsInCacheByProducer(any(), any(), any()) }
 
         kotlin.test.assertEquals(producerAlias, producerNameForPrometheus.captured)
-        kotlin.test.assertEquals(producerAlias, capturedTagsForTotal.captured["producer"])
+        kotlin.test.assertEquals(producerAlias, capturedTagsForTotalByProducer.captured["producer"])
     }
 
 }

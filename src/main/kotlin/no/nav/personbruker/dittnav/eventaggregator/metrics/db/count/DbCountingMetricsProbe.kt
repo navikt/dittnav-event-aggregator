@@ -5,6 +5,7 @@ import no.nav.personbruker.dittnav.eventaggregator.metrics.MetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameScrubber
 import no.nav.personbruker.dittnav.eventaggregator.metrics.PrometheusMetricsCollector
 import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.DB_TOTAL_EVENTS_IN_CACHE
+import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.DB_TOTAL_EVENTS_IN_CACHE_BY_PRODUCER
 import org.slf4j.LoggerFactory
 
 class DbCountingMetricsProbe(private val metricsReporter: MetricsReporter,
@@ -17,8 +18,17 @@ class DbCountingMetricsProbe(private val metricsReporter: MetricsReporter,
         block.invoke(session)
 
         if (session.getProducers().isNotEmpty()) {
+            handleTotalEvents(session)
             handleTotalEventsByProducer(session)
         }
+    }
+
+    private suspend fun handleTotalEvents(session: DbCountingMetricsSession) {
+        val numberOfEvents = session.getTotalNumber()
+        val eventTypeName = session.eventType.toString()
+
+        reportEvents(numberOfEvents, eventTypeName, DB_TOTAL_EVENTS_IN_CACHE)
+        PrometheusMetricsCollector.registerTotalNumberOfEventsInCache(numberOfEvents, session.eventType)
     }
 
     private suspend fun handleTotalEventsByProducer(session: DbCountingMetricsSession) {
@@ -27,8 +37,8 @@ class DbCountingMetricsProbe(private val metricsReporter: MetricsReporter,
             val eventTypeName = session.eventType.toString()
             val printableAlias = nameScrubber.getPublicAlias(producerName)
 
-            reportEvents(numberOfEvents, eventTypeName, printableAlias, DB_TOTAL_EVENTS_IN_CACHE)
-            PrometheusMetricsCollector.registerTotalNumberOfEventsInCache(numberOfEvents, session.eventType, printableAlias)
+            reportEvents(numberOfEvents, eventTypeName, printableAlias, DB_TOTAL_EVENTS_IN_CACHE_BY_PRODUCER)
+            PrometheusMetricsCollector.registerTotalNumberOfEventsInCacheByProducer(numberOfEvents, session.eventType, printableAlias)
         }
     }
 
@@ -40,5 +50,12 @@ class DbCountingMetricsProbe(private val metricsReporter: MetricsReporter,
 
     private fun createTagMap(eventType: String, producer: String): Map<String, String> =
             listOf("eventType" to eventType, "producer" to producer).toMap()
+
+    private suspend fun reportEvents(count: Int, eventType: String, metricName: String) {
+        metricsReporter.registerDataPoint(metricName, counterField(count), createTagMap(eventType))
+    }
+
+    private fun createTagMap(eventType: String): Map<String, String> =
+            listOf("eventType" to eventType).toMap()
 
 }
