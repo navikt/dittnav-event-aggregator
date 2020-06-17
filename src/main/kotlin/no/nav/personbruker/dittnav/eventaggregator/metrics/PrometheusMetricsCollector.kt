@@ -6,17 +6,18 @@ import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 
 object PrometheusMetricsCollector {
 
-    val NAMESPACE = "dittnav_consumer"
+    const val NAMESPACE = "dittnav_consumer"
 
-    val EVENTS_SEEN_NAME = "kafka_events_seen"
-    val EVENTS_PROCESSED_NAME = "kafka_events_processed"
-    val EVENTS_FAILED_NAME = "kafka_events_failed"
-    val EVENTS_DUPLICATE_KEY_NAME = "kafka_events_duplicate_key"
-    val EVENT_LAST_SEEN_NAME = "kafka_event_type_last_seen"
-    val DB_CACHED_EVENTS = "db_cached_events"
-    val KAFKA_TOPIC_TOTAL_EVENTS = "kafka_topic_total_events"
-    val KAFKA_TOPIC_UNIQUE_EVENTS = "kafka_topic_unique_events"
-    val KAFKA_TOPIC_DUPLICATED_EVENTS = "kafka_topic_duplicated_events"
+    const val EVENTS_SEEN_NAME = "kafka_events_seen"
+    const val EVENTS_PROCESSED_NAME = "kafka_events_processed"
+    const val EVENTS_FAILED_NAME = "kafka_events_failed"
+    const val EVENTS_DUPLICATE_KEY_NAME = "kafka_events_duplicate_key"
+    const val EVENT_LAST_SEEN_NAME = "kafka_event_type_last_seen"
+    const val KAFKA_TOPIC_TOTAL_EVENTS = "kafka_topic_total_events"
+    const val KAFKA_TOPIC_UNIQUE_EVENTS = "kafka_topic_unique_events"
+    const val KAFKA_TOPIC_DUPLICATED_EVENTS = "kafka_topic_duplicated_events"
+    const val DB_CACHED_EVENTS = "db_cached_events"
+    const val DB_TOTAL_EVENTS = "db_total_events"
 
     private val MESSAGES_SEEN: Counter = Counter.build()
             .name(EVENTS_SEEN_NAME)
@@ -81,6 +82,13 @@ object PrometheusMetricsCollector {
             .labelNames("type", "producer")
             .register()
 
+    private val CACHED_EVENTS_IN_TOTAL: Gauge = Gauge.build()
+            .name(DB_TOTAL_EVENTS)
+            .namespace(NAMESPACE)
+            .help("Total number of events of type in the cache")
+            .labelNames("type", "producer")
+            .register()
+
     fun registerEventsSeen(count: Int, eventType: String, producer: String) {
         MESSAGES_SEEN.labels(eventType, producer).inc(count.toDouble())
         MESSAGE_LAST_SEEN.labels(eventType, producer).setToCurrentTime()
@@ -112,6 +120,10 @@ object PrometheusMetricsCollector {
 
     fun registerTotalNumberOfEvents(count: Int, eventType: EventType, producer: String) {
         MESSAGES_TOTAL.labels(eventType.eventType, producer).set(count.toDouble())
+    }
+
+    fun registerTotalNumberOfEventsInCache(count: Int, eventType: EventType, producer: String) {
+        CACHED_EVENTS_IN_TOTAL.labels(eventType.eventType, producer).set(count.toDouble())
     }
 
 }

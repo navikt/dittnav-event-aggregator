@@ -10,7 +10,8 @@ import io.prometheus.client.hotspot.DefaultExports
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.done.waitTableApi
 import no.nav.personbruker.dittnav.eventaggregator.health.healthApi
-import no.nav.personbruker.dittnav.eventaggregator.metrics.db.cacheCountingApi
+import no.nav.personbruker.dittnav.eventaggregator.metrics.db.count.cacheCountingApi
+import no.nav.personbruker.dittnav.eventaggregator.metrics.db.count.dbCountingApi
 import no.nav.personbruker.dittnav.eventaggregator.metrics.eventCountingApi
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.kafkaCountingApi
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.pollingApi
@@ -27,6 +28,7 @@ fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()
         pollingApi(appContext)
         waitTableApi(appContext)
         topicCountingApi(appContext.topicEventCounterService)
+        dbCountingApi(appContext.dbEventCounterService)
     }
 
     configureStartupHook(appContext)

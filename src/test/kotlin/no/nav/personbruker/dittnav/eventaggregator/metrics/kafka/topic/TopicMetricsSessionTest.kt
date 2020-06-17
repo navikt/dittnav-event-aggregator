@@ -51,6 +51,8 @@ internal class TopicMetricsSessionTest {
         metricsSession.getNumberOfUniqueEvents(produsent1) `should be equal to` 1
         metricsSession.getNumberOfUniqueEvents(produsent2) `should be equal to` 2
         metricsSession.getNumberOfUniqueEvents(produsent3) `should be equal to` 3
+
+        metricsSession.getProducersWithEvents().size `should be equal to` 3
     }
 
 }

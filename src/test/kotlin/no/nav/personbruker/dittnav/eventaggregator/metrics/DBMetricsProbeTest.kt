@@ -67,6 +67,6 @@ class DBMetricsProbeTest {
                 listOf("eventType" to EventType.DONE.toString(), "producer" to "test-user").toMap()) }
         verify(exactly = 1) { PrometheusMetricsCollector.registerEventsCached(2, EventType.DONE, "test-user") }
 
-        assertEquals(capturedFieldsForCachedEvents.captured["counter"] as Int, 2)
+        assertEquals(2, capturedFieldsForCachedEvents.captured["counter"])
     }
 }

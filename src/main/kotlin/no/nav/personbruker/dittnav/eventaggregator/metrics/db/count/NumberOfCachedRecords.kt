@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.metrics.db
+package no.nav.personbruker.dittnav.eventaggregator.metrics.db.count
 
 data class NumberOfCachedRecords(val beskjedAktive: Long = 0,
                                  val beskjedInaktive: Long = 0,

@@ -1,32 +1,23 @@
-package no.nav.personbruker.dittnav.eventaggregator.metrics.db
+package no.nav.personbruker.dittnav.eventaggregator.metrics.db.count
 
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.config.Environment
 import no.nav.personbruker.dittnav.eventaggregator.config.isOtherEnvironmentThanProd
-import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
-import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
 import org.slf4j.LoggerFactory
 
-class CacheEventCounterService(val environment: Environment,
-                               val beskjedRepository: BeskjedRepository,
-                               val innboksRepository: InnboksRepository,
-                               val oppgaveRepository: OppgaveRepository,
-                               val doneRepository: DoneRepository
-) {
+class CacheEventCounterService(val environment: Environment, val repository: MetricsRepository) {
 
     private val log = LoggerFactory.getLogger(CacheEventCounterService::class.java)
 
     suspend fun countAllEvents(): NumberOfCachedRecords {
         return try {
             val result = NumberOfCachedRecords(
-                    beskjedRepository.getNumberOfActiveEvents(),
-                    beskjedRepository.getNumberOfInactiveEvents(),
-                    innboksRepository.getNumberOfActiveEvents(),
-                    innboksRepository.getNumberOfInactiveEvents(),
-                    oppgaveRepository.getNumberOfActiveEvents(),
-                    oppgaveRepository.getNumberOfInactiveEvents(),
-                    doneRepository.getTotalNumberOfEvents()
+                    repository.getNumberOfActiveBeskjedEvents(),
+                    repository.getNumberOfInactiveBeskjedEvents(),
+                    repository.getNumberOfActiveInnboksEvents(),
+                    repository.getNumberOfInactiveInnboksEvents(),
+                    repository.getNumberOfActiveOppgaveEvents(),
+                    repository.getNumberOfInactiveOppgaveEvents(),
+                    repository.getTotalNumberOfDoneEvents()
             )
             log.info("Fant følgende eventer:\n$result")
             result
@@ -39,7 +30,7 @@ class CacheEventCounterService(val environment: Environment,
 
     suspend fun countBeskjeder(): Long {
         return try {
-            beskjedRepository.getTotalNumberOfEvents()
+            repository.getTotalNumberOfBeskjedEvents()
 
         } catch (e: Exception) {
             log.warn("Klarte ikke å telle antall beskjed-eventer", e)
@@ -50,7 +41,7 @@ class CacheEventCounterService(val environment: Environment,
     suspend fun countInnboksEventer(): Long {
         return if (isOtherEnvironmentThanProd()) {
             try {
-                innboksRepository.getTotalNumberOfEvents()
+                repository.getTotalNumberOfInnboksEvents()
 
             } catch (e: Exception) {
                 log.warn("Klarte ikke å telle antall innboks-eventer", e)
@@ -63,7 +54,7 @@ class CacheEventCounterService(val environment: Environment,
 
     suspend fun countOppgaver(): Long {
         return try {
-            oppgaveRepository.getTotalNumberOfEvents()
+            repository.getTotalNumberOfOppgaveEvents()
 
         } catch (e: Exception) {
             log.warn("Klarte ikke å telle antall oppgave-eventer", e)
@@ -73,7 +64,7 @@ class CacheEventCounterService(val environment: Environment,
 
     suspend fun countDoneEvents(): Long {
         return try {
-            doneRepository.getTotalNumberOfEvents()
+            repository.getTotalNumberOfDoneEvents()
 
         } catch (e: Exception) {
             log.warn("Klarte ikke å telle antall done-eventer", e)
@@ -83,10 +74,10 @@ class CacheEventCounterService(val environment: Environment,
 
     suspend fun countAllDoneEvents(): Long {
         return try {
-            val doneEventsInWaitingTable = doneRepository.getTotalNumberOfEvents()
-            val inactiveBeskjeder = beskjedRepository.getNumberOfInactiveEvents()
-            val inactiveInnbokseventer = innboksRepository.getNumberOfInactiveEvents()
-            val inactiveOppgave = oppgaveRepository.getNumberOfInactiveEvents()
+            val doneEventsInWaitingTable = repository.getTotalNumberOfDoneEvents()
+            val inactiveBeskjeder = repository.getNumberOfInactiveBeskjedEvents()
+            val inactiveInnbokseventer = repository.getNumberOfInactiveInnboksEvents()
+            val inactiveOppgave = repository.getNumberOfInactiveOppgaveEvents()
             val totalNumberOfDoneEvents = doneEventsInWaitingTable + inactiveBeskjeder + inactiveInnbokseventer + inactiveOppgave
 
             totalNumberOfDoneEvents

@@ -11,9 +11,12 @@ import no.nav.personbruker.dittnav.eventaggregator.health.HealthService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksEventService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildDBMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.metrics.buildDbEventCountingMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildEventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildTopicMetricsProbe
-import no.nav.personbruker.dittnav.eventaggregator.metrics.db.CacheEventCounterService
+import no.nav.personbruker.dittnav.eventaggregator.metrics.db.count.CacheEventCounterService
+import no.nav.personbruker.dittnav.eventaggregator.metrics.db.count.DbEventCounterService
+import no.nav.personbruker.dittnav.eventaggregator.metrics.db.count.MetricsRepository
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.KafkaEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.KafkaTopicEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.topic.TopicEventCounterService
@@ -60,7 +63,11 @@ class ApplicationContext {
 
     val kafkaEventCounterService = KafkaEventCounterService(environment)
     val kafkaTopicEventCounterService = KafkaTopicEventCounterService(environment)
-    val cacheEventCounterService = CacheEventCounterService(environment, beskjedRepository, innboksRepository, oppgaveRepository, doneRepository)
+
+    val metricsRepository = MetricsRepository(database)
+    val cacheEventCounterService = CacheEventCounterService(environment, metricsRepository)
+    val dbEventCountingMetricsProbe = buildDbEventCountingMetricsProbe(environment, database)
+    val dbEventCounterService = DbEventCounterService(dbEventCountingMetricsProbe, metricsRepository)
 
     val topicMetricsProbe = buildTopicMetricsProbe(environment, database)
     val topicEventCounterService = TopicEventCounterService(environment, topicMetricsProbe)

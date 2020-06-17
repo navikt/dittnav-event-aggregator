@@ -110,8 +110,8 @@ internal class EventMetricsProbeTest {
         verify(exactly = 1) { PrometheusMetricsCollector.registerEventsProcessed(2, any(), any()) }
         verify(exactly = 1) { PrometheusMetricsCollector.registerEventsFailed(1, any(), any()) }
 
-        assertEquals(capturedFieldsForSeen.captured["counter"] as Int, 3)
-        assertEquals(capturedFieldsForProcessed.captured["counter"] as Int, 2)
-        assertEquals(capturedFieldsForFailed.captured["counter"] as Int, 1)
+        assertEquals(3, capturedFieldsForSeen.captured["counter"])
+        assertEquals(2, capturedFieldsForProcessed.captured["counter"])
+        assertEquals(1, capturedFieldsForFailed.captured["counter"])
     }
 }
