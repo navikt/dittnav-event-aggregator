@@ -20,6 +20,7 @@ import no.nav.personbruker.dittnav.eventaggregator.metrics.db.count.MetricsRepos
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.KafkaEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.KafkaTopicEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.topic.TopicEventCounterService
+import no.nav.personbruker.dittnav.eventaggregator.metrics.submitter.PeriodicMetricsSubmitter
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveEventService
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
 import org.slf4j.LoggerFactory
@@ -71,6 +72,7 @@ class ApplicationContext {
 
     val topicMetricsProbe = buildTopicMetricsProbe(environment, database)
     val topicEventCounterService = TopicEventCounterService(environment, topicMetricsProbe)
+    var periodicMetricsSubmitter = initializePeriodicMetricsSubmitter()
 
     private fun initializeBeskjedConsumer() =
             KafkaConsumerSetup.setupConsumerForTheBeskjedTopic(beskjedKafkaProps, beskjedEventProcessor)
@@ -123,5 +125,17 @@ class ApplicationContext {
             log.warn("periodicDoneEventWaitingTableProcessor kunne ikke bli reinstansiert fordi den fortsatt er aktiv.")
         }
     }
+
+    fun reinitializePeriodicMetricsSubmitter() {
+        if (periodicMetricsSubmitter.isCompleted()) {
+            periodicMetricsSubmitter = initializePeriodicMetricsSubmitter()
+            log.info("periodicMetricsSubmitter har blitt reinstansiert.")
+        } else {
+            log.warn("periodicMetricsSubmitter kunne ikke bli reinstansiert fordi den fortsatt er aktiv.")
+        }
+    }
+
+    private fun initializePeriodicMetricsSubmitter(): PeriodicMetricsSubmitter =
+            PeriodicMetricsSubmitter(dbEventCounterService, topicEventCounterService)
 
 }

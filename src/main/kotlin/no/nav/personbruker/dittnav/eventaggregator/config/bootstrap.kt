@@ -11,11 +11,10 @@ import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.done.waitTableApi
 import no.nav.personbruker.dittnav.eventaggregator.health.healthApi
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.count.cacheCountingApi
-import no.nav.personbruker.dittnav.eventaggregator.metrics.db.count.dbCountingApi
 import no.nav.personbruker.dittnav.eventaggregator.metrics.eventCountingApi
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.kafkaCountingApi
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.pollingApi
-import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.topic.topicCountingApi
+import no.nav.personbruker.dittnav.eventaggregator.metrics.submitter.metricsSubmitterApi
 
 fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()) {
     DefaultExports.initialize()
@@ -27,8 +26,7 @@ fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()
         eventCountingApi(appContext.kafkaEventCounterService, appContext.cacheEventCounterService)
         pollingApi(appContext)
         waitTableApi(appContext)
-        topicCountingApi(appContext.topicEventCounterService)
-        dbCountingApi(appContext.dbEventCounterService)
+        metricsSubmitterApi(appContext)
     }
 
     configureStartupHook(appContext)
@@ -40,6 +38,7 @@ private fun Application.configureStartupHook(appContext: ApplicationContext) {
         Flyway.runFlywayMigrations(appContext.environment)
         KafkaConsumerSetup.startAllKafkaPollers(appContext)
         appContext.periodicDoneEventWaitingTableProcessor.start()
+        appContext.periodicMetricsSubmitter.start()
     }
 }
 
@@ -48,6 +47,7 @@ private fun Application.configureShutdownHook(appContext: ApplicationContext) {
         runBlocking {
             KafkaConsumerSetup.stopAllKafkaConsumers(appContext)
             appContext.periodicDoneEventWaitingTableProcessor.stop()
+            appContext.periodicMetricsSubmitter.stop()
         }
         appContext.database.dataSource.close()
         appContext.kafkaEventCounterService.closeAllConsumers()
