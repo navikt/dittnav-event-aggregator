@@ -65,23 +65,6 @@ object ConsumerRecordsObjectMother {
         return ConsumerRecord("dummyTopic", 1, 0, nokkel, actualEvent)
     }
 
-    fun giveMeANumberOfDoneRecords(numberOfRecords: Int, topicName: String): ConsumerRecords<Nokkel, Done> {
-        val records = mutableMapOf<TopicPartition, List<ConsumerRecord<Nokkel, Done>>>()
-        val recordsForSingleTopic = createDoneRecords(topicName, numberOfRecords)
-        records[TopicPartition(topicName, numberOfRecords)] = recordsForSingleTopic
-        return ConsumerRecords(records)
-    }
-
-    private fun createDoneRecords(topicName: String, totalNumber: Int): List<ConsumerRecord<Nokkel, Done>> {
-        val allRecords = mutableListOf<ConsumerRecord<Nokkel, Done>>()
-        for (i in 0 until totalNumber) {
-            val schemaRecord = AvroDoneObjectMother.createDone("$i")
-            val nokkel = createNokkel(i)
-            allRecords.add(ConsumerRecord(topicName, i, i.toLong(), nokkel, schemaRecord))
-        }
-        return allRecords
-    }
-
     fun giveMeANumberOfInnboksRecords(numberOfRecords: Int, topicName: String): ConsumerRecords<Nokkel, Innboks> {
         val records = mutableMapOf<TopicPartition, List<ConsumerRecord<Nokkel, Innboks>>>()
         val recordsForSingleTopic = createInnboksRecords(topicName, numberOfRecords)
@@ -118,11 +101,14 @@ object ConsumerRecordsObjectMother {
         return allRecords
     }
 
-    fun wrapInConsumerRecords(singleRecord: ConsumerRecord<Nokkel, Done>, topicName: String = "dummyTopic"): ConsumerRecords<Nokkel, Done> {
+    fun wrapInConsumerRecords(recordsForSingleTopic: List<ConsumerRecord<Nokkel, Done>>, topicName: String = "dummyTopic"): ConsumerRecords<Nokkel, Done> {
         val records = mutableMapOf<TopicPartition, List<ConsumerRecord<Nokkel, Done>>>()
-        val recordsForSingleTopic = listOf(singleRecord)
         records[TopicPartition(topicName, 1)] = recordsForSingleTopic
         return ConsumerRecords(records)
+    }
+
+    fun wrapInConsumerRecords(singleRecord: ConsumerRecord<Nokkel, Done>, topicName: String = "dummyTopic"): ConsumerRecords<Nokkel, Done> {
+        return wrapInConsumerRecords(listOf(singleRecord))
     }
 
 }

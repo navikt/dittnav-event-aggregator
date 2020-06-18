@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Test
 
 internal class PeriodicDoneEventWaitingTableProcessorTest {
 
-    private val doneRepo = mockk<DoneRepository>(relaxed = true)
+    private val donePersistingService = mockk<DonePersistingService>(relaxed = true)
     private val metricsProbe = mockk<DBMetricsProbe>(relaxed = true)
     private val metricsSession = mockk<DBMetricsSession>(relaxed = true)
-    private val consumer = PeriodicDoneEventWaitingTableProcessor(doneRepo, metricsProbe)
+    private val consumer = PeriodicDoneEventWaitingTableProcessor(donePersistingService, metricsProbe)
 
     @Test
     fun `ved prosessering av done-eventer skal det kjores update mot databasen kun en gang`() {
@@ -24,21 +24,21 @@ internal class PeriodicDoneEventWaitingTableProcessorTest {
         val doneEventUtenMatch = DoneObjectMother.giveMeDone("utenMatch")
 
         coEvery {
-            doneRepo.fetchAllDoneEventsWithLimit()
+            donePersistingService.fetchAllDoneEventsWithLimit()
         } returns listOf(matchingDoneEvent, doneEventUtenMatch)
 
         coEvery {
-            doneRepo.fetchBrukernotifikasjonerFromViewForEventIds(any())
+            donePersistingService.fetchBrukernotifikasjonerFromViewForEventIds(any())
         } returns listOf(beskjed)
 
         runBlocking {
             consumer.processDoneEvents()
         }
 
-        coVerify(exactly = 1) { doneRepo.writeDoneEventsForBeskjedToCache(any()) }
-        coVerify(exactly = 1) { doneRepo.writeDoneEventsForInnboksToCache(any()) }
-        coVerify(exactly = 1) { doneRepo.writeDoneEventsForOppgaveToCache(any()) }
-        coVerify(exactly = 1) { doneRepo.deleteDoneEventsFromCache(any()) }
+        coVerify(exactly = 1) { donePersistingService.writeDoneEventsForBeskjedToCache(any()) }
+        coVerify(exactly = 1) { donePersistingService.writeDoneEventsForInnboksToCache(any()) }
+        coVerify(exactly = 1) { donePersistingService.writeDoneEventsForOppgaveToCache(any()) }
+        coVerify(exactly = 1) { donePersistingService.deleteDoneEventsFromCache(any()) }
     }
 
     @Test
@@ -55,11 +55,11 @@ internal class PeriodicDoneEventWaitingTableProcessorTest {
         }
 
         coEvery {
-            doneRepo.fetchAllDoneEventsWithLimit()
+            donePersistingService.fetchAllDoneEventsWithLimit()
         } returns doneEvents
 
         coEvery {
-            doneRepo.fetchBrukernotifikasjonerFromViewForEventIds(any())
+            donePersistingService.fetchBrukernotifikasjonerFromViewForEventIds(any())
         } returns listOf(beskjed)
 
         runBlocking {

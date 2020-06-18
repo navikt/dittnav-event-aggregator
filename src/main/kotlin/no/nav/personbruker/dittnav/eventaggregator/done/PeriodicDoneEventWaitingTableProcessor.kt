@@ -14,7 +14,7 @@ import java.time.Duration
 import kotlin.coroutines.CoroutineContext
 
 class PeriodicDoneEventWaitingTableProcessor(
-        private val doneRepository: DoneRepository,
+        private val donePersistingService: DonePersistingService,
         private val dbMetricsProbe: DBMetricsProbe,
         private val job: Job = Job()
 ) : CoroutineScope {
@@ -53,7 +53,7 @@ class PeriodicDoneEventWaitingTableProcessor(
 
     suspend fun processDoneEvents() {
         try {
-            val allDoneEventsWithinLimit = doneRepository.fetchAllDoneEventsWithLimit()
+            val allDoneEventsWithinLimit = donePersistingService.fetchAllDoneEventsWithLimit()
             processEvents(allDoneEventsWithinLimit)
 
         } catch (rde: RetriableDatabaseException) {
@@ -81,14 +81,14 @@ class PeriodicDoneEventWaitingTableProcessor(
 
     private suspend fun fetchRelatedEvents(allDone: List<Done>): DoneBatchProcessor {
         val eventIds = allDone.map { it.eventId }.distinct()
-        val activeBrukernotifikasjoner = doneRepository.fetchBrukernotifikasjonerFromViewForEventIds(eventIds)
+        val activeBrukernotifikasjoner = donePersistingService.fetchBrukernotifikasjonerFromViewForEventIds(eventIds)
         return DoneBatchProcessor(activeBrukernotifikasjoner)
     }
 
     private suspend fun updateTheDatabase(groupedDoneEvents: DoneBatchProcessor) {
-        doneRepository.writeDoneEventsForBeskjedToCache(groupedDoneEvents.foundBeskjed)
-        doneRepository.writeDoneEventsForOppgaveToCache(groupedDoneEvents.foundOppgave)
-        doneRepository.writeDoneEventsForInnboksToCache(groupedDoneEvents.foundInnboks)
-        doneRepository.deleteDoneEventsFromCache(groupedDoneEvents.allFoundEvents)
+        donePersistingService.writeDoneEventsForBeskjedToCache(groupedDoneEvents.foundBeskjed)
+        donePersistingService.writeDoneEventsForOppgaveToCache(groupedDoneEvents.foundOppgave)
+        donePersistingService.writeDoneEventsForInnboksToCache(groupedDoneEvents.foundInnboks)
+        donePersistingService.deleteDoneEventsFromCache(groupedDoneEvents.allFoundEvents)
     }
 }

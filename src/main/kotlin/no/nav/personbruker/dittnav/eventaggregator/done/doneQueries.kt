@@ -1,9 +1,10 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executeBatchUpdateQuery
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getUtcDateTime
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
+import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
+import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.*
 import java.sql.Connection
+import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
 
@@ -26,19 +27,22 @@ fun Connection.getAllDoneEventWithLimit(limit: Int): List<Done> =
                     }
                 }
 
-fun Connection.createDoneEvents(doneEvents: List<Done>) {
-    executeBatchUpdateQuery("""INSERT INTO done(systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId)
-            VALUES (?, ?, ?, ?, ?)""") {
+private const val createQuery = """INSERT INTO done(systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId)
+            VALUES (?, ?, ?, ?, ?)"""
+
+fun Connection.createDoneEvents(doneEvents: List<Done>): ListPersistActionResult<Done> =
+    executeBatchPersistQuery(createQuery) {
         doneEvents.forEach { done ->
-            setString(1, done.systembruker)
-            setObject(2, done.eventTidspunkt, Types.TIMESTAMP)
-            setString(3, done.fodselsnummer)
-            setString(4, done.eventId)
-            setString(5, done.grupperingsId)
+            buildStatementForSingleRow(done)
             addBatch()
         }
-    }
-}
+    }.toBatchPersistResult(doneEvents)
+
+fun Connection.createDoneEvent(doneEvent: Done) : PersistActionResult =
+        executePersistQuery(createQuery) {
+            buildStatementForSingleRow(doneEvent)
+        }
+
 
 fun Connection.deleteDoneEvents(doneEvents: List<Done>) {
     executeBatchUpdateQuery("""DELETE FROM done WHERE eventId = ? AND systembruker = ? AND fodselsnummer = ?""") {
@@ -59,4 +63,12 @@ private fun ResultSet.toDoneEvent(): Done {
             fodselsnummer = getString("fodselsnummer"),
             grupperingsId = getString("grupperingsId")
     )
+}
+
+private fun PreparedStatement.buildStatementForSingleRow(doneEvent: Done) {
+    setString(1, doneEvent.systembruker)
+    setObject(2, doneEvent.eventTidspunkt, Types.TIMESTAMP)
+    setString(3, doneEvent.fodselsnummer)
+    setString(4, doneEvent.eventId)
+    setString(5, doneEvent.grupperingsId)
 }

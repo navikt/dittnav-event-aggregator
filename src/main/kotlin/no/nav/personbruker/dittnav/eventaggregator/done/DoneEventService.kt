@@ -15,7 +15,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class DoneEventService(
-        private val doneRepository: DoneRepository,
+        private val donePersistingService: DonePersistingService,
         private val eventMetricsProbe: EventMetricsProbe
 ) : EventBatchProcessorService<Done> {
 
@@ -60,17 +60,17 @@ class DoneEventService(
 
     private suspend fun groupDoneEventsByAssociatedEventType(successfullyTransformedEvents: List<no.nav.personbruker.dittnav.eventaggregator.done.Done>): DoneBatchProcessor {
         val eventIds = successfullyTransformedEvents.map { it.eventId }.distinct()
-        val aktiveBrukernotifikasjoner = doneRepository.fetchBrukernotifikasjonerFromViewForEventIds(eventIds)
+        val aktiveBrukernotifikasjoner = donePersistingService.fetchBrukernotifikasjonerFromViewForEventIds(eventIds)
         val batch = DoneBatchProcessor(aktiveBrukernotifikasjoner)
         batch.process(successfullyTransformedEvents)
         return batch
     }
 
     private suspend fun writeDoneEventsToCache(groupedDoneEvents: DoneBatchProcessor) {
-        doneRepository.writeDoneEventsForBeskjedToCache(groupedDoneEvents.foundBeskjed)
-        doneRepository.writeDoneEventsForOppgaveToCache(groupedDoneEvents.foundOppgave)
-        doneRepository.writeDoneEventsForInnboksToCache(groupedDoneEvents.foundInnboks)
-        doneRepository.writeDoneEventsToCache(groupedDoneEvents.notFoundEvents)
+        donePersistingService.writeDoneEventsForBeskjedToCache(groupedDoneEvents.foundBeskjed)
+        donePersistingService.writeDoneEventsForOppgaveToCache(groupedDoneEvents.foundOppgave)
+        donePersistingService.writeDoneEventsForInnboksToCache(groupedDoneEvents.foundInnboks)
+        donePersistingService.writeEventsToCache(groupedDoneEvents.notFoundEvents)
     }
 
     private fun kastExceptionHvisMislykkedeTransformasjoner(problematicEvents: MutableList<ConsumerRecord<Nokkel, Done>>) {

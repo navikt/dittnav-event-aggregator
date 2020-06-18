@@ -1,13 +1,30 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.setBeskjederAktivflagg
+import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonRepository
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
+import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon
 import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.getBrukernotifikasjonFromViewForEventIds
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.persistEachIndividuallyAndAggregateResults
 import no.nav.personbruker.dittnav.eventaggregator.innboks.setInnboksEventerAktivFlag
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.setOppgaverAktivFlag
 
-class DoneRepository(private val database: Database) {
+class DoneRepository(private val database: Database) : BrukernotifikasjonRepository<Done> {
+
+    override suspend fun createInOneBatch(entities: List<Done>): ListPersistActionResult<Done> {
+        return database.queryWithExceptionTranslation {
+            createDoneEvents(entities)
+        }
+    }
+
+    override suspend fun createOneByOneToFilterOutTheProblematicEvents(entities: List<Done>): ListPersistActionResult<Done> {
+        return database.queryWithExceptionTranslation {
+            entities.persistEachIndividuallyAndAggregateResults { doneEvent ->
+                createDoneEvent(doneEvent)
+            }
+        }
+    }
 
     suspend fun writeDoneEventsForBeskjedToCache(doneEvents: List<Done>) {
         if (doneEvents.isEmpty()) {
@@ -36,27 +53,10 @@ class DoneRepository(private val database: Database) {
         }
     }
 
-    suspend fun writeDoneEventsToCache(doneEvents: List<Done>) {
-        if (doneEvents.isEmpty()) {
-            return
-        }
-        database.queryWithExceptionTranslation {
-            createDoneEvents(doneEvents)
-        }
-    }
-
     suspend fun fetchBrukernotifikasjonerFromViewForEventIds(eventIds: List<String>): List<Brukernotifikasjon> {
         var resultat = emptyList<Brukernotifikasjon>()
         database.queryWithExceptionTranslation {
             resultat = getBrukernotifikasjonFromViewForEventIds(eventIds)
-        }
-        return resultat
-    }
-
-    suspend fun fetchAllDoneEvents(): List<Done> {
-        var resultat = emptyList<Done>()
-        database.queryWithExceptionTranslation {
-            resultat = getAllDoneEvent()
         }
         return resultat
     }
@@ -74,5 +74,4 @@ class DoneRepository(private val database: Database) {
             deleteDoneEvents(doneEventsToDelete)
         }
     }
-
 }
