@@ -13,15 +13,23 @@ import no.nav.personbruker.dittnav.eventaggregator.oppgave.setOppgaverAktivFlag
 class DoneRepository(private val database: Database) : BrukernotifikasjonRepository<Done> {
 
     override suspend fun createInOneBatch(entities: List<Done>): ListPersistActionResult<Done> {
-        return database.queryWithExceptionTranslation {
-            createDoneEvents(entities)
+        return if(entities.isEmpty()) {
+            emptyPersistResult()
+        } else {
+            database.queryWithExceptionTranslation {
+                createDoneEvents(entities)
+            }
         }
     }
 
     override suspend fun createOneByOneToFilterOutTheProblematicEvents(entities: List<Done>): ListPersistActionResult<Done> {
-        return database.queryWithExceptionTranslation {
-            entities.persistEachIndividuallyAndAggregateResults { doneEvent ->
-                createDoneEvent(doneEvent)
+        return if(entities.isEmpty()) {
+            emptyPersistResult()
+        } else {
+            database.queryWithExceptionTranslation {
+                entities.persistEachIndividuallyAndAggregateResults { doneEvent ->
+                    createDoneEvent(doneEvent)
+                }
             }
         }
     }
@@ -75,3 +83,5 @@ class DoneRepository(private val database: Database) : BrukernotifikasjonReposit
         }
     }
 }
+
+fun emptyPersistResult(): ListPersistActionResult<Done> = ListPersistActionResult.mapListOfIndividualResults(emptyList())
