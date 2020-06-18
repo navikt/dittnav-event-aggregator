@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
+import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.emptyPersistResult
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.BrukernotifikasjonObjectMother
@@ -32,6 +33,7 @@ class DoneEventServiceTest {
         clearMocks(persistingService)
         clearMocks(metricsProbe)
         clearMocks(metricsSession)
+        coEvery { persistingService.writeEventsToCache(any()) } returns ListPersistActionResult.emptyInstance()
         `mock slik at innholdet i runWithMetrics alltid kjores`()
     }
 
@@ -221,5 +223,4 @@ class DoneEventServiceTest {
         coVerify(exactly = 1) { persistingService.writeDoneEventsForOppgaveToCache(emptyList()) }
         coVerify(exactly = 1) { persistingService.writeEventsToCache(emptyList()) }
     }
-
 }

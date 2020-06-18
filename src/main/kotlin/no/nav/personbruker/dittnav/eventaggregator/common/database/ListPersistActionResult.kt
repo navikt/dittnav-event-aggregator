@@ -54,6 +54,10 @@ class ListPersistActionResult<T> private constructor(private val resultList: Lis
                 ListPersistActionResult(rowResults)
             }
         }
+
+        fun <T> emptyInstance() : ListPersistActionResult<T> {
+            return ListPersistActionResult(emptyList())
+        }
     }
 }
 
