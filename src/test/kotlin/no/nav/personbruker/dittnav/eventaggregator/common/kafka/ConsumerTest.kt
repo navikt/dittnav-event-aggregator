@@ -116,7 +116,7 @@ class ConsumerTest {
 
         runBlocking {
             consumer.startPolling()
-            `Vent litt for aa bevise at det fortsettes aa polle`()
+            `Vent litt for aa bevise at det IKKE fortsettes aa polle`()
 
             consumer.status().status `should equal` Status.ERROR
             consumer.stopPolling()
@@ -138,7 +138,7 @@ class ConsumerTest {
 
         runBlocking {
             consumer.startPolling()
-            `Vent litt for aa bevise at det fortsettes aa polle`()
+            `Vent litt for aa bevise at det IKKE fortsettes aa polle`()
 
             consumer.status().status `should equal` Status.ERROR
             consumer.stopPolling()
@@ -178,8 +178,8 @@ class ConsumerTest {
         verify(exactly = 0) { kafkaConsumer.commitSync() }
     }
 
-    private suspend fun `Vent litt for aa bevise at det fortsettes aa polle`() {
-        delay(20)
+    private suspend fun `Vent litt for aa bevise at det IKKE fortsettes aa polle`() {
+        delay(100)
     }
 
 }
