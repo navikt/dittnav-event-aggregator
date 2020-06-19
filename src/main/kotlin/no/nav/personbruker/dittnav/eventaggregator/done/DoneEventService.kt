@@ -3,19 +3,21 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 import no.nav.brukernotifikasjon.schemas.Done
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
+import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.NokkelNullException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.getNonNullKey
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType.DONE
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsSession
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class DoneEventService(
-        private val doneRepository: DoneRepository,
+        private val donePersistingService: DonePersistingService,
         private val eventMetricsProbe: EventMetricsProbe
 ) : EventBatchProcessorService<Done> {
 
@@ -50,9 +52,12 @@ class DoneEventService(
                     log.warn("Transformasjon av done-event fra Kafka feilet.", e)
                 }
             }
-
             val groupedDoneEvents = groupDoneEventsByAssociatedEventType(successfullyTransformedEvents)
-            writeDoneEventsToCache(groupedDoneEvents)
+            donePersistingService.writeDoneEventsForBeskjedToCache(groupedDoneEvents.foundBeskjed)
+            donePersistingService.writeDoneEventsForOppgaveToCache(groupedDoneEvents.foundOppgave)
+            donePersistingService.writeDoneEventsForInnboksToCache(groupedDoneEvents.foundInnboks)
+            val writeEventsToCacheResult= donePersistingService.writeEventsToCache(groupedDoneEvents.notFoundEvents)
+            countDuplicateKeyEvents(writeEventsToCacheResult)
         }
 
         kastExceptionHvisMislykkedeTransformasjoner(problematicEvents)
@@ -60,17 +65,27 @@ class DoneEventService(
 
     private suspend fun groupDoneEventsByAssociatedEventType(successfullyTransformedEvents: List<no.nav.personbruker.dittnav.eventaggregator.done.Done>): DoneBatchProcessor {
         val eventIds = successfullyTransformedEvents.map { it.eventId }.distinct()
-        val aktiveBrukernotifikasjoner = doneRepository.fetchBrukernotifikasjonerFromViewForEventIds(eventIds)
+        val aktiveBrukernotifikasjoner = donePersistingService.fetchBrukernotifikasjonerFromViewForEventIds(eventIds)
         val batch = DoneBatchProcessor(aktiveBrukernotifikasjoner)
         batch.process(successfullyTransformedEvents)
         return batch
     }
 
-    private suspend fun writeDoneEventsToCache(groupedDoneEvents: DoneBatchProcessor) {
-        doneRepository.writeDoneEventsForBeskjedToCache(groupedDoneEvents.foundBeskjed)
-        doneRepository.writeDoneEventsForOppgaveToCache(groupedDoneEvents.foundOppgave)
-        doneRepository.writeDoneEventsForInnboksToCache(groupedDoneEvents.foundInnboks)
-        doneRepository.writeDoneEventsToCache(groupedDoneEvents.notFoundEvents)
+    private fun EventMetricsSession.countDuplicateKeyEvents(result: ListPersistActionResult<no.nav.personbruker.dittnav.eventaggregator.done.Done>) {
+        if (result.foundConflictingKeys()) {
+
+            val constraintErrors = result.getConflictingEntities().size
+            val totalEntities = result.getAllEntities().size
+
+            result.getConflictingEntities()
+                    .groupingBy { done -> done.systembruker }
+                    .eachCount()
+                    .forEach { (systembruker, duplicates) ->
+                        countDuplicateEventKeysByProducer(systembruker, duplicates)
+                    }
+
+            log.warn("Traff $constraintErrors feil på duplikate eventId-er ved behandling av $totalEntities done-eventer.")
+        }
     }
 
     private fun kastExceptionHvisMislykkedeTransformasjoner(problematicEvents: MutableList<ConsumerRecord<Nokkel, Done>>) {

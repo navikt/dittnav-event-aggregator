@@ -2,6 +2,8 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
+import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
+import no.nav.personbruker.dittnav.eventaggregator.common.emptyPersistResult
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.BrukernotifikasjonObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.ConsumerRecordsObjectMother
@@ -18,19 +20,20 @@ import org.junit.jupiter.api.Test
 
 class DoneEventServiceTest {
 
-    private val repository = mockk<DoneRepository>(relaxed = true)
+    private val persistingService = mockk<DonePersistingService>(relaxed = true)
     private val metricsProbe = mockk<EventMetricsProbe>(relaxed = true)
     private val metricsSession = mockk<EventMetricsSession>(relaxed = true)
-    private val service = DoneEventService(repository, metricsProbe)
+    private val service = DoneEventService(persistingService, metricsProbe)
 
     private val dummyFnr = "1".repeat(11)
 
     @BeforeEach
     private fun `reset mocks`() {
         mockkObject(DoneTransformer)
-        clearMocks(repository)
+        clearMocks(persistingService)
         clearMocks(metricsProbe)
         clearMocks(metricsSession)
+        coEvery { persistingService.writeEventsToCache(any()) } returns ListPersistActionResult.emptyInstance()
         `mock slik at innholdet i runWithMetrics alltid kjores`()
     }
 
@@ -52,10 +55,10 @@ class DoneEventServiceTest {
         val records = createMatchingRecords(beskjedInDbToMatch)
 
         val capturedNumberOfBeskjedEntitiesWrittenToTheDb = slot<List<Done>>()
-        coEvery { repository.writeDoneEventsForBeskjedToCache(capture(capturedNumberOfBeskjedEntitiesWrittenToTheDb)) } returns Unit
+        coEvery { persistingService.writeDoneEventsForBeskjedToCache(capture(capturedNumberOfBeskjedEntitiesWrittenToTheDb)) } returns Unit
 
         coEvery {
-            repository.fetchBrukernotifikasjonerFromViewForEventIds(any())
+            persistingService.fetchBrukernotifikasjonerFromViewForEventIds(any())
         } returns listOf(beskjedInDbToMatch)
 
         runBlocking {
@@ -64,10 +67,10 @@ class DoneEventServiceTest {
 
         capturedNumberOfBeskjedEntitiesWrittenToTheDb.captured.size `should be` 1
 
-        coVerify(exactly = 1) { repository.writeDoneEventsForBeskjedToCache(any()) }
-        coVerify(exactly = 1) { repository.writeDoneEventsToCache(emptyList()) }
-        coVerify(exactly = 1) { repository.writeDoneEventsForInnboksToCache(emptyList()) }
-        coVerify(exactly = 1) { repository.writeDoneEventsForOppgaveToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeDoneEventsForBeskjedToCache(any()) }
+        coVerify(exactly = 1) { persistingService.writeDoneEventsForInnboksToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeDoneEventsForOppgaveToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeEventsToCache(emptyList()) }
     }
 
     @Test
@@ -76,10 +79,10 @@ class DoneEventServiceTest {
         val records = createMatchingRecords(innboksEventInDbToMatch)
 
         val capturedNumberOfInnboksEntitiesWrittenToTheDb = slot<List<Done>>()
-        coEvery { repository.writeDoneEventsForInnboksToCache(capture(capturedNumberOfInnboksEntitiesWrittenToTheDb)) } returns Unit
+        coEvery { persistingService.writeDoneEventsForInnboksToCache(capture(capturedNumberOfInnboksEntitiesWrittenToTheDb)) } returns Unit
 
         coEvery {
-            repository.fetchBrukernotifikasjonerFromViewForEventIds(any())
+            persistingService.fetchBrukernotifikasjonerFromViewForEventIds(any())
         } returns listOf(innboksEventInDbToMatch)
 
         runBlocking {
@@ -88,10 +91,10 @@ class DoneEventServiceTest {
 
         capturedNumberOfInnboksEntitiesWrittenToTheDb.captured.size `should be` 1
 
-        coVerify(exactly = 1) { repository.writeDoneEventsForInnboksToCache(any()) }
-        coVerify(exactly = 1) { repository.writeDoneEventsForBeskjedToCache(emptyList()) }
-        coVerify(exactly = 1) { repository.writeDoneEventsToCache(emptyList()) }
-        coVerify(exactly = 1) { repository.writeDoneEventsForOppgaveToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeDoneEventsForInnboksToCache(any()) }
+        coVerify(exactly = 1) { persistingService.writeDoneEventsForBeskjedToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeDoneEventsForOppgaveToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeEventsToCache(emptyList()) }
     }
 
     @Test
@@ -100,10 +103,10 @@ class DoneEventServiceTest {
         val records = createMatchingRecords(oppgaveEventInDbToMatch)
 
         val capturedNumberOfOppgaveEntitiesWrittenToTheDb = slot<List<Done>>()
-        coEvery { repository.writeDoneEventsForOppgaveToCache(capture(capturedNumberOfOppgaveEntitiesWrittenToTheDb)) } returns Unit
+        coEvery { persistingService.writeDoneEventsForOppgaveToCache(capture(capturedNumberOfOppgaveEntitiesWrittenToTheDb)) } returns Unit
 
         coEvery {
-            repository.fetchBrukernotifikasjonerFromViewForEventIds(any())
+            persistingService.fetchBrukernotifikasjonerFromViewForEventIds(any())
         } returns listOf(oppgaveEventInDbToMatch)
 
         runBlocking {
@@ -112,10 +115,10 @@ class DoneEventServiceTest {
 
         capturedNumberOfOppgaveEntitiesWrittenToTheDb.captured.size `should be` 1
 
-        coVerify(exactly = 1) { repository.writeDoneEventsForOppgaveToCache(any()) }
-        coVerify(exactly = 1) { repository.writeDoneEventsForInnboksToCache(emptyList()) }
-        coVerify(exactly = 1) { repository.writeDoneEventsForBeskjedToCache(emptyList()) }
-        coVerify(exactly = 1) { repository.writeDoneEventsToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeDoneEventsForOppgaveToCache(any()) }
+        coVerify(exactly = 1) { persistingService.writeDoneEventsForInnboksToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeDoneEventsForBeskjedToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeEventsToCache(emptyList()) }
     }
 
     @Test
@@ -126,17 +129,17 @@ class DoneEventServiceTest {
         val records = ConsumerRecordsObjectMother.giveMeConsumerRecordsWithThisConsumerRecord(doneEventWithoutKey)
 
         coEvery {
-            repository.fetchBrukernotifikasjonerFromViewForEventIds(any())
+            persistingService.fetchBrukernotifikasjonerFromViewForEventIds(any())
         } returns listOf(beskjedEventInDbToMatch)
 
         runBlocking {
             service.processEvents(records)
         }
 
-        coVerify(exactly = 1) { repository.writeDoneEventsToCache(emptyList()) }
-        coVerify(exactly = 1) { repository.writeDoneEventsForOppgaveToCache(emptyList()) }
-        coVerify(exactly = 1) { repository.writeDoneEventsForInnboksToCache(emptyList()) }
-        coVerify(exactly = 1) { repository.writeDoneEventsForBeskjedToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeDoneEventsForOppgaveToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeDoneEventsForInnboksToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeDoneEventsForBeskjedToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeEventsToCache(emptyList()) }
     }
 
     @Test
@@ -146,10 +149,10 @@ class DoneEventServiceTest {
         val records = ConsumerRecordsObjectMother.giveMeConsumerRecordsWithThisConsumerRecord(doneEvent)
 
         val capturedNumberOfDoneWrittenToTheDb = slot<List<Done>>()
-        coEvery { repository.writeDoneEventsToCache(capture(capturedNumberOfDoneWrittenToTheDb)) } returns Unit
+        coEvery { persistingService.writeEventsToCache(capture(capturedNumberOfDoneWrittenToTheDb)) } returns emptyPersistResult()
 
         coEvery {
-            repository.fetchBrukernotifikasjonerFromViewForEventIds(any())
+            persistingService.fetchBrukernotifikasjonerFromViewForEventIds(any())
         } returns listOf(beskjedInDbToMatch)
 
         runBlocking {
@@ -158,10 +161,10 @@ class DoneEventServiceTest {
 
         capturedNumberOfDoneWrittenToTheDb.captured.size `should be` 1
 
-        coVerify(exactly = 1) { repository.writeDoneEventsToCache(any()) }
-        coVerify(exactly = 1) { repository.writeDoneEventsForBeskjedToCache(emptyList()) }
-        coVerify(exactly = 1) { repository.writeDoneEventsForInnboksToCache(emptyList()) }
-        coVerify(exactly = 1) { repository.writeDoneEventsForOppgaveToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeDoneEventsForBeskjedToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeDoneEventsForInnboksToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeDoneEventsForOppgaveToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeEventsToCache(any()) }
     }
 
     @Test
@@ -173,7 +176,7 @@ class DoneEventServiceTest {
         val records = createMatchingRecords(entitiesInDbToMatch)
 
         val capturedNumberOfBeskjedEntitiesWrittenToTheDb = slot<List<Done>>()
-        coEvery { repository.writeDoneEventsForBeskjedToCache(capture(capturedNumberOfBeskjedEntitiesWrittenToTheDb)) } returns Unit
+        coEvery { persistingService.writeDoneEventsForBeskjedToCache(capture(capturedNumberOfBeskjedEntitiesWrittenToTheDb)) } returns Unit
 
         val simulertFeil = UntransformableRecordException("Simulert feil")
         val matchingDoneEvent2 = DoneObjectMother.giveMeMatchingDoneEvent(beskjedInDbToMatch2)
@@ -184,7 +187,7 @@ class DoneEventServiceTest {
         } throws simulertFeil andThenMany matchingDoneEvents
 
         coEvery {
-            repository.fetchBrukernotifikasjonerFromViewForEventIds(any())
+            persistingService.fetchBrukernotifikasjonerFromViewForEventIds(any())
         } returns listOf(beskjedInDbToMatch2, beskjedInDbToMatch3)
 
         invoking {
@@ -195,10 +198,10 @@ class DoneEventServiceTest {
 
         capturedNumberOfBeskjedEntitiesWrittenToTheDb.captured.size `should be` 2
 
-        coVerify(exactly = 1) { repository.writeDoneEventsForBeskjedToCache(any()) }
-        coVerify(exactly = 1) { repository.writeDoneEventsToCache(emptyList()) }
-        coVerify(exactly = 1) { repository.writeDoneEventsForInnboksToCache(emptyList()) }
-        coVerify(exactly = 1) { repository.writeDoneEventsForOppgaveToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeDoneEventsForBeskjedToCache(any()) }
+        coVerify(exactly = 1) { persistingService.writeDoneEventsForInnboksToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeDoneEventsForOppgaveToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeEventsToCache(emptyList()) }
     }
 
     @Test
@@ -208,17 +211,16 @@ class DoneEventServiceTest {
         val records = createMatchingRecords(beskjedInDbToMatch)
 
         coEvery {
-            repository.fetchBrukernotifikasjonerFromViewForEventIds(any())
+            persistingService.fetchBrukernotifikasjonerFromViewForEventIds(any())
         } returns listOf(beskjedInDbToMatch)
 
         runBlocking {
             service.processEvents(records)
         }
 
-        coVerify(exactly = 1) { repository.writeDoneEventsToCache(emptyList()) }
-        coVerify(exactly = 1) { repository.writeDoneEventsForBeskjedToCache(emptyList()) }
-        coVerify(exactly = 1) { repository.writeDoneEventsForInnboksToCache(emptyList()) }
-        coVerify(exactly = 1) { repository.writeDoneEventsForOppgaveToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeDoneEventsForBeskjedToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeDoneEventsForInnboksToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeDoneEventsForOppgaveToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeEventsToCache(emptyList()) }
     }
-
 }

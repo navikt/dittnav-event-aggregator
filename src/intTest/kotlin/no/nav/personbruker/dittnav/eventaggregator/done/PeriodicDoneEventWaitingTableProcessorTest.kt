@@ -26,9 +26,10 @@ class PeriodicDoneEventWaitingTableProcessorTest {
 
     private val database = H2Database()
     private val doneRepository = DoneRepository(database)
+    private val donePersistingService = DonePersistingService(doneRepository)
     private val nameResolver = ProducerNameResolver(database)
     private val dbMetricsProbe = DBMetricsProbe(StubMetricsReporter(), ProducerNameScrubber(nameResolver))
-    private val eventConsumer = PeriodicDoneEventWaitingTableProcessor(doneRepository, dbMetricsProbe)
+    private val eventConsumer = PeriodicDoneEventWaitingTableProcessor(donePersistingService, dbMetricsProbe)
 
     private val systembruker = "dummySystembruker"
     private val fodselsnummer = "12345"
@@ -85,7 +86,7 @@ class PeriodicDoneEventWaitingTableProcessorTest {
 
     @Test
     fun `setter Innboks-event inaktivt hvis Done-event med samme eventId tidligere er mottatt`() {
-        val eventConsumer = PeriodicDoneEventWaitingTableProcessor(doneRepository, dbMetricsProbe)
+        val eventConsumer = PeriodicDoneEventWaitingTableProcessor(donePersistingService, dbMetricsProbe)
         val innboksWithExistingDone = InnboksObjectMother.giveMeAktivInnboks(done3.eventId, fodselsnummer, systembruker)
         runBlocking {
             database.dbQuery { createInnboks(innboksWithExistingDone) }

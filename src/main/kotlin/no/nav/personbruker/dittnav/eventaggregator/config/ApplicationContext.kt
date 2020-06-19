@@ -5,6 +5,7 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneEventService
+import no.nav.personbruker.dittnav.eventaggregator.done.DonePersistingService
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
 import no.nav.personbruker.dittnav.eventaggregator.done.PeriodicDoneEventWaitingTableProcessor
 import no.nav.personbruker.dittnav.eventaggregator.health.HealthService
@@ -51,10 +52,11 @@ class ApplicationContext {
     val innboksPersistingService = BrukernotifikasjonPersistingService(innboksRepository)
     val innboksEventProcessor = InnboksEventService(innboksPersistingService, eventMetricsProbe)
     val innboksKafkaProps = Kafka.consumerProps(environment, EventType.INNBOKS)
-    val doneRepository = DoneRepository(database)
     var innboksConsumer = initializeInnboksConsumer()
 
-    val doneEventService = DoneEventService(doneRepository, eventMetricsProbe)
+    val doneRepository = DoneRepository(database)
+    val donePersistingService = DonePersistingService(doneRepository)
+    val doneEventService = DoneEventService(donePersistingService, eventMetricsProbe)
     val doneKafkaProps = Kafka.consumerProps(environment, EventType.DONE)
     var doneConsumer = initializeDoneConsumer()
 
@@ -115,7 +117,7 @@ class ApplicationContext {
         }
     }
 
-    private fun initializeDoneWaitingTableProcessor() = PeriodicDoneEventWaitingTableProcessor(doneRepository, dbMetricsProbe)
+    private fun initializeDoneWaitingTableProcessor() = PeriodicDoneEventWaitingTableProcessor(donePersistingService, dbMetricsProbe)
 
     fun reinitializeDoneWaitingTableProcessor() {
         if (periodicDoneEventWaitingTableProcessor.isCompleted()) {
