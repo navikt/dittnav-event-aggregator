@@ -107,7 +107,7 @@ object ConsumerRecordsObjectMother {
         return ConsumerRecords(records)
     }
 
-    fun wrapInConsumerRecords(singleRecord: ConsumerRecord<Nokkel, Done>, topicName: String = "dummyTopic"): ConsumerRecords<Nokkel, Done> {
+    fun wrapInConsumerRecords(singleRecord: ConsumerRecord<Nokkel, Done>): ConsumerRecords<Nokkel, Done> {
         return wrapInConsumerRecords(listOf(singleRecord))
     }
 
