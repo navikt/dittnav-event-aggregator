@@ -18,8 +18,8 @@ import java.time.temporal.ChronoUnit
 
 class TopicEventCounterService(val topicMetricsProbe: TopicMetricsProbe,
                                val beskjedCountConsumer: KafkaConsumer<Nokkel, GenericRecord>,
-                               val oppgaveCountConsumer: KafkaConsumer<Nokkel, GenericRecord>,
                                val innboksCountConsumer: KafkaConsumer<Nokkel, GenericRecord>,
+                               val oppgaveCountConsumer: KafkaConsumer<Nokkel, GenericRecord>,
                                val doneCountConsumer: KafkaConsumer<Nokkel, GenericRecord>) {
 
     private val log = LoggerFactory.getLogger(TopicEventCounterService::class.java)

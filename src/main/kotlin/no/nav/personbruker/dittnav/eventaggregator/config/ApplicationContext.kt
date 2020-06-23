@@ -77,10 +77,16 @@ class ApplicationContext {
     val topicMetricsProbe = buildTopicMetricsProbe(environment, database)
 
     val beskjedCountConsumer = createCountConsumer<GenericRecord>(EventType.BESKJED, Kafka.beskjedTopicName, environment)
-    val oppgaveCountConsumer = createCountConsumer<GenericRecord>(EventType.OPPGAVE, Kafka.oppgaveTopicName, environment)
     val innboksCountConsumer = createCountConsumer<GenericRecord>(EventType.INNBOKS, Kafka.innboksTopicName, environment)
+    val oppgaveCountConsumer = createCountConsumer<GenericRecord>(EventType.OPPGAVE, Kafka.oppgaveTopicName, environment)
     val doneCountConsumer = createCountConsumer<GenericRecord>(EventType.DONE, Kafka.doneTopicName, environment)
-    val topicEventCounterService = TopicEventCounterService(topicMetricsProbe, beskjedCountConsumer, innboksCountConsumer, oppgaveCountConsumer, doneCountConsumer)
+    val topicEventCounterService = TopicEventCounterService(
+            topicMetricsProbe = topicMetricsProbe,
+            beskjedCountConsumer = beskjedCountConsumer,
+            innboksCountConsumer = innboksCountConsumer,
+            oppgaveCountConsumer = oppgaveCountConsumer,
+            doneCountConsumer = doneCountConsumer
+    )
 
     var periodicMetricsSubmitter = initializePeriodicMetricsSubmitter()
 
