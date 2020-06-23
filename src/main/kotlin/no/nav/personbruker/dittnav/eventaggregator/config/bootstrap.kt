@@ -51,5 +51,6 @@ private fun Application.configureShutdownHook(appContext: ApplicationContext) {
         }
         appContext.database.dataSource.close()
         appContext.kafkaEventCounterService.closeAllConsumers()
+        appContext.topicEventCounterService.closeAllConsumers()
     }
 }

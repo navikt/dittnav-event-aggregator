@@ -20,10 +20,12 @@ import no.nav.personbruker.dittnav.eventaggregator.metrics.db.count.DbEventCount
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.count.MetricsRepository
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.KafkaEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.KafkaTopicEventCounterService
+import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.createCountConsumer
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.topic.TopicEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.metrics.submitter.PeriodicMetricsSubmitter
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveEventService
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
+import org.apache.avro.generic.GenericRecord
 import org.slf4j.LoggerFactory
 
 class ApplicationContext {
@@ -73,7 +75,13 @@ class ApplicationContext {
     val dbEventCounterService = DbEventCounterService(dbEventCountingMetricsProbe, metricsRepository)
 
     val topicMetricsProbe = buildTopicMetricsProbe(environment, database)
-    val topicEventCounterService = TopicEventCounterService(environment, topicMetricsProbe)
+
+    val beskjedCountConsumer = createCountConsumer<GenericRecord>(EventType.BESKJED, Kafka.beskjedTopicName, environment)
+    val oppgaveCountConsumer = createCountConsumer<GenericRecord>(EventType.OPPGAVE, Kafka.oppgaveTopicName, environment)
+    val innboksCountConsumer = createCountConsumer<GenericRecord>(EventType.INNBOKS, Kafka.innboksTopicName, environment)
+    val doneCountConsumer = createCountConsumer<GenericRecord>(EventType.DONE, Kafka.doneTopicName, environment)
+    val topicEventCounterService = TopicEventCounterService(topicMetricsProbe, beskjedCountConsumer, innboksCountConsumer, oppgaveCountConsumer, doneCountConsumer)
+
     var periodicMetricsSubmitter = initializePeriodicMetricsSubmitter()
 
     private fun initializeBeskjedConsumer() =
