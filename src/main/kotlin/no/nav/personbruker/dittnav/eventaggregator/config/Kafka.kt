@@ -49,10 +49,12 @@ object Kafka {
 
     fun counterConsumerProps(env: Environment, eventTypeToConsume: EventType, enableSecurity: Boolean = isCurrentlyRunningOnNais()): Properties {
         val groupIdAndEventType = "dn-aggregator_metrics_counter_" + eventTypeToConsume.eventType
+        val sixMinutes = 6 * 60 * 1000
         return Properties().apply {
             put(ConsumerConfig.GROUP_ID_CONFIG, groupIdAndEventType)
             put(ConsumerConfig.CLIENT_ID_CONFIG, groupIdAndEventType + getHostname(InetSocketAddress(0)))
             commonProps(env, enableSecurity)
+            put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, sixMinutes)
         }
     }
 
