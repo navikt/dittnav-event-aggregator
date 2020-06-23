@@ -1,12 +1,12 @@
 package no.nav.personbruker.dittnav.eventaggregator.metrics.kafka
 
 import no.nav.brukernotifikasjon.schemas.Nokkel
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.foundRecords
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.resetTheGroupIdsOffsetToZero
 import no.nav.personbruker.dittnav.eventaggregator.config.Environment
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.topic.UniqueKafkaEventIdentifierTransformer
-import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.topic.foundRecords
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer

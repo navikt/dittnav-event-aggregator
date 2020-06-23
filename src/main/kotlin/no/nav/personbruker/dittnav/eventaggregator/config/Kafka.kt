@@ -48,7 +48,7 @@ object Kafka {
     }
 
     fun counterConsumerProps(env: Environment, eventTypeToConsume: EventType, enableSecurity: Boolean = isCurrentlyRunningOnNais()): Properties {
-        val groupIdAndEventType = env.counterGroupId + eventTypeToConsume.eventType
+        val groupIdAndEventType = "dn-aggregator_metrics_counter_" + eventTypeToConsume.eventType
         return Properties().apply {
             put(ConsumerConfig.GROUP_ID_CONFIG, groupIdAndEventType)
             put(ConsumerConfig.CLIENT_ID_CONFIG, groupIdAndEventType + getHostname(InetSocketAddress(0)))
