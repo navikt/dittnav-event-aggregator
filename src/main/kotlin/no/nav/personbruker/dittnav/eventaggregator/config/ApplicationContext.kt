@@ -20,6 +20,7 @@ import no.nav.personbruker.dittnav.eventaggregator.metrics.db.count.DbEventCount
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.count.MetricsRepository
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.KafkaEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.KafkaTopicEventCounterService
+import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.closeConsumer
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.createCountConsumer
 import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.topic.TopicEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.metrics.submitter.PeriodicMetricsSubmitter
@@ -66,9 +67,6 @@ class ApplicationContext {
 
     val healthService = HealthService(this)
 
-    val kafkaEventCounterService = KafkaEventCounterService(environment)
-    val kafkaTopicEventCounterService = KafkaTopicEventCounterService(environment)
-
     val metricsRepository = MetricsRepository(database)
     val cacheEventCounterService = CacheEventCounterService(environment, metricsRepository)
     val dbEventCountingMetricsProbe = buildDbEventCountingMetricsProbe(environment, database)
@@ -87,6 +85,13 @@ class ApplicationContext {
             oppgaveCountConsumer = oppgaveCountConsumer,
             doneCountConsumer = doneCountConsumer
     )
+    val kafkaEventCounterService = KafkaEventCounterService(
+            beskjedCountConsumer = beskjedCountConsumer,
+            innboksCountConsumer = innboksCountConsumer,
+            oppgaveCountConsumer = oppgaveCountConsumer,
+            doneCountConsumer = doneCountConsumer
+    )
+    val kafkaTopicEventCounterService = KafkaTopicEventCounterService(environment)
 
     var periodicMetricsSubmitter = initializePeriodicMetricsSubmitter()
 
@@ -153,5 +158,12 @@ class ApplicationContext {
 
     private fun initializePeriodicMetricsSubmitter(): PeriodicMetricsSubmitter =
             PeriodicMetricsSubmitter(dbEventCounterService, topicEventCounterService)
+
+    fun closeAllKafkaCountConsumers() {
+        closeConsumer(beskjedCountConsumer)
+        closeConsumer(innboksCountConsumer)
+        closeConsumer(oppgaveCountConsumer)
+        closeConsumer(doneCountConsumer)
+    }
 
 }
