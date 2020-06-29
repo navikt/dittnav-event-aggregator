@@ -2,7 +2,6 @@ package no.nav.personbruker.dittnav.eventaggregator.metrics.submitter
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.time.delay
-import no.nav.personbruker.dittnav.eventaggregator.done.PeriodicDoneEventWaitingTableProcessor
 import no.nav.personbruker.dittnav.eventaggregator.health.HealthStatus
 import no.nav.personbruker.dittnav.eventaggregator.health.Status
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.count.DbEventCounterService
@@ -19,7 +18,7 @@ class PeriodicMetricsSubmitter(
         private val job: Job = Job()
 ) : CoroutineScope {
 
-    private val log: Logger = LoggerFactory.getLogger(PeriodicDoneEventWaitingTableProcessor::class.java)
+    private val log: Logger = LoggerFactory.getLogger(PeriodicMetricsSubmitter::class.java)
     private val minutesToWait = Duration.ofMinutes(5)
 
     override val coroutineContext: CoroutineContext
