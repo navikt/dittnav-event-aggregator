@@ -49,7 +49,7 @@ class BeskjedTransformerTest {
 
     @Test
     fun `should throw FieldValidationException if text field is too long`() {
-        val tooLongText = "A".repeat(501)
+        val tooLongText = "A".repeat(301)
         val event = AvroBeskjedObjectMother.createBeskjedWithText(tooLongText)
 
         invoking {
@@ -61,7 +61,7 @@ class BeskjedTransformerTest {
 
     @Test
     fun `should allow text length up to the limit`() {
-        val textWithMaxAllowedLength = "B".repeat(500)
+        val textWithMaxAllowedLength = "B".repeat(300)
         val event = AvroBeskjedObjectMother.createBeskjedWithText(textWithMaxAllowedLength)
 
         runBlocking {

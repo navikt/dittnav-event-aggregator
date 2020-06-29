@@ -50,7 +50,7 @@ data class Beskjed(
         validateNonNullFieldMaxLength(eventId, "eventId", 50)
         validateNonNullFieldMaxLength(fodselsnummer, "fodselsnummer", 11)
         validateNonNullFieldMaxLength(grupperingsId, "grupperingsId", 100)
-        validateNonNullFieldMaxLength(tekst, "tekst", 500)
+        validateNonNullFieldMaxLength(tekst, "tekst", 300)
         validateMaxLength(link, "link", 200)
         validateSikkerhetsnivaa(sikkerhetsnivaa)
         validateNonNullFieldMaxLength(uid, "uid", 100)
