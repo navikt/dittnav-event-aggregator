@@ -9,6 +9,7 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMoth
 import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util.KafkaTestUtil
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.config.KafkaConsumerSetup.createCountConsumer
+import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.closeConsumer
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldEqualTo
@@ -58,7 +59,7 @@ class TopicEventCounterServiceIT {
         metricsSession.getTotalNumber() `should be equal to` events.size * 3
         metricsSession.getNumberOfUniqueEvents() `should be equal to` events.size
 
-        service.closeAllConsumers()
+        closeConsumer(beskjedCountConsumer)
     }
 
     @Test
@@ -75,7 +76,7 @@ class TopicEventCounterServiceIT {
 
         `tell og verifiser korrekte antall eventer flere ganger paa rad`(service, metricsSession)
 
-        service.closeAllConsumers()
+        closeConsumer(beskjedCountConsumer)
     }
 
     private fun `tell og verifiser korrekte antall eventer flere ganger paa rad`(service: TopicEventCounterService,

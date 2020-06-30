@@ -50,7 +50,6 @@ private fun Application.configureShutdownHook(appContext: ApplicationContext) {
             appContext.periodicMetricsSubmitter.stop()
         }
         appContext.database.dataSource.close()
-        appContext.kafkaEventCounterService.closeAllConsumers()
-        appContext.topicEventCounterService.closeAllConsumers()
+        appContext.closeAllKafkaCountConsumers()
     }
 }

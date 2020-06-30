@@ -1,20 +1,20 @@
 package no.nav.personbruker.dittnav.eventaggregator.metrics.kafka
 
-import no.nav.personbruker.dittnav.eventaggregator.config.Environment
+import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
 import no.nav.personbruker.dittnav.eventaggregator.config.isOtherEnvironmentThanProd
 import org.apache.avro.generic.GenericRecord
+import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory
 
-class KafkaEventCounterService(val environment: Environment) {
+class KafkaEventCounterService(
+        val beskjedCountConsumer: KafkaConsumer<Nokkel, GenericRecord>,
+        val innboksCountConsumer: KafkaConsumer<Nokkel, GenericRecord>,
+        val oppgaveCountConsumer: KafkaConsumer<Nokkel, GenericRecord>,
+        val doneCountConsumer: KafkaConsumer<Nokkel, GenericRecord>
+) {
 
     private val log = LoggerFactory.getLogger(KafkaEventCounterService::class.java)
-
-    private val beskjedConsumer = createCountConsumer<GenericRecord>(EventType.BESKJED, Kafka.beskjedTopicName, environment)
-    private val oppgaveConsumer = createCountConsumer<GenericRecord>(EventType.OPPGAVE, Kafka.oppgaveTopicName, environment)
-    private val innboksConsumer = createCountConsumer<GenericRecord>(EventType.INNBOKS, Kafka.innboksTopicName, environment)
-    private val doneConsumer = createCountConsumer<GenericRecord>(EventType.DONE, Kafka.doneTopicName, environment)
 
     fun countAllEvents(): NumberOfKafkaRecords {
         val result = NumberOfKafkaRecords(
@@ -30,7 +30,7 @@ class KafkaEventCounterService(val environment: Environment) {
 
     fun countBeskjeder(): Long {
         return try {
-            countEvents(beskjedConsumer, EventType.BESKJED)
+            countEvents(beskjedCountConsumer, EventType.BESKJED)
         } catch (e: Exception) {
             log.warn("Klarte ikke å telle antall beskjed-eventer", e)
             -1
@@ -40,7 +40,7 @@ class KafkaEventCounterService(val environment: Environment) {
     fun countInnboksEventer(): Long {
         return if (isOtherEnvironmentThanProd()) {
             try {
-                countEvents(innboksConsumer, EventType.INNBOKS)
+                countEvents(innboksCountConsumer, EventType.INNBOKS)
             } catch (e: Exception) {
                 log.warn("Klarte ikke å telle antall innboks-eventer", e)
                 -1L
@@ -52,7 +52,7 @@ class KafkaEventCounterService(val environment: Environment) {
 
     fun countOppgaver(): Long {
         return try {
-            countEvents(oppgaveConsumer, EventType.OPPGAVE)
+            countEvents(oppgaveCountConsumer, EventType.OPPGAVE)
         } catch (e: Exception) {
             log.warn("Klarte ikke å telle antall oppgave-eventer", e)
             -1
@@ -61,7 +61,7 @@ class KafkaEventCounterService(val environment: Environment) {
 
     fun countDoneEvents(): Long {
         return try {
-            countEvents(doneConsumer, EventType.DONE)
+            countEvents(doneCountConsumer, EventType.DONE)
 
         } catch (e: Exception) {
             log.warn("Klarte ikke å telle antall done-eventer", e)
@@ -91,7 +91,7 @@ class KafkaEventCounterService(val environment: Environment) {
 
     fun countUniqueBeskjeder(): Pair<Long, Long> {
         return try {
-            countUniqueEvents(beskjedConsumer, EventType.BESKJED)
+            countUniqueEvents(beskjedCountConsumer, EventType.BESKJED)
 
         } catch (e: Exception) {
             log.warn("Klarte ikke å telle antall beskjed-eventer", e)
@@ -102,7 +102,7 @@ class KafkaEventCounterService(val environment: Environment) {
     fun countUniqueInnboksEventer(): Pair<Long, Long> {
         return if (isOtherEnvironmentThanProd()) {
             try {
-                countUniqueEvents(innboksConsumer, EventType.INNBOKS)
+                countUniqueEvents(innboksCountConsumer, EventType.INNBOKS)
 
             } catch (e: Exception) {
                 log.warn("Klarte ikke å telle antall innboks-eventer", e)
@@ -115,7 +115,7 @@ class KafkaEventCounterService(val environment: Environment) {
 
     fun countUniqueOppgaver(): Pair<Long, Long> {
         return try {
-            countUniqueEvents(oppgaveConsumer, EventType.OPPGAVE)
+            countUniqueEvents(oppgaveCountConsumer, EventType.OPPGAVE)
 
         } catch (e: Exception) {
             log.warn("Klarte ikke å telle antall oppgave-eventer", e)
@@ -125,7 +125,7 @@ class KafkaEventCounterService(val environment: Environment) {
 
     fun countUniqueDoneEvents(): Pair<Long, Long> {
         return try {
-            countUniqueEvents(doneConsumer, EventType.DONE)
+            countUniqueEvents(doneCountConsumer, EventType.DONE)
 
 
         } catch (e: Exception) {
@@ -134,10 +134,4 @@ class KafkaEventCounterService(val environment: Environment) {
         }
     }
 
-    fun closeAllConsumers() {
-        closeConsumer(beskjedConsumer)
-        closeConsumer(innboksConsumer)
-        closeConsumer(oppgaveConsumer)
-        closeConsumer(doneConsumer)
-    }
 }

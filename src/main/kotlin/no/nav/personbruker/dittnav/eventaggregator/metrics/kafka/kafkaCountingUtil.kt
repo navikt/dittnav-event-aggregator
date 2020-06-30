@@ -46,7 +46,7 @@ fun countUniqueEvents(consumer: KafkaConsumer<Nokkel, GenericRecord>, eventType:
     val start = Instant.now()
     var records = consumer.poll(Duration.of(5000, ChronoUnit.MILLIS))
     var duplicationCounter: Long = 0
-    val uniqueEvents = HashSet<UniqueKafkaEventIdentifier>(25000000)
+    val uniqueEvents = HashSet<UniqueKafkaEventIdentifier>(5000000)
 
     duplicationCounter += countBatch(records, uniqueEvents)
 
