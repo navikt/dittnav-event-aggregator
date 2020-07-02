@@ -38,7 +38,6 @@ private fun Application.configureStartupHook(appContext: ApplicationContext) {
         Flyway.runFlywayMigrations(appContext.environment)
         KafkaConsumerSetup.startAllKafkaPollers(appContext)
         appContext.periodicDoneEventWaitingTableProcessor.start()
-        appContext.periodicMetricsSubmitter.start()
     }
 }
 
