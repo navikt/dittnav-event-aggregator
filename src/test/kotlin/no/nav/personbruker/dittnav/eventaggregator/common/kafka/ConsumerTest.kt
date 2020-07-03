@@ -105,9 +105,8 @@ class ConsumerTest {
         verify(exactly = 0) { kafkaConsumer.commitSync() }
     }
 
-    // Ønsker midlertidig at all polling stoppes ved alle typer feil. Denne endringen skal reverteres på et senere tidspunkt.
     @Test
-    fun `Skal stoppe pollingen hvis det er en retriable exception throw by Kafka`() {
+    fun `Skal fortsette pollingen hvis det er en retriable exception throw by Kafka`() {
         val topic = "dummyTopicKafkaRetriable"
         val retriableKafkaException = DisconnectException("Simulert feil i en test")
         every { kafkaConsumer.poll(any<Duration>()) } throws retriableKafkaException
@@ -118,16 +117,15 @@ class ConsumerTest {
             consumer.startPolling()
             `Vent litt for aa bevise at det IKKE fortsettes aa polle`()
 
-            consumer.status().status `should equal` Status.ERROR
+            consumer.status().status `should equal` Status.OK
             consumer.stopPolling()
         }
         verify(exactly = 0) { kafkaConsumer.commitSync() }
-        verify(exactly = 0) { kafkaConsumer.rollbackToLastCommitted() }
+        verify(atLeast = 1) { kafkaConsumer.rollbackToLastCommitted() }
     }
 
-    // Ønsker midlertidig at all polling stoppes ved alle typer feil. Denne endringen skal reverteres på et senere tidspunkt.
     @Test
-    fun `Skal stoppe pollingen hvis det er en retriable database exception`() {
+    fun `Skal fortsette pollingen hvis det er en retriable database exception`() {
         val topic = "dummyTopicDatabaseRetriable"
         every { kafkaConsumer.poll(any<Duration>()) } returns ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(1, topic)
         val retriableDbExption = RetriableDatabaseException("Simulert feil i en test")
@@ -140,11 +138,11 @@ class ConsumerTest {
             consumer.startPolling()
             `Vent litt for aa bevise at det IKKE fortsettes aa polle`()
 
-            consumer.status().status `should equal` Status.ERROR
+            consumer.status().status `should equal` Status.OK
             consumer.stopPolling()
         }
         verify(exactly = 0) { kafkaConsumer.commitSync() }
-        verify(exactly = 0) { kafkaConsumer.rollbackToLastCommitted() }
+        verify(atLeast = 1) { kafkaConsumer.rollbackToLastCommitted() }
     }
 
     @Test
