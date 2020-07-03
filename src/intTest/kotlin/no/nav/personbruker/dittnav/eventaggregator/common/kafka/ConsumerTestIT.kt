@@ -14,6 +14,7 @@ import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should be greater than`
 import org.amshove.kluent.`should contain same`
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -54,9 +55,8 @@ class ConsumerTestIT {
         eventProcessor.successfulEvents `should contain same` beskjedEvents.values
     }
 
-    // Ønsker midlertidig at all polling stoppes ved alle typer feil. Denne endringen skal reverteres på et senere tidspunkt.
     @Test
-    fun `Should not attempt to process some events multiple times if a retriable exception was raised`() {
+    fun `Should attempt to process some events multiple times if a retriable exception was raised`() {
 
         val embeddedEnv = KafkaTestUtil.createKafkaEmbeddedInstanceWithNumPartitions(listOf(topic), 4)
         val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
@@ -66,8 +66,7 @@ class ConsumerTestIT {
 
         embeddedEnv.start()
 
-        val failForEveryEvents = 5
-        val eventProcessor = ThrowingEventCounterService<Beskjed>(RetriableDatabaseException("Transient error"), failForEveryEvents)
+        val eventProcessor = ThrowingEventCounterService<Beskjed>(RetriableDatabaseException("Transient error"), 5)
         val kafkaConsumer = KafkaConsumer<Nokkel, Beskjed>(consumerProps)
         val consumer = Consumer(topic, kafkaConsumer, eventProcessor)
 
@@ -79,9 +78,9 @@ class ConsumerTestIT {
 
         embeddedEnv.tearDown()
 
-        val listSizeOfSuccessfulEvents = failForEveryEvents - 1
-        eventProcessor.successfulEventsCounter `should be equal to` listSizeOfSuccessfulEvents
-        eventProcessor.invocationCounter `should be equal to` failForEveryEvents
+        eventProcessor.successfulEventsCounter `should be equal to` beskjedEvents.size
+        eventProcessor.invocationCounter `should be greater than` beskjedEvents.size
+        eventProcessor.successfulEvents `should contain same` beskjedEvents.values
     }
 
     @Test
