@@ -15,6 +15,7 @@ import no.nav.personbruker.dittnav.eventaggregator.health.Status
 import org.amshove.kluent.`should equal`
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.errors.DisconnectException
+import org.apache.kafka.common.errors.TopicAuthorizationException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
@@ -174,6 +175,20 @@ class ConsumerTest {
             delay(10)
         }
         verify(exactly = 0) { kafkaConsumer.commitSync() }
+    }
+
+    @Test
+    fun `Skal pause en konsument hvis det har skjedd en TopicAuthorizationException`() {
+        val topic = "dummyTopicTopicAuthorizationException"
+        val topicAuthorizationException = TopicAuthorizationException("Simulert feil i en test")
+        every { kafkaConsumer.poll(any<Duration>()) } throws topicAuthorizationException
+        val consumer: Consumer<Beskjed> = Consumer(topic, kafkaConsumer, eventBatchProcessorService)
+
+        runBlocking {
+            consumer.startPolling()
+            delay(100)
+            consumer.status().status `should equal` Status.OK
+        }
     }
 
     private suspend fun `Vent litt for aa bevise at det IKKE fortsettes aa polle`() {
