@@ -12,6 +12,7 @@ import no.nav.personbruker.dittnav.eventaggregator.health.Status
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.errors.RetriableException
+import org.apache.kafka.common.errors.TopicAuthorizationException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
@@ -26,6 +27,10 @@ class Consumer<T>(
 ) : CoroutineScope, HealthCheck {
 
     private val log: Logger = LoggerFactory.getLogger(Consumer::class.java)
+
+    companion object {
+        private const val ONE_MINUTE_IN_MS = 60000L
+    }
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default + job
@@ -87,6 +92,10 @@ class Consumer<T>(
 
         } catch (ce: CancellationException) {
             log.info("Denne coroutine-en ble stoppet. ${ce.message}", ce)
+
+        } catch (tae: TopicAuthorizationException) {
+            log.warn("Pauser polling i ett minutt, er ikke autorisert for å lese: ${tae.unauthorizedTopics()}", tae)
+            delay(ONE_MINUTE_IN_MS)
 
         } catch (e: Exception) {
             log.error("Noe uventet feilet, stopper polling. Topic: $topic", e)
