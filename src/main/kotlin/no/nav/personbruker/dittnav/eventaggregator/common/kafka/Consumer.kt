@@ -28,6 +28,10 @@ class Consumer<T>(
 
     private val log: Logger = LoggerFactory.getLogger(Consumer::class.java)
 
+    companion object {
+        private const val ONE_MINUTE_IN_MS = 60000L
+    }
+
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default + job
 
@@ -91,7 +95,7 @@ class Consumer<T>(
 
         } catch (tae: TopicAuthorizationException) {
             log.warn("Pauser polling i ett minutt, er ikke autorisert for å lese: ${tae.unauthorizedTopics()}", tae)
-            delay(60000)
+            delay(ONE_MINUTE_IN_MS)
 
         } catch (e: Exception) {
             log.error("Noe uventet feilet, stopper polling. Topic: $topic", e)

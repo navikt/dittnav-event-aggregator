@@ -188,7 +188,9 @@ class ConsumerTest {
             consumer.startPolling()
             delay(100)
             consumer.status().status `should equal` Status.OK
+            consumer.stopPolling()
         }
+        verify(exactly = 0) { kafkaConsumer.commitSync() }
     }
 
     private suspend fun `Vent litt for aa bevise at det IKKE fortsettes aa polle`() {
