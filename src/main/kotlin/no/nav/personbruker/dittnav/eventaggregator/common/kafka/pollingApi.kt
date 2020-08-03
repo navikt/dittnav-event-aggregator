@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.metrics.kafka
+package no.nav.personbruker.dittnav.eventaggregator.common.kafka
 
 import io.ktor.application.call
 import io.ktor.http.ContentType

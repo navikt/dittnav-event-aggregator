@@ -12,21 +12,9 @@ import no.nav.personbruker.dittnav.eventaggregator.health.HealthService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksEventService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildDBMetricsProbe
-import no.nav.personbruker.dittnav.eventaggregator.metrics.buildDbEventCountingMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildEventMetricsProbe
-import no.nav.personbruker.dittnav.eventaggregator.metrics.buildTopicMetricsProbe
-import no.nav.personbruker.dittnav.eventaggregator.metrics.db.count.CacheEventCounterService
-import no.nav.personbruker.dittnav.eventaggregator.metrics.db.count.DbEventCounterService
-import no.nav.personbruker.dittnav.eventaggregator.metrics.db.count.MetricsRepository
-import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.KafkaEventCounterService
-import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.KafkaTopicEventCounterService
-import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.closeConsumer
-import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.createCountConsumer
-import no.nav.personbruker.dittnav.eventaggregator.metrics.kafka.topic.TopicEventCounterService
-import no.nav.personbruker.dittnav.eventaggregator.metrics.submitter.PeriodicMetricsSubmitter
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveEventService
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
-import org.apache.avro.generic.GenericRecord
 import org.slf4j.LoggerFactory
 
 class ApplicationContext {
@@ -66,34 +54,6 @@ class ApplicationContext {
     var periodicDoneEventWaitingTableProcessor = initializeDoneWaitingTableProcessor()
 
     val healthService = HealthService(this)
-
-    val metricsRepository = MetricsRepository(database)
-    val cacheEventCounterService = CacheEventCounterService(environment, metricsRepository)
-    val dbEventCountingMetricsProbe = buildDbEventCountingMetricsProbe(environment, database)
-    val dbEventCounterService = DbEventCounterService(dbEventCountingMetricsProbe, metricsRepository)
-
-    val topicMetricsProbe = buildTopicMetricsProbe(environment, database)
-
-    val beskjedCountConsumer = createCountConsumer<GenericRecord>(EventType.BESKJED, Kafka.beskjedTopicName, environment)
-    val innboksCountConsumer = createCountConsumer<GenericRecord>(EventType.INNBOKS, Kafka.innboksTopicName, environment)
-    val oppgaveCountConsumer = createCountConsumer<GenericRecord>(EventType.OPPGAVE, Kafka.oppgaveTopicName, environment)
-    val doneCountConsumer = createCountConsumer<GenericRecord>(EventType.DONE, Kafka.doneTopicName, environment)
-    val topicEventCounterService = TopicEventCounterService(
-            topicMetricsProbe = topicMetricsProbe,
-            beskjedCountConsumer = beskjedCountConsumer,
-            innboksCountConsumer = innboksCountConsumer,
-            oppgaveCountConsumer = oppgaveCountConsumer,
-            doneCountConsumer = doneCountConsumer
-    )
-    val kafkaEventCounterService = KafkaEventCounterService(
-            beskjedCountConsumer = beskjedCountConsumer,
-            innboksCountConsumer = innboksCountConsumer,
-            oppgaveCountConsumer = oppgaveCountConsumer,
-            doneCountConsumer = doneCountConsumer
-    )
-    val kafkaTopicEventCounterService = KafkaTopicEventCounterService(environment)
-
-    var periodicMetricsSubmitter = initializePeriodicMetricsSubmitter()
 
     private fun initializeBeskjedConsumer() =
             KafkaConsumerSetup.setupConsumerForTheBeskjedTopic(beskjedKafkaProps, beskjedEventProcessor)
@@ -145,25 +105,6 @@ class ApplicationContext {
         } else {
             log.warn("periodicDoneEventWaitingTableProcessor kunne ikke bli reinstansiert fordi den fortsatt er aktiv.")
         }
-    }
-
-    fun reinitializePeriodicMetricsSubmitter() {
-        if (periodicMetricsSubmitter.isCompleted()) {
-            periodicMetricsSubmitter = initializePeriodicMetricsSubmitter()
-            log.info("periodicMetricsSubmitter har blitt reinstansiert.")
-        } else {
-            log.warn("periodicMetricsSubmitter kunne ikke bli reinstansiert fordi den fortsatt er aktiv.")
-        }
-    }
-
-    private fun initializePeriodicMetricsSubmitter(): PeriodicMetricsSubmitter =
-            PeriodicMetricsSubmitter(dbEventCounterService, topicEventCounterService)
-
-    fun closeAllKafkaCountConsumers() {
-        closeConsumer(beskjedCountConsumer)
-        closeConsumer(innboksCountConsumer)
-        closeConsumer(oppgaveCountConsumer)
-        closeConsumer(doneCountConsumer)
     }
 
 }
