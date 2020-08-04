@@ -6,7 +6,6 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.getProdusentnavn
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.lang.Exception
 import java.time.Duration
 import java.time.LocalDateTime
 
@@ -25,7 +24,7 @@ class ProducerNameResolver(private val database: Database) {
                 updateCache()
             }
             if(!containsAlias) {
-                log.warn("Manglet alias for oppgitt systembruker, forsøker å oppdatere cache på nytt.")
+                log.warn("Manglet alias for '$systembruker', forsøker å oppdatere cache på nytt.")
             }
         }
         return producerNameAliases[systembruker]
