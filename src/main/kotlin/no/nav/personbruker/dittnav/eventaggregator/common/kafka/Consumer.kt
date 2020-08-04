@@ -23,7 +23,8 @@ class Consumer<T>(
         val topic: String,
         val kafkaConsumer: KafkaConsumer<Nokkel, T>,
         val eventBatchProcessorService: EventBatchProcessorService<T>,
-        val job: Job = Job()
+        val job: Job = Job(),
+        val maxPollTimeout: Long = 100L
 ) : CoroutineScope, HealthCheck {
 
     private val log: Logger = LoggerFactory.getLogger(Consumer::class.java)
@@ -68,7 +69,7 @@ class Consumer<T>(
 
     private suspend fun processBatchOfEvents() = withContext(Dispatchers.IO) {
         try {
-            val records = kafkaConsumer.poll(Duration.of(100, ChronoUnit.MILLIS))
+            val records = kafkaConsumer.poll(Duration.of(maxPollTimeout, ChronoUnit.MILLIS))
             if (records.containsEvents()) {
                 eventBatchProcessorService.processEvents(records)
                 kafkaConsumer.commitSync()
