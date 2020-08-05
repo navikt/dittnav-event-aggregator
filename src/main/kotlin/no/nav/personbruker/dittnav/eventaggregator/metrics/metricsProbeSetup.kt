@@ -1,22 +1,17 @@
 package no.nav.personbruker.dittnav.eventaggregator.metrics
 
-import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.config.Environment
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.InfluxMetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.SensuClient
 
-fun buildEventMetricsProbe(environment: Environment, database: Database): EventMetricsProbe {
+fun buildEventMetricsProbe(environment: Environment, nameScrubber: ProducerNameScrubber): EventMetricsProbe {
     val metricsReporter = resolveMetricsReporter(environment)
-    val nameResolver = ProducerNameResolver(database)
-    val nameScrubber = ProducerNameScrubber(nameResolver)
     return EventMetricsProbe(metricsReporter, nameScrubber)
 }
 
-fun buildDBMetricsProbe(environment: Environment, database: Database): DBMetricsProbe {
+fun buildDBMetricsProbe(environment: Environment, nameScrubber: ProducerNameScrubber): DBMetricsProbe {
     val metricsReporter = resolveMetricsReporter(environment)
-    val nameResolver = ProducerNameResolver(database)
-    val nameScrubber = ProducerNameScrubber(nameResolver)
     return DBMetricsProbe(metricsReporter, nameScrubber)
 }
 
