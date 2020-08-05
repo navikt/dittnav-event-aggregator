@@ -66,7 +66,8 @@ internal class ProducerNameResolverTest {
     fun `skal trigge oppdatering av cachen hvis produsentnavn ikke ble funnet i cache`() {
         runBlocking {
             producerNameResolver.getProducerNameAlias("x-ukjent")
-            coVerify(exactly = 1) { database.queryWithExceptionTranslation<List<Produsent>>(any()) }
+            producerNameResolver.getProducerNameAlias("x-ukjent")
+            coVerify(exactly = 2) { database.queryWithExceptionTranslation<List<Produsent>>(any()) }
         }
     }
 }
