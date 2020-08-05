@@ -59,6 +59,10 @@ class EventMetricsSession(val eventType: EventType) {
         return numberDuplicateKeysByProducer.values.sum()
     }
 
+    fun getNumberDuplicateKeysByProducer(): HashMap<String, Int> {
+        return numberDuplicateKeysByProducer
+    }
+
     fun timeElapsedSinceSessionStartNanos(): Long {
         return System.nanoTime() - startTime
     }
