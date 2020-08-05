@@ -74,7 +74,9 @@ class BeskjedEventService(
                         countDuplicateEventKeysByProducer(systembruker, duplicates)
                     }
 
-            log.warn("Traff $constraintErrors feil på duplikate eventId-er ved behandling av $totalEntities beskjed-eventer.")
+            val msg = """Traff $constraintErrors feil på duplikate eventId-er ved behandling av $totalEntities beskjed-eventer.
+                           | Feilene ble produsert av: ${getNumberDuplicateKeysByProducer()}""".trimMargin()
+            log.warn(msg)
         }
     }
 

@@ -73,7 +73,9 @@ class OppgaveEventService(
                         countDuplicateEventKeysByProducer(systembruker, duplicates)
                     }
 
-            log.warn("Traff $constraintErrors feil på duplikate eventId-er ved behandling av $totalEntities oppgave-eventer.")
+            val msg = """Traff $constraintErrors feil på duplikate eventId-er ved behandling av $totalEntities oppgave-eventer.
+                           | Feilene ble produsert av: ${getNumberDuplicateKeysByProducer()}""".trimMargin()
+            log.warn(msg)
         }
     }
 
