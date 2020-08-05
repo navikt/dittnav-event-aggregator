@@ -18,19 +18,31 @@ class ProducerNameResolver(private val database: Database) {
     private val log: Logger = LoggerFactory.getLogger(ProducerNameResolver::class.java)
 
     suspend fun getProducerNameAlias(systembruker: String): String? {
-        val containsAlias = producerNameAliases.containsKey(systembruker)
-        if(shouldFetchNewValuesFromDB() || !containsAlias) {
-            withContext(Dispatchers.IO) {
-                updateCache()
-            }
-            if(!containsAlias) {
-                log.warn("Manglet alias for '$systembruker', forsøker å oppdatere cache på nytt.")
-            }
+        updateCacheIfNeeded(systembruker)
+        val alias = producerNameAliases[systembruker]
+        if (aliasNotFound(alias)) {
+            log.warn("Alias for '$systembruker' ble verken funnet i cache eller databasen, mangler det en mapping?")
         }
-        return producerNameAliases[systembruker]
+        return alias
     }
 
-    private suspend fun updateCache() {
+    private fun aliasNotFound(alias: String?) = alias == null
+
+    private suspend fun updateCacheIfNeeded(systembruker: String) {
+        if (shouldFetchNewValuesFromDB()) {
+            log.info("Periodisk oppdatering av cache.")
+            updateCache()
+
+        } else {
+            val containsAlias = producerNameAliases.containsKey(systembruker)
+            if (!containsAlias) {
+                log.info("Manglet alias for '$systembruker', forsøker å oppdatere cache på nytt.")
+                updateCache()
+            }
+        }
+    }
+
+    private suspend fun updateCache() = withContext(Dispatchers.IO) {
         producerNameAliases = populateProducerNameCache()
         lastRetrievedFromDB = LocalDateTime.now()
     }
@@ -45,7 +57,8 @@ class ProducerNameResolver(private val database: Database) {
         return try {
             val producers = database.queryWithExceptionTranslation { getProdusentnavn() }
             producers.map { it.systembruker to it.produsentnavn }.toMap()
-        } catch(e: Exception) {
+
+        } catch (e: Exception) {
             log.error("En feil oppstod ved henting av produsentnavn, har ikke oppdatert cache med verdier fra DB.", e)
             producerNameAliases
         }
