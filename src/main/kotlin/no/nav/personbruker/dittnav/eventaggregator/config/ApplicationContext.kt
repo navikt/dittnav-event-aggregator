@@ -11,6 +11,8 @@ import no.nav.personbruker.dittnav.eventaggregator.done.PeriodicDoneEventWaiting
 import no.nav.personbruker.dittnav.eventaggregator.health.HealthService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksEventService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
+import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameResolver
+import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameScrubber
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildDBMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildEventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveEventService
@@ -24,8 +26,10 @@ class ApplicationContext {
     val environment = Environment()
     val database: Database = PostgresDatabase(environment)
 
-    val eventMetricsProbe = buildEventMetricsProbe(environment, database)
-    val dbMetricsProbe = buildDBMetricsProbe(environment, database)
+    val nameResolver = ProducerNameResolver(database)
+    val nameScrubber = ProducerNameScrubber(nameResolver)
+    val eventMetricsProbe = buildEventMetricsProbe(environment, nameScrubber)
+    val dbMetricsProbe = buildDBMetricsProbe(environment, nameScrubber)
 
     val beskjedRepository = BeskjedRepository(database)
     val beskjedPersistingService = BrukernotifikasjonPersistingService(beskjedRepository)
