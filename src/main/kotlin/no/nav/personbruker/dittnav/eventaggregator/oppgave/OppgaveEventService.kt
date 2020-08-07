@@ -75,7 +75,7 @@ class OppgaveEventService(
 
             val msg = """Traff $constraintErrors feil på duplikate eventId-er ved behandling av $totalEntities oppgave-eventer.
                            | Feilene ble produsert av: ${getNumberDuplicateKeysByProducer()}""".trimMargin()
-            log.warn(msg)
+            logAsWarningForAllProducersExceptForFpinfoHistorikk(msg)
         }
     }
 

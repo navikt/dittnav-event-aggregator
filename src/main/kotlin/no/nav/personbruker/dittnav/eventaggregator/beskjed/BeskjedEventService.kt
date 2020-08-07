@@ -76,7 +76,7 @@ class BeskjedEventService(
 
             val msg = """Traff $constraintErrors feil på duplikate eventId-er ved behandling av $totalEntities beskjed-eventer.
                            | Feilene ble produsert av: ${getNumberDuplicateKeysByProducer()}""".trimMargin()
-            log.warn(msg)
+            logAsWarningForAllProducersExceptForFpinfoHistorikk(msg)
         }
     }
 

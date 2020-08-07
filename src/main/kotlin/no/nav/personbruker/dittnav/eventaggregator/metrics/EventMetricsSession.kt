@@ -1,8 +1,13 @@
 package no.nav.personbruker.dittnav.eventaggregator.metrics
 
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class EventMetricsSession(val eventType: EventType) {
+
+    private val log: Logger = LoggerFactory.getLogger(EventMetricsSession::class.java)
+
     private val numberProcessedByProducer = HashMap<String, Int>()
     private val numberFailedByProducer = HashMap<String, Int>()
     private val numberDuplicateKeysByProducer = HashMap<String, Int>()
@@ -66,4 +71,26 @@ class EventMetricsSession(val eventType: EventType) {
     fun timeElapsedSinceSessionStartNanos(): Long {
         return System.nanoTime() - startTime
     }
+
+    // Midlertidig logikk for å ikke få alarmer i Slack fra en produsent som sender mange duplikater.
+    fun isDuplicatesFromFpinfoHistorikkOnly(): Boolean {
+        return if (onlyOneProducerMadeDuplicates()) {
+            numberDuplicateKeysByProducer.keys.any { key -> key.contains("fpinfo-historikk") }
+
+        } else {
+            false
+        }
+    }
+
+    private fun onlyOneProducerMadeDuplicates() = numberDuplicateKeysByProducer.size == 1
+
+    fun logAsWarningForAllProducersExceptForFpinfoHistorikk(msg: String) {
+        if (isDuplicatesFromFpinfoHistorikkOnly()) {
+            log.info(msg)
+
+        } else {
+            log.warn(msg)
+        }
+    }
+
 }
