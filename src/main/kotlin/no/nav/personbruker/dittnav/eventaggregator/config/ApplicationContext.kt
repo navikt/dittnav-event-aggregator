@@ -17,6 +17,8 @@ import no.nav.personbruker.dittnav.eventaggregator.metrics.buildDBMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildEventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveEventService
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
+import no.nav.personbruker.dittnav.eventaggregator.statusOppdatering.StatusOppdateringEventService
+import no.nav.personbruker.dittnav.eventaggregator.statusOppdatering.StatusOppdateringRepository
 import org.slf4j.LoggerFactory
 
 class ApplicationContext {
@@ -55,6 +57,12 @@ class ApplicationContext {
     val doneKafkaProps = Kafka.consumerProps(environment, EventType.DONE)
     var doneConsumer = initializeDoneConsumer()
 
+    val statusOppdateringRepository = StatusOppdateringRepository(database)
+    val statusOppdateringPersistingService = BrukernotifikasjonPersistingService(statusOppdateringRepository)
+    val statusOppdateringEventProcessor = StatusOppdateringEventService(statusOppdateringPersistingService, eventMetricsProbe)
+    val statusOppdateringKafkaProps = Kafka.consumerProps(environment, EventType.STATUSOPPDATERING)
+    var statusOppdateringConsumer = initializeStatusOppdateringConsumer()
+
     var periodicDoneEventWaitingTableProcessor = initializeDoneWaitingTableProcessor()
 
     val healthService = HealthService(this)
@@ -68,7 +76,12 @@ class ApplicationContext {
     private fun initializeInnboksConsumer() =
             KafkaConsumerSetup.setupConsumerForTheInnboksTopic(innboksKafkaProps, innboksEventProcessor)
 
-    private fun initializeDoneConsumer() = KafkaConsumerSetup.setupConsumerForTheDoneTopic(doneKafkaProps, doneEventService)
+    private fun initializeDoneConsumer() =
+            KafkaConsumerSetup.setupConsumerForTheDoneTopic(doneKafkaProps, doneEventService)
+
+    private fun initializeStatusOppdateringConsumer() =
+            KafkaConsumerSetup.setupConsumerForTheStatusOppdateringTopic(statusOppdateringKafkaProps, statusOppdateringEventProcessor)
+
 
     fun reinitializeConsumers() {
         if (beskjedConsumer.isCompleted()) {
@@ -97,6 +110,13 @@ class ApplicationContext {
             log.info("doneConsumer har blitt reinstansiert.")
         } else {
             log.warn("doneConsumer kunne ikke bli reinstansiert fordi den fortsatt er aktiv.")
+        }
+
+        if (statusOppdateringConsumer.isCompleted()) {
+            statusOppdateringConsumer = initializeStatusOppdateringConsumer()
+            log.info("statusOppdateringConsumer har blitt reinstansiert.")
+        } else {
+            log.warn("statusOppdateringConsumer kunne ikke bli reinstansiert fordi den fortsatt er aktiv.")
         }
     }
 

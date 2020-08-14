@@ -54,3 +54,10 @@ fun validateSikkerhetsnivaa(sikkerhetsnivaa: Int): Int {
         else -> throw FieldValidationException("Sikkerhetsnivaa kan bare være 3 eller 4.")
     }
 }
+
+fun validateStatusGlobal(statusGlobal: String): String {
+    return when (statusGlobal) {
+        "SENDT", "MOTTATT", "UNDER_BEHANDLING", "FERDIG" -> statusGlobal
+        else -> throw FieldValidationException("StatusGlobal kan kun inneholde SENDT, MOTTATT, UNDER_BEHANDLING eller FERDIG.")
+    }
+}

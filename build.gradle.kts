@@ -6,7 +6,7 @@ val ktorVersion = "1.3.0"
 val junitVersion = "5.4.1"
 val kafkaVersion = "2.3.0"
 val confluentVersion = "5.3.0"
-val brukernotifikasjonSchemaVersion = "1.2020.02.07-13.16-fa9d319688b1"
+val brukernotifikasjonSchemaVersion = "1.2020.08.13-13.50-3b6ca1881161"
 val logstashVersion = 5.2
 val logbackVersion = "1.2.3"
 val vaultJdbcVersion = "1.3.1"
@@ -42,6 +42,7 @@ repositories {
     mavenCentral()
     maven("http://packages.confluent.io/maven")
     mavenLocal()
+    maven("https://jitpack.io")
 }
 
 sourceSets {
@@ -70,7 +71,7 @@ dependencies {
     compile("io.ktor:ktor-server-netty:$ktorVersion")
     compile("org.apache.kafka:kafka-clients:$kafkaVersion")
     compile("io.confluent:kafka-avro-serializer:$confluentVersion")
-    compile("no.nav:brukernotifikasjon-schemas:$brukernotifikasjonSchemaVersion")
+    compile("com.github.navikt:brukernotifikasjon-schemas:$brukernotifikasjonSchemaVersion")
     compile("org.influxdb:influxdb-java:$influxdbVersion")
     compile("io.ktor:ktor-html-builder:$ktorVersion")
     testCompile("org.junit.jupiter:junit-jupiter-api:$junitVersion")

@@ -16,6 +16,7 @@ object KafkaConsumerSetup {
         appContext.beskjedConsumer.startPolling()
         appContext.oppgaveConsumer.startPolling()
         appContext.doneConsumer.startPolling()
+        appContext.statusOppdateringConsumer.startPolling()
         if (isOtherEnvironmentThanProd()) {
             appContext.innboksConsumer.startPolling()
         } else {
@@ -28,6 +29,7 @@ object KafkaConsumerSetup {
         appContext.beskjedConsumer.stopPolling()
         appContext.oppgaveConsumer.stopPolling()
         appContext.doneConsumer.stopPolling()
+        appContext.statusOppdateringConsumer.stopPolling()
         if (isOtherEnvironmentThanProd()) {
             appContext.innboksConsumer.stopPolling()
         }
@@ -52,6 +54,11 @@ object KafkaConsumerSetup {
     fun setupConsumerForTheDoneTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<Done>): Consumer<Done> {
         val kafkaConsumer = KafkaConsumer<Nokkel, Done>(kafkaProps)
         return Consumer(Kafka.doneTopicName, kafkaConsumer, eventProcessor)
+    }
+
+    fun setupConsumerForTheStatusOppdateringTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<StatusOppdatering>): Consumer<StatusOppdatering> {
+        val kafkaConsumer = KafkaConsumer<Nokkel, StatusOppdatering>(kafkaProps)
+        return Consumer(Kafka.statusoppdateringTopicName, kafkaConsumer, eventProcessor)
     }
 
     fun <T> createCountConsumer(eventType: EventType,
