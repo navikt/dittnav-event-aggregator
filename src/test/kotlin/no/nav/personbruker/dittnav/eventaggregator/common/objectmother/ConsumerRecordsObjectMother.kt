@@ -7,6 +7,7 @@ import no.nav.personbruker.dittnav.eventaggregator.done.schema.AvroDoneObjectMot
 import no.nav.personbruker.dittnav.eventaggregator.innboks.AvroInnboksObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.AvroOppgaveObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.statusOppdatering.AvroStatusOppdateringObjectMother
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.common.TopicPartition
@@ -95,6 +96,23 @@ object ConsumerRecordsObjectMother {
         val allRecords = mutableListOf<ConsumerRecord<Nokkel, Oppgave>>()
         for (i in 0 until totalNumber) {
             val schemaRecord = AvroOppgaveObjectMother.createOppgave(i)
+            val nokkel = createNokkel(i)
+            allRecords.add(ConsumerRecord(topicName, i, i.toLong(), nokkel, schemaRecord))
+        }
+        return allRecords
+    }
+
+    fun giveMeANumberOfStatusOppdateringRecords(numberOfRecords: Int, topicName: String): ConsumerRecords<Nokkel, StatusOppdatering> {
+        val records = mutableMapOf<TopicPartition, List<ConsumerRecord<Nokkel, StatusOppdatering>>>()
+        val recordsForSingleTopic = createStatusOppdateringRecords(topicName, numberOfRecords)
+        records[TopicPartition(topicName, numberOfRecords)] = recordsForSingleTopic
+        return ConsumerRecords(records)
+    }
+
+    private fun createStatusOppdateringRecords(topicName: String, totalNumber: Int): List<ConsumerRecord<Nokkel, StatusOppdatering>> {
+        val allRecords = mutableListOf<ConsumerRecord<Nokkel, StatusOppdatering>>()
+        for (i in 0 until totalNumber) {
+            val schemaRecord = AvroStatusOppdateringObjectMother.createStatusOppdatering(i)
             val nokkel = createNokkel(i)
             allRecords.add(ConsumerRecord(topicName, i, i.toLong(), nokkel, schemaRecord))
         }

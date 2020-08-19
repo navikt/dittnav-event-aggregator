@@ -16,7 +16,7 @@ fun Connection.getAllStatusOppdatering(): List<StatusOppdatering> =
                     }
                 }
 
-private val createQuery = """INSERT INTO statusOppdatering (systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, link, sikkerhetsnivaa, sistOppdatert, statusGlobal, statusIntern, sakstema)
+private val createQuery = """INSERT INTO statusOppdatering (systembruker, eventId, eventTidspunkt, fodselsnummer, grupperingsId, link, sikkerhetsnivaa, sistOppdatert, statusGlobal, statusIntern, sakstema)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
 fun Connection.createStatusOppdatering(statusOppdatering: StatusOppdatering): PersistActionResult =
