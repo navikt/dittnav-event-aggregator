@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.statusOppdatering
+package no.nav.personbruker.dittnav.eventaggregator.statusoppdatering
 
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldValidationException
@@ -7,17 +7,17 @@ import org.amshove.kluent.*
 import org.junit.jupiter.api.Test
 import java.time.ZoneId
 
-class StatusOppdateringTransformerTest {
+class StatusoppdateringTransformerTest {
 
     private val dummyNokkel = createNokkel(1)
 
     @Test
     fun `should transform form external to internal`() {
         val eventId = 1
-        val original = AvroStatusOppdateringObjectMother.createStatusOppdatering(eventId)
+        val original = AvroStatusoppdateringObjectMother.createStatusoppdatering(eventId)
         val nokkel = createNokkel(eventId)
 
-        val transformed = StatusOppdateringTransformer.toInternal(nokkel, original)
+        val transformed = StatusoppdateringTransformer.toInternal(nokkel, original)
 
         transformed.fodselsnummer `should be equal to` original.getFodselsnummer()
         transformed.grupperingsId `should be equal to` original.getGrupperingsId()
@@ -39,11 +39,11 @@ class StatusOppdateringTransformerTest {
     @Test
     fun `should throw FieldValidationException when fodselsnummer is empty`() {
         val fodselsnummerEmpty = ""
-        val event = AvroStatusOppdateringObjectMother.createStatusOppdateringWithFodselsnummer(fodselsnummerEmpty)
+        val event = AvroStatusoppdateringObjectMother.createStatusoppdateringWithFodselsnummer(fodselsnummerEmpty)
 
         invoking {
             runBlocking {
-                StatusOppdateringTransformer.toInternal(dummyNokkel, event)
+                StatusoppdateringTransformer.toInternal(dummyNokkel, event)
             }
         } `should throw` FieldValidationException::class
     }
@@ -51,11 +51,11 @@ class StatusOppdateringTransformerTest {
     @Test
     fun `should throw FieldValidationException if sakstema field is too long`() {
         val tooLongSakstema = "A".repeat(51)
-        val event = AvroStatusOppdateringObjectMother.createStatusOppdateringWithSakstema(tooLongSakstema)
+        val event = AvroStatusoppdateringObjectMother.createStatusoppdateringWithSakstema(tooLongSakstema)
 
         invoking {
             runBlocking {
-                StatusOppdateringTransformer.toInternal(dummyNokkel, event)
+                StatusoppdateringTransformer.toInternal(dummyNokkel, event)
             }
         } `should throw` FieldValidationException::class
     }
@@ -63,30 +63,30 @@ class StatusOppdateringTransformerTest {
     @Test
     fun `should allow sakstema length up to the limit`() {
         val sakstemaWithMaxAllowedLength = "S".repeat(50)
-        val event = AvroStatusOppdateringObjectMother.createStatusOppdateringWithSakstema(sakstemaWithMaxAllowedLength)
+        val event = AvroStatusoppdateringObjectMother.createStatusoppdateringWithSakstema(sakstemaWithMaxAllowedLength)
 
         runBlocking {
-            StatusOppdateringTransformer.toInternal(dummyNokkel, event)
+            StatusoppdateringTransformer.toInternal(dummyNokkel, event)
         }
     }
 
     @Test
     fun `should not allow empty sakstema`() {
         val emptySakstema = ""
-        val event = AvroStatusOppdateringObjectMother.createStatusOppdateringWithSakstema(emptySakstema)
+        val event = AvroStatusoppdateringObjectMother.createStatusoppdateringWithSakstema(emptySakstema)
 
         invoking {
             runBlocking {
-                StatusOppdateringTransformer.toInternal(dummyNokkel, event)
+                StatusoppdateringTransformer.toInternal(dummyNokkel, event)
             }
         } `should throw` FieldValidationException::class
     }
 
     @Test
     fun `should allow statusIntern to be null`() {
-        val statusOppdateringUtenSynligTilSatt = AvroStatusOppdateringObjectMother.createStatusOppdateringWithStatusIntern(null)
+        val statusoppdateringUtenSynligTilSatt = AvroStatusoppdateringObjectMother.createStatusoppdateringWithStatusIntern(null)
 
-        val transformed = StatusOppdateringTransformer.toInternal(dummyNokkel, statusOppdateringUtenSynligTilSatt)
+        val transformed = StatusoppdateringTransformer.toInternal(dummyNokkel, statusoppdateringUtenSynligTilSatt)
 
         transformed.statusIntern.`should be null`()
     }
@@ -94,11 +94,11 @@ class StatusOppdateringTransformerTest {
     @Test
     fun `should throw FieldValidationException if statusIntern field is too long`() {
         val tooLongStatusIntern = "S".repeat(101)
-        val event = AvroStatusOppdateringObjectMother.createStatusOppdateringWithStatusIntern(tooLongStatusIntern)
+        val event = AvroStatusoppdateringObjectMother.createStatusoppdateringWithStatusIntern(tooLongStatusIntern)
 
         invoking {
             runBlocking {
-                StatusOppdateringTransformer.toInternal(dummyNokkel, event)
+                StatusoppdateringTransformer.toInternal(dummyNokkel, event)
             }
         } `should throw` FieldValidationException::class
     }
@@ -106,21 +106,21 @@ class StatusOppdateringTransformerTest {
     @Test
     fun `should allow statusIntern length up to the limit`() {
         val statusInternWithMaxAllowedLength = "S".repeat(100)
-        val event = AvroStatusOppdateringObjectMother.createStatusOppdateringWithStatusIntern(statusInternWithMaxAllowedLength)
+        val event = AvroStatusoppdateringObjectMother.createStatusoppdateringWithStatusIntern(statusInternWithMaxAllowedLength)
 
         runBlocking {
-            StatusOppdateringTransformer.toInternal(dummyNokkel, event)
+            StatusoppdateringTransformer.toInternal(dummyNokkel, event)
         }
     }
 
     @Test
     fun `should throw FieldValidationException if statusGlobal is invalid`() {
         val invalidStatusGlobal = "dummyStatusGlobal"
-        val event = AvroStatusOppdateringObjectMother.createStatusOppdateringWithStatusGlobal(invalidStatusGlobal)
+        val event = AvroStatusoppdateringObjectMother.createStatusoppdateringWithStatusGlobal(invalidStatusGlobal)
 
         invoking {
             runBlocking {
-                StatusOppdateringTransformer.toInternal(dummyNokkel, event)
+                StatusoppdateringTransformer.toInternal(dummyNokkel, event)
             }
         } `should throw` FieldValidationException::class
     }
@@ -128,10 +128,10 @@ class StatusOppdateringTransformerTest {
     @Test
     fun `should allow statusGlobal if field is valid`() {
         val validStatusGlobal = "SENDT"
-        val event = AvroStatusOppdateringObjectMother.createStatusOppdateringWithSakstema(validStatusGlobal)
+        val event = AvroStatusoppdateringObjectMother.createStatusoppdateringWithSakstema(validStatusGlobal)
 
         runBlocking {
-            StatusOppdateringTransformer.toInternal(dummyNokkel, event)
+            StatusoppdateringTransformer.toInternal(dummyNokkel, event)
         }
     }
 }

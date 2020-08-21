@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.statusOppdatering
+package no.nav.personbruker.dittnav.eventaggregator.statusoppdatering
 
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
@@ -16,16 +16,16 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-internal class StatusOppdateringEventServiceTest {
+internal class StatusoppdateringEventServiceTest {
 
-    private val persistingService = mockk<BrukernotifikasjonPersistingService<StatusOppdatering>>(relaxed = true)
+    private val persistingService = mockk<BrukernotifikasjonPersistingService<Statusoppdatering>>(relaxed = true)
     private val metricsProbe = mockk<EventMetricsProbe>(relaxed = true)
     private val metricsSession = mockk<EventMetricsSession>(relaxed = true)
-    private val eventService = StatusOppdateringEventService(persistingService, metricsProbe)
+    private val eventService = StatusoppdateringEventService(persistingService, metricsProbe)
 
     @BeforeEach
     private fun resetMocks() {
-        mockkObject(StatusOppdateringTransformer)
+        mockkObject(StatusoppdateringTransformer)
         clearMocks(persistingService)
         clearMocks(metricsProbe)
         clearMocks(metricsSession)
@@ -38,9 +38,9 @@ internal class StatusOppdateringEventServiceTest {
 
     @Test
     fun `Skal skrive alle eventer til databasen`() {
-        val records = ConsumerRecordsObjectMother.giveMeANumberOfStatusOppdateringRecords(5, "dummyTopic")
+        val records = ConsumerRecordsObjectMother.giveMeANumberOfStatusoppdateringRecords(5, "dummyTopic")
 
-        val capturedListOfEntities = slot<List<StatusOppdatering>>()
+        val capturedListOfEntities = slot<List<Statusoppdatering>>()
         coEvery { persistingService.writeEventsToCache(capture(capturedListOfEntities)) } returns emptyPersistResult()
 
         val slot = slot<suspend EventMetricsSession.() -> Unit>()
@@ -53,11 +53,11 @@ internal class StatusOppdateringEventServiceTest {
             eventService.processEvents(records)
         }
 
-        verify(exactly = records.count()) { StatusOppdateringTransformer.toInternal(any(), any()) }
+        verify(exactly = records.count()) { StatusoppdateringTransformer.toInternal(any(), any()) }
         coVerify(exactly = 1) { persistingService.writeEventsToCache(allAny()) }
         capturedListOfEntities.captured.size `should be` records.count()
 
-        confirmVerified(StatusOppdateringTransformer)
+        confirmVerified(StatusoppdateringTransformer)
         confirmVerified(persistingService)
     }
 
@@ -67,16 +67,16 @@ internal class StatusOppdateringEventServiceTest {
         val numberOfFailedTransformations = 1
         val numberOfSuccessfulTransformations = totalNumberOfRecords - numberOfFailedTransformations
 
-        val records = ConsumerRecordsObjectMother.giveMeANumberOfStatusOppdateringRecords(totalNumberOfRecords, "dummyTopic")
+        val records = ConsumerRecordsObjectMother.giveMeANumberOfStatusoppdateringRecords(totalNumberOfRecords, "dummyTopic")
         val transformedRecords = createANumberOfTransformedRecords(numberOfSuccessfulTransformations)
 
         val persistResult = successfulEvents(transformedRecords)
 
-        val capturedListOfEntities = slot<List<StatusOppdatering>>()
+        val capturedListOfEntities = slot<List<Statusoppdatering>>()
         coEvery { persistingService.writeEventsToCache(capture(capturedListOfEntities)) } returns persistResult
 
         val retriableExp = UntransformableRecordException("Simulert feil i en test")
-        every { StatusOppdateringTransformer.toInternal(any(), any()) } throws retriableExp andThenMany transformedRecords
+        every { StatusoppdateringTransformer.toInternal(any(), any()) } throws retriableExp andThenMany transformedRecords
 
         val slot = slot<suspend EventMetricsSession.() -> Unit>()
 
@@ -90,12 +90,12 @@ internal class StatusOppdateringEventServiceTest {
             }
         } `should throw` UntransformableRecordException::class
 
-        coVerify(exactly = totalNumberOfRecords) { StatusOppdateringTransformer.toInternal(any(), any()) }
+        coVerify(exactly = totalNumberOfRecords) { StatusoppdateringTransformer.toInternal(any(), any()) }
         coVerify(exactly = 1) { persistingService.writeEventsToCache(allAny()) }
         coVerify(exactly = numberOfFailedTransformations) { metricsSession.countFailedEventForProducer(any()) }
         capturedListOfEntities.captured.size `should be` numberOfSuccessfulTransformations
 
-        confirmVerified(StatusOppdateringTransformer)
+        confirmVerified(StatusoppdateringTransformer)
         confirmVerified(persistingService)
     }
 
@@ -103,7 +103,7 @@ internal class StatusOppdateringEventServiceTest {
     fun shouldReportEverySuccessfulEvent() {
         val numberOfRecords = 5
 
-        val records = ConsumerRecordsObjectMother.giveMeANumberOfStatusOppdateringRecords(numberOfRecords, "statusOppdatering")
+        val records = ConsumerRecordsObjectMother.giveMeANumberOfStatusoppdateringRecords(numberOfRecords, "statusoppdatering")
         val slot = slot<suspend EventMetricsSession.() -> Unit>()
 
         coEvery { persistingService.writeEventsToCache(any()) } returns emptyPersistResult()
@@ -121,8 +121,8 @@ internal class StatusOppdateringEventServiceTest {
 
     @Test
     fun `skal forkaste eventer som har valideringsfeil`() {
-        val statusOppdateringWithTooLongStatusInternField = AvroStatusOppdateringObjectMother.createStatusOppdateringWithStatusIntern("S".repeat(101))
-        val cr = ConsumerRecordsObjectMother.createConsumerRecord("statusOppdatering", statusOppdateringWithTooLongStatusInternField)
+        val statusoppdateringWithTooLongStatusInternField = AvroStatusoppdateringObjectMother.createStatusoppdateringWithStatusIntern("S".repeat(101))
+        val cr = ConsumerRecordsObjectMother.createConsumerRecord("statusoppdatering", statusoppdateringWithTooLongStatusInternField)
         val records = ConsumerRecordsObjectMother.giveMeConsumerRecordsWithThisConsumerRecord(cr)
 
         val slot = slot<suspend EventMetricsSession.() -> Unit>()
@@ -130,7 +130,7 @@ internal class StatusOppdateringEventServiceTest {
             slot.captured.invoke(metricsSession)
         }
 
-        val capturedNumberOfEntitiesWrittenToTheDb = slot<List<StatusOppdatering>>()
+        val capturedNumberOfEntitiesWrittenToTheDb = slot<List<Statusoppdatering>>()
         coEvery { persistingService.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns emptyPersistResult()
 
         runBlocking {
@@ -142,10 +142,10 @@ internal class StatusOppdateringEventServiceTest {
         coVerify(exactly = 1) { metricsSession.countFailedEventForProducer(any()) }
     }
 
-    private fun createANumberOfTransformedRecords(numberOfRecords: Int): MutableList<StatusOppdatering> {
-        val transformedRecords = mutableListOf<StatusOppdatering>()
+    private fun createANumberOfTransformedRecords(numberOfRecords: Int): MutableList<Statusoppdatering> {
+        val transformedRecords = mutableListOf<Statusoppdatering>()
         for (i in 0 until numberOfRecords) {
-            transformedRecords.add(StatusOppdateringObjectMother.giveMeStatusOppdatering("$i", "{$i}12345"))
+            transformedRecords.add(StatusoppdateringObjectMother.giveMeStatusoppdatering("$i", "{$i}12345"))
         }
         return transformedRecords
     }

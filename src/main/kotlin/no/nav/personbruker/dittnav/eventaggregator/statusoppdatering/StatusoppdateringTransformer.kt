@@ -1,14 +1,14 @@
-package no.nav.personbruker.dittnav.eventaggregator.statusOppdatering
+package no.nav.personbruker.dittnav.eventaggregator.statusoppdatering
 
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-object StatusOppdateringTransformer {
+object StatusoppdateringTransformer {
 
-    fun toInternal(externalNokkel: Nokkel, externalValue: no.nav.brukernotifikasjon.schemas.StatusOppdatering): StatusOppdatering {
-        return StatusOppdatering(
+    fun toInternal(externalNokkel: Nokkel, externalValue: no.nav.brukernotifikasjon.schemas.Statusoppdatering): Statusoppdatering {
+        return Statusoppdatering(
                 externalNokkel.getSystembruker(),
                 externalNokkel.getEventId(),
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(externalValue.getTidspunkt()), ZoneId.of("UTC")),

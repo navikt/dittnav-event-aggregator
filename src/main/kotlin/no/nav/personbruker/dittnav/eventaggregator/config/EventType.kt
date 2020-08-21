@@ -5,5 +5,5 @@ enum class EventType(val eventType: String) {
     BESKJED("beskjed"),
     INNBOKS("innboks"),
     DONE("done"),
-    STATUSOPPDATERING("statusOppdatering")
+    STATUSOPPDATERING("statusoppdatering")
 }

@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS statusoppdatering (
     sakstema character varying(100)
 );
 
-ALTER TABLE statusoppdatering DROP CONSTRAINT IF EXISTS statusOppdateringsEventErUnikMedIdOgProdusent;
-ALTER TABLE statusoppdatering ADD CONSTRAINT statusOppdateringsEventErUnikMedIdOgProdusent UNIQUE (eventid, systembruker);
+ALTER TABLE statusoppdatering DROP CONSTRAINT IF EXISTS statusoppdateringsEventErUnikMedIdOgProdusent;
+ALTER TABLE statusoppdatering ADD CONSTRAINT statusoppdateringsEventErUnikMedIdOgProdusent UNIQUE (eventid, systembruker);
 
 CREATE INDEX IF NOT EXISTS statusoppdatering_index_eventid_srvbruker_fnr
     ON statusoppdatering (eventid, systembruker, fodselsnummer);

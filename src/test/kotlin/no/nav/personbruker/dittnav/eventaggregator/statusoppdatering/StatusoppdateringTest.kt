@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.statusOppdatering
+package no.nav.personbruker.dittnav.eventaggregator.statusoppdatering
 
 import no.nav.personbruker.dittnav.eventaggregator.common.`with message containing`
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldValidationException
@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-class StatusOppdateringTest {
+class StatusoppdateringTest {
 
     private val validSystembruker = "dummySystembruker"
     private val validFodselsnummer = "123"
@@ -25,18 +25,18 @@ class StatusOppdateringTest {
 
     @Test
     fun `skal returnere maskerte data fra toString-metoden`() {
-        val statusOppdatering = StatusOppdateringObjectMother.giveMeStatusOppdatering("dummyEventId", "123")
-        val statusOppdateringAsString = statusOppdatering.toString()
-        statusOppdateringAsString `should contain` "fodselsnummer=***"
-        statusOppdateringAsString `should contain` "systembruker=***"
-        statusOppdateringAsString `should contain` "link=***"
+        val statusoppdatering = StatusoppdateringObjectMother.giveMeStatusoppdatering("dummyEventId", "123")
+        val statusoppdateringAsString = statusoppdatering.toString()
+        statusoppdateringAsString `should contain` "fodselsnummer=***"
+        statusoppdateringAsString `should contain` "systembruker=***"
+        statusoppdateringAsString `should contain` "link=***"
     }
 
     @Test
     fun `do not allow too long systembruker`() {
         val tooLongSystembruker = "P".repeat(101)
         invoking {
-            StatusOppdatering(
+            Statusoppdatering(
                     systembruker = tooLongSystembruker,
                     eventId = validEventId,
                     eventTidspunkt = eventTidspunkt,
@@ -55,7 +55,7 @@ class StatusOppdateringTest {
     fun `do not allow too long fodselsnummer`() {
         val tooLongFnr = "1".repeat(12)
         invoking {
-            StatusOppdatering(
+            Statusoppdatering(
                     systembruker = validSystembruker,
                     eventId = validEventId,
                     eventTidspunkt = eventTidspunkt,
@@ -74,7 +74,7 @@ class StatusOppdateringTest {
     fun `do not allow too long eventid`() {
         val tooLongEventId = "E".repeat(51)
         invoking {
-            StatusOppdatering(
+            Statusoppdatering(
                     systembruker = validSystembruker,
                     eventId = tooLongEventId,
                     eventTidspunkt = eventTidspunkt,
@@ -93,7 +93,7 @@ class StatusOppdateringTest {
     fun `do not allow too long grupperingsId`() {
         val tooLongGrupperingsId = "G".repeat(101)
         invoking {
-            StatusOppdatering(
+            Statusoppdatering(
                     systembruker = validSystembruker,
                     eventId = validEventId,
                     eventTidspunkt = eventTidspunkt,
@@ -112,7 +112,7 @@ class StatusOppdateringTest {
     fun `do not allow too long link`() {
         val tooLongLink = "L".repeat(201)
         invoking {
-            StatusOppdatering(
+            Statusoppdatering(
                     systembruker = validSystembruker,
                     eventId = validEventId,
                     eventTidspunkt = eventTidspunkt,
@@ -131,7 +131,7 @@ class StatusOppdateringTest {
     fun `do not allow invalid sikkerhetsnivaa`() {
         val invalidSikkerhetsnivaa = 2
         invoking {
-            StatusOppdatering(
+            Statusoppdatering(
                     systembruker = validSystembruker,
                     eventId = validEventId,
                     eventTidspunkt = eventTidspunkt,
@@ -150,7 +150,7 @@ class StatusOppdateringTest {
     fun `do not allow invalid statusGlobal`() {
         val invalidStatusGlobal = "invalidStatusGlobal"
         invoking {
-            StatusOppdatering(
+            Statusoppdatering(
                     systembruker = validSystembruker,
                     eventId = validEventId,
                     eventTidspunkt = eventTidspunkt,
@@ -168,7 +168,7 @@ class StatusOppdateringTest {
     @Test
     fun `should allow valid statusGlobal`() {
         val validStatusGlobal = "SENDT"
-        StatusOppdatering(
+        Statusoppdatering(
                 systembruker = validSystembruker,
                 eventId = validEventId,
                 eventTidspunkt = eventTidspunkt,
@@ -185,7 +185,7 @@ class StatusOppdateringTest {
     @Test
     fun `should allow valid statusGlobal field`() {
         val validStatusGlobal = "MOTTATT"
-        StatusOppdatering(
+        Statusoppdatering(
                 systembruker = validSystembruker,
                 eventId = validEventId,
                 eventTidspunkt = eventTidspunkt,
@@ -203,7 +203,7 @@ class StatusOppdateringTest {
     fun `do not allow too long statusIntern`() {
         val tooLongStatusIntern = "S".repeat(101)
         invoking {
-            StatusOppdatering(
+            Statusoppdatering(
                     systembruker = validSystembruker,
                     eventId = validEventId,
                     eventTidspunkt = eventTidspunkt,
@@ -221,7 +221,7 @@ class StatusOppdateringTest {
     @Test
     fun `should allow statusIntern to be null`() {
         val validNullStatusIntern = null
-        StatusOppdatering(
+        Statusoppdatering(
                 systembruker = validSystembruker,
                 eventId = validEventId,
                 eventTidspunkt = eventTidspunkt,
@@ -239,7 +239,7 @@ class StatusOppdateringTest {
     fun `do not allow too long sakstema`() {
         val tooLongSakstema = "S".repeat(51)
         invoking {
-            StatusOppdatering(
+            Statusoppdatering(
                     systembruker = validSystembruker,
                     eventId = validEventId,
                     eventTidspunkt = eventTidspunkt,

@@ -1,7 +1,7 @@
-package no.nav.personbruker.dittnav.eventaggregator.statusOppdatering
+package no.nav.personbruker.dittnav.eventaggregator.statusoppdatering
 
 import no.nav.brukernotifikasjon.schemas.Nokkel
-import no.nav.brukernotifikasjon.schemas.StatusOppdatering
+import no.nav.brukernotifikasjon.schemas.Statusoppdatering
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
@@ -17,21 +17,21 @@ import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class StatusOppdateringEventService(
-        private val persistingService: BrukernotifikasjonPersistingService<no.nav.personbruker.dittnav.eventaggregator.statusOppdatering.StatusOppdatering>,
+class StatusoppdateringEventService(
+        private val persistingService: BrukernotifikasjonPersistingService<no.nav.personbruker.dittnav.eventaggregator.statusoppdatering.Statusoppdatering>,
         private val metricsProbe: EventMetricsProbe
-) : EventBatchProcessorService<StatusOppdatering> {
+) : EventBatchProcessorService<Statusoppdatering> {
 
-    private val log: Logger = LoggerFactory.getLogger(StatusOppdateringEventService::class.java)
+    private val log: Logger = LoggerFactory.getLogger(StatusoppdateringEventService::class.java)
 
-    override suspend fun processEvents(events: ConsumerRecords<Nokkel, StatusOppdatering>) {
-        val successfullyTransformedEvents = mutableListOf<no.nav.personbruker.dittnav.eventaggregator.statusOppdatering.StatusOppdatering>()
-        val problematicEvents = mutableListOf<ConsumerRecord<Nokkel, StatusOppdatering>>()
+    override suspend fun processEvents(events: ConsumerRecords<Nokkel, Statusoppdatering>) {
+        val successfullyTransformedEvents = mutableListOf<no.nav.personbruker.dittnav.eventaggregator.statusoppdatering.Statusoppdatering>()
+        val problematicEvents = mutableListOf<ConsumerRecord<Nokkel, Statusoppdatering>>()
 
         metricsProbe.runWithMetrics(eventType = STATUSOPPDATERING) {
             events.forEach { event ->
                 try {
-                    val internalEvent = StatusOppdateringTransformer.toInternal(event.getNonNullKey(), event.value())
+                    val internalEvent = StatusoppdateringTransformer.toInternal(event.getNonNullKey(), event.value())
                     successfullyTransformedEvents.add(internalEvent)
                     countSuccessfulEventForProducer(event.systembruker)
 
@@ -49,7 +49,7 @@ class StatusOppdateringEventService(
                 } catch (e: Exception) {
                     countFailedEventForProducer(event.systembruker)
                     problematicEvents.add(event)
-                    log.warn("Transformasjon av statusOppdaterings-event fra Kafka feilet, fullfører batch-en før pollig stoppes.", e)
+                    log.warn("Transformasjon av statusoppdaterings-event fra Kafka feilet, fullfører batch-en før pollig stoppes.", e)
                 }
             }
 
@@ -61,26 +61,26 @@ class StatusOppdateringEventService(
         kastExceptionHvisMislykkedeTransformasjoner(problematicEvents)
     }
 
-    private fun EventMetricsSession.countDuplicateKeyEvents(result: ListPersistActionResult<no.nav.personbruker.dittnav.eventaggregator.statusOppdatering.StatusOppdatering>) {
+    private fun EventMetricsSession.countDuplicateKeyEvents(result: ListPersistActionResult<no.nav.personbruker.dittnav.eventaggregator.statusoppdatering.Statusoppdatering>) {
         if (result.foundConflictingKeys()) {
 
             val constraintErrors = result.getConflictingEntities().size
             val totalEntities = result.getAllEntities().size
 
             result.getConflictingEntities()
-                    .groupingBy { statusOppdatering -> statusOppdatering.systembruker }
+                    .groupingBy { statusoppdatering -> statusoppdatering.systembruker }
                     .eachCount()
                     .forEach { (systembruker, duplicates) ->
                         countDuplicateEventKeysByProducer(systembruker, duplicates)
                     }
 
-            val msg = """Traff $constraintErrors feil på duplikate eventId-er ved behandling av $totalEntities statusOppdaterings-eventer.
+            val msg = """Traff $constraintErrors feil på duplikate eventId-er ved behandling av $totalEntities statusoppdaterings-eventer.
                            | Feilene ble produsert av: ${getNumberDuplicateKeysByProducer()}""".trimMargin()
             logAsWarningForAllProducersExceptForFpinfoHistorikk(msg)
         }
     }
 
-    private fun kastExceptionHvisMislykkedeTransformasjoner(problematicEvents: MutableList<ConsumerRecord<Nokkel, StatusOppdatering>>) {
+    private fun kastExceptionHvisMislykkedeTransformasjoner(problematicEvents: MutableList<ConsumerRecord<Nokkel, Statusoppdatering>>) {
         if (problematicEvents.isNotEmpty()) {
             val message = "En eller flere eventer kunne ikke transformeres"
             val exception = UntransformableRecordException(message)

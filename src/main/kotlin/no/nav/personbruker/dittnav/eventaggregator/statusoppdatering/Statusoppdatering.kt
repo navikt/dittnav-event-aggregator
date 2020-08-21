@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.statusOppdatering
+package no.nav.personbruker.dittnav.eventaggregator.statusoppdatering
 
 import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateMaxLength
 import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateNonNullFieldMaxLength
@@ -6,7 +6,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateSik
 import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateStatusGlobal
 import java.time.LocalDateTime
 
-data class StatusOppdatering(
+data class Statusoppdatering(
         val id: Int?,
         val systembruker: String,
         val eventId: String,
@@ -58,7 +58,7 @@ data class StatusOppdatering(
     }
 
     override fun toString(): String {
-        return "StatusOppdatering(" +
+        return "Statusoppdatering(" +
                 "id=$id, " +
                 "systembruker=***, " +
                 "eventId=$eventId, " +

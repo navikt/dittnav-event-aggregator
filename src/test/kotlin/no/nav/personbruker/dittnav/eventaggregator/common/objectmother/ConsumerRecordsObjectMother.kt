@@ -7,7 +7,7 @@ import no.nav.personbruker.dittnav.eventaggregator.done.schema.AvroDoneObjectMot
 import no.nav.personbruker.dittnav.eventaggregator.innboks.AvroInnboksObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.AvroOppgaveObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.statusOppdatering.AvroStatusOppdateringObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.statusoppdatering.AvroStatusoppdateringObjectMother
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.common.TopicPartition
@@ -102,17 +102,17 @@ object ConsumerRecordsObjectMother {
         return allRecords
     }
 
-    fun giveMeANumberOfStatusOppdateringRecords(numberOfRecords: Int, topicName: String): ConsumerRecords<Nokkel, StatusOppdatering> {
-        val records = mutableMapOf<TopicPartition, List<ConsumerRecord<Nokkel, StatusOppdatering>>>()
-        val recordsForSingleTopic = createStatusOppdateringRecords(topicName, numberOfRecords)
+    fun giveMeANumberOfStatusoppdateringRecords(numberOfRecords: Int, topicName: String): ConsumerRecords<Nokkel, Statusoppdatering> {
+        val records = mutableMapOf<TopicPartition, List<ConsumerRecord<Nokkel, Statusoppdatering>>>()
+        val recordsForSingleTopic = createStatusoppdateringRecords(topicName, numberOfRecords)
         records[TopicPartition(topicName, numberOfRecords)] = recordsForSingleTopic
         return ConsumerRecords(records)
     }
 
-    private fun createStatusOppdateringRecords(topicName: String, totalNumber: Int): List<ConsumerRecord<Nokkel, StatusOppdatering>> {
-        val allRecords = mutableListOf<ConsumerRecord<Nokkel, StatusOppdatering>>()
+    private fun createStatusoppdateringRecords(topicName: String, totalNumber: Int): List<ConsumerRecord<Nokkel, Statusoppdatering>> {
+        val allRecords = mutableListOf<ConsumerRecord<Nokkel, Statusoppdatering>>()
         for (i in 0 until totalNumber) {
-            val schemaRecord = AvroStatusOppdateringObjectMother.createStatusOppdatering(i)
+            val schemaRecord = AvroStatusoppdateringObjectMother.createStatusoppdatering(i)
             val nokkel = createNokkel(i)
             allRecords.add(ConsumerRecord(topicName, i, i.toLong(), nokkel, schemaRecord))
         }

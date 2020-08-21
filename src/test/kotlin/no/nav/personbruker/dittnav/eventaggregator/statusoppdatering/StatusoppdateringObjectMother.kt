@@ -1,17 +1,17 @@
-package no.nav.personbruker.dittnav.eventaggregator.statusOppdatering
+package no.nav.personbruker.dittnav.eventaggregator.statusoppdatering
 
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-object StatusOppdateringObjectMother {
+object StatusoppdateringObjectMother {
 
-    fun giveMeStatusOppdatering(eventId: String, fodselsnummer: String): StatusOppdatering {
+    fun giveMeStatusoppdatering(eventId: String, fodselsnummer: String): Statusoppdatering {
         val systembruker = "dummySystembruker"
-        return giveMeStatusOppdatering(eventId, fodselsnummer, systembruker)
+        return giveMeStatusoppdatering(eventId, fodselsnummer, systembruker)
     }
 
-    fun giveMeStatusOppdatering(eventId: String, fodselsnummer: String, systembruker: String): StatusOppdatering {
-        return StatusOppdatering(
+    fun giveMeStatusoppdatering(eventId: String, fodselsnummer: String, systembruker: String): Statusoppdatering {
+        return Statusoppdatering(
                 systembruker = systembruker,
                 eventId = eventId,
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),

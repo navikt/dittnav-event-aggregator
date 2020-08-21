@@ -1,12 +1,12 @@
-package no.nav.personbruker.dittnav.eventaggregator.statusOppdatering
+package no.nav.personbruker.dittnav.eventaggregator.statusoppdatering
 
 import java.sql.Connection
 
-fun Connection.deleteAllStatusOppdatering() =
+fun Connection.deleteAllStatusoppdatering() =
         prepareStatement("""DELETE FROM STATUSOPPDATERING""")
                 .use { it.execute() }
 
-fun Connection.deleteStatusOppdateringWithEventId(eventId: String) =
+fun Connection.deleteStatusoppdateringWithEventId(eventId: String) =
         prepareStatement("""DELETE FROM STATUSOPPDATERING WHERE eventId = ?""")
                 .use {
                     it.setString(1, eventId)
