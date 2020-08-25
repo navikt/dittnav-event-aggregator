@@ -3,11 +3,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin on the JVM.
-    val kotlinVersion = "1.3.50"
-    kotlin("jvm").version(kotlinVersion)
-    kotlin("plugin.allopen").version(kotlinVersion)
+    kotlin("jvm").version(Kotlin.version)
+    kotlin("plugin.allopen").version(Kotlin.version)
 
-    id("org.flywaydb.flyway") version("5.2.4")
+    id("org.flywaydb.flyway") version (Flyway.version)
 
     // Apply the application plugin to add support for building a CLI application.
     application
@@ -38,33 +37,34 @@ configurations["intTestRuntimeOnly"].extendsFrom(configurations.testRuntimeOnly.
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    compile("no.nav:vault-jdbc:$vaultJdbcVersion")
-    compile("com.zaxxer:HikariCP:$hikariCPVersion")
-    compile("org.postgresql:postgresql:$postgresVersion")
-    compile("org.flywaydb:flyway-core:$flywayVersion")
-    compile("ch.qos.logback:logback-classic:$logbackVersion")
-    compile("net.logstash.logback:logstash-logback-encoder:$logstashVersion")
-    compile("io.prometheus:simpleclient_common:$prometheusVersion")
-    compile("io.prometheus:simpleclient_hotspot:$prometheusVersion")
-    compile("io.prometheus:simpleclient_logback:$prometheusVersion")
-    compile("io.ktor:ktor-server-netty:$ktorVersion")
-    compile("org.apache.kafka:kafka-clients:$kafkaVersion")
-    compile("io.confluent:kafka-avro-serializer:$confluentVersion")
-    compile("no.nav:brukernotifikasjon-schemas:$brukernotifikasjonSchemaVersion")
-    compile("org.influxdb:influxdb-java:$influxdbVersion")
-    compile("io.ktor:ktor-html-builder:$ktorVersion")
-    testCompile("org.junit.jupiter:junit-jupiter-api:$junitVersion")
-    testRuntime("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    testCompile(kotlin("test-junit5"))
-    testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedEnvVersion")
-    testImplementation("org.apache.kafka:kafka_2.12:$kafkaVersion")
-    testImplementation("org.apache.kafka:kafka-streams:$kafkaVersion")
-    testImplementation("io.confluent:kafka-schema-registry:$confluentVersion")
-    testImplementation("com.h2database:h2:$h2Version")
-    testImplementation("org.amshove.kluent:kluent:$kluentVersion")
-    testImplementation("io.mockk:mockk:$mockkVersion")
+    implementation(NAV.vaultJdbc)
+    implementation(Hikari.cp)
+    implementation(Postgresql.postgresql)
+    implementation(Flyway.core)
+    implementation(Logback.classic)
+    implementation(Logstash.logbackEncoder)
+    implementation(Prometheus.common)
+    implementation(Prometheus.hotspot)
+    implementation(Prometheus.logback)
+    implementation(Ktor.serverNetty)
+    implementation(Ktor.htmlBuilder)
+    implementation(Kafka.Apache.clients)
+    implementation(Kafka.Confluent.avroSerializer)
+    implementation(Brukernotifikasjon.schemas)
+    implementation(Influxdb.java)
 
-    intTestImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+    testImplementation(Junit.api)
+    testImplementation(Junit.engine)
+    testImplementation(kotlin("test-junit5"))
+    testImplementation(NAV.kafkaEmbedded)
+    testImplementation(Kafka.Apache.kafka_2_12)
+    testImplementation(Kafka.Apache.streams)
+    testImplementation(Kafka.Confluent.schemaRegistry)
+    testImplementation(H2Database.h2)
+    testImplementation(Kluent.kluent)
+    testImplementation(Mockk.mockk)
+
+    intTestImplementation(Junit.engine)
 }
 
 application {
