@@ -1,26 +1,6 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val prometheusVersion = "0.6.0"
-val ktorVersion = "1.3.0"
-val junitVersion = "5.4.1"
-val kafkaVersion = "2.3.0"
-val confluentVersion = "5.3.0"
-val brukernotifikasjonSchemaVersion = "1.2020.02.07-13.16-fa9d319688b1"
-val logstashVersion = 5.2
-val logbackVersion = "1.2.3"
-val vaultJdbcVersion = "1.3.1"
-val flywayVersion = "5.2.4"
-val hikariCPVersion = "3.2.0"
-val postgresVersion = "42.2.5"
-val h2Version = "1.4.200"
-val assertJVersion = "3.12.2"
-val kafkaEmvededVersion = "2.2.1"
-val kluentVersion = "1.52"
-val kafkaEmbeddedEnvVersion = "2.1.1"
-val mockkVersion = "1.9.3"
-val influxdbVersion = "2.8"
-
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin on the JVM.
     val kotlinVersion = "1.3.50"
