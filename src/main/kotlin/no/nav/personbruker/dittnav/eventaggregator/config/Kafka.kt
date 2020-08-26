@@ -3,6 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.config
 import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 import io.netty.util.NetUtil.getHostname
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.SwallowSerializationErrorsAvroDeserializer
 import no.nav.personbruker.dittnav.eventaggregator.config.ConfigUtil.isCurrentlyRunningOnNais
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
@@ -62,8 +63,8 @@ object Kafka {
         put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, env.bootstrapServers)
         put(KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG, env.schemaRegistryUrl)
         put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false)
-        put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, KafkaAvroDeserializer::class.java)
-        put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaAvroDeserializer::class.java)
+        put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, SwallowSerializationErrorsAvroDeserializer::class.java)
+        put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, SwallowSerializationErrorsAvroDeserializer::class.java)
         put(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, true)
         put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
         if (enableSecurity) {
