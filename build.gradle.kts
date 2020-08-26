@@ -36,7 +36,6 @@ val intTestImplementation by configurations.getting {
 configurations["intTestRuntimeOnly"].extendsFrom(configurations.testRuntimeOnly.get())
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
     implementation(NAV.vaultJdbc)
     implementation(Hikari.cp)
     implementation(Postgresql.postgresql)
@@ -55,7 +54,6 @@ dependencies {
 
     testImplementation(Junit.api)
     testImplementation(Junit.engine)
-    testImplementation(kotlin("test-junit5"))
     testImplementation(NAV.kafkaEmbedded)
     testImplementation(Kafka.Apache.kafka_2_12)
     testImplementation(Kafka.Apache.streams)
