@@ -3,16 +3,16 @@ package no.nav.personbruker.dittnav.eventaggregator.metrics
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
+import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should not equal`
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotSame
 
 internal class ProducerNameScrubberTest {
 
     private val systemUser = "sys-t-user"
     private val producerNameAlias = "test-user"
-    private val producerNameResolver =  mockk<ProducerNameResolver>()
+    private val producerNameResolver = mockk<ProducerNameResolver>()
     private val nameScrubber = ProducerNameScrubber(producerNameResolver)
 
     @BeforeAll
@@ -25,8 +25,8 @@ internal class ProducerNameScrubberTest {
         runBlocking {
             val scrubbedName = nameScrubber.getPublicAlias(systemUser)
 
-            assertEquals(producerNameAlias, scrubbedName)
-            assertNotSame(systemUser, scrubbedName)
+            scrubbedName `should equal` producerNameAlias
+            scrubbedName `should not equal` systemUser
         }
     }
 
@@ -37,8 +37,8 @@ internal class ProducerNameScrubberTest {
         runBlocking {
             val scrubbedName = nameScrubber.getPublicAlias(unknownSystemUser)
 
-            assertEquals(nameScrubber.GENERIC_SYSTEM_USER, scrubbedName)
-            assertNotSame(systemUser, scrubbedName)
+            scrubbedName `should equal` nameScrubber.GENERIC_SYSTEM_USER
+            scrubbedName `should not equal` systemUser
         }
     }
 
@@ -49,8 +49,8 @@ internal class ProducerNameScrubberTest {
         runBlocking {
             val scrubbedName = nameScrubber.getPublicAlias(unknownSystemUser)
 
-            assertEquals(nameScrubber.UNKNOWN_USER, scrubbedName)
-            assertNotSame(systemUser, scrubbedName)
+            scrubbedName `should equal` nameScrubber.UNKNOWN_USER
+            scrubbedName `should not equal` systemUser
         }
     }
 }

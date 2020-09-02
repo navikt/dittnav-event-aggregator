@@ -5,9 +5,9 @@ import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.DB_EVENTS_CACHED
+import org.amshove.kluent.`should equal`
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
 
 class DBMetricsProbeTest {
 
@@ -43,7 +43,7 @@ class DBMetricsProbeTest {
         coVerify(exactly = 1) { metricsReporter.registerDataPoint(DB_EVENTS_CACHED, any(), any()) }
         verify(exactly = 1) { PrometheusMetricsCollector.registerEventsCached(any(), any(), any()) }
 
-        assertEquals(producerAlias, producerNameForPrometheus.captured)
+        producerNameForPrometheus.captured `should equal` producerAlias
     }
 
     @Test
@@ -67,6 +67,6 @@ class DBMetricsProbeTest {
                 listOf("eventType" to EventType.DONE.toString(), "producer" to "test-user").toMap()) }
         verify(exactly = 1) { PrometheusMetricsCollector.registerEventsCached(2, EventType.DONE, "test-user") }
 
-        assertEquals(2, capturedFieldsForCachedEvents.captured["counter"])
+        capturedFieldsForCachedEvents.captured["counter"] `should equal` 2
     }
 }

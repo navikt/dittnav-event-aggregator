@@ -1,33 +1,12 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val prometheusVersion = "0.6.0"
-val ktorVersion = "1.3.0"
-val junitVersion = "5.4.1"
-val kafkaVersion = "2.3.0"
-val confluentVersion = "5.3.0"
-val brukernotifikasjonSchemaVersion = "1.2020.08.21-11.47-631516352cc5"
-val logstashVersion = 5.2
-val logbackVersion = "1.2.3"
-val vaultJdbcVersion = "1.3.1"
-val flywayVersion = "5.2.4"
-val hikariCPVersion = "3.2.0"
-val postgresVersion = "42.2.5"
-val h2Version = "1.4.200"
-val assertJVersion = "3.12.2"
-val kafkaEmvededVersion = "2.2.1"
-val kluentVersion = "1.52"
-val kafkaEmbeddedEnvVersion = "2.1.1"
-val mockkVersion = "1.9.3"
-val influxdbVersion = "2.8"
-
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin on the JVM.
-    val kotlinVersion = "1.3.50"
-    kotlin("jvm").version(kotlinVersion)
-    kotlin("plugin.allopen").version(kotlinVersion)
+    kotlin("jvm").version(Kotlin.version)
+    kotlin("plugin.allopen").version(Kotlin.version)
 
-    id("org.flywaydb.flyway") version("5.2.4")
+    id("org.flywaydb.flyway") version (Flyway.version)
 
     // Apply the application plugin to add support for building a CLI application.
     application
@@ -40,7 +19,7 @@ tasks.withType<KotlinCompile> {
 repositories {
     jcenter()
     mavenCentral()
-    maven("http://packages.confluent.io/maven")
+    maven("https://packages.confluent.io/maven")
     mavenLocal()
     maven("https://jitpack.io")
 }
@@ -58,34 +37,33 @@ val intTestImplementation by configurations.getting {
 configurations["intTestRuntimeOnly"].extendsFrom(configurations.testRuntimeOnly.get())
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
-    compile("no.nav:vault-jdbc:$vaultJdbcVersion")
-    compile("com.zaxxer:HikariCP:$hikariCPVersion")
-    compile("org.postgresql:postgresql:$postgresVersion")
-    compile("org.flywaydb:flyway-core:$flywayVersion")
-    compile("ch.qos.logback:logback-classic:$logbackVersion")
-    compile("net.logstash.logback:logstash-logback-encoder:$logstashVersion")
-    compile("io.prometheus:simpleclient_common:$prometheusVersion")
-    compile("io.prometheus:simpleclient_hotspot:$prometheusVersion")
-    compile("io.prometheus:simpleclient_logback:$prometheusVersion")
-    compile("io.ktor:ktor-server-netty:$ktorVersion")
-    compile("org.apache.kafka:kafka-clients:$kafkaVersion")
-    compile("io.confluent:kafka-avro-serializer:$confluentVersion")
-    compile("com.github.navikt:brukernotifikasjon-schemas:$brukernotifikasjonSchemaVersion")
-    compile("org.influxdb:influxdb-java:$influxdbVersion")
-    compile("io.ktor:ktor-html-builder:$ktorVersion")
-    testCompile("org.junit.jupiter:junit-jupiter-api:$junitVersion")
-    testRuntime("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    testCompile(kotlin("test-junit5"))
-    testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedEnvVersion")
-    testImplementation("org.apache.kafka:kafka_2.12:$kafkaVersion")
-    testImplementation("org.apache.kafka:kafka-streams:$kafkaVersion")
-    testImplementation("io.confluent:kafka-schema-registry:$confluentVersion")
-    testImplementation("com.h2database:h2:$h2Version")
-    testImplementation("org.amshove.kluent:kluent:$kluentVersion")
-    testImplementation("io.mockk:mockk:$mockkVersion")
+    implementation(Brukernotifikasjon.schemas)
+    implementation(Flyway.core)
+    implementation(Hikari.cp)
+    implementation(Influxdb.java)
+    implementation(Kafka.Apache.clients)
+    implementation(Kafka.Confluent.avroSerializer)
+    implementation(Ktor.serverNetty)
+    implementation(Ktor.htmlBuilder)
+    implementation(Logback.classic)
+    implementation(Logstash.logbackEncoder)
+    implementation(NAV.vaultJdbc)
+    implementation(Postgresql.postgresql)
+    implementation(Prometheus.common)
+    implementation(Prometheus.hotspot)
+    implementation(Prometheus.logback)
 
-    intTestImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+    testImplementation(H2Database.h2)
+    testImplementation(Junit.api)
+    testImplementation(Junit.engine)
+    testImplementation(Kafka.Apache.kafka_2_12)
+    testImplementation(Kafka.Apache.streams)
+    testImplementation(Kluent.kluent)
+    testImplementation(Kafka.Confluent.schemaRegistry)
+    testImplementation(Mockk.mockk)
+    testImplementation(NAV.kafkaEmbedded)
+
+    intTestImplementation(Junit.engine)
 }
 
 application {
@@ -94,10 +72,19 @@ application {
 
 tasks {
     withType<Jar> {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE // Tillater ikke duplikater i jar-fila, slik som kreves for å være kompatible med Gradle 7.
         manifest {
             attributes["Main-Class"] = application.mainClassName
         }
-        from(configurations.runtime.get().map { if (it.isDirectory) it else zipTree(it) })
+        from(sourceSets.main.get().output)
+        dependsOn(configurations.runtimeClasspath)
+        from({
+            configurations.runtimeClasspath.get().filter { file ->
+                file.name.endsWith("jar")
+            }.map { fileToAddToZip ->
+                zipTree(fileToAddToZip)
+            }
+        })
     }
 
     withType<Test> {
