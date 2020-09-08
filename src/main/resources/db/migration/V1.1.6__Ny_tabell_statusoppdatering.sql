@@ -16,5 +16,5 @@ CREATE TABLE IF NOT EXISTS statusoppdatering (
 ALTER TABLE statusoppdatering DROP CONSTRAINT IF EXISTS statusoppdateringsEventErUnikMedIdOgProdusent;
 ALTER TABLE statusoppdatering ADD CONSTRAINT statusoppdateringsEventErUnikMedIdOgProdusent UNIQUE (eventid, systembruker);
 
-CREATE INDEX IF NOT EXISTS statusoppdatering_index_eventid_srvbruker_fnr
-    ON statusoppdatering (eventid, systembruker, fodselsnummer);
+CREATE INDEX IF NOT EXISTS statusoppdatering_index_fnr
+    ON statusoppdatering (fodselsnummer);
