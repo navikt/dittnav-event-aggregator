@@ -23,6 +23,7 @@ object Kafka {
     val beskjedTopicName = "aapen-brukernotifikasjon-nyBeskjed-v1"
     val innboksTopicName = "aapen-brukernotifikasjon-nyInnboks-v1"
     val oppgaveTopicName = "aapen-brukernotifikasjon-nyOppgave-v1"
+    val statusoppdateringTopicName = "aapen-brukernotifikasjon-nyStatusoppdatering-v1"
 
     private fun credentialProps(env: Environment): Properties {
         return Properties().apply {

@@ -21,6 +21,7 @@ repositories {
     mavenCentral()
     maven("https://packages.confluent.io/maven")
     mavenLocal()
+    maven("https://jitpack.io")
 }
 
 sourceSets {
