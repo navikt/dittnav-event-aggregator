@@ -53,7 +53,7 @@ data class Statusoppdatering(
         validateMaxLength(link, "link", 200)
         validateSikkerhetsnivaa(sikkerhetsnivaa)
         validateStatusGlobal(statusGlobal)
-        statusIntern?.let { statusIntern -> validateMaxLength(statusIntern, "statusIntern", 100) }
+        statusIntern?.let { status -> validateMaxLength(status, "statusIntern", 100) }
         validateNonNullFieldMaxLength(sakstema, "sakstema", 50)
     }
 
