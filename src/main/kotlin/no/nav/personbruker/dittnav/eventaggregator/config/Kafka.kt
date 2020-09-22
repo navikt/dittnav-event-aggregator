@@ -1,6 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
-import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 import io.netty.util.NetUtil.getHostname
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.SwallowSerializationErrorsAvroDeserializer
