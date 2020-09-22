@@ -1,6 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
-import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 import io.netty.util.NetUtil.getHostname
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.SwallowSerializationErrorsAvroDeserializer
@@ -61,7 +60,6 @@ object Kafka {
     }
 
     private fun Properties.commonProps(env: Environment, enableSecurity: Boolean) {
-        val twoMinutes = 2 * 60 * 1000
         put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, env.bootstrapServers)
         put(KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG, env.schemaRegistryUrl)
         put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false)
@@ -69,7 +67,6 @@ object Kafka {
         put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, SwallowSerializationErrorsAvroDeserializer::class.java)
         put(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, true)
         put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
-        put(ConsumerConfig.DEFAULT_API_TIMEOUT_MS_CONFIG, twoMinutes)
         if (enableSecurity) {
             putAll(credentialProps(env))
         }
