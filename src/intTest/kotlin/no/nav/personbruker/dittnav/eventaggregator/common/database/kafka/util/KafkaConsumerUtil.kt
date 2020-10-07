@@ -1,6 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util
 
-import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
+import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeoutOrNull
@@ -34,7 +34,7 @@ object KafkaConsumerUtil {
                             set(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "io.confluent.kafka.serializers.KafkaAvroDeserializer")
                             set(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "io.confluent.kafka.serializers.KafkaAvroDeserializer")
                             set(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, true)
-                            set(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl)
+                            set(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl)
                             set(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true)
                             set(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
                             set(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 4)
