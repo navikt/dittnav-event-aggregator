@@ -28,24 +28,15 @@ object KafkaProducerUtil {
                 Properties().apply {
                     set(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokersURL)
                     set(ProducerConfig.CLIENT_ID_CONFIG, "funKafkaAvroProduce")
-                    set(
-                        ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
-                        "io.confluent.kafka.serializers.KafkaAvroSerializer"
-                    )
-                    set(
-                        ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-                        "io.confluent.kafka.serializers.KafkaAvroSerializer"
-                    )
+                    set(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "io.confluent.kafka.serializers.KafkaAvroSerializer")
+                    set(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "io.confluent.kafka.serializers.KafkaAvroSerializer")
                     set(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl)
                     set(ProducerConfig.ACKS_CONFIG, "all")
                     set(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, 1)
                     set(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, 500)
                     set(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT")
                     set(SaslConfigs.SASL_MECHANISM, "PLAIN")
-                    set(
-                        SaslConfigs.SASL_JAAS_CONFIG,
-                        "$JAAS_PLAIN_LOGIN $JAAS_REQUIRED username=\"$user\" password=\"$pwd\";"
-                    )
+                    set(SaslConfigs.SASL_JAAS_CONFIG, "$JAAS_PLAIN_LOGIN $JAAS_REQUIRED username=\"$user\" password=\"$pwd\";")
                 }
             ).use { p ->
                 withTimeoutOrNull(10_000) {
@@ -69,23 +60,14 @@ object KafkaProducerUtil {
                 Properties().apply {
                     set(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokersURL)
                     set(ProducerConfig.CLIENT_ID_CONFIG, "funKafkaProduce")
-                    set(
-                        ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
-                        "org.apache.kafka.common.serialization.StringSerializer"
-                    )
-                    set(
-                        ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-                        "org.apache.kafka.common.serialization.StringSerializer"
-                    )
+                    set(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer")
+                    set(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer")
                     set(ProducerConfig.ACKS_CONFIG, "all")
                     set(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, 1)
                     set(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, 500)
                     set(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT")
                     set(SaslConfigs.SASL_MECHANISM, "PLAIN")
-                    set(
-                        SaslConfigs.SASL_JAAS_CONFIG,
-                        "$JAAS_PLAIN_LOGIN $JAAS_REQUIRED username=\"$user\" password=\"$pwd\";"
-                    )
+                    set(SaslConfigs.SASL_JAAS_CONFIG, "$JAAS_PLAIN_LOGIN $JAAS_REQUIRED username=\"$user\" password=\"$pwd\";")
                 }
             ).use { p ->
                 withTimeoutOrNull(10_000) {
