@@ -21,7 +21,7 @@ import no.nav.personbruker.dittnav.eventaggregator.innboks.AvroInnboksObjectMoth
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.AvroOppgaveObjectMother
 import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 
@@ -52,7 +52,7 @@ class MultipleTopicsConsumerTest {
 
     @Test
     fun `Kafka instansen i minnet har blitt startet`() {
-        embeddedEnv.serverPark.status `should equal` KafkaEnvironment.ServerParkStatus.Started
+        embeddedEnv.serverPark.status `should be equal to` KafkaEnvironment.ServerParkStatus.Started
     }
 
     fun `Produserer testeventer for alle topics`() {

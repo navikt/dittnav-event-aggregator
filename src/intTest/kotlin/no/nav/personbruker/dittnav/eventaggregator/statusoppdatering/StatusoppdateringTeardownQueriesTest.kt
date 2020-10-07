@@ -3,7 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.statusoppdatering
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
 import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 
 class StatusoppdateringTeardownQueriesTest {
@@ -23,7 +23,7 @@ class StatusoppdateringTeardownQueriesTest {
 
             `Slett alle statusoppdateringelementer fra databasen`()
             val skalIkkeHaElementerIDatabasen = database.dbQuery { getAllStatusoppdatering() }
-            skalIkkeHaElementerIDatabasen.isEmpty() `should equal` true
+            skalIkkeHaElementerIDatabasen.isEmpty() `should be equal to` true
         }
     }
 

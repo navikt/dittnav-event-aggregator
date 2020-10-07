@@ -93,7 +93,7 @@ class oppgaveQueriesTest {
     fun `Finner cachet Oppgave-event for Id`() {
         runBlocking {
             val result = database.dbQuery { oppgave2.id?.let { getOppgaveById(it) } }
-            result `should equal` oppgave2
+            result `should be equal to` oppgave2
         }
     }
 
@@ -110,7 +110,7 @@ class oppgaveQueriesTest {
     fun `Finner cachet Oppgave-event med eventId`() {
         runBlocking {
             val result = database.dbQuery { getOppgaveByEventId(eventId) }
-            result `should equal` oppgave2
+            result `should be equal to` oppgave2
         }
     }
 
@@ -148,8 +148,8 @@ class oppgaveQueriesTest {
             val oppgave1FraDb = database.dbQuery { getOppgaveByEventId(oppgave1.eventId) }
             val oppgave2FraDb = database.dbQuery { getOppgaveByEventId(oppgave2.eventId) }
 
-            oppgave1FraDb.eventId `should equal` oppgave1.eventId
-            oppgave2FraDb.eventId `should equal` oppgave2.eventId
+            oppgave1FraDb.eventId `should be equal to` oppgave1.eventId
+            oppgave2FraDb.eventId `should be equal to` oppgave2.eventId
 
             database.dbQuery { deleteOppgaveWithEventId(oppgave1.eventId) }
             database.dbQuery { deleteOppgaveWithEventId(oppgave2.eventId) }

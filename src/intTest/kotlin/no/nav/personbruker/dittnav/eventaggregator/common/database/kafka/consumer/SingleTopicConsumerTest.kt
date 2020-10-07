@@ -5,16 +5,14 @@ import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.common.KafkaEnvironment
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.common.SimpleEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util.KafkaTestUtil
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should equal`
-import org.amshove.kluent.shouldEqualTo
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
@@ -41,7 +39,7 @@ class SingleTopicConsumerTest {
 
     @Test
     fun `Kafka instansen i minnet har blitt startet`() {
-        embeddedEnv.serverPark.status `should equal` KafkaEnvironment.ServerParkStatus.Started
+        embeddedEnv.serverPark.status `should be equal to` KafkaEnvironment.ServerParkStatus.Started
     }
 
     @Test
@@ -66,7 +64,7 @@ class SingleTopicConsumerTest {
     fun `Produserer noen testeventer`() {
         runBlocking {
             KafkaTestUtil.produceEvents(testEnvironment, topicen, events)
-        } shouldEqualTo true
+        } `should be equal to` true
     }
 
     private suspend fun `Vent til alle eventer har blitt konsumert`(eventProcessor: SimpleEventCounterService<Beskjed>) {
