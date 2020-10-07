@@ -81,20 +81,11 @@ tasks {
     }
 
     register("runServer", JavaExec::class) {
-        environment("KAFKA_BOOTSTRAP_SERVERS", "localhost:29092")
-        environment("KAFKA_SCHEMAREGISTRY_SERVERS", "http://localhost:8081")
-        environment("SERVICEUSER_USERNAME", "username")
-        environment("SERVICEUSER_PASSWORD", "password")
-        environment("GROUP_ID", "dittnav_events")
-        environment("DB_HOST", "localhost:5432")
-        environment("DB_NAME", "dittnav-event-cache-preprod")
-        environment("DB_PASSWORD", "testpassword")
-        environment("DB_MOUNT_PATH", "notUsedOnLocalhost")
-        environment("NAIS_CLUSTER_NAME", "dev-sbs")
-        environment("NAIS_NAMESPACE", "q1")
-        environment("SENSU_HOST", "stub")
-        environment("SENSU_PORT", "")
-        environment("PRODUCER_ALIASES", "")
+        println("Setting default environment variables for running with DittNAV docker-compose")
+        DockerComposeDefaults.environomentVariables.forEach { (name, value) ->
+            println("Setting the environment variable $name")
+            environment(name, value)
+        }
 
         main = application.mainClassName
         classpath = sourceSets["main"].runtimeClasspath
