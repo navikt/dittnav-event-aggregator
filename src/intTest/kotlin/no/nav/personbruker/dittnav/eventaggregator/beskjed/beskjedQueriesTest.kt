@@ -80,7 +80,7 @@ class beskjedQueriesTest {
     fun `Finner cachet Beskjed-event med Id`() {
         runBlocking {
             val result = database.dbQuery { beskjed2.id?.let { getBeskjedById(it) } }
-            result `should equal` beskjed2
+            result `should be equal to` beskjed2
         }
     }
 
@@ -114,7 +114,7 @@ class beskjedQueriesTest {
     fun `Finner cachet Beskjed-event med eventId`() {
         runBlocking {
             val result = database.dbQuery { getBeskjedByEventId(eventId) }
-            result `should equal` beskjed2
+            result `should be equal to` beskjed2
         }
     }
 
@@ -140,8 +140,8 @@ class beskjedQueriesTest {
             val beskjed1FraDb = database.dbQuery { getBeskjedByEventId(beskjed1.eventId) }
             val beskjed2FraDb = database.dbQuery { getBeskjedByEventId(beskjed2.eventId) }
 
-            beskjed1FraDb.eventId `should equal` beskjed1.eventId
-            beskjed2FraDb.eventId `should equal` beskjed2.eventId
+            beskjed1FraDb.eventId `should be equal to` beskjed1.eventId
+            beskjed2FraDb.eventId `should be equal to` beskjed2.eventId
 
             database.dbQuery { deleteBeskjedWithEventId(beskjed1.eventId) }
             database.dbQuery { deleteBeskjedWithEventId(beskjed2.eventId) }

@@ -65,7 +65,7 @@ class StatusoppdateringQueriesTest {
     fun `Finner cachet Statusoppdatering-event med Id`() {
         runBlocking {
             val result = database.dbQuery { statusoppdatering2.id?.let { getStatusoppdateringById(it) } }
-            result `should equal` statusoppdatering2
+            result `should be equal to` statusoppdatering2
         }
     }
 
@@ -99,7 +99,7 @@ class StatusoppdateringQueriesTest {
     fun `Finner cachet Statusoppdatering-event med eventId`() {
         runBlocking {
             val result = database.dbQuery { getStatusoppdateringByEventId(eventId) }
-            result `should equal` statusoppdatering2
+            result `should be equal to` statusoppdatering2
         }
     }
 
@@ -125,8 +125,8 @@ class StatusoppdateringQueriesTest {
             val statusoppdatering1FraDb = database.dbQuery { getStatusoppdateringByEventId(statusoppdatering1.eventId) }
             val statusoppdatering2FraDb = database.dbQuery { getStatusoppdateringByEventId(statusoppdatering2.eventId) }
 
-            statusoppdatering1FraDb.eventId `should equal` statusoppdatering1.eventId
-            statusoppdatering2FraDb.eventId `should equal` statusoppdatering2.eventId
+            statusoppdatering1FraDb.eventId `should be equal to` statusoppdatering1.eventId
+            statusoppdatering2FraDb.eventId `should be equal to` statusoppdatering2.eventId
 
             database.dbQuery { deleteStatusoppdateringWithEventId(statusoppdatering1.eventId) }
             database.dbQuery { deleteStatusoppdateringWithEventId(statusoppdatering2.eventId) }

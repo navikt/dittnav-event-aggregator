@@ -3,8 +3,8 @@ package no.nav.personbruker.dittnav.eventaggregator.metrics
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
-import org.amshove.kluent.`should equal`
-import org.amshove.kluent.`should not equal`
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should not be equal to`
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
@@ -25,8 +25,8 @@ internal class ProducerNameScrubberTest {
         runBlocking {
             val scrubbedName = nameScrubber.getPublicAlias(systemUser)
 
-            scrubbedName `should equal` producerNameAlias
-            scrubbedName `should not equal` systemUser
+            scrubbedName `should be equal to` producerNameAlias
+            scrubbedName `should not be equal to` systemUser
         }
     }
 
@@ -37,8 +37,8 @@ internal class ProducerNameScrubberTest {
         runBlocking {
             val scrubbedName = nameScrubber.getPublicAlias(unknownSystemUser)
 
-            scrubbedName `should equal` nameScrubber.GENERIC_SYSTEM_USER
-            scrubbedName `should not equal` systemUser
+            scrubbedName `should be equal to` nameScrubber.GENERIC_SYSTEM_USER
+            scrubbedName `should not be equal to` systemUser
         }
     }
 
@@ -49,8 +49,8 @@ internal class ProducerNameScrubberTest {
         runBlocking {
             val scrubbedName = nameScrubber.getPublicAlias(unknownSystemUser)
 
-            scrubbedName `should equal` nameScrubber.UNKNOWN_USER
-            scrubbedName `should not equal` systemUser
+            scrubbedName `should be equal to` nameScrubber.UNKNOWN_USER
+            scrubbedName `should not be equal to` systemUser
         }
     }
 }

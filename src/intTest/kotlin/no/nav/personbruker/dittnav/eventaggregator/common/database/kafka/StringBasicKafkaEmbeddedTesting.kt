@@ -5,9 +5,8 @@ import no.nav.common.JAASCredential
 import no.nav.common.KafkaEnvironment
 import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util.KafkaConsumerUtil
 import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util.KafkaProducerUtil
-import org.amshove.kluent.`should equal`
+import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldContainAll
-import org.amshove.kluent.shouldEqualTo
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 
@@ -24,9 +23,9 @@ class StringBasicKafkaEmbeddedTesting {
     private val username = "srvkafkaclient"
     private val password = "kafkaclient"
     private val embeddedEnv = KafkaEnvironment(
-            topicNames = listOf(topicen),
-            withSecurity = true,
-            users = listOf(JAASCredential(username, password))
+        topicNames = listOf(topicen),
+        withSecurity = true,
+        users = listOf(JAASCredential(username, password))
     )
     private val kafkaBrokerUrl = embeddedEnv.brokersURL.substringAfterLast("/")
 
@@ -43,29 +42,33 @@ class StringBasicKafkaEmbeddedTesting {
 
     @Test
     fun `Kafka-instansen i minnet har blitt staret`() {
-        embeddedEnv.serverPark.status `should equal` KafkaEnvironment.ServerParkStatus.Started
+        embeddedEnv.serverPark.status `should be equal to` KafkaEnvironment.ServerParkStatus.Started
     }
 
     @Test
     fun `Skal produsere og konsumere en meldinger som kun er en string`() {
         `produser string-eventer`()
         runBlocking {
-            KafkaConsumerUtil.kafkaConsume(kafkaBrokerUrl,
-                    topicen,
-                    username,
-                    password,
-                    events.size)
+            KafkaConsumerUtil.kafkaConsume(
+                kafkaBrokerUrl,
+                topicen,
+                username,
+                password,
+                events.size
+            )
         } shouldContainAll events
     }
 
     private fun `produser string-eventer`() {
         runBlocking {
-            KafkaProducerUtil.kafkaProduce(kafkaBrokerUrl,
-                    topicen,
-                    username,
-                    password,
-                    events)
-        } shouldEqualTo true
+            KafkaProducerUtil.kafkaProduce(
+                kafkaBrokerUrl,
+                topicen,
+                username,
+                password,
+                events
+            )
+        } `should be equal to` true
     }
 
 }

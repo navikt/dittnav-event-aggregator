@@ -17,8 +17,7 @@ import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameResolver
 import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameScrubber
 import no.nav.personbruker.dittnav.eventaggregator.metrics.StubMetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
-import org.amshove.kluent.`should equal`
-import org.amshove.kluent.shouldEqualTo
+import org.amshove.kluent.`should be equal to`
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
@@ -58,7 +57,7 @@ class EndToEndTestIT {
 
     @Test
     fun `Kafka instansen i minnet har blitt staret`() {
-        embeddedEnv.serverPark.status `should equal` KafkaEnvironment.ServerParkStatus.Started
+        embeddedEnv.serverPark.status `should be equal to` KafkaEnvironment.ServerParkStatus.Started
     }
 
     @Test
@@ -69,14 +68,14 @@ class EndToEndTestIT {
         runBlocking {
             database.dbQuery {
                 getAllBeskjed().size
-            } `should equal` events.size
+            } `should be equal to` events.size
         }
     }
 
     fun `Produserer noen testeventer`() {
         runBlocking {
             KafkaTestUtil.produceEvents(testEnvironment, topicen, events)
-        } shouldEqualTo true
+        } `should be equal to` true
     }
 
     fun `Les inn alle eventene og verifiser at de har blitt lagt til i databasen`() {
