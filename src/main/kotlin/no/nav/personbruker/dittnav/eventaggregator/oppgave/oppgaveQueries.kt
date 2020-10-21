@@ -105,6 +105,7 @@ private fun ResultSet.toOppgave(): Oppgave {
             link = getString("link"),
             sikkerhetsnivaa = getInt("sikkerhetsnivaa"),
             sistOppdatert = getUtcDateTime("sistOppdatert"),
-            aktiv = getBoolean("aktiv")
+            aktiv = getBoolean("aktiv"),
+            eksternVarsling = getBoolean("eksternVarsling")
     )
 }

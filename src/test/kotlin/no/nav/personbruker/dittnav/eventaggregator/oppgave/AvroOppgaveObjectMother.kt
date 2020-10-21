@@ -8,6 +8,7 @@ object AvroOppgaveObjectMother {
     private val defaultLopenummer = 1
     private val defaultFodselsnr = "12345"
     private val defaultTekst = "Dette er oppgave til brukeren"
+    private val defaultEksternVarsling = true
 
     fun createOppgave(lopenummer: Int): Oppgave {
         return createOppgave(lopenummer, defaultFodselsnr, defaultTekst)
@@ -28,7 +29,8 @@ object AvroOppgaveObjectMother {
                 "100$lopenummer",
                 tekst,
                 "https://nav.no/systemX/$lopenummer",
-                4)
+                4,
+                defaultEksternVarsling)
     }
 
 }

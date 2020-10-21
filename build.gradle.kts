@@ -38,7 +38,7 @@ val intTestImplementation by configurations.getting {
 configurations["intTestRuntimeOnly"].extendsFrom(configurations.testRuntimeOnly.get())
 
 dependencies {
-    implementation(Brukernotifikasjon.schemas)
+    implementation("com.github.navikt:brukernotifikasjon-schemas:ekstern-varsling-SNAPSHOT")
     implementation(Flyway.core)
     implementation(Hikari.cp)
     implementation(Influxdb.java)

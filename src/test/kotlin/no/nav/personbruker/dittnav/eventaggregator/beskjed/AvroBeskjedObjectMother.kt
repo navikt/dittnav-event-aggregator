@@ -8,6 +8,7 @@ object AvroBeskjedObjectMother {
     private val defaultLopenummer = 1
     private val defaultFodselsnr = "12345"
     private val defaultText = "Dette er Beskjed til brukeren"
+    private val defaultEksternVarsling = true
 
     fun createBeskjedWithText(text: String): Beskjed {
         return createBeskjed(defaultLopenummer, defaultFodselsnr, text)
@@ -29,7 +30,8 @@ object AvroBeskjedObjectMother {
                 "100$lopenummer",
                 text,
                 "https://nav.no/systemX/$lopenummer",
-                4)
+                4,
+                defaultEksternVarsling)
     }
 
     fun createBeskjedWithoutSynligFremTilSatt(): Beskjed {
@@ -40,7 +42,8 @@ object AvroBeskjedObjectMother {
                 "100$defaultLopenummer",
                 defaultText,
                 "https://nav.no/systemX/$defaultLopenummer",
-                4)
+                4,
+                defaultEksternVarsling)
     }
 
 }

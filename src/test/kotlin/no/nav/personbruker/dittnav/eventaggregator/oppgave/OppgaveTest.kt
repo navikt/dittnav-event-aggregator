@@ -44,7 +44,8 @@ class OppgaveTest {
                     link = validLink,
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true
+                    aktiv = true,
+                    eksternVarsling = false
             )
         } `should throw` FieldValidationException::class `with message containing` "systembruker"
     }
@@ -63,7 +64,8 @@ class OppgaveTest {
                     link = validLink,
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true
+                    aktiv = true,
+                    eksternVarsling = false
             )
         } `should throw` FieldValidationException::class `with message containing` "fodselsnummer"
     }
@@ -82,7 +84,8 @@ class OppgaveTest {
                     link = validLink,
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true)
+                    aktiv = true,
+                    eksternVarsling = false)
         } `should throw` FieldValidationException::class `with message containing` "eventId"
     }
 
@@ -100,7 +103,8 @@ class OppgaveTest {
                     link = validLink,
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true)
+                    aktiv = true,
+                    eksternVarsling = false)
         } `should throw` FieldValidationException::class `with message containing` "grupperingsId"
     }
 
@@ -118,7 +122,8 @@ class OppgaveTest {
                     link = validLink,
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true)
+                    aktiv = true,
+                    eksternVarsling = false)
         } `should throw` FieldValidationException::class `with message containing` "tekst"
     }
 
@@ -137,7 +142,8 @@ class OppgaveTest {
                     link = tooLongLink,
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true)
+                    aktiv = true,
+                    eksternVarsling = false)
         } `should throw` FieldValidationException::class `with message containing` "link"
     }
 
@@ -155,7 +161,8 @@ class OppgaveTest {
                     link = validLink,
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = invalidSikkerhetsnivaa,
-                    aktiv = true)
+                    aktiv = true,
+                    eksternVarsling = false)
         } `should throw` FieldValidationException::class `with message containing` "Sikkerhetsnivaa"
     }
 

@@ -24,7 +24,8 @@ object BeskjedTransformer {
                 externalValue.getSikkerhetsnivaa(),
                 LocalDateTime.now(ZoneId.of("UTC")),
                 externalValue.synligFremTilAsUTCDateTime(),
-                newRecordsAreActiveByDefault
+                newRecordsAreActiveByDefault,
+                externalValue.getEksternVarsling()
         )
     }
 

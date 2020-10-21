@@ -111,7 +111,8 @@ private fun ResultSet.toBeskjed(): Beskjed {
             sikkerhetsnivaa = getInt("sikkerhetsnivaa"),
             sistOppdatert = getUtcDateTime("sistOppdatert"),
             synligFremTil = getNullableLocalDateTime("synligFremTil"),
-            aktiv = getBoolean("aktiv")
+            aktiv = getBoolean("aktiv"),
+            eksternVarsling = getBoolean("eksternVarsling")
     )
 }
 
