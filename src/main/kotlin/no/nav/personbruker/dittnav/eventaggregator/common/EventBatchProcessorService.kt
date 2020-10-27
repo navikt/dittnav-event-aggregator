@@ -10,4 +10,6 @@ interface EventBatchProcessorService<T> {
 
     val ConsumerRecord<Nokkel, T>.systembruker : String get() = key().getSystembruker()
 
+    val ConsumerRecord<Nokkel, T>.eventId : String get() = key().getEventId()
+
 }

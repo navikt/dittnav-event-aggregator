@@ -41,9 +41,7 @@ class BeskjedEventService(
 
                 } catch (fve: FieldValidationException) {
                     countFailedEventForProducer(event.systembruker)
-                    val eventId = event.getNonNullKey().getEventId()
-                    val systembruker = event.getNonNullKey().getSystembruker()
-                    val msg = "Klarte ikke transformere eventet pga en valideringsfeil. EventId: $eventId, systembruker: $systembruker, ${fve.toString()}"
+                    val msg = "Klarte ikke transformere eventet pga en valideringsfeil. EventId: ${event.eventId}, systembruker: ${event.systembruker}, $fve"
                     log.warn(msg, fve)
 
                 } catch (e: Exception) {

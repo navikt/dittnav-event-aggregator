@@ -41,9 +41,7 @@ class DoneEventService(
 
                 } catch (fve: FieldValidationException) {
                     countFailedEventForProducer(event.systembruker)
-                    val eventId = event.getNonNullKey().getEventId()
-                    val systembruker = event.getNonNullKey().getSystembruker()
-                    val msg = "Eventet kan ikke brukes fordi det inneholder valideringsfeil, eventet vil bli forkastet. EventId: $eventId, systembruker: $systembruker, ${fve.toString()}"
+                    val msg = "Eventet kan ikke brukes fordi det inneholder valideringsfeil, eventet vil bli forkastet. EventId: ${event.eventId}, systembruker: ${event.systembruker}, $fve"
                     log.warn(msg, fve)
 
                 } catch (e: Exception) {
