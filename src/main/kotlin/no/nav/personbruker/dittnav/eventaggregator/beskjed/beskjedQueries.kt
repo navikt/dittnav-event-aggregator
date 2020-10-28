@@ -18,8 +18,8 @@ fun Connection.getAllBeskjed(): List<Beskjed> =
                     }
                 }
 
-private val createQuery = """INSERT INTO beskjed (uid, systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+private val createQuery = """INSERT INTO beskjed (uid, systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv, eksternVarsling)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
 fun Connection.createBeskjed(beskjed: Beskjed): PersistActionResult =
         executePersistQuery(createQuery) {
@@ -47,6 +47,7 @@ private fun PreparedStatement.buildStatementForSingleRow(beskjed: Beskjed) {
     setObject(10, beskjed.sistOppdatert, Types.TIMESTAMP)
     setObject(11, beskjed.synligFremTil, Types.TIMESTAMP)
     setBoolean(12, beskjed.aktiv)
+    setBoolean(13, beskjed.eksternVarsling)
 }
 
 fun Connection.setBeskjederAktivflagg(doneEvents: List<Done>, aktiv: Boolean) {
