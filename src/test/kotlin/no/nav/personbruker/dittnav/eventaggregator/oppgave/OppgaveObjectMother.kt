@@ -24,7 +24,8 @@ object OppgaveObjectMother {
                 link = "https://nav.no/systemX/",
                 sikkerhetsnivaa = 4,
                 sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
-                aktiv = true)
+                aktiv = true,
+                eksternVarsling = false)
     }
 
     fun giveMeInaktivOppgave(): Oppgave {
@@ -38,7 +39,8 @@ object OppgaveObjectMother {
                 link = "https://nav.no/systemX/",
                 sikkerhetsnivaa = 4,
                 sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
-                aktiv = false)
+                aktiv = false,
+                eksternVarsling = false)
     }
 
 }

@@ -3,7 +3,6 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
 import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 
 class BeskjedTeardownQueriesTest {
