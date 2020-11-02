@@ -49,7 +49,8 @@ class BeskjedTest {
                     link = validLink,
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true)
+                    aktiv = true,
+                    eksternVarsling = false)
         } `should throw` FieldValidationException::class `with message containing` "systembruker"
     }
 
@@ -69,7 +70,8 @@ class BeskjedTest {
                     link = validLink,
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true)
+                    aktiv = true,
+                    eksternVarsling = false)
         } `should throw` FieldValidationException::class `with message containing` "fodselsnummer"
     }
 
@@ -89,7 +91,8 @@ class BeskjedTest {
                     link = validLink,
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true)
+                    aktiv = true,
+                    eksternVarsling = false)
         } `should throw` FieldValidationException::class `with message containing` "eventId"
     }
 
@@ -109,7 +112,8 @@ class BeskjedTest {
                     link = validLink,
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true)
+                    aktiv = true,
+                    eksternVarsling = false)
         } `should throw` FieldValidationException::class `with message containing` "grupperingsId"
     }
 
@@ -129,7 +133,8 @@ class BeskjedTest {
                     link = validLink,
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true)
+                    aktiv = true,
+                    eksternVarsling = false)
         } `should throw` FieldValidationException::class `with message containing` "tekst"
     }
 
@@ -149,7 +154,8 @@ class BeskjedTest {
                     link = tooLongLink,
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true)
+                    aktiv = true,
+                    eksternVarsling = false)
         } `should throw` FieldValidationException::class `with message containing` "link"
     }
 
@@ -169,7 +175,8 @@ class BeskjedTest {
                     link = validLink,
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = invalidSikkerhetsnivaa,
-                    aktiv = true)
+                    aktiv = true,
+                    eksternVarsling = false)
         } `should throw` FieldValidationException::class `with message containing` "Sikkerhetsnivaa"
     }
 
@@ -189,7 +196,8 @@ class BeskjedTest {
                     link = validLink,
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true)
+                    aktiv = true,
+                    eksternVarsling = false)
         } `should throw` FieldValidationException::class `with message containing` "uid"
     }
 

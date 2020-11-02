@@ -28,7 +28,8 @@ class OppgaveTransformerTest {
         val transformedEventTidspunktAsLong = internal.eventTidspunkt.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
         transformedEventTidspunktAsLong `should be equal to` external.getTidspunkt()
 
-        internal.aktiv `should be` true
+        internal.aktiv `should be equal to` true
+        internal.eksternVarsling `should be equal to` true
         internal.sistOppdatert.`should not be null`()
         internal.id.`should be null`()
     }

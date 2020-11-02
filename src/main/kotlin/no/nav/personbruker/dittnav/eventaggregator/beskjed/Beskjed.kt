@@ -18,7 +18,8 @@ data class Beskjed(
         val sikkerhetsnivaa: Int,
         val sistOppdatert: LocalDateTime,
         val synligFremTil: LocalDateTime?,
-        val aktiv: Boolean
+        val aktiv: Boolean,
+        val eksternVarsling: Boolean
 ) {
     constructor(uid: String,
                 systembruker: String,
@@ -31,7 +32,8 @@ data class Beskjed(
                 sikkerhetsnivaa: Int,
                 sistOppdatert: LocalDateTime,
                 synligFremTil: LocalDateTime?,
-                aktiv: Boolean
+                aktiv: Boolean,
+                eksternVarsling: Boolean
     ) : this(uid,
             null,
             systembruker,
@@ -44,7 +46,8 @@ data class Beskjed(
             sikkerhetsnivaa,
             sistOppdatert,
             synligFremTil,
-            aktiv
+            aktiv,
+            eksternVarsling
     ) {
         validateNonNullFieldMaxLength(systembruker, "systembruker", 100)
         validateNonNullFieldMaxLength(eventId, "eventId", 50)
@@ -70,7 +73,7 @@ data class Beskjed(
                 "sikkerhetsnivaa=$sikkerhetsnivaa, " +
                 "sistOppdatert=$sistOppdatert, " +
                 "synligFremTil=$synligFremTil, " +
-                "aktiv=$aktiv"
+                "aktiv=$aktiv, " +
+                "eksternVarsling=$eksternVarsling"
     }
-
 }

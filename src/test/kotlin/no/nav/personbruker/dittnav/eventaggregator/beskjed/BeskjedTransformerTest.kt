@@ -31,6 +31,7 @@ class BeskjedTransformerTest {
         transformedEventTidspunktAsLong `should be equal to` original.getTidspunkt()
 
         transformed.aktiv `should be equal to` true
+        transformed.eksternVarsling `should be equal to` true
         transformed.sistOppdatert.`should not be null`()
         transformed.id.`should be null`()
     }

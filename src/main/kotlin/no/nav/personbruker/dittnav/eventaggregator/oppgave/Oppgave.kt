@@ -16,7 +16,8 @@ data class Oppgave(
         val link: String,
         val sikkerhetsnivaa: Int,
         val sistOppdatert: LocalDateTime,
-        val aktiv: Boolean
+        val aktiv: Boolean,
+        val eksternVarsling: Boolean
 ) {
     constructor(
             systembruker: String,
@@ -28,7 +29,8 @@ data class Oppgave(
             link: String,
             sikkerhetsnivaa: Int,
             sistOppdatert: LocalDateTime,
-            aktiv: Boolean
+            aktiv: Boolean,
+            eksternVarsling: Boolean
     ) : this(null,
             systembruker,
             eventId,
@@ -39,7 +41,8 @@ data class Oppgave(
             link,
             sikkerhetsnivaa,
             sistOppdatert,
-            aktiv
+            aktiv,
+            eksternVarsling
     ) {
         validateNonNullFieldMaxLength(systembruker, "systembruker", 100)
         validateNonNullFieldMaxLength(eventId, "eventId", 50)
@@ -62,7 +65,7 @@ data class Oppgave(
                 "link=***, " +
                 "sikkerhetsnivaa=$sikkerhetsnivaa, " +
                 "sistOppdatert=$sistOppdatert, " +
-                "aktiv=$aktiv"
+                "aktiv=$aktiv, " +
+                "eksternVarsling=$eksternVarsling"
     }
-
 }

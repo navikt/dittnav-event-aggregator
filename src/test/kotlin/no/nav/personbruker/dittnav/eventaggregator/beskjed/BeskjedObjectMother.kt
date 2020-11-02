@@ -35,7 +35,8 @@ object BeskjedObjectMother {
                 link = "https://nav.no/systemX/$eventId",
                 sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
                 sikkerhetsnivaa = 4,
-                aktiv = true)
+                aktiv = true,
+                eksternVarsling = false)
     }
 
     fun giveMeInaktivBeskjed(): Beskjed {
@@ -51,7 +52,7 @@ object BeskjedObjectMother {
                 link = "https://nav.no/systemX/",
                 sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
                 sikkerhetsnivaa = 4,
-                aktiv = false)
+                aktiv = false,
+                eksternVarsling = false)
     }
-
 }
