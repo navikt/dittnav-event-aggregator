@@ -7,10 +7,10 @@ import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.common.KafkaEnvironment
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.common.SimpleEventCounterService
+import no.nav.personbruker.dittnav.eventaggregator.common.config.KafkaEmbed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util.KafkaTestUtil
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import org.amshove.kluent.`should be equal to`
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -46,7 +46,7 @@ class SingleTopicConsumerTest {
     fun `Lese inn alle testeventene fra Kafka`() {
         `Produserer noen testeventer`()
         val eventProcessor = SimpleEventCounterService<Beskjed>()
-        val consumerProps = Kafka.consumerProps(testEnvironment, EventType.BESKJED, true)
+        val consumerProps = KafkaEmbed.consumerProps(testEnvironment, EventType.BESKJED, true)
         val kafkaConsumer = KafkaConsumer<Nokkel, Beskjed>(consumerProps)
         val consumer = Consumer(topicen, kafkaConsumer, eventProcessor)
 

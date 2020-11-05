@@ -1,9 +1,0 @@
-{
-  "namespace": "q1",
-  "cluster": "preprod",
-  "environment": "dev",
-  "ingresses": [
-    "https://dittnav-event-aggregator-q1.dev-sbs.nais.io",
-    "https://dittnav-event-aggregator-q1.nais.oera-q.local"
-  ]
-}

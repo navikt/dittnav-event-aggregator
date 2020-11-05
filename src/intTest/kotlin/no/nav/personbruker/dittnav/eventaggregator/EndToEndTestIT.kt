@@ -6,6 +6,7 @@ import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.common.KafkaEnvironment
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.*
+import no.nav.personbruker.dittnav.eventaggregator.common.config.KafkaEmbed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
 import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util.KafkaTestUtil
@@ -82,7 +83,7 @@ class EndToEndTestIT {
         val beskjedRepository = BeskjedRepository(database)
         val beskjedPersistingService = BrukernotifikasjonPersistingService(beskjedRepository)
         val eventProcessor = BeskjedEventService(beskjedPersistingService, metricsProbe)
-        val consumerProps = Kafka.consumerProps(testEnvironment, EventType.BESKJED, true)
+        val consumerProps = KafkaEmbed.consumerProps(testEnvironment, EventType.BESKJED, true)
         val kafkaConsumer = KafkaConsumer<Nokkel, Beskjed>(consumerProps)
         val consumer = Consumer(topicen, kafkaConsumer, eventProcessor)
 

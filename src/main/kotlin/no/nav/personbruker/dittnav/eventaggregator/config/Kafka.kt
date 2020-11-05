@@ -66,7 +66,6 @@ object Kafka {
         put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, SwallowSerializationErrorsAvroDeserializer::class.java)
         put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, SwallowSerializationErrorsAvroDeserializer::class.java)
         put(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, true)
-        put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
         if (enableSecurity) {
             putAll(credentialProps(env))
         }
