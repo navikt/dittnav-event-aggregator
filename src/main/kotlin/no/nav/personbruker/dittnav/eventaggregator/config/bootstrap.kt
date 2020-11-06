@@ -8,7 +8,7 @@ import io.ktor.features.DefaultHeaders
 import io.ktor.routing.routing
 import io.prometheus.client.hotspot.DefaultExports
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.common.kafka.pollingApi
+import no.nav.personbruker.dittnav.eventaggregator.polling.pollingApi
 import no.nav.personbruker.dittnav.eventaggregator.done.waitTableApi
 import no.nav.personbruker.dittnav.eventaggregator.health.healthApi
 
@@ -28,7 +28,9 @@ fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()
 private fun Application.configureStartupHook(appContext: ApplicationContext) {
     environment.monitor.subscribe(ApplicationStarted) {
         Flyway.runFlywayMigrations(appContext.environment)
+        KafkaConsumerSetup.startAllKafkaPollers(appContext)
         appContext.periodicDoneEventWaitingTableProcessor.start()
+        appContext.periodicConsumerChecker.start()
     }
 }
 
@@ -37,6 +39,7 @@ private fun Application.configureShutdownHook(appContext: ApplicationContext) {
         runBlocking {
             KafkaConsumerSetup.stopAllKafkaConsumers(appContext)
             appContext.periodicDoneEventWaitingTableProcessor.stop()
+            appContext.periodicConsumerChecker.stop()
         }
         appContext.database.dataSource.close()
     }

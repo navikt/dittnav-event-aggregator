@@ -17,6 +17,7 @@ import no.nav.personbruker.dittnav.eventaggregator.metrics.buildDBMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildEventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveEventService
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
+import no.nav.personbruker.dittnav.eventaggregator.polling.PeriodicConsumerChecker
 import no.nav.personbruker.dittnav.eventaggregator.statusoppdatering.StatusoppdateringEventService
 import no.nav.personbruker.dittnav.eventaggregator.statusoppdatering.StatusoppdateringRepository
 import org.slf4j.LoggerFactory
@@ -64,6 +65,7 @@ class ApplicationContext {
     var statusoppdateringConsumer = initializeStatusoppdateringConsumer()
 
     var periodicDoneEventWaitingTableProcessor = initializeDoneWaitingTableProcessor()
+    var periodicConsumerChecker = initializePeriodicConsumerChecker()
 
     val healthService = HealthService(this)
 
@@ -129,6 +131,23 @@ class ApplicationContext {
         } else {
             log.warn("periodicDoneEventWaitingTableProcessor kunne ikke bli reinstansiert fordi den fortsatt er aktiv.")
         }
+    }
+
+    private fun initializePeriodicConsumerChecker() = PeriodicConsumerChecker(this)
+
+    fun reinitializePeriodicConsumerChecker() {
+        if (periodicConsumerChecker.isCompleted()) {
+            periodicConsumerChecker = initializePeriodicConsumerChecker()
+            log.info("periodicConsumerChecker har blitt reinstansiert.")
+        } else {
+            log.warn("periodicConsumerChecker kunne ikke bli reinstansiert fordi den fortsatt er aktiv.")
+        }
+    }
+
+    suspend fun restartPolling() {
+        KafkaConsumerSetup.stopAllKafkaConsumers(this)
+        reinitializeConsumers()
+        KafkaConsumerSetup.startAllKafkaPollers(this)
     }
 
 }
