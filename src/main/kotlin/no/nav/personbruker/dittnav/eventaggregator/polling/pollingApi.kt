@@ -23,7 +23,7 @@ fun Routing.pollingApi(appContext: ApplicationContext) {
     }
 
     get("/internal/polling/checker/start") {
-        val responseText = "Startee jobben som sjekker om konsumerne kjører."
+        val responseText = "Startet jobben som sjekker om konsumerne kjører."
         appContext.reinitializePeriodicConsumerChecker()
         appContext.periodicConsumerChecker.start()
         call.respondText(text = responseText, contentType = ContentType.Text.Plain)
