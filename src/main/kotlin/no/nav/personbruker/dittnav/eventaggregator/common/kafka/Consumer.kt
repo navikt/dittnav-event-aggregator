@@ -54,6 +54,10 @@ class Consumer<T>(
         }
     }
 
+    fun isStopped(): Boolean {
+        return !job.isActive
+    }
+
     fun startPolling() {
         launch {
             log.info("Starter en coroutine for polling på topic-en $topic.")

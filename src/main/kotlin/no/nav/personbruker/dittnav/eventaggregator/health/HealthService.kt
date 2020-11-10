@@ -12,7 +12,8 @@ class HealthService(private val applicationContext: ApplicationContext) {
                 applicationContext.oppgaveConsumer.status(),
                 applicationContext.doneConsumer.status(),
                 applicationContext.statusoppdateringConsumer.status(),
-                applicationContext.periodicDoneEventWaitingTableProcessor.status()
+                applicationContext.periodicDoneEventWaitingTableProcessor.status(),
+                applicationContext.periodicConsumerPollingCheck.status()
         )
     }
 }

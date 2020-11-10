@@ -4,6 +4,7 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedEventService
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.polling.PeriodicConsumerPollingCheck
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneEventService
 import no.nav.personbruker.dittnav.eventaggregator.done.DonePersistingService
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
@@ -64,6 +65,7 @@ class ApplicationContext {
     var statusoppdateringConsumer = initializeStatusoppdateringConsumer()
 
     var periodicDoneEventWaitingTableProcessor = initializeDoneWaitingTableProcessor()
+    var periodicConsumerPollingCheck = initializePeriodicConsumerPollingCheck()
 
     val healthService = HealthService(this)
 
@@ -82,6 +84,9 @@ class ApplicationContext {
     private fun initializeStatusoppdateringConsumer() =
             KafkaConsumerSetup.setupConsumerForTheStatusoppdateringTopic(statusoppdateringKafkaProps, statusoppdateringEventProcessor)
 
+    private fun initializeDoneWaitingTableProcessor() = PeriodicDoneEventWaitingTableProcessor(donePersistingService, dbMetricsProbe)
+
+    private fun initializePeriodicConsumerPollingCheck() = PeriodicConsumerPollingCheck(this)
 
     fun reinitializeConsumers() {
         if (beskjedConsumer.isCompleted()) {
@@ -120,14 +125,21 @@ class ApplicationContext {
         }
     }
 
-    private fun initializeDoneWaitingTableProcessor() = PeriodicDoneEventWaitingTableProcessor(donePersistingService, dbMetricsProbe)
-
     fun reinitializeDoneWaitingTableProcessor() {
         if (periodicDoneEventWaitingTableProcessor.isCompleted()) {
             periodicDoneEventWaitingTableProcessor = initializeDoneWaitingTableProcessor()
             log.info("periodicDoneEventWaitingTableProcessor har blitt reinstansiert.")
         } else {
             log.warn("periodicDoneEventWaitingTableProcessor kunne ikke bli reinstansiert fordi den fortsatt er aktiv.")
+        }
+    }
+
+    fun reinitializePeriodicConsumerPollingCheck() {
+        if (periodicConsumerPollingCheck.isCompleted()) {
+            periodicConsumerPollingCheck = initializePeriodicConsumerPollingCheck()
+            log.info("periodicConsumerPollingCheck har blitt reinstansiert.")
+        } else {
+            log.warn("periodicConsumerPollingCheck kunne ikke bli reinstansiert fordi den fortsatt er aktiv.")
         }
     }
 
