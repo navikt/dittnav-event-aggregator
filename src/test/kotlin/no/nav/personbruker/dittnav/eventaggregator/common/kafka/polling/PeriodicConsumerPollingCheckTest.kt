@@ -51,9 +51,8 @@ class PeriodicConsumerPollingCheckTest {
         }
     }
 
-
     @Test
-    fun `Skal kalle paa restartPolling hvis en eller flere konsumere har sluttet aa polle`() {
+    fun `Skal kalle paa restartPolling hvis en eller flere konsumere har sluttet aa kjore`() {
         coEvery { appContext.beskjedConsumer.isStopped() } returns true
         coEvery { appContext.doneConsumer.isStopped() } returns false
         coEvery { appContext.oppgaveConsumer.isStopped() } returns true
@@ -66,4 +65,17 @@ class PeriodicConsumerPollingCheckTest {
         confirmVerified(KafkaConsumerSetup)
     }
 
+    @Test
+    fun `Skal ikke restarte polling hvis alle konsumere kjorer`() {
+        coEvery { appContext.beskjedConsumer.isStopped() } returns false
+        coEvery { appContext.doneConsumer.isStopped() } returns false
+        coEvery { appContext.oppgaveConsumer.isStopped() } returns false
+
+        runBlocking {
+            periodicConsumerPollingCheck.checkIfConsumersAreRunningAndRestartIfNot()
+        }
+
+        coVerify(exactly = 0) { KafkaConsumerSetup.restartPolling(appContext) }
+        confirmVerified(KafkaConsumerSetup)
+    }
 }
