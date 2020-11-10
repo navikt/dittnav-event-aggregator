@@ -31,23 +31,19 @@ class StatusoppdateringEventService(
         metricsProbe.runWithMetrics(eventType = STATUSOPPDATERING) {
             events.forEach { event ->
                 try {
-                    val internalEvent = StatusoppdateringTransformer.toInternal(event.getNonNullKey(), event.value())
-                    successfullyTransformedEvents.add(internalEvent)
-                    countSuccessfulEventForProducer(event.systembruker)
-
+                    val internalEventKey = event.getNonNullKey()
+                    val internalEventValue = StatusoppdateringTransformer.toInternal(internalEventKey, event.value())
+                    successfullyTransformedEvents.add(internalEventValue)
+                    countSuccessfulEventForProducer(internalEventKey.getSystembruker())
                 } catch (nne: NokkelNullException) {
                     countFailedEventForProducer("NoProducerSpecified")
                     log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", nne)
-
                 } catch (fve: FieldValidationException) {
-                    countFailedEventForProducer(event.systembruker)
-                    val eventId = event.getNonNullKey().getEventId()
-                    val systembruker = event.getNonNullKey().getSystembruker()
-                    val msg = "Klarte ikke transformere eventet pga en valideringsfeil. EventId: $eventId, systembruker: $systembruker, ${fve.toString()}"
+                    countFailedEventForProducer(event.systembruker ?: "NoProducerSpecified")
+                    val msg = "Klarte ikke transformere eventet pga en valideringsfeil. EventId: ${event.eventId}, systembruker: ${event.systembruker}, $fve"
                     log.warn(msg, fve)
-
                 } catch (e: Exception) {
-                    countFailedEventForProducer(event.systembruker)
+                    countFailedEventForProducer(event.systembruker ?: "NoProducerSpecified")
                     problematicEvents.add(event)
                     log.warn("Transformasjon av statusoppdaterings-event fra Kafka feilet, fullfører batch-en før pollig stoppes.", e)
                 }

@@ -44,6 +44,10 @@ class Consumer<T>(
         return job.isCompleted
     }
 
+    fun isStopped(): Boolean {
+        return !job.isActive
+    }
+
     override suspend fun status(): HealthStatus {
         val serviceName = topic + "consumer"
         return if (job.isActive) {
@@ -52,10 +56,6 @@ class Consumer<T>(
             log.error("Selftest mot Kafka-consumere feilet, consumer kjører ikke.")
             HealthStatus(serviceName, Status.ERROR, "Consumer is not running", includeInReadiness = false)
         }
-    }
-
-    fun isStopped(): Boolean {
-        return !job.isActive
     }
 
     fun startPolling() {

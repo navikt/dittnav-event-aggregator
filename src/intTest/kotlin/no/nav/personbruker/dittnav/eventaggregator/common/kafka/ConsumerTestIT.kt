@@ -7,11 +7,11 @@ import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.common.SimpleEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.common.ThrowingEventCounterService
+import no.nav.personbruker.dittnav.eventaggregator.common.config.KafkaEmbed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util.KafkaTestUtil
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be greater than`
@@ -32,7 +32,7 @@ class ConsumerTestIT {
 
         val embeddedEnv = KafkaTestUtil.createKafkaEmbeddedInstanceWithNumPartitions(listOf(topic), 4)
         val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
-        val consumerProps = Kafka.consumerProps(testEnvironment, EventType.BESKJED, true).apply {
+        val consumerProps = KafkaEmbed.consumerProps(testEnvironment, EventType.BESKJED, true).apply {
             put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1)
         }
 
@@ -60,7 +60,7 @@ class ConsumerTestIT {
 
         val embeddedEnv = KafkaTestUtil.createKafkaEmbeddedInstanceWithNumPartitions(listOf(topic), 4)
         val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
-        val consumerProps = Kafka.consumerProps(testEnvironment, EventType.BESKJED, true).apply {
+        val consumerProps = KafkaEmbed.consumerProps(testEnvironment, EventType.BESKJED, true).apply {
             put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1)
         }
 
@@ -88,7 +88,7 @@ class ConsumerTestIT {
 
         val embeddedEnv = KafkaTestUtil.createKafkaEmbeddedInstanceWithNumPartitions(listOf(topic), 4)
         val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
-        val consumerProps = Kafka.consumerProps(testEnvironment, EventType.BESKJED, true).apply {
+        val consumerProps = KafkaEmbed.consumerProps(testEnvironment, EventType.BESKJED, true).apply {
             put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1)
         }
 
