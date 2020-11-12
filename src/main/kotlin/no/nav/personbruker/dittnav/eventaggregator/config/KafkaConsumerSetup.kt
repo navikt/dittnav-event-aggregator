@@ -36,6 +36,12 @@ object KafkaConsumerSetup {
         log.info("...ferdig med å stoppe kafka-pollerne.")
     }
 
+    suspend fun restartPolling(appContext: ApplicationContext) {
+        stopAllKafkaConsumers(appContext)
+        appContext.reinitializeConsumers()
+        startAllKafkaPollers(appContext)
+    }
+
     fun setupConsumerForTheBeskjedTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<Beskjed>): Consumer<Beskjed> {
         val kafkaConsumer = KafkaConsumer<Nokkel, Beskjed>(kafkaProps)
         return Consumer(Kafka.beskjedTopicName, kafkaConsumer, eventProcessor)

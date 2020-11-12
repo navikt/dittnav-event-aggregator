@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.polling
+package no.nav.personbruker.dittnav.eventaggregator.common.kafka.polling
 
 import io.ktor.application.call
 import io.ktor.http.ContentType
@@ -12,7 +12,7 @@ fun Routing.pollingApi(appContext: ApplicationContext) {
 
     get("/internal/polling/start") {
         val responseText = "Polling etter eventer har blitt startet."
-        appContext.restartPolling()
+        KafkaConsumerSetup.restartPolling(appContext)
         call.respondText(text = responseText, contentType = ContentType.Text.Plain)
     }
 
@@ -24,14 +24,14 @@ fun Routing.pollingApi(appContext: ApplicationContext) {
 
     get("/internal/polling/checker/start") {
         val responseText = "Startet jobben som sjekker om konsumerne kjører."
-        appContext.reinitializePeriodicConsumerChecker()
-        appContext.periodicConsumerChecker.start()
+        appContext.reinitializePeriodicConsumerPollingCheck()
+        appContext.periodicConsumerPollingCheck.start()
         call.respondText(text = responseText, contentType = ContentType.Text.Plain)
     }
 
     get("/internal/polling/checker/stop") {
         val responseText = "Stoppet jobben som sjekker om konsumerne kjører."
-        appContext.periodicConsumerChecker.stop()
+        appContext.periodicConsumerPollingCheck.stop()
         call.respondText(text = responseText, contentType = ContentType.Text.Plain)
     }
 

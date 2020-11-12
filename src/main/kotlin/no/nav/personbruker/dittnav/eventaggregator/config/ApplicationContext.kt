@@ -4,6 +4,7 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedEventService
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.polling.PeriodicConsumerPollingCheck
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneEventService
 import no.nav.personbruker.dittnav.eventaggregator.done.DonePersistingService
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
@@ -17,7 +18,6 @@ import no.nav.personbruker.dittnav.eventaggregator.metrics.buildDBMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildEventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveEventService
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
-import no.nav.personbruker.dittnav.eventaggregator.polling.PeriodicConsumerChecker
 import no.nav.personbruker.dittnav.eventaggregator.statusoppdatering.StatusoppdateringEventService
 import no.nav.personbruker.dittnav.eventaggregator.statusoppdatering.StatusoppdateringRepository
 import org.slf4j.LoggerFactory
@@ -65,7 +65,7 @@ class ApplicationContext {
     var statusoppdateringConsumer = initializeStatusoppdateringConsumer()
 
     var periodicDoneEventWaitingTableProcessor = initializeDoneWaitingTableProcessor()
-    var periodicConsumerChecker = initializePeriodicConsumerChecker()
+    var periodicConsumerPollingCheck = initializePeriodicConsumerPollingCheck()
 
     val healthService = HealthService(this)
 
@@ -84,6 +84,9 @@ class ApplicationContext {
     private fun initializeStatusoppdateringConsumer() =
             KafkaConsumerSetup.setupConsumerForTheStatusoppdateringTopic(statusoppdateringKafkaProps, statusoppdateringEventProcessor)
 
+    private fun initializeDoneWaitingTableProcessor() = PeriodicDoneEventWaitingTableProcessor(donePersistingService, dbMetricsProbe)
+
+    private fun initializePeriodicConsumerPollingCheck() = PeriodicConsumerPollingCheck(this)
 
     fun reinitializeConsumers() {
         if (beskjedConsumer.isCompleted()) {
@@ -122,8 +125,6 @@ class ApplicationContext {
         }
     }
 
-    private fun initializeDoneWaitingTableProcessor() = PeriodicDoneEventWaitingTableProcessor(donePersistingService, dbMetricsProbe)
-
     fun reinitializeDoneWaitingTableProcessor() {
         if (periodicDoneEventWaitingTableProcessor.isCompleted()) {
             periodicDoneEventWaitingTableProcessor = initializeDoneWaitingTableProcessor()
@@ -133,21 +134,13 @@ class ApplicationContext {
         }
     }
 
-    private fun initializePeriodicConsumerChecker() = PeriodicConsumerChecker(this)
-
-    fun reinitializePeriodicConsumerChecker() {
-        if (periodicConsumerChecker.isCompleted()) {
-            periodicConsumerChecker = initializePeriodicConsumerChecker()
-            log.info("periodicConsumerChecker har blitt reinstansiert.")
+    fun reinitializePeriodicConsumerPollingCheck() {
+        if (periodicConsumerPollingCheck.isCompleted()) {
+            periodicConsumerPollingCheck = initializePeriodicConsumerPollingCheck()
+            log.info("periodicConsumerPollingCheck har blitt reinstansiert.")
         } else {
-            log.warn("periodicConsumerChecker kunne ikke bli reinstansiert fordi den fortsatt er aktiv.")
+            log.warn("periodicConsumerPollingCheck kunne ikke bli reinstansiert fordi den fortsatt er aktiv.")
         }
-    }
-
-    suspend fun restartPolling() {
-        KafkaConsumerSetup.stopAllKafkaConsumers(this)
-        reinitializeConsumers()
-        KafkaConsumerSetup.startAllKafkaPollers(this)
     }
 
 }
