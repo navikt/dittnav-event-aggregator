@@ -2,7 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.config
 
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 import io.netty.util.NetUtil.getHostname
-import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.SwallowSerializationErrorsAvroDeserializer
+import no.nav.personbruker.dittnav.common.util.kafka.serializer.SwallowSerializationErrorsAvroDeserializer
 import no.nav.personbruker.dittnav.eventaggregator.config.ConfigUtil.isCurrentlyRunningOnNais
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
