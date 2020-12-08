@@ -49,7 +49,7 @@ data class Oppgave(
         validateNonNullFieldMaxLength(fodselsnummer, "fodselsnummer", 11)
         validateNonNullFieldMaxLength(grupperingsId, "grupperingsId", 100)
         validateNonNullFieldMaxLength(tekst, "tekst", 500)
-        validateMaxLength(link, "link", 200)
+        validateNonNullFieldMaxLength(link, "link", 200)
         validateSikkerhetsnivaa(sikkerhetsnivaa)
     }
 

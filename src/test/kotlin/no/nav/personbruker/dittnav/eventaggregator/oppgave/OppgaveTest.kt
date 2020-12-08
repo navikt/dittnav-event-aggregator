@@ -148,6 +148,25 @@ class OppgaveTest {
     }
 
     @Test
+    fun `do not allow empty link`() {
+        val emptyLink = ""
+        invoking {
+            Oppgave(
+                    systembruker = validSystembruker,
+                    eventTidspunkt = eventTidspunkt,
+                    fodselsnummer = validFodselsnummer,
+                    eventId = validEventId,
+                    grupperingsId = validGrupperingsId,
+                    tekst = validTekst,
+                    link = emptyLink,
+                    sistOppdatert = sistOppdatert,
+                    sikkerhetsnivaa = validSikkerhetsnivaa,
+                    aktiv = true,
+                    eksternVarsling = false)
+        } `should throw` FieldValidationException::class `with message containing` "link"
+    }
+
+    @Test
     fun `do not allow invalid sikkerhetsnivaa`() {
         val invalidSikkerhetsnivaa = 2
         invoking {
