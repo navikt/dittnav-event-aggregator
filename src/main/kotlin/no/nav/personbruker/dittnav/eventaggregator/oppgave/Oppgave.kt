@@ -1,8 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
-import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateMaxLength
-import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateNonNullFieldMaxLength
-import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateSikkerhetsnivaa
+import no.nav.brukernotifikasjon.schemas.builders.domain.Eventtype
+import no.nav.brukernotifikasjon.schemas.builders.util.ValidationUtil
 import java.time.LocalDateTime
 
 data class Oppgave(
@@ -44,13 +43,14 @@ data class Oppgave(
             aktiv,
             eksternVarsling
     ) {
-        validateNonNullFieldMaxLength(systembruker, "systembruker", 100)
-        validateNonNullFieldMaxLength(eventId, "eventId", 50)
-        validateNonNullFieldMaxLength(fodselsnummer, "fodselsnummer", 11)
-        validateNonNullFieldMaxLength(grupperingsId, "grupperingsId", 100)
-        validateNonNullFieldMaxLength(tekst, "tekst", 500)
-        validateNonNullFieldMaxLength(link, "link", 200)
-        validateSikkerhetsnivaa(sikkerhetsnivaa)
+        ValidationUtil.validateNonNullFieldMaxLength(systembruker, "systembruker", ValidationUtil.MAX_LENGTH_SYSTEMBRUKER)
+        ValidationUtil.validateNonNullFieldMaxLength(eventId, "eventId", ValidationUtil.MAX_LENGTH_EVENTID)
+        ValidationUtil.validateNonNullFieldMaxLength(fodselsnummer, "fodselsnummer", ValidationUtil.MAX_LENGTH_FODSELSNUMMER)
+        ValidationUtil.validateNonNullFieldMaxLength(grupperingsId, "grupperingsId", ValidationUtil.MAX_LENGTH_GRUPPERINGSID)
+        ValidationUtil.validateNonNullFieldMaxLength(tekst, "tekst", ValidationUtil.MAX_LENGTH_TEXT_OPPGAVE)
+        ValidationUtil.validateLinkAndConvertToString(ValidationUtil.validateLinkAndConvertToURL(link), "link", ValidationUtil.MAX_LENGTH_LINK, ValidationUtil.isLinkRequired(Eventtype.OPPGAVE))
+        ValidationUtil.validateSikkerhetsnivaa(sikkerhetsnivaa)
+        ValidationUtil.validateEksternvarsling(eksternVarsling)
     }
 
     override fun toString(): String {

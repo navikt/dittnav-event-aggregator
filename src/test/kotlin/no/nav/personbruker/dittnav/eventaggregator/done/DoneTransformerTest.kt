@@ -1,7 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldValidationException
+import no.nav.brukernotifikasjon.schemas.builders.exception.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.done.schema.AvroDoneObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import org.amshove.kluent.`should be equal to`

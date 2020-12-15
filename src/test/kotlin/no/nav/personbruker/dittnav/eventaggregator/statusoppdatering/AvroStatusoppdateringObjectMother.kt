@@ -7,7 +7,7 @@ object AvroStatusoppdateringObjectMother {
 
     private val defaultLopenummer = 1
     private val defaultFodselsnr = "12345"
-    private val defaultLink = "dummyLink"
+    private val defaultLink = "http://dummyLink"
     private val defaultSikkerhetsnivaa = 4
     private val defaultStatusGlobal = "SENDT"
     private val defaultStatusIntern = "dummyStatusIntern"

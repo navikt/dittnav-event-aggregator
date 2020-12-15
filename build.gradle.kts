@@ -38,7 +38,7 @@ val intTestImplementation by configurations.getting {
 configurations["intTestRuntimeOnly"].extendsFrom(configurations.testRuntimeOnly.get())
 
 dependencies {
-    implementation(Brukernotifikasjon.schemas)
+    implementation("com.github.navikt:brukernotifikasjon-schemas:test-builder-eksternvarsling_v4")
     implementation(DittNAV.Common.utils)
     implementation(Flyway.core)
     implementation(Hikari.cp)

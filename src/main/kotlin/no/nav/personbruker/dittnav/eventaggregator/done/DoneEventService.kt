@@ -2,9 +2,9 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 
 import no.nav.brukernotifikasjon.schemas.Done
 import no.nav.brukernotifikasjon.schemas.Nokkel
+import no.nav.brukernotifikasjon.schemas.builders.exception.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.NokkelNullException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.getNonNullKey
@@ -52,7 +52,7 @@ class DoneEventService(
             donePersistingService.writeDoneEventsForBeskjedToCache(groupedDoneEvents.foundBeskjed)
             donePersistingService.writeDoneEventsForOppgaveToCache(groupedDoneEvents.foundOppgave)
             donePersistingService.writeDoneEventsForInnboksToCache(groupedDoneEvents.foundInnboks)
-            val writeEventsToCacheResult= donePersistingService.writeEventsToCache(groupedDoneEvents.notFoundEvents)
+            val writeEventsToCacheResult = donePersistingService.writeEventsToCache(groupedDoneEvents.notFoundEvents)
             countDuplicateKeyEvents(writeEventsToCacheResult)
         }
 
