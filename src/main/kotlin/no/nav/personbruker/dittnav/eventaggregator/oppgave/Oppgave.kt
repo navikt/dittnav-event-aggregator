@@ -50,7 +50,6 @@ data class Oppgave(
         ValidationUtil.validateNonNullFieldMaxLength(tekst, "tekst", ValidationUtil.MAX_LENGTH_TEXT_OPPGAVE)
         ValidationUtil.validateLinkAndConvertToString(ValidationUtil.validateLinkAndConvertToURL(link), "link", ValidationUtil.MAX_LENGTH_LINK, ValidationUtil.isLinkRequired(Eventtype.OPPGAVE))
         ValidationUtil.validateSikkerhetsnivaa(sikkerhetsnivaa)
-        ValidationUtil.validateEksternvarsling(eksternVarsling)
     }
 
     override fun toString(): String {

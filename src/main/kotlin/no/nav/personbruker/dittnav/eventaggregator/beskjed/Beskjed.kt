@@ -56,7 +56,6 @@ data class Beskjed(
         ValidationUtil.validateLinkAndConvertToString(ValidationUtil.validateLinkAndConvertToURL(link), "link", ValidationUtil.MAX_LENGTH_LINK, ValidationUtil.isLinkRequired(Eventtype.BESKJED))
         ValidationUtil.validateSikkerhetsnivaa(sikkerhetsnivaa)
         ValidationUtil.validateNonNullFieldMaxLength(uid, "uid", ValidationUtil.MAX_LENGTH_UID)
-        ValidationUtil.validateEksternvarsling(eksternVarsling)
     }
 
     override fun toString(): String {

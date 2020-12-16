@@ -18,14 +18,11 @@ object BeskjedObjectMother {
     }
 
     fun giveMeAktivBeskjed(eventId: String, fodselsnummer: String): Beskjed {
-        val systembruker = "dummySystembruker"
-        val link = "https://nav.no/systemX/$eventId"
-        return giveMeAktivBeskjed(eventId, fodselsnummer, systembruker, link)
+        return giveMeAktivBeskjed(eventId = eventId, fodselsnummer = fodselsnummer, systembruker = "dummySystembruker", link = "https://nav.no/systemX/$eventId")
     }
 
     fun giveMeAktivBeskjed(eventId: String, fodselsnummer: String, systembruker: String): Beskjed {
-        val link = "https://nav.no/systemX/$eventId"
-        return giveMeAktivBeskjed(eventId, fodselsnummer, systembruker, link)
+        return giveMeAktivBeskjed(eventId = eventId, fodselsnummer = fodselsnummer, systembruker =  systembruker, link = "https://nav.no/systemX/$eventId")
     }
 
     fun giveMeAktivBeskjedWithLink(link: String): Beskjed {

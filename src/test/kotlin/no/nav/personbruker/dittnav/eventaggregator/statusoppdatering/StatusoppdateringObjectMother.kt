@@ -6,9 +6,7 @@ import java.time.ZoneId
 object StatusoppdateringObjectMother {
 
     fun giveMeStatusoppdatering(eventId: String, fodselsnummer: String): Statusoppdatering {
-        val systembruker = "dummySystembruker"
-        val link = "https://nav.no/systemX/$eventId"
-        return giveMeStatusoppdatering(eventId, fodselsnummer, systembruker, link)
+        return giveMeStatusoppdatering(eventId = eventId, fodselsnummer = fodselsnummer, systembruker = "dummySystembruker", link = "https://nav.no/systemX/$eventId")
     }
 
     fun giveMeStatusoppdateringWithLink(link: String): Statusoppdatering {
