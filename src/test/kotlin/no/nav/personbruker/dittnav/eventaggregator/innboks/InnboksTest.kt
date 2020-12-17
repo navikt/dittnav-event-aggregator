@@ -1,7 +1,8 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
+import no.nav.brukernotifikasjon.schemas.builders.exception.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.common.`with message containing`
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldValidationException
+import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should contain`
 import org.amshove.kluent.`should throw`
 import org.amshove.kluent.invoking
@@ -124,7 +125,7 @@ class InnboksTest {
 
     @Test
     fun `do not allow too long link`() {
-        val tooLongLink = "L".repeat(201)
+        val tooLongLink = "http://" + "L".repeat(201)
         invoking {
             Innboks(
 
@@ -139,6 +140,31 @@ class InnboksTest {
                     sikkerhetsnivaa = validSikkerhetsnivaa,
                     aktiv = true)
         } `should throw` FieldValidationException::class `with message containing` "link"
+    }
+
+    @Test
+    fun `do not allow invalid link`() {
+        val invalidLink = "invalidUrl"
+        invoking {
+            Innboks(
+
+                    systembruker = validSystembruker,
+                    eventTidspunkt = eventTidspunkt,
+                    fodselsnummer = validFodselsnummer,
+                    eventId = validEventId,
+                    grupperingsId = validGrupperingsId,
+                    tekst = validTekst,
+                    link = invalidLink,
+                    sistOppdatert = sistOppdatert,
+                    sikkerhetsnivaa = validSikkerhetsnivaa,
+                    aktiv = true)
+        } `should throw` FieldValidationException::class `with message containing` "link"
+    }
+
+    @Test
+    fun `should allow empty link`() {
+        val innboks = InnboksObjectMother.giveMeAktivInnboksWithLink("")
+        innboks.link `should be equal to` ""
     }
 
     @Test

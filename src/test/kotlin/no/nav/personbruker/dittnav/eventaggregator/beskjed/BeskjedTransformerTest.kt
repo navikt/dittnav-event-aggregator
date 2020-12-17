@@ -1,7 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldValidationException
+import no.nav.brukernotifikasjon.schemas.builders.exception.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import org.amshove.kluent.*
 import org.junit.jupiter.api.Test

@@ -1,7 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
+import no.nav.brukernotifikasjon.schemas.builders.exception.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.common.`with message containing`
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldValidationException
 import org.amshove.kluent.`should contain`
 import org.amshove.kluent.`should throw`
 import org.amshove.kluent.invoking
@@ -129,7 +129,7 @@ class OppgaveTest {
 
     @Test
     fun `do not allow too long link`() {
-        val tooLongLink = "L".repeat(201)
+        val tooLongLink = "http://" + "L".repeat(201)
         invoking {
             Oppgave(
 
@@ -140,6 +140,26 @@ class OppgaveTest {
                     grupperingsId = validGrupperingsId,
                     tekst = validTekst,
                     link = tooLongLink,
+                    sistOppdatert = sistOppdatert,
+                    sikkerhetsnivaa = validSikkerhetsnivaa,
+                    aktiv = true,
+                    eksternVarsling = false)
+        } `should throw` FieldValidationException::class `with message containing` "link"
+    }
+
+    @Test
+    fun `do not allow invalid link`() {
+        val invalidLink = "invalidUrl"
+        invoking {
+            Oppgave(
+
+                    systembruker = validSystembruker,
+                    eventTidspunkt = eventTidspunkt,
+                    fodselsnummer = validFodselsnummer,
+                    eventId = validEventId,
+                    grupperingsId = validGrupperingsId,
+                    tekst = validTekst,
+                    link = invalidLink,
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
                     aktiv = true,

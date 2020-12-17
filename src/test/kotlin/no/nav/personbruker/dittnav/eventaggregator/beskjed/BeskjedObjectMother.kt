@@ -18,11 +18,18 @@ object BeskjedObjectMother {
     }
 
     fun giveMeAktivBeskjed(eventId: String, fodselsnummer: String): Beskjed {
-        val systembruker = "dummySystembruker"
-        return giveMeAktivBeskjed(eventId, fodselsnummer, systembruker)
+        return giveMeAktivBeskjed(eventId = eventId, fodselsnummer = fodselsnummer, systembruker = "dummySystembruker", link = "https://nav.no/systemX/$eventId")
     }
 
     fun giveMeAktivBeskjed(eventId: String, fodselsnummer: String, systembruker: String): Beskjed {
+        return giveMeAktivBeskjed(eventId = eventId, fodselsnummer = fodselsnummer, systembruker =  systembruker, link = "https://nav.no/systemX/$eventId")
+    }
+
+    fun giveMeAktivBeskjedWithLink(link: String): Beskjed {
+        return giveMeAktivBeskjed(eventId = "B-2", fodselsnummer = "1234", systembruker = "dummySystembruker", link = link)
+    }
+
+    fun giveMeAktivBeskjed(eventId: String, fodselsnummer: String, systembruker: String, link: String): Beskjed {
         return Beskjed(
                 uid = Random.nextInt(1, 100).toString(),
                 systembruker = systembruker,
@@ -32,7 +39,7 @@ object BeskjedObjectMother {
                 eventId = eventId,
                 grupperingsId = "systemA010",
                 tekst = "Dette er beskjed til brukeren",
-                link = "https://nav.no/systemX/$eventId",
+                link = link,
                 sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
                 sikkerhetsnivaa = 4,
                 aktiv = true,

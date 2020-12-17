@@ -1,7 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
 import no.nav.brukernotifikasjon.schemas.Nokkel
-import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateNonNullField
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -15,7 +14,7 @@ object OppgaveTransformer {
                 nokkel.getSystembruker(),
                 nokkel.getEventId(),
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(external.getTidspunkt()), ZoneId.of("UTC")),
-                validateNonNullField(external.getFodselsnummer(), "Fødselsnummer"),
+                external.getFodselsnummer(),
                 external.getGrupperingsId(),
                 external.getTekst(),
                 external.getLink(),

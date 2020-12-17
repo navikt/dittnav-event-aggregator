@@ -1,7 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
-import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateFodselsnummer
-import no.nav.personbruker.dittnav.eventaggregator.common.validation.validateNonNullFieldMaxLength
+import no.nav.brukernotifikasjon.schemas.builders.util.ValidationUtil
 import java.time.LocalDateTime
 
 data class Done(
@@ -13,9 +12,9 @@ data class Done(
 ) {
 
     init {
-        validateNonNullFieldMaxLength(systembruker, "systembruker", 100)
-        validateNonNullFieldMaxLength(eventId, "eventId", 50)
-        validateFodselsnummer(fodselsnummer)
+        ValidationUtil.validateNonNullFieldMaxLength(systembruker, "systembruker", ValidationUtil.MAX_LENGTH_SYSTEMBRUKER)
+        ValidationUtil.validateNonNullFieldMaxLength(eventId, "eventId", ValidationUtil.MAX_LENGTH_EVENTID)
+        ValidationUtil.validateNonNullFieldMaxLength(fodselsnummer, "fodselsnummer", ValidationUtil.MAX_LENGTH_FODSELSNUMMER)
     }
 
     override fun toString(): String {

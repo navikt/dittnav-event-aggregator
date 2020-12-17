@@ -1,7 +1,8 @@
 package no.nav.personbruker.dittnav.eventaggregator.statusoppdatering
 
+import no.nav.brukernotifikasjon.schemas.builders.exception.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.common.`with message containing`
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.FieldValidationException
+import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should contain`
 import org.amshove.kluent.`should throw`
 import org.amshove.kluent.invoking
@@ -110,7 +111,7 @@ class StatusoppdateringTest {
 
     @Test
     fun `do not allow too long link`() {
-        val tooLongLink = "L".repeat(201)
+        val tooLongLink = "http://" + "L".repeat(201)
         invoking {
             Statusoppdatering(
                     systembruker = validSystembruker,
@@ -125,6 +126,31 @@ class StatusoppdateringTest {
                     statusIntern = validStatusIntern,
                     sakstema = validSakstema)
         } `should throw` FieldValidationException::class `with message containing` "link"
+    }
+
+    @Test
+    fun `do not allow invalid link`() {
+        val invalidLink = "invalidUrl"
+        invoking {
+            Statusoppdatering(
+                    systembruker = validSystembruker,
+                    eventId = validEventId,
+                    eventTidspunkt = eventTidspunkt,
+                    fodselsnummer = validFodselsnummer,
+                    grupperingsId = validGrupperingsId,
+                    link = invalidLink,
+                    sistOppdatert = sistOppdatert,
+                    sikkerhetsnivaa = validSikkerhetsnivaa,
+                    statusGlobal = validStatusGlobal,
+                    statusIntern = validStatusIntern,
+                    sakstema = validSakstema)
+        } `should throw` FieldValidationException::class `with message containing` "link"
+    }
+
+    @Test
+    fun `should allow empty link`() {
+        val statusoppdatering = StatusoppdateringObjectMother.giveMeStatusoppdateringWithLink("")
+        statusoppdatering.link `should be equal to` ""
     }
 
     @Test

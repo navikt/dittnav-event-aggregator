@@ -10,10 +10,18 @@ object InnboksObjectMother {
     }
 
     fun giveMeAktivInnboks(eventId: String, fodselsnummer: String): Innboks {
-        return giveMeAktivInnboks(eventId, fodselsnummer, "dummySystembruker")
+        return giveMeAktivInnboks(eventId = eventId, fodselsnummer = fodselsnummer, "dummySystembruker", "https://nav.no/systemX/")
     }
 
     fun giveMeAktivInnboks(eventId: String, fodselsnummer: String, systembruker: String): Innboks {
+        return giveMeAktivInnboks(eventId = eventId, fodselsnummer = fodselsnummer, systembruker = systembruker, link = "https://nav.no/systemX/")
+    }
+
+    fun giveMeAktivInnboksWithLink(link: String): Innboks {
+        return giveMeAktivInnboks(eventId = "i-2", fodselsnummer = "123", systembruker = "dummySystembruker", link = link)
+    }
+
+    fun giveMeAktivInnboks(eventId: String, fodselsnummer: String, systembruker: String, link: String): Innboks {
         return Innboks(
                 systembruker,
                 eventId,
@@ -21,7 +29,7 @@ object InnboksObjectMother {
                 fodselsnummer,
                 "76543",
                 "Dette er innboksnotifikasjon til brukeren",
-                "https://nav.no/systemX/",
+                link,
                 4,
                 LocalDateTime.now(ZoneId.of("UTC")),
                 true)
