@@ -23,3 +23,5 @@ fun getEnvVar(varName: String): String {
 }
 
 fun isOtherEnvironmentThanProd() = System.getenv("NAIS_CLUSTER_NAME") != "prod-sbs"
+
+fun isProdEnvironment() = System.getenv("NAIS_CLUSTER_NAME") == "prod-sbs"

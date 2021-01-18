@@ -10,6 +10,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.NokkelNullE
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.getNonNullKey
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType.OPPGAVE
+import no.nav.personbruker.dittnav.eventaggregator.config.isProdEnvironment
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsSession
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -32,6 +33,7 @@ class OppgaveEventService(
                 try {
                     val internalEventKey = event.getNonNullKey()
                     val internalEventValue = OppgaveTransformer.toInternal(internalEventKey, event.value())
+                    logErrorHvisEksternVarslingIProd(internalEventKey, internalEventValue)
                     successfullyTransformedEvents.add(internalEventValue)
                     countSuccessfulEventForProducer(internalEventKey.getSystembruker())
                 } catch (e: NokkelNullException) {
@@ -84,4 +86,9 @@ class OppgaveEventService(
         }
     }
 
+    private fun logErrorHvisEksternVarslingIProd(nokkel: Nokkel, oppgave: no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave) {
+        if(isProdEnvironment() && oppgave.eksternVarsling) {
+            log.warn("Ekstern varsling var satt til true for Oppgave med eventId ${nokkel.getEventId()}")
+        }
+    }
 }
