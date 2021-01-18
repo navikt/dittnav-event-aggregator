@@ -34,7 +34,7 @@ class BeskjedEventService(
                 try {
                     val internalEventKey = event.getNonNullKey()
                     val internalEventValue = BeskjedTransformer.toInternal(internalEventKey, event.value())
-                    logErrorHvisEksternVarslingIProd(internalEventKey, internalEventValue)
+                    logWarningHvisEksternVarslingIProd(internalEventKey, internalEventValue)
                     successfullyTransformedEvents.add(internalEventValue)
                     countSuccessfulEventForProducer(internalEventKey.getSystembruker())
                 } catch (nne: NokkelNullException) {
@@ -87,7 +87,7 @@ class BeskjedEventService(
         }
     }
 
-    private fun logErrorHvisEksternVarslingIProd(nokkel: Nokkel, beskjed: no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed) {
+    private fun logWarningHvisEksternVarslingIProd(nokkel: Nokkel, beskjed: no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed) {
         if(isProdEnvironment() && beskjed.eksternVarsling) {
             log.warn("Ekstern varsling var satt til true for Beskjed med eventId ${nokkel.getEventId()}")
         }
