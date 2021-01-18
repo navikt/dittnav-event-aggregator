@@ -89,7 +89,7 @@ class BeskjedEventService(
 
     private fun logErrorHvisEksternVarslingIProd(nokkel: Nokkel, beskjed: no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed) {
         if(isProdEnvironment() && beskjed.eksternVarsling) {
-            log.error("Ekstern varsling var satt til true for Beskjed med eventId ${nokkel.getEventId()}")
+            log.warn("Ekstern varsling var satt til true for Beskjed med eventId ${nokkel.getEventId()}")
         }
     }
 }

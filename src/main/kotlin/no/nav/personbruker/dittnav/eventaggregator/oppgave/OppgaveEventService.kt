@@ -88,7 +88,7 @@ class OppgaveEventService(
 
     private fun logErrorHvisEksternVarslingIProd(nokkel: Nokkel, oppgave: no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave) {
         if(isProdEnvironment() && oppgave.eksternVarsling) {
-            log.error("Ekstern varsling var satt til true for Oppgave med eventId ${nokkel.getEventId()}")
+            log.warn("Ekstern varsling var satt til true for Oppgave med eventId ${nokkel.getEventId()}")
         }
     }
 }
