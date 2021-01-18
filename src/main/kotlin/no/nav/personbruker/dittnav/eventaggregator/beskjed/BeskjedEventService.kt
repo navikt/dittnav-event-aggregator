@@ -10,6 +10,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.NokkelNullE
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.getNonNullKey
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType.BESKJED
+import no.nav.personbruker.dittnav.eventaggregator.config.isProdEnvironment
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsSession
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -33,6 +34,7 @@ class BeskjedEventService(
                 try {
                     val internalEventKey = event.getNonNullKey()
                     val internalEventValue = BeskjedTransformer.toInternal(internalEventKey, event.value())
+                    logErrorHvisEksternVarslingIProd(internalEventKey, internalEventValue)
                     successfullyTransformedEvents.add(internalEventValue)
                     countSuccessfulEventForProducer(internalEventKey.getSystembruker())
                 } catch (nne: NokkelNullException) {
@@ -82,6 +84,12 @@ class BeskjedEventService(
             val exception = UntransformableRecordException(message)
             exception.addContext("antallMislykkedeTransformasjoner", problematicEvents.size)
             throw exception
+        }
+    }
+
+    private fun logErrorHvisEksternVarslingIProd(nokkel: Nokkel, beskjed: no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed) {
+        if(isProdEnvironment() && beskjed.eksternVarsling) {
+            log.error("Ekstern varsling var satt til true for Beskjed med eventId ${nokkel.getEventId()}")
         }
     }
 }
