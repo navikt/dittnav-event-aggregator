@@ -1,8 +1,0 @@
-{
-  "namespace": "personbruker",
-  "cluster": "prod",
-  "environment": "prod",
-  "ingresses": [
-    "https://dittnav-event-aggregator.nais.oera.no"
-  ]
-}
