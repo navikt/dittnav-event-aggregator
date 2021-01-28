@@ -5,6 +5,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.common.KafkaEnvironment
+import no.nav.personbruker.dittnav.common.metrics.StubMetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.*
 import no.nav.personbruker.dittnav.eventaggregator.common.config.KafkaEmbed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
@@ -12,11 +13,9 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
 import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util.KafkaTestUtil
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameResolver
 import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameScrubber
-import no.nav.personbruker.dittnav.eventaggregator.metrics.StubMetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import org.amshove.kluent.`should be equal to`
 import org.apache.kafka.clients.consumer.KafkaConsumer
