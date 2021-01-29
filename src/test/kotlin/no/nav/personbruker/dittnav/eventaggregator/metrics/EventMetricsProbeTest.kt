@@ -2,11 +2,8 @@ package no.nav.personbruker.dittnav.eventaggregator.metrics
 
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
+import no.nav.personbruker.dittnav.common.metrics.MetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.KAFKA_EVENTS_BATCH
-import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.KAFKA_EVENTS_FAILED
-import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.KAFKA_EVENTS_PROCESSED
-import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.KAFKA_EVENTS_SEEN
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

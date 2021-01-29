@@ -2,9 +2,9 @@ package no.nav.personbruker.dittnav.eventaggregator.metrics
 
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
+import no.nav.personbruker.dittnav.common.metrics.MetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
-import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.DB_EVENTS_CACHED
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

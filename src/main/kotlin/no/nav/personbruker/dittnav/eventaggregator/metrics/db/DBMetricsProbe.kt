@@ -1,10 +1,10 @@
 package no.nav.personbruker.dittnav.eventaggregator.metrics.db
 
+import no.nav.personbruker.dittnav.common.metrics.MetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import no.nav.personbruker.dittnav.eventaggregator.metrics.MetricsReporter
+import no.nav.personbruker.dittnav.eventaggregator.metrics.DB_EVENTS_CACHED
 import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameScrubber
 import no.nav.personbruker.dittnav.eventaggregator.metrics.PrometheusMetricsCollector
-import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.DB_EVENTS_CACHED
 
 class DBMetricsProbe(private val metricsReporter: MetricsReporter,
                      private val nameScrubber: ProducerNameScrubber) {

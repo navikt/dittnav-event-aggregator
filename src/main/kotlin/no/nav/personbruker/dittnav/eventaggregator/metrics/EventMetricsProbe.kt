@@ -1,7 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.metrics
 
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import no.nav.personbruker.dittnav.eventaggregator.metrics.influx.*
+import no.nav.personbruker.dittnav.common.metrics.MetricsReporter
 
 class EventMetricsProbe(private val metricsReporter: MetricsReporter,
                         private val nameScrubber: ProducerNameScrubber) {
