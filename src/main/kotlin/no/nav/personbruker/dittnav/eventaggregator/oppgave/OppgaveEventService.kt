@@ -33,7 +33,6 @@ class OppgaveEventService(
                 try {
                     val internalEventKey = event.getNonNullKey()
                     val internalEventValue = OppgaveTransformer.toInternal(internalEventKey, event.value())
-                    logWarningHvisEksternVarslingIProd(internalEventKey, internalEventValue)
                     successfullyTransformedEvents.add(internalEventValue)
                     countSuccessfulEventForProducer(internalEventKey.getSystembruker())
                 } catch (e: NokkelNullException) {
@@ -86,9 +85,4 @@ class OppgaveEventService(
         }
     }
 
-    private fun logWarningHvisEksternVarslingIProd(nokkel: Nokkel, oppgave: no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave) {
-        if(isProdEnvironment() && oppgave.eksternVarsling) {
-            log.warn("Ekstern varsling var satt til true for Oppgave med eventId ${nokkel.getEventId()}")
-        }
-    }
 }
