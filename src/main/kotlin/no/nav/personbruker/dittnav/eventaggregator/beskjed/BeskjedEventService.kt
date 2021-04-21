@@ -34,7 +34,6 @@ class BeskjedEventService(
                 try {
                     val internalEventKey = event.getNonNullKey()
                     val internalEventValue = BeskjedTransformer.toInternal(internalEventKey, event.value())
-                    logWarningHvisEksternVarslingIProd(internalEventKey, internalEventValue)
                     successfullyTransformedEvents.add(internalEventValue)
                     countSuccessfulEventForProducer(internalEventKey.getSystembruker())
                 } catch (nne: NokkelNullException) {
