@@ -42,3 +42,4 @@ private suspend fun isReady(healthService: HealthService): Boolean {
             .filter { healthStatus -> healthStatus.includeInReadiness }
             .all { healthStatus -> Status.OK == healthStatus.status }
 }
+
