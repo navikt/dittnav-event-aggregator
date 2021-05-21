@@ -11,7 +11,6 @@ import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsSession
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should throw`
-import org.amshove.kluent.any
 import org.amshove.kluent.invoking
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
@@ -107,7 +106,7 @@ class BeskjedEventServiceTest {
         val records = ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(numberOfRecords, "beskjed")
         val slot = slot<suspend EventMetricsSession.() -> Unit>()
 
-        coEvery{ persistingService.writeEventsToCache(any()) } returns emptyPersistResult()
+        coEvery { persistingService.writeEventsToCache(any()) } returns emptyPersistResult()
 
         coEvery { metricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
             slot.captured.invoke(metricsSession)
@@ -117,54 +116,7 @@ class BeskjedEventServiceTest {
             eventService.processEvents(records)
         }
 
-        coVerify (exactly = numberOfRecords) { metricsSession.countSuccessfulEventForProducer(any()) }
-    }
-
-    @Test
-    fun `skal forkaste eventer som mangler tekst i tekstfeltet`() {
-        val beskjedWithoutText = AvroBeskjedObjectMother.createBeskjedWithText("")
-        val cr = ConsumerRecordsObjectMother.createConsumerRecord("beskjed", beskjedWithoutText)
-        val records = ConsumerRecordsObjectMother.giveMeConsumerRecordsWithThisConsumerRecord(cr)
-
-        val slot = slot<suspend EventMetricsSession.() -> Unit>()
-        coEvery { metricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
-            slot.captured.invoke(metricsSession)
-        }
-
-        val capturedNumberOfEntitiesWrittenToTheDb = slot<List<Beskjed>>()
-        coEvery { persistingService.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns emptyPersistResult()
-
-        runBlocking {
-            eventService.processEvents(records)
-        }
-
-        capturedNumberOfEntitiesWrittenToTheDb.captured.size `should be` 0
-
-        coVerify (exactly = 1) { metricsSession.countFailedEventForProducer(any()) }
-    }
-
-    @Test
-    fun `skal forkaste eventer som har valideringsfeil`() {
-        val tooLongText = "A".repeat(501)
-        val beskjedWithTooLongText = AvroBeskjedObjectMother.createBeskjedWithText(tooLongText)
-        val cr = ConsumerRecordsObjectMother.createConsumerRecord("beskjed", beskjedWithTooLongText)
-        val records = ConsumerRecordsObjectMother.giveMeConsumerRecordsWithThisConsumerRecord(cr)
-
-        val slot = slot<suspend EventMetricsSession.() -> Unit>()
-        coEvery { metricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
-            slot.captured.invoke(metricsSession)
-        }
-
-        val capturedNumberOfEntitiesWrittenToTheDb = slot<List<Beskjed>>()
-        coEvery { persistingService.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns emptyPersistResult()
-
-        runBlocking {
-            eventService.processEvents(records)
-        }
-
-        capturedNumberOfEntitiesWrittenToTheDb.captured.size `should be` 0
-
-        coVerify (exactly = 1) { metricsSession.countFailedEventForProducer(any()) }
+        coVerify(exactly = numberOfRecords) { metricsSession.countSuccessfulEventForProducer(any()) }
     }
 
     private fun createANumberOfTransformedRecords(numberOfRecords: Int): MutableList<Beskjed> {

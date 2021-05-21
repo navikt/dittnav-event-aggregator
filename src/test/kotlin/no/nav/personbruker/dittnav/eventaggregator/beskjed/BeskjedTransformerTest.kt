@@ -1,9 +1,9 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
-import kotlinx.coroutines.runBlocking
-import no.nav.brukernotifikasjon.schemas.builders.exception.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
-import org.amshove.kluent.*
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should be null`
+import org.amshove.kluent.`should not be null`
 import org.junit.jupiter.api.Test
 import java.time.ZoneId
 
@@ -34,52 +34,6 @@ class BeskjedTransformerTest {
         transformed.eksternVarsling `should be equal to` true
         transformed.sistOppdatert.`should not be null`()
         transformed.id.`should be null`()
-    }
-
-    @Test
-    fun `should throw FieldValidationException when fodselsnummer is empty`() {
-        val fodselsnummerEmpty = ""
-        val event = AvroBeskjedObjectMother.createBeskjedWithFodselsnummer(fodselsnummerEmpty)
-
-        invoking {
-            runBlocking {
-                BeskjedTransformer.toInternal(dummyNokkel, event)
-            }
-        } `should throw` FieldValidationException::class
-    }
-
-    @Test
-    fun `should throw FieldValidationException if text field is too long`() {
-        val tooLongText = "A".repeat(301)
-        val event = AvroBeskjedObjectMother.createBeskjedWithText(tooLongText)
-
-        invoking {
-            runBlocking {
-                BeskjedTransformer.toInternal(dummyNokkel, event)
-            }
-        } `should throw` FieldValidationException::class
-    }
-
-    @Test
-    fun `should allow text length up to the limit`() {
-        val textWithMaxAllowedLength = "B".repeat(300)
-        val event = AvroBeskjedObjectMother.createBeskjedWithText(textWithMaxAllowedLength)
-
-        runBlocking {
-            BeskjedTransformer.toInternal(dummyNokkel, event)
-        }
-    }
-
-    @Test
-    fun `should not allow empty text`() {
-        val emptyText = ""
-        val event = AvroBeskjedObjectMother.createBeskjedWithText(emptyText)
-
-        invoking {
-            runBlocking {
-                BeskjedTransformer.toInternal(dummyNokkel, event)
-            }
-        } `should throw` FieldValidationException::class
     }
 
     @Test
