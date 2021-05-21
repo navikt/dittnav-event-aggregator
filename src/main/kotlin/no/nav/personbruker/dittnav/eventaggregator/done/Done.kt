@@ -11,12 +11,6 @@ data class Done(
         val grupperingsId: String
 ) {
 
-    init {
-        ValidationUtil.validateNonNullFieldMaxLength(systembruker, "systembruker", ValidationUtil.MAX_LENGTH_SYSTEMBRUKER)
-        ValidationUtil.validateNonNullFieldMaxLength(eventId, "eventId", ValidationUtil.MAX_LENGTH_EVENTID)
-        ValidationUtil.validateNonNullFieldMaxLength(fodselsnummer, "fodselsnummer", ValidationUtil.MAX_LENGTH_FODSELSNUMMER)
-    }
-
     override fun toString(): String {
         return "Done(" +
                 "systembruker=***, " +

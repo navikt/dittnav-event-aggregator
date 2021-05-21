@@ -28,17 +28,4 @@ class DoneTransformerTest {
         transformedEventTidspunktAsLong `should be equal to` original.getTidspunkt()
     }
 
-    @Test
-    fun `should throw FieldValidationException when fodselsnummer is empty`() {
-        val fodselsnummer = ""
-        val eventId = "123"
-        val event = AvroDoneObjectMother.createDone(eventId, fodselsnummer)
-        val nokkel = createNokkel(123)
-
-        invoking {
-            runBlocking {
-                DoneTransformer.toInternal(nokkel, event)
-            }
-        } `should throw` FieldValidationException::class
-    }
 }

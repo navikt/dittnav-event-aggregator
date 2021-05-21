@@ -204,23 +204,4 @@ class DoneEventServiceTest {
         coVerify(exactly = 1) { persistingService.writeEventsToCache(emptyList()) }
     }
 
-    @Test
-    fun `skal forkaste eventer som har valideringsfeil`() {
-        val tooLongFodselsnr = "1".repeat(12)
-        val beskjedInDbToMatch = BrukernotifikasjonObjectMother.giveMeBeskjed(tooLongFodselsnr)
-        val records = createMatchingRecords(beskjedInDbToMatch)
-
-        coEvery {
-            persistingService.fetchBrukernotifikasjonerFromViewForEventIds(any())
-        } returns listOf(beskjedInDbToMatch)
-
-        runBlocking {
-            service.processEvents(records)
-        }
-
-        coVerify(exactly = 1) { persistingService.writeDoneEventsForBeskjedToCache(emptyList()) }
-        coVerify(exactly = 1) { persistingService.writeDoneEventsForInnboksToCache(emptyList()) }
-        coVerify(exactly = 1) { persistingService.writeDoneEventsForOppgaveToCache(emptyList()) }
-        coVerify(exactly = 1) { persistingService.writeEventsToCache(emptyList()) }
-    }
 }
