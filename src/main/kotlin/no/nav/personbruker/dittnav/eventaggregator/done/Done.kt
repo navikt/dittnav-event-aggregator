@@ -1,6 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
-import no.nav.brukernotifikasjon.schemas.builders.util.ValidationUtil
 import java.time.LocalDateTime
 
 data class Done(

@@ -1,7 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
-import no.nav.brukernotifikasjon.schemas.builders.domain.Eventtype
-import no.nav.brukernotifikasjon.schemas.builders.util.ValidationUtil
 import java.time.LocalDateTime
 
 data class Oppgave(

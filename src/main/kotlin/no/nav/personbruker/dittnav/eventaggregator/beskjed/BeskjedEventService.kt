@@ -2,7 +2,6 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.Nokkel
-import no.nav.brukernotifikasjon.schemas.builders.exception.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
@@ -10,7 +9,6 @@ import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.NokkelNullE
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.getNonNullKey
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType.BESKJED
-import no.nav.personbruker.dittnav.eventaggregator.config.isProdEnvironment
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsSession
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -39,10 +37,6 @@ class BeskjedEventService(
                 } catch (nne: NokkelNullException) {
                     countFailedEventForProducer("NoProducerSpecified")
                     log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", nne)
-                } catch (fve: FieldValidationException) {
-                    countFailedEventForProducer(event.systembruker ?: "NoProducerSpecified")
-                    val msg = "Klarte ikke transformere eventet pga en valideringsfeil. EventId: ${event.eventId}, systembruker: ${event.systembruker}, $fve"
-                    log.warn(msg, fve)
                 } catch (e: Exception) {
                     countFailedEventForProducer(event.systembruker ?: "NoProducerSpecified")
                     problematicEvents.add(event)

@@ -2,7 +2,6 @@ package no.nav.personbruker.dittnav.eventaggregator.innboks
 
 import no.nav.brukernotifikasjon.schemas.Innboks
 import no.nav.brukernotifikasjon.schemas.Nokkel
-import no.nav.brukernotifikasjon.schemas.builders.exception.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
@@ -37,10 +36,6 @@ class InnboksEventService(
                 } catch (e: NokkelNullException) {
                     countFailedEventForProducer("NoProducerSpecified")
                     log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", e)
-                } catch (fve: FieldValidationException) {
-                    countFailedEventForProducer(event.systembruker ?: "NoProducerSpecified")
-                    val msg = "Eventet kan ikke brukes fordi det inneholder valideringsfeil, eventet vil bli forkastet. EventId: ${event.eventId}, systembruker: ${event.systembruker}, $fve"
-                    log.warn(msg, fve)
                 } catch (e: Exception) {
                     countFailedEventForProducer(event.systembruker ?: "NoProducerSpecified")
                     problematicEvents.add(event)

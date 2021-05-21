@@ -1,9 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.statusoppdatering
 
-import no.nav.brukernotifikasjon.schemas.builders.domain.Eventtype
-import no.nav.brukernotifikasjon.schemas.builders.util.ValidationUtil
-import no.nav.brukernotifikasjon.schemas.builders.util.ValidationUtil.MAX_LENGTH_SAKSTEMA
-import no.nav.brukernotifikasjon.schemas.builders.util.ValidationUtil.MAX_LENGTH_STATUSINTERN
 import java.time.LocalDateTime
 
 data class Statusoppdatering(

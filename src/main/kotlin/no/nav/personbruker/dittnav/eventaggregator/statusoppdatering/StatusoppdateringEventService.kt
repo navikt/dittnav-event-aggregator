@@ -2,7 +2,6 @@ package no.nav.personbruker.dittnav.eventaggregator.statusoppdatering
 
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.brukernotifikasjon.schemas.Statusoppdatering
-import no.nav.brukernotifikasjon.schemas.builders.exception.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
@@ -38,10 +37,6 @@ class StatusoppdateringEventService(
                 } catch (nne: NokkelNullException) {
                     countFailedEventForProducer("NoProducerSpecified")
                     log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", nne)
-                } catch (fve: FieldValidationException) {
-                    countFailedEventForProducer(event.systembruker ?: "NoProducerSpecified")
-                    val msg = "Klarte ikke transformere eventet pga en valideringsfeil. EventId: ${event.eventId}, systembruker: ${event.systembruker}, $fve"
-                    log.warn(msg, fve)
                 } catch (e: Exception) {
                     countFailedEventForProducer(event.systembruker ?: "NoProducerSpecified")
                     problematicEvents.add(event)
