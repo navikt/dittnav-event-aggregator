@@ -8,8 +8,8 @@ interface EventBatchProcessorService<T> {
 
     suspend fun processEvents(events: ConsumerRecords<NokkelIntern, T>)
 
-    val ConsumerRecord<NokkelIntern, T>.systembruker: String? get() = key()?.getSystembruker()
+    val ConsumerRecord<NokkelIntern, T>.systembruker: String get() = key().getSystembruker()
 
-    val ConsumerRecord<NokkelIntern, T>.eventId: String? get() = key()?.getEventId()
+    val ConsumerRecord<NokkelIntern, T>.eventId: String get() = key().getEventId()
 
 }

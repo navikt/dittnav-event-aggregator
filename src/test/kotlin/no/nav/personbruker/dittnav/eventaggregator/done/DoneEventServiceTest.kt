@@ -122,27 +122,6 @@ class DoneEventServiceTest {
     }
 
     @Test
-    fun `skal ignorere event med ugyldig nokkel`() {
-        val beskjedEventInDbToMatch = BrukernotifikasjonObjectMother.giveMeBeskjed(dummyFnr)
-        val matchingDoneEvent = AvroDoneObjectMother.createDone(beskjedEventInDbToMatch.eventId)
-        val doneEventWithoutKey = AvroDoneObjectMother.createDoneRecord(null, matchingDoneEvent)
-        val records = ConsumerRecordsObjectMother.giveMeConsumerRecordsWithThisConsumerRecord(doneEventWithoutKey)
-
-        coEvery {
-            persistingService.fetchBrukernotifikasjonerFromViewForEventIds(any())
-        } returns listOf(beskjedEventInDbToMatch)
-
-        runBlocking {
-            service.processEvents(records)
-        }
-
-        coVerify(exactly = 1) { persistingService.writeDoneEventsForOppgaveToCache(emptyList()) }
-        coVerify(exactly = 1) { persistingService.writeDoneEventsForInnboksToCache(emptyList()) }
-        coVerify(exactly = 1) { persistingService.writeDoneEventsForBeskjedToCache(emptyList()) }
-        coVerify(exactly = 1) { persistingService.writeEventsToCache(emptyList()) }
-    }
-
-    @Test
     fun `skal skrive done-eventer det ikke blir funnet match for inn i ventetabellen`() {
         val beskjedInDbToMatch = BrukernotifikasjonObjectMother.giveMeBeskjed(dummyFnr)
         val doneEvent = AvroDoneObjectMother.createDoneRecord("eventIdUteMatch", beskjedInDbToMatch.fodselsnummer)

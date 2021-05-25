@@ -4,9 +4,7 @@ import no.nav.brukernotifikasjon.schemas.internal.DoneIntern
 import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.NokkelNullException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
-import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.getNonNullKey
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType.DONE
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsSession
@@ -30,15 +28,11 @@ class DoneEventService(
 
             events.forEach { event ->
                 try {
-                    val internalEventKey = event.getNonNullKey()
-                    val internalEventValue = DoneTransformer.toInternal(internalEventKey, event.value())
+                    val internalEventValue = DoneTransformer.toInternal(event.key(), event.value())
                     successfullyTransformedEvents.add(internalEventValue)
-                    countSuccessfulEventForProducer(internalEventKey.getSystembruker())
-                } catch (e: NokkelNullException) {
-                    countFailedEventForProducer("NoProducerSpecified")
-                    log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", e)
+                    countSuccessfulEventForProducer(internalEventValue.systembruker)
                 } catch (e: Exception) {
-                    countFailedEventForProducer(event.systembruker ?: "NoProducerSpecified")
+                    countFailedEventForProducer(event.systembruker)
                     problematicEvents.add(event)
                     log.warn("Transformasjon av done-event fra Kafka feilet.", e)
                 }

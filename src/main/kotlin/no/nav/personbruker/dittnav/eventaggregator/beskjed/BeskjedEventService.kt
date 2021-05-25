@@ -5,9 +5,7 @@ import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.NokkelNullException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
-import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.getNonNullKey
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType.BESKJED
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsSession
@@ -30,15 +28,11 @@ class BeskjedEventService(
         metricsProbe.runWithMetrics(eventType = BESKJED) {
             events.forEach { event ->
                 try {
-                    val internalEventKey = event.getNonNullKey()
-                    val internalEventValue = BeskjedTransformer.toInternal(internalEventKey, event.value())
+                    val internalEventValue = BeskjedTransformer.toInternal(event.key(), event.value())
                     successfullyTransformedEvents.add(internalEventValue)
-                    countSuccessfulEventForProducer(internalEventKey.getSystembruker())
-                } catch (nne: NokkelNullException) {
-                    countFailedEventForProducer("NoProducerSpecified")
-                    log.warn("Eventet manglet nøkkel. Topic: ${event.topic()}, Partition: ${event.partition()}, Offset: ${event.offset()}", nne)
+                    countSuccessfulEventForProducer(internalEventValue.systembruker)
                 } catch (e: Exception) {
-                    countFailedEventForProducer(event.systembruker ?: "NoProducerSpecified")
+                    countFailedEventForProducer(event.systembruker)
                     problematicEvents.add(event)
                     log.warn("Transformasjon av beskjed-event fra Kafka feilet, fullfører batch-en før pollig stoppes.", e)
                 }
