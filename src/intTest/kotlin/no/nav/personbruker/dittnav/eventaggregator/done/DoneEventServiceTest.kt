@@ -28,7 +28,8 @@ import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be false`
 import org.amshove.kluent.shouldBeEmpty
 import org.apache.kafka.clients.consumer.ConsumerRecord
-import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class DoneEventServiceTest {
@@ -47,7 +48,8 @@ class DoneEventServiceTest {
     private val beskjed2 = BeskjedObjectMother.giveMeAktivBeskjed("4", "12345")
     private val nokkel99 = createNokkel(99)
 
-    init {
+    @BeforeEach
+    fun resetMocks() {
         runBlocking {
             database.dbQuery {
                 createBeskjed(beskjed1)
@@ -58,8 +60,8 @@ class DoneEventServiceTest {
         }
     }
 
-    @AfterAll
-    fun tearDown() {
+    @AfterEach
+    fun cleanUp() {
         runBlocking {
             database.dbQuery {
                 deleteAllOppgave()
