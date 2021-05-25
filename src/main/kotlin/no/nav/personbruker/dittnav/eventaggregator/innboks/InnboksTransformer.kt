@@ -1,6 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
-import no.nav.brukernotifikasjon.schemas.Nokkel
+import no.nav.brukernotifikasjon.schemas.internal.InnboksIntern
+import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -9,12 +10,12 @@ object InnboksTransformer {
 
     private const val newRecordsAreActiveByDefault = true
 
-    fun toInternal(nokkel: Nokkel, external: no.nav.brukernotifikasjon.schemas.Innboks): Innboks {
+    fun toInternal(nokkel: NokkelIntern, external: InnboksIntern): Innboks {
         return Innboks(
                 nokkel.getSystembruker(),
                 nokkel.getEventId(),
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(external.getTidspunkt()), ZoneId.of("UTC")),
-                external.getFodselsnummer(),
+                nokkel.getFodselsnummer(),
                 external.getGrupperingsId(),
                 external.getTekst(),
                 external.getLink(),

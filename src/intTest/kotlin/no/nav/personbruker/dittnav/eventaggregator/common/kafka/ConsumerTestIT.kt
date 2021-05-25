@@ -2,8 +2,8 @@ package no.nav.personbruker.dittnav.eventaggregator.common.kafka
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import no.nav.brukernotifikasjon.schemas.Beskjed
-import no.nav.brukernotifikasjon.schemas.Nokkel
+import no.nav.brukernotifikasjon.schemas.internal.BeskjedIntern
+import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.common.SimpleEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.common.ThrowingEventCounterService
@@ -38,8 +38,8 @@ class ConsumerTestIT {
 
         embeddedEnv.start()
 
-        val eventProcessor = ThrowingEventCounterService<Beskjed>()
-        val kafkaConsumer = KafkaConsumer<Nokkel, Beskjed>(consumerProps)
+        val eventProcessor = ThrowingEventCounterService<BeskjedIntern>()
+        val kafkaConsumer = KafkaConsumer<NokkelIntern, BeskjedIntern>(consumerProps)
         val consumer = Consumer(topic, kafkaConsumer, eventProcessor)
 
         runBlocking {
@@ -66,8 +66,8 @@ class ConsumerTestIT {
 
         embeddedEnv.start()
 
-        val eventProcessor = ThrowingEventCounterService<Beskjed>(RetriableDatabaseException("Transient error"), 5)
-        val kafkaConsumer = KafkaConsumer<Nokkel, Beskjed>(consumerProps)
+        val eventProcessor = ThrowingEventCounterService<BeskjedIntern>(RetriableDatabaseException("Transient error"), 5)
+        val kafkaConsumer = KafkaConsumer<NokkelIntern, BeskjedIntern>(consumerProps)
         val consumer = Consumer(topic, kafkaConsumer, eventProcessor)
 
         runBlocking {
@@ -94,8 +94,8 @@ class ConsumerTestIT {
 
         embeddedEnv.start()
 
-        val eventProcessor = ThrowingEventCounterService<Beskjed>(UnretriableDatabaseException("Fatal error"), 5)
-        val kafkaConsumer = KafkaConsumer<Nokkel, Beskjed>(consumerProps)
+        val eventProcessor = ThrowingEventCounterService<BeskjedIntern>(UnretriableDatabaseException("Fatal error"), 5)
+        val kafkaConsumer = KafkaConsumer<NokkelIntern, BeskjedIntern>(consumerProps)
         val consumer = Consumer(topic, kafkaConsumer, eventProcessor)
 
         runBlocking {
@@ -110,7 +110,7 @@ class ConsumerTestIT {
         eventProcessor.invocationCounter `should be equal to` 5
     }
 
-    suspend fun pollUntilDone(consumer: Consumer<Beskjed>) {
+    suspend fun pollUntilDone(consumer: Consumer<BeskjedIntern>) {
         consumer.startPolling()
         while (getProcessedCount(consumer) < beskjedEvents.size && consumer.job.isActive) {
             delay(100)
@@ -118,10 +118,10 @@ class ConsumerTestIT {
         consumer.stopPolling()
     }
 
-    private fun getProcessedCount(consumer: Consumer<Beskjed>): Int {
+    private fun getProcessedCount(consumer: Consumer<BeskjedIntern>): Int {
         val processor = consumer.eventBatchProcessorService
 
-        return when(processor) {
+        return when (processor) {
             is SimpleEventCounterService<*> -> processor.eventCounter
             is ThrowingEventCounterService<*> -> processor.successfulEventsCounter
             else -> 0

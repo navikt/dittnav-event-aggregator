@@ -2,10 +2,10 @@ package no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.consum
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import no.nav.brukernotifikasjon.schemas.Beskjed
-import no.nav.brukernotifikasjon.schemas.Innboks
-import no.nav.brukernotifikasjon.schemas.Nokkel
-import no.nav.brukernotifikasjon.schemas.Oppgave
+import no.nav.brukernotifikasjon.schemas.internal.BeskjedIntern
+import no.nav.brukernotifikasjon.schemas.internal.InnboksIntern
+import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
+import no.nav.brukernotifikasjon.schemas.internal.OppgaveIntern
 import no.nav.common.KafkaEnvironment
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.common.SimpleEventCounterService
@@ -32,9 +32,9 @@ class MultipleTopicsConsumerTest {
     private val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
     private val adminClient = embeddedEnv.adminClient
 
-    private val beskjedEventProcessor = SimpleEventCounterService<Beskjed>()
-    private val oppgaveEventProcessor = SimpleEventCounterService<Oppgave>()
-    private val innboksEventProcessor = SimpleEventCounterService<Innboks>()
+    private val beskjedEventProcessor = SimpleEventCounterService<BeskjedIntern>()
+    private val oppgaveEventProcessor = SimpleEventCounterService<OppgaveIntern>()
+    private val innboksEventProcessor = SimpleEventCounterService<InnboksIntern>()
 
     private val beskjedEvents = (1..10).map { createNokkel(it) to AvroBeskjedObjectMother.createBeskjed(it) }.toMap()
     private val oppgaveEvents = (1..11).map { createNokkel(it) to AvroOppgaveObjectMother.createOppgave(it) }.toMap()
@@ -87,7 +87,7 @@ class MultipleTopicsConsumerTest {
 
             beskjedEvents.size `should be equal to` beskjedEventProcessor.eventCounter
             oppgaveEvents.size `should be equal to` oppgaveEventProcessor.eventCounter
-            innboksEvents.size `should be equal to`  innboksEventProcessor.eventCounter
+            innboksEvents.size `should be equal to` innboksEventProcessor.eventCounter
         }
     }
 
@@ -99,25 +99,25 @@ class MultipleTopicsConsumerTest {
         }
     }
 
-    private fun `Har alle eventer blitt lest`(beskjed: SimpleEventCounterService<Beskjed>, BeskjedEvents: Map<Nokkel, Beskjed>,
-                                              oppgave: SimpleEventCounterService<Oppgave>, oppgaveEvents: Map<Nokkel, Oppgave>,
-                                              innboks: SimpleEventCounterService<Innboks>, innboksEvents: Map<Nokkel, Innboks>): Boolean {
+    private fun `Har alle eventer blitt lest`(beskjed: SimpleEventCounterService<BeskjedIntern>, BeskjedEvents: Map<NokkelIntern, BeskjedIntern>,
+                                              oppgave: SimpleEventCounterService<OppgaveIntern>, oppgaveEvents: Map<NokkelIntern, OppgaveIntern>,
+                                              innboks: SimpleEventCounterService<InnboksIntern>, innboksEvents: Map<NokkelIntern, InnboksIntern>): Boolean {
         return beskjed.eventCounter < BeskjedEvents.size &&
                 oppgave.eventCounter < oppgaveEvents.size &&
                 innboks.eventCounter < innboksEvents.size
     }
 
-    private fun createInfoConsumer(env: Environment, BeskjedEventProcessor: SimpleEventCounterService<Beskjed>): Consumer<Beskjed> {
+    private fun createInfoConsumer(env: Environment, BeskjedEventProcessor: SimpleEventCounterService<BeskjedIntern>): Consumer<BeskjedIntern> {
         val kafkaProps = KafkaEmbed.consumerProps(env, EventType.BESKJED, true)
         return setupConsumerForTheBeskjedTopic(kafkaProps, BeskjedEventProcessor)
     }
 
-    private fun createOppgaveConsumer(env: Environment, oppgaveEventProcessor: SimpleEventCounterService<Oppgave>): Consumer<Oppgave> {
+    private fun createOppgaveConsumer(env: Environment, oppgaveEventProcessor: SimpleEventCounterService<OppgaveIntern>): Consumer<OppgaveIntern> {
         val kafkaProps = KafkaEmbed.consumerProps(env, EventType.OPPGAVE, true)
         return setupConsumerForTheOppgaveTopic(kafkaProps, oppgaveEventProcessor)
     }
 
-    private fun createInnboksConsumer(env: Environment, innboksEventProcessor: SimpleEventCounterService<Innboks>): Consumer<Innboks> {
+    private fun createInnboksConsumer(env: Environment, innboksEventProcessor: SimpleEventCounterService<InnboksIntern>): Consumer<InnboksIntern> {
         val kafkaProps = KafkaEmbed.consumerProps(env, EventType.INNBOKS, true)
         return setupConsumerForTheInnboksTopic(kafkaProps, innboksEventProcessor)
     }

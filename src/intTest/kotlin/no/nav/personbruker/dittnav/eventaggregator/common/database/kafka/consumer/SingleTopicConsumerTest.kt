@@ -2,8 +2,8 @@ package no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.consum
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import no.nav.brukernotifikasjon.schemas.Beskjed
-import no.nav.brukernotifikasjon.schemas.Nokkel
+import no.nav.brukernotifikasjon.schemas.internal.BeskjedIntern
+import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 import no.nav.common.KafkaEnvironment
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.common.SimpleEventCounterService
@@ -45,9 +45,9 @@ class SingleTopicConsumerTest {
     @Test
     fun `Lese inn alle testeventene fra Kafka`() {
         `Produserer noen testeventer`()
-        val eventProcessor = SimpleEventCounterService<Beskjed>()
+        val eventProcessor = SimpleEventCounterService<BeskjedIntern>()
         val consumerProps = KafkaEmbed.consumerProps(testEnvironment, EventType.BESKJED, true)
-        val kafkaConsumer = KafkaConsumer<Nokkel, Beskjed>(consumerProps)
+        val kafkaConsumer = KafkaConsumer<NokkelIntern, BeskjedIntern>(consumerProps)
         val consumer = Consumer(topicen, kafkaConsumer, eventProcessor)
 
         runBlocking {
@@ -67,7 +67,7 @@ class SingleTopicConsumerTest {
         } `should be equal to` true
     }
 
-    private suspend fun `Vent til alle eventer har blitt konsumert`(eventProcessor: SimpleEventCounterService<Beskjed>) {
+    private suspend fun `Vent til alle eventer har blitt konsumert`(eventProcessor: SimpleEventCounterService<BeskjedIntern>) {
         while (`have all events been consumed`(eventProcessor, events)) {
             delay(100)
         }
@@ -75,5 +75,5 @@ class SingleTopicConsumerTest {
 
 }
 
-private fun `have all events been consumed`(eventProcessor: SimpleEventCounterService<Beskjed>, events: Map<Nokkel, Beskjed>) =
+private fun `have all events been consumed`(eventProcessor: SimpleEventCounterService<BeskjedIntern>, events: Map<NokkelIntern, BeskjedIntern>) =
         eventProcessor.eventCounter < events.size

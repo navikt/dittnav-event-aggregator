@@ -38,7 +38,7 @@ val intTestImplementation by configurations.getting {
 configurations["intTestRuntimeOnly"].extendsFrom(configurations.testRuntimeOnly.get())
 
 dependencies {
-    implementation(Brukernotifikasjon.schemas)
+    implementation(Brukernotifikasjon.schemas_internal)
     implementation(DittNAV.Common.utils)
     implementation(DittNAV.Common.influx)
     implementation(Flyway.core)

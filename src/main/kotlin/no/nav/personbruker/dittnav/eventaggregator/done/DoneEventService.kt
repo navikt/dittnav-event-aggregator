@@ -1,7 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
-import no.nav.brukernotifikasjon.schemas.Done
-import no.nav.brukernotifikasjon.schemas.Nokkel
+import no.nav.brukernotifikasjon.schemas.internal.DoneIntern
+import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.NokkelNullException
@@ -18,13 +18,13 @@ import org.slf4j.LoggerFactory
 class DoneEventService(
         private val donePersistingService: DonePersistingService,
         private val eventMetricsProbe: EventMetricsProbe
-) : EventBatchProcessorService<Done> {
+) : EventBatchProcessorService<DoneIntern> {
 
     private val log: Logger = LoggerFactory.getLogger(DoneEventService::class.java)
 
-    override suspend fun processEvents(events: ConsumerRecords<Nokkel, Done>) {
-        val successfullyTransformedEvents = mutableListOf<no.nav.personbruker.dittnav.eventaggregator.done.Done>()
-        val problematicEvents = mutableListOf<ConsumerRecord<Nokkel, Done>>()
+    override suspend fun processEvents(events: ConsumerRecords<NokkelIntern, DoneIntern>) {
+        val successfullyTransformedEvents = mutableListOf<Done>()
+        val problematicEvents = mutableListOf<ConsumerRecord<NokkelIntern, DoneIntern>>()
 
         eventMetricsProbe.runWithMetrics(eventType = DONE) {
 
@@ -54,7 +54,7 @@ class DoneEventService(
         kastExceptionHvisMislykkedeTransformasjoner(problematicEvents)
     }
 
-    private suspend fun groupDoneEventsByAssociatedEventType(successfullyTransformedEvents: List<no.nav.personbruker.dittnav.eventaggregator.done.Done>): DoneBatchProcessor {
+    private suspend fun groupDoneEventsByAssociatedEventType(successfullyTransformedEvents: List<Done>): DoneBatchProcessor {
         val eventIds = successfullyTransformedEvents.map { it.eventId }.distinct()
         val aktiveBrukernotifikasjoner = donePersistingService.fetchBrukernotifikasjonerFromViewForEventIds(eventIds)
         val batch = DoneBatchProcessor(aktiveBrukernotifikasjoner)
@@ -62,7 +62,7 @@ class DoneEventService(
         return batch
     }
 
-    private fun EventMetricsSession.countDuplicateKeyEvents(result: ListPersistActionResult<no.nav.personbruker.dittnav.eventaggregator.done.Done>) {
+    private fun EventMetricsSession.countDuplicateKeyEvents(result: ListPersistActionResult<Done>) {
         if (result.foundConflictingKeys()) {
 
             val constraintErrors = result.getConflictingEntities().size
@@ -81,7 +81,7 @@ class DoneEventService(
         }
     }
 
-    private fun kastExceptionHvisMislykkedeTransformasjoner(problematicEvents: MutableList<ConsumerRecord<Nokkel, Done>>) {
+    private fun kastExceptionHvisMislykkedeTransformasjoner(problematicEvents: MutableList<ConsumerRecord<NokkelIntern, DoneIntern>>) {
         if (problematicEvents.isNotEmpty()) {
             val message = "En eller flere eventer kunne ikke transformeres"
             val exception = UntransformableRecordException(message)

@@ -1,31 +1,26 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
-import no.nav.brukernotifikasjon.schemas.Oppgave
+import no.nav.brukernotifikasjon.schemas.internal.OppgaveIntern
 import java.time.Instant
 
 object AvroOppgaveObjectMother {
 
     private val defaultLopenummer = 1
-    private val defaultFodselsnr = "12345"
     private val defaultTekst = "Dette er oppgave til brukeren"
     private val defaultEksternVarsling = true
 
-    fun createOppgave(lopenummer: Int): Oppgave {
-        return createOppgave(lopenummer, defaultFodselsnr, defaultTekst)
+    fun createOppgave(lopenummer: Int): OppgaveIntern {
+        return createOppgave(lopenummer, defaultTekst)
     }
 
-    fun createOppgave(lopenummer: Int, fodselsnummer: String): Oppgave {
-        return createOppgave(lopenummer, fodselsnummer, defaultTekst)
+    fun createOppgave(tekst: String): OppgaveIntern {
+        return createOppgave(defaultLopenummer, tekst)
     }
 
-    fun createOppgave(tekst: String): Oppgave {
-        return createOppgave(defaultLopenummer, defaultFodselsnr, tekst)
-    }
-
-    fun createOppgave(lopenummer: Int, fodselsnummer: String, tekst: String): Oppgave {
-        return Oppgave(
+    fun createOppgave(lopenummer: Int, tekst: String): OppgaveIntern {
+        return OppgaveIntern(
+                lopenummer.toString(),
                 Instant.now().toEpochMilli(),
-                fodselsnummer,
                 "100$lopenummer",
                 tekst,
                 "https://nav.no/systemX/$lopenummer",

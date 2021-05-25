@@ -4,7 +4,7 @@ import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeoutOrNull
-import no.nav.brukernotifikasjon.schemas.Nokkel
+import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 import no.nav.common.JAAS_PLAIN_LOGIN
 import no.nav.common.JAAS_REQUIRED
 import org.apache.kafka.clients.CommonClientConfigs
@@ -23,10 +23,10 @@ object KafkaConsumerUtil {
             user: String,
             pwd: String,
             noOfEvents: Int
-    ): Map<Nokkel, String> =
+    ): Map<NokkelIntern, String> =
             try {
 
-                KafkaConsumer<Nokkel, String>(
+                KafkaConsumer<NokkelIntern, String>(
                         Properties().apply {
                             set(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokersURL)
                             set(ConsumerConfig.CLIENT_ID_CONFIG, "funKafkaAvroConsume")
@@ -45,7 +45,7 @@ object KafkaConsumerUtil {
                 ).use { c ->
                     c.subscribe(listOf(topic))
 
-                    val fE = mutableMapOf<Nokkel, String>()
+                    val fE = mutableMapOf<NokkelIntern, String>()
 
                     withTimeoutOrNull(10_000) {
 

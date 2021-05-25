@@ -18,7 +18,7 @@ class InnboksTransformerTest {
 
         val internal = InnboksTransformer.toInternal(nokkel, external)
 
-        internal.fodselsnummer `should be equal to` external.getFodselsnummer()
+        internal.fodselsnummer `should be equal to` nokkel.getFodselsnummer()
         internal.grupperingsId `should be equal to` external.getGrupperingsId()
         internal.eventId `should be equal to` nokkel.getEventId()
         internal.link `should be equal to` external.getLink()

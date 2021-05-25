@@ -1,7 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.statusoppdatering
 
-import no.nav.brukernotifikasjon.schemas.Nokkel
-import no.nav.brukernotifikasjon.schemas.Statusoppdatering
+import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
+import no.nav.brukernotifikasjon.schemas.internal.StatusoppdateringIntern
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
@@ -17,15 +17,15 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class StatusoppdateringEventService(
-        private val persistingService: BrukernotifikasjonPersistingService<no.nav.personbruker.dittnav.eventaggregator.statusoppdatering.Statusoppdatering>,
+        private val persistingService: BrukernotifikasjonPersistingService<Statusoppdatering>,
         private val metricsProbe: EventMetricsProbe
-) : EventBatchProcessorService<Statusoppdatering> {
+) : EventBatchProcessorService<StatusoppdateringIntern> {
 
     private val log: Logger = LoggerFactory.getLogger(StatusoppdateringEventService::class.java)
 
-    override suspend fun processEvents(events: ConsumerRecords<Nokkel, Statusoppdatering>) {
-        val successfullyTransformedEvents = mutableListOf<no.nav.personbruker.dittnav.eventaggregator.statusoppdatering.Statusoppdatering>()
-        val problematicEvents = mutableListOf<ConsumerRecord<Nokkel, Statusoppdatering>>()
+    override suspend fun processEvents(events: ConsumerRecords<NokkelIntern, StatusoppdateringIntern>) {
+        val successfullyTransformedEvents = mutableListOf<Statusoppdatering>()
+        val problematicEvents = mutableListOf<ConsumerRecord<NokkelIntern, StatusoppdateringIntern>>()
 
         metricsProbe.runWithMetrics(eventType = STATUSOPPDATERING) {
             events.forEach { event ->
@@ -52,7 +52,7 @@ class StatusoppdateringEventService(
         kastExceptionHvisMislykkedeTransformasjoner(problematicEvents)
     }
 
-    private fun EventMetricsSession.countDuplicateKeyEvents(result: ListPersistActionResult<no.nav.personbruker.dittnav.eventaggregator.statusoppdatering.Statusoppdatering>) {
+    private fun EventMetricsSession.countDuplicateKeyEvents(result: ListPersistActionResult<Statusoppdatering>) {
         if (result.foundConflictingKeys()) {
 
             val constraintErrors = result.getConflictingEntities().size
@@ -71,7 +71,7 @@ class StatusoppdateringEventService(
         }
     }
 
-    private fun kastExceptionHvisMislykkedeTransformasjoner(problematicEvents: MutableList<ConsumerRecord<Nokkel, Statusoppdatering>>) {
+    private fun kastExceptionHvisMislykkedeTransformasjoner(problematicEvents: MutableList<ConsumerRecord<NokkelIntern, StatusoppdateringIntern>>) {
         if (problematicEvents.isNotEmpty()) {
             val message = "En eller flere eventer kunne ikke transformeres"
             val exception = UntransformableRecordException(message)

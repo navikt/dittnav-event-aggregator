@@ -1,6 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
-import no.nav.brukernotifikasjon.schemas.Nokkel
+import no.nav.brukernotifikasjon.schemas.internal.BeskjedIntern
+import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 import no.nav.personbruker.dittnav.eventaggregator.common.validation.timestampToUTCDateOrNull
 import java.time.Instant
 import java.time.LocalDateTime
@@ -11,13 +12,13 @@ object BeskjedTransformer {
 
     private const val newRecordsAreActiveByDefault = true
 
-    fun toInternal(externalNokkel: Nokkel, externalValue: no.nav.brukernotifikasjon.schemas.Beskjed): Beskjed {
+    fun toInternal(externalNokkel: NokkelIntern, externalValue: BeskjedIntern): Beskjed {
         return Beskjed(
                 createRandomStringUUID(),
                 externalNokkel.getSystembruker(),
                 externalNokkel.getEventId(),
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(externalValue.getTidspunkt()), ZoneId.of("UTC")),
-                externalValue.getFodselsnummer(),
+                externalNokkel.getFodselsnummer(),
                 externalValue.getGrupperingsId(),
                 externalValue.getTekst(),
                 externalValue.getLink(),
@@ -33,7 +34,7 @@ object BeskjedTransformer {
         return UUID.randomUUID().toString()
     }
 
-    private fun no.nav.brukernotifikasjon.schemas.Beskjed.synligFremTilAsUTCDateTime(): LocalDateTime? {
+    private fun BeskjedIntern.synligFremTilAsUTCDateTime(): LocalDateTime? {
         return timestampToUTCDateOrNull(getSynligFremTil())
     }
 

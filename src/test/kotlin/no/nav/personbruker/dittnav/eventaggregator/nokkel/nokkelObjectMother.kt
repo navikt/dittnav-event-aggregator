@@ -1,5 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.nokkel
 
-import no.nav.brukernotifikasjon.schemas.Nokkel
+import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 
-fun createNokkel(eventId: Int): Nokkel = Nokkel("dummySystembruker", eventId.toString())
+fun createNokkel(eventId: Int): NokkelIntern = NokkelIntern("dummySystembruker", eventId.toString(), "12345")

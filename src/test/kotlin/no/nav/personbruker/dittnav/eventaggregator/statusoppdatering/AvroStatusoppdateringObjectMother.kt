@@ -1,48 +1,43 @@
 package no.nav.personbruker.dittnav.eventaggregator.statusoppdatering
 
-import no.nav.brukernotifikasjon.schemas.Statusoppdatering
+import no.nav.brukernotifikasjon.schemas.internal.StatusoppdateringIntern
 import java.time.Instant
 
 object AvroStatusoppdateringObjectMother {
 
     private val defaultLopenummer = 1
-    private val defaultFodselsnr = "12345"
     private val defaultLink = "http://dummyLink"
     private val defaultSikkerhetsnivaa = 4
     private val defaultStatusGlobal = "SENDT"
     private val defaultStatusIntern = "dummyStatusIntern"
     private val defaultSakstema = "dummySakstema"
 
-    fun createStatusoppdatering(lopenummer: Int): Statusoppdatering {
-        return createStatusoppdatering(lopenummer, defaultFodselsnr, defaultStatusGlobal, defaultStatusIntern, defaultSakstema)
+    fun createStatusoppdatering(lopenummer: Int): StatusoppdateringIntern {
+        return createStatusoppdatering(lopenummer, defaultStatusGlobal, defaultStatusIntern, defaultSakstema)
     }
 
-    fun createStatusoppdateringWithFodselsnummer(fodselsnummer: String): Statusoppdatering {
-        return createStatusoppdatering(defaultLopenummer, fodselsnummer, defaultStatusGlobal, defaultStatusIntern, defaultSakstema)
+    fun createStatusoppdateringWithStatusGlobal(statusGlobal: String): StatusoppdateringIntern {
+        return createStatusoppdatering(defaultLopenummer, statusGlobal, defaultStatusIntern, defaultSakstema)
     }
 
-    fun createStatusoppdateringWithStatusGlobal(statusGlobal: String): Statusoppdatering {
-        return createStatusoppdatering(defaultLopenummer, defaultFodselsnr, statusGlobal, defaultStatusIntern, defaultSakstema)
+    fun createStatusoppdateringWithStatusIntern(statusIntern: String?): StatusoppdateringIntern {
+        return createStatusoppdatering(defaultLopenummer, defaultStatusGlobal, statusIntern, defaultSakstema)
     }
 
-    fun createStatusoppdateringWithStatusIntern(statusIntern: String?): Statusoppdatering {
-        return createStatusoppdatering(defaultLopenummer, defaultFodselsnr, defaultStatusGlobal, statusIntern, defaultSakstema)
+    fun createStatusoppdateringWithSakstema(sakstema: String): StatusoppdateringIntern {
+        return createStatusoppdatering(defaultLopenummer, defaultStatusGlobal, defaultStatusIntern, sakstema)
     }
 
-    fun createStatusoppdateringWithSakstema(sakstema: String): Statusoppdatering {
-        return createStatusoppdatering(defaultLopenummer, defaultFodselsnr, defaultStatusGlobal, defaultStatusIntern, sakstema)
-    }
-
-    fun createStatusoppdatering(lopenummer: Int, fodselsnummer: String, statusGlobal: String, statusIntern: String?, sakstema: String): Statusoppdatering {
-        return Statusoppdatering(
+    fun createStatusoppdatering(lopenummer: Int, statusGlobal: String, statusIntern: String?, sakstema: String): StatusoppdateringIntern {
+        return StatusoppdateringIntern(
+                lopenummer.toString(),
                 Instant.now().toEpochMilli(),
                 "100$lopenummer",
                 defaultLink,
                 defaultSikkerhetsnivaa,
                 statusGlobal,
                 statusIntern,
-                sakstema,
-                fodselsnummer)
+                sakstema)
     }
 
 }
