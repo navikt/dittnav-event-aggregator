@@ -64,8 +64,6 @@ class StringBasicKafkaEmbeddedTesting {
             KafkaProducerUtil.kafkaProduce(
                 kafkaBrokerUrl,
                 topicen,
-                username,
-                password,
                 events
             )
         } `should be equal to` true

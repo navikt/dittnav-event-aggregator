@@ -74,7 +74,7 @@ class DoneEventServiceTest {
 
     @Test
     fun `Setter Beskjed-event inaktivt hvis Done-event mottas`() {
-        val record = ConsumerRecord(Kafka.beskjedTopicName, 1, 1, createNokkel(eventId = 1), AvroDoneObjectMother.createDone(eventId = "1"))
+        val record = ConsumerRecord(Kafka.beskjedHovedTopicName, 1, 1, createNokkel(eventId = 1), AvroDoneObjectMother.createDone(eventId = "1"))
         val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(record)
         runBlocking {
             doneEventService.processEvents(records)
@@ -86,7 +86,7 @@ class DoneEventServiceTest {
 
     @Test
     fun `Setter Oppgave-event inaktivt hvis Done-event mottas`() {
-        val record = ConsumerRecord(Kafka.oppgaveTopicName, 1, 1, createNokkel(eventId = 2), AvroDoneObjectMother.createDone(eventId = "2"))
+        val record = ConsumerRecord(Kafka.oppgaveHovedTopicName, 1, 1, createNokkel(eventId = 2), AvroDoneObjectMother.createDone(eventId = "2"))
         val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(record)
         runBlocking {
             doneEventService.processEvents(records)
@@ -110,7 +110,7 @@ class DoneEventServiceTest {
 
     @Test
     fun `Skal ikke lagre Done-event i cache hvis event med matchende eventId finnes`() {
-        val record = ConsumerRecord(Kafka.beskjedTopicName, 1, 1, createNokkel(eventId = 4), AvroDoneObjectMother.createDone(eventId = "4"))
+        val record = ConsumerRecord(Kafka.beskjedHovedTopicName, 1, 1, createNokkel(eventId = 4), AvroDoneObjectMother.createDone(eventId = "4"))
         val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(record)
         runBlocking {
             doneEventService.processEvents(records)
@@ -121,7 +121,7 @@ class DoneEventServiceTest {
 
     @Test
     fun `Lagrer Done-event i cache hvis event med matchende eventId ikke finnes`() {
-        val record = ConsumerRecord(Kafka.beskjedTopicName, 1, 1, createNokkel(eventId = 5), AvroDoneObjectMother.createDone(eventId = "5"))
+        val record = ConsumerRecord(Kafka.beskjedHovedTopicName, 1, 1, createNokkel(eventId = 5), AvroDoneObjectMother.createDone(eventId = "5"))
         val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(record)
         runBlocking {
             doneEventService.processEvents(records)
@@ -133,8 +133,8 @@ class DoneEventServiceTest {
 
     @Test
     fun `Skal ikke lagre Done-event i cache paa nytt hvis Done-event med samme id allerede er mottatt`() {
-        val record1 = ConsumerRecord(Kafka.beskjedTopicName, 1, 1, createNokkel(eventId = 5), AvroDoneObjectMother.createDone(eventId = "5"))
-        val record2 = ConsumerRecord(Kafka.beskjedTopicName, 1, 1, createNokkel(eventId = 5), AvroDoneObjectMother.createDone(eventId = "5"))
+        val record1 = ConsumerRecord(Kafka.beskjedHovedTopicName, 1, 1, createNokkel(eventId = 5), AvroDoneObjectMother.createDone(eventId = "5"))
+        val record2 = ConsumerRecord(Kafka.beskjedHovedTopicName, 1, 1, createNokkel(eventId = 5), AvroDoneObjectMother.createDone(eventId = "5"))
         val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(listOf(record1, record2))
         runBlocking {
             doneEventService.processEvents(records)

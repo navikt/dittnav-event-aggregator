@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test
 
 class MultipleTopicsConsumerTest {
 
-    private val topics = listOf(Kafka.beskjedTopicName, Kafka.oppgaveTopicName, Kafka.innboksTopicName)
+    private val topics = listOf(Kafka.beskjedHovedTopicName, Kafka.oppgaveHovedTopicName, Kafka.innboksTopicName)
     private val embeddedEnv = KafkaTestUtil.createDefaultKafkaEmbeddedInstance(topics)
     private val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
     private val adminClient = embeddedEnv.adminClient
@@ -57,8 +57,8 @@ class MultipleTopicsConsumerTest {
 
     fun `Produserer testeventer for alle topics`() {
         runBlocking {
-            val producedAllBeskjed = KafkaTestUtil.produceEvents(testEnvironment, Kafka.beskjedTopicName, beskjedEvents)
-            val producedAllOppgave = KafkaTestUtil.produceEvents(testEnvironment, Kafka.oppgaveTopicName, oppgaveEvents)
+            val producedAllBeskjed = KafkaTestUtil.produceEvents(testEnvironment, Kafka.beskjedHovedTopicName, beskjedEvents)
+            val producedAllOppgave = KafkaTestUtil.produceEvents(testEnvironment, Kafka.oppgaveHovedTopicName, oppgaveEvents)
             val producedAllInnboks = KafkaTestUtil.produceEvents(testEnvironment, Kafka.innboksTopicName, innboksEvents)
             producedAllBeskjed `should be equal to` true
             producedAllOppgave `should be equal to` true
@@ -108,17 +108,17 @@ class MultipleTopicsConsumerTest {
     }
 
     private fun createInfoConsumer(env: Environment, BeskjedEventProcessor: SimpleEventCounterService<BeskjedIntern>): Consumer<BeskjedIntern> {
-        val kafkaProps = KafkaEmbed.consumerProps(env, EventType.BESKJED, true)
+        val kafkaProps = KafkaEmbed.consumerProps(env, EventType.BESKJED, enableSecurity = false)
         return setupConsumerForTheBeskjedTopic(kafkaProps, BeskjedEventProcessor)
     }
 
     private fun createOppgaveConsumer(env: Environment, oppgaveEventProcessor: SimpleEventCounterService<OppgaveIntern>): Consumer<OppgaveIntern> {
-        val kafkaProps = KafkaEmbed.consumerProps(env, EventType.OPPGAVE, true)
+        val kafkaProps = KafkaEmbed.consumerProps(env, EventType.OPPGAVE, enableSecurity = false)
         return setupConsumerForTheOppgaveTopic(kafkaProps, oppgaveEventProcessor)
     }
 
     private fun createInnboksConsumer(env: Environment, innboksEventProcessor: SimpleEventCounterService<InnboksIntern>): Consumer<InnboksIntern> {
-        val kafkaProps = KafkaEmbed.consumerProps(env, EventType.INNBOKS, true)
+        val kafkaProps = KafkaEmbed.consumerProps(env, EventType.INNBOKS, enableSecurity = false)
         return setupConsumerForTheInnboksTopic(kafkaProps, innboksEventProcessor)
     }
 

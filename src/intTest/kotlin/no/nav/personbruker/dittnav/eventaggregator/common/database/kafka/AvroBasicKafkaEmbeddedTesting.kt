@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test
  */
 class AvroBasicKafkaEmbeddedTesting {
 
-    private val topicen = Kafka.beskjedTopicName
+    private val topicen = Kafka.beskjedHovedTopicName
     private val username = "srvkafkaclient"
     private val password = "kafkaclient"
     private val embeddedEnv = KafkaTestUtil.createDefaultKafkaEmbeddedInstance(listOf(topicen))
@@ -61,8 +61,6 @@ class AvroBasicKafkaEmbeddedTesting {
             KafkaProducerUtil.kafkaAvroProduce(embeddedEnv.brokersURL,
                     embeddedEnv.schemaRegistry!!.url,
                     topicen,
-                    username,
-                    password,
                     events)
         } `should be equal to` true
     }

@@ -3,8 +3,8 @@ package no.nav.personbruker.dittnav.eventaggregator.config
 import no.nav.personbruker.dittnav.common.util.config.IntEnvVar.getEnvVarAsInt
 import no.nav.personbruker.dittnav.common.util.config.StringEnvVar.getEnvVar
 
-data class Environment(val bootstrapServers: String = getEnvVar("KAFKA_BOOTSTRAP_SERVERS"),
-                       val schemaRegistryUrl: String = getEnvVar("KAFKA_SCHEMAREGISTRY_SERVERS"),
+data class Environment(//val bootstrapServers: String = getEnvVar("KAFKA_BOOTSTRAP_SERVERS"),
+                       //val schemaRegistryUrl: String = getEnvVar("KAFKA_SCHEMAREGISTRY_SERVERS"),
                        val username: String = getEnvVar("SERVICEUSER_USERNAME"),
                        val password: String = getEnvVar("SERVICEUSER_PASSWORD"),
                        val groupId: String = getEnvVar("GROUP_ID"),
@@ -17,7 +17,14 @@ data class Environment(val bootstrapServers: String = getEnvVar("KAFKA_BOOTSTRAP
                        val clusterName: String = getEnvVar("NAIS_CLUSTER_NAME"),
                        val namespace: String = getEnvVar("NAIS_NAMESPACE"),
                        val sensuHost: String = getEnvVar("SENSU_HOST"),
-                       val sensuPort: Int = getEnvVarAsInt("SENSU_PORT")
+                       val sensuPort: Int = getEnvVarAsInt("SENSU_PORT"),
+                       val aivenBrokers: String = getEnvVar("KAFKA_BROKERS"),
+                       val aivenTruststorePath: String = getEnvVar("KAFKA_TRUSTSTORE_PATH"),
+                       val aivenKeystorePath: String = getEnvVar("KAFKA_KEYSTORE_PATH"),
+                       val aivenCredstorePassword: String = getEnvVar("KAFKA_CREDSTORE_PASSWORD"),
+                       val aivenSchemaRegistry: String = getEnvVar("KAFKA_SCHEMA_REGISTRY"),
+                       val aivenSchemaRegistryUser: String = getEnvVar("KAFKA_SCHEMA_REGISTRY_USER"),
+                       val aivenSchemaRegistryPassword: String = getEnvVar("KAFKA_SCHEMA_REGISTRY_PASSWORD")
 )
 
 fun isOtherEnvironmentThanProd() = System.getenv("NAIS_CLUSTER_NAME") != "prod-sbs"

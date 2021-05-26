@@ -14,7 +14,7 @@ object KafkaTestUtil {
     fun createDefaultKafkaEmbeddedInstance(topics: List<String>): KafkaEnvironment {
         return KafkaEnvironment(
                 topicNames = topics,
-                withSecurity = true,
+                withSecurity = false,
                 withSchemaRegistry = true,
                 users = listOf(JAASCredential(username, password))
         )
@@ -33,8 +33,6 @@ object KafkaTestUtil {
 
     fun createEnvironmentForEmbeddedKafka(embeddedEnv: KafkaEnvironment): Environment {
         return Environment(
-                bootstrapServers = embeddedEnv.brokersURL.substringAfterLast("/"),
-                schemaRegistryUrl = embeddedEnv.schemaRegistry!!.url,
                 username = username,
                 password = password,
                 groupId = "groupId-for-tests",
@@ -47,17 +45,22 @@ object KafkaTestUtil {
                 clusterName = "clusterNameIkkeIBrukHer",
                 namespace = "namespaceIkkeIBrukHer",
                 sensuHost = "sensuHostIkkeIBrukHer",
-                sensuPort = 0
+                sensuPort = 0,
+                aivenBrokers = embeddedEnv.brokersURL.substringAfterLast("/"),
+                aivenTruststorePath = "kafkaTruststorePathIkkeIBrukHer",
+                aivenKeystorePath = "kafkaKeystorePathIkkeIBrukerHer",
+                aivenCredstorePassword = "kafkaCredstorePasswordIkkeIBrukHer",
+                aivenSchemaRegistry = embeddedEnv.schemaRegistry!!.url,
+                aivenSchemaRegistryUser = username,
+                aivenSchemaRegistryPassword = password
         )
     }
 
     suspend fun produceEvents(env: Environment, topicName: String, events: Map<NokkelIntern, GenericRecord>): Boolean {
         return KafkaProducerUtil.kafkaAvroProduce(
-                env.bootstrapServers,
-                env.schemaRegistryUrl,
+                env.aivenBrokers,
+                env.aivenSchemaRegistry,
                 topicName,
-                env.username,
-                env.password,
                 events)
     }
 
