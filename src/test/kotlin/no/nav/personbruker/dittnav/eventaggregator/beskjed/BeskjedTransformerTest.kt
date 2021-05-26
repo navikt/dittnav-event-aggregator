@@ -19,7 +19,7 @@ class BeskjedTransformerTest {
 
         val transformed = BeskjedTransformer.toInternal(nokkel, original)
 
-        transformed.fodselsnummer `should be equal to` original.getFodselsnummer()
+        transformed.fodselsnummer `should be equal to` nokkel.getFodselsnummer()
         transformed.grupperingsId `should be equal to` original.getGrupperingsId()
         transformed.eventId `should be equal to` nokkel.getEventId()
         transformed.link `should be equal to` original.getLink()

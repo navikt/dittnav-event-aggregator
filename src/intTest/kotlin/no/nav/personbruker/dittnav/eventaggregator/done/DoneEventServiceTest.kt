@@ -1,8 +1,8 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
 import kotlinx.coroutines.runBlocking
-import no.nav.brukernotifikasjon.schemas.Done
-import no.nav.brukernotifikasjon.schemas.Nokkel
+import no.nav.brukernotifikasjon.schemas.internal.DoneIntern
+import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 import no.nav.personbruker.dittnav.common.metrics.StubMetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
@@ -28,7 +28,8 @@ import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be false`
 import org.amshove.kluent.shouldBeEmpty
 import org.apache.kafka.clients.consumer.ConsumerRecord
-import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class DoneEventServiceTest {
@@ -47,7 +48,8 @@ class DoneEventServiceTest {
     private val beskjed2 = BeskjedObjectMother.giveMeAktivBeskjed("4", "12345")
     private val nokkel99 = createNokkel(99)
 
-    init {
+    @BeforeEach
+    fun resetMocks() {
         runBlocking {
             database.dbQuery {
                 createBeskjed(beskjed1)
@@ -58,8 +60,8 @@ class DoneEventServiceTest {
         }
     }
 
-    @AfterAll
-    fun tearDown() {
+    @AfterEach
+    fun cleanUp() {
         runBlocking {
             database.dbQuery {
                 deleteAllOppgave()
@@ -96,7 +98,7 @@ class DoneEventServiceTest {
 
     @Test
     fun `Setter Innboks-event inaktivt hvis Done-event mottas`() {
-        val record = ConsumerRecord<Nokkel, Done>(Kafka.innboksTopicName, 1, 1, createNokkel(eventId = 3), AvroDoneObjectMother.createDone(eventId = "3"))
+        val record = ConsumerRecord<NokkelIntern, DoneIntern>(Kafka.innboksTopicName, 1, 1, createNokkel(eventId = 3), AvroDoneObjectMother.createDone(eventId = "3"))
         val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(record)
         runBlocking {
             doneEventService.processEvents(records)
@@ -130,7 +132,7 @@ class DoneEventServiceTest {
     }
 
     @Test
-    fun `Skal ikke lagre Done-event i cache på nytt hvis Done-event med samme id allerede er mottatt`() {
+    fun `Skal ikke lagre Done-event i cache paa nytt hvis Done-event med samme id allerede er mottatt`() {
         val record1 = ConsumerRecord(Kafka.beskjedTopicName, 1, 1, createNokkel(eventId = 5), AvroDoneObjectMother.createDone(eventId = "5"))
         val record2 = ConsumerRecord(Kafka.beskjedTopicName, 1, 1, createNokkel(eventId = 5), AvroDoneObjectMother.createDone(eventId = "5"))
         val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(listOf(record1, record2))

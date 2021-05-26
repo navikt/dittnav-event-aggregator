@@ -1,12 +1,8 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
-import kotlinx.coroutines.runBlocking
-import no.nav.brukernotifikasjon.schemas.builders.exception.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.done.schema.AvroDoneObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should throw`
-import org.amshove.kluent.invoking
 import org.junit.jupiter.api.Test
 import java.time.ZoneId
 
@@ -20,7 +16,7 @@ class DoneTransformerTest {
         val transformed = DoneTransformer.toInternal(nokkel, original)
 
         transformed.systembruker `should be equal to` nokkel.getSystembruker()
-        transformed.fodselsnummer `should be equal to` original.getFodselsnummer()
+        transformed.fodselsnummer `should be equal to` nokkel.getFodselsnummer()
         transformed.grupperingsId `should be equal to` original.getGrupperingsId()
         transformed.eventId `should be equal to` nokkel.getEventId()
 
@@ -28,17 +24,4 @@ class DoneTransformerTest {
         transformedEventTidspunktAsLong `should be equal to` original.getTidspunkt()
     }
 
-    @Test
-    fun `should throw FieldValidationException when fodselsnummer is empty`() {
-        val fodselsnummer = ""
-        val eventId = "123"
-        val event = AvroDoneObjectMother.createDone(eventId, fodselsnummer)
-        val nokkel = createNokkel(123)
-
-        invoking {
-            runBlocking {
-                DoneTransformer.toInternal(nokkel, event)
-            }
-        } `should throw` FieldValidationException::class
-    }
 }

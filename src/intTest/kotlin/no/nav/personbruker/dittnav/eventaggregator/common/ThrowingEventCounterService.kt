@@ -1,6 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.common
 
-import no.nav.brukernotifikasjon.schemas.Nokkel
+import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 import org.apache.kafka.clients.consumer.ConsumerRecords
 
 class ThrowingEventCounterService<T>(val exception: Exception? = null, val every: Int = 1) : EventBatchProcessorService<T> {
@@ -10,7 +10,7 @@ class ThrowingEventCounterService<T>(val exception: Exception? = null, val every
 
     val successfulEvents = mutableListOf<T>()
 
-    override suspend fun processEvents(events: ConsumerRecords<Nokkel, T>) {
+    override suspend fun processEvents(events: ConsumerRecords<NokkelIntern, T>) {
         invocationCounter += events.count()
 
         if (exception != null && invocationCounter % every == 0) {

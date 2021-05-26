@@ -1,6 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
-import no.nav.brukernotifikasjon.schemas.*
+import no.nav.brukernotifikasjon.schemas.internal.*
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -42,38 +42,38 @@ object KafkaConsumerSetup {
         startAllKafkaPollers(appContext)
     }
 
-    fun setupConsumerForTheBeskjedTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<Beskjed>): Consumer<Beskjed> {
-        val kafkaConsumer = KafkaConsumer<Nokkel, Beskjed>(kafkaProps)
+    fun setupConsumerForTheBeskjedTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<BeskjedIntern>): Consumer<BeskjedIntern> {
+        val kafkaConsumer = KafkaConsumer<NokkelIntern, BeskjedIntern>(kafkaProps)
         return Consumer(Kafka.beskjedTopicName, kafkaConsumer, eventProcessor)
     }
 
-    fun setupConsumerForTheOppgaveTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<Oppgave>): Consumer<Oppgave> {
-        val kafkaConsumer = KafkaConsumer<Nokkel, Oppgave>(kafkaProps)
+    fun setupConsumerForTheOppgaveTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<OppgaveIntern>): Consumer<OppgaveIntern> {
+        val kafkaConsumer = KafkaConsumer<NokkelIntern, OppgaveIntern>(kafkaProps)
         return Consumer(Kafka.oppgaveTopicName, kafkaConsumer, eventProcessor)
     }
 
-    fun setupConsumerForTheInnboksTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<Innboks>): Consumer<Innboks> {
-        val kafkaConsumer = KafkaConsumer<Nokkel, Innboks>(kafkaProps)
+    fun setupConsumerForTheInnboksTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<InnboksIntern>): Consumer<InnboksIntern> {
+        val kafkaConsumer = KafkaConsumer<NokkelIntern, InnboksIntern>(kafkaProps)
         return Consumer(Kafka.innboksTopicName, kafkaConsumer, eventProcessor)
     }
 
-    fun setupConsumerForTheDoneTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<Done>): Consumer<Done> {
-        val kafkaConsumer = KafkaConsumer<Nokkel, Done>(kafkaProps)
+    fun setupConsumerForTheDoneTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<DoneIntern>): Consumer<DoneIntern> {
+        val kafkaConsumer = KafkaConsumer<NokkelIntern, DoneIntern>(kafkaProps)
         return Consumer(Kafka.doneTopicName, kafkaConsumer, eventProcessor)
     }
 
-    fun setupConsumerForTheStatusoppdateringTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<Statusoppdatering>): Consumer<Statusoppdatering> {
-        val kafkaConsumer = KafkaConsumer<Nokkel, Statusoppdatering>(kafkaProps)
+    fun setupConsumerForTheStatusoppdateringTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<StatusoppdateringIntern>): Consumer<StatusoppdateringIntern> {
+        val kafkaConsumer = KafkaConsumer<NokkelIntern, StatusoppdateringIntern>(kafkaProps)
         return Consumer(Kafka.statusoppdateringTopicName, kafkaConsumer, eventProcessor)
     }
 
     fun <T> createCountConsumer(eventType: EventType,
                                 topic: String,
                                 environment: Environment,
-                                enableSecurity: Boolean = ConfigUtil.isCurrentlyRunningOnNais()): KafkaConsumer<Nokkel, T> {
+                                enableSecurity: Boolean = ConfigUtil.isCurrentlyRunningOnNais()): KafkaConsumer<NokkelIntern, T> {
 
         val kafkaProps = Kafka.counterConsumerProps(environment, eventType, enableSecurity)
-        val consumer = KafkaConsumer<Nokkel, T>(kafkaProps)
+        val consumer = KafkaConsumer<NokkelIntern, T>(kafkaProps)
         consumer.subscribe(listOf(topic))
         return consumer
     }

@@ -1,32 +1,27 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
-import no.nav.brukernotifikasjon.schemas.Beskjed
+import no.nav.brukernotifikasjon.schemas.internal.BeskjedIntern
 import java.time.Instant
 
 object AvroBeskjedObjectMother {
 
     private val defaultLopenummer = 1
-    private val defaultFodselsnr = "12345"
     private val defaultText = "Dette er Beskjed til brukeren"
     private val defaultEksternVarsling = true
 
-    fun createBeskjedWithText(text: String): Beskjed {
-        return createBeskjed(defaultLopenummer, defaultFodselsnr, text)
+    fun createBeskjedWithText(text: String): BeskjedIntern {
+        return createBeskjed(defaultLopenummer, text)
     }
 
-    fun createBeskjed(lopenummer: Int): Beskjed {
-        return createBeskjed(lopenummer, defaultFodselsnr, defaultText)
+    fun createBeskjed(lopenummer: Int): BeskjedIntern {
+        return createBeskjed(lopenummer, defaultText)
     }
 
-    fun createBeskjedWithFodselsnummer(fodselsnummer: String): Beskjed {
-        return createBeskjed(defaultLopenummer, fodselsnummer, defaultText)
-    }
-
-    fun createBeskjed(lopenummer: Int, fodselsnummer: String, text: String): Beskjed {
-        return Beskjed(
+    fun createBeskjed(lopenummer: Int, text: String): BeskjedIntern {
+        return BeskjedIntern(
+                lopenummer.toString(),
                 Instant.now().toEpochMilli(),
                 Instant.now().toEpochMilli(),
-                fodselsnummer,
                 "100$lopenummer",
                 text,
                 "https://nav.no/systemX/$lopenummer",
@@ -34,11 +29,11 @@ object AvroBeskjedObjectMother {
                 defaultEksternVarsling)
     }
 
-    fun createBeskjedWithoutSynligFremTilSatt(): Beskjed {
-        return Beskjed(
+    fun createBeskjedWithoutSynligFremTilSatt(): BeskjedIntern {
+        return BeskjedIntern(
+                defaultLopenummer.toString(),
                 Instant.now().toEpochMilli(),
                 null,
-                defaultFodselsnr,
                 "100$defaultLopenummer",
                 defaultText,
                 "https://nav.no/systemX/$defaultLopenummer",

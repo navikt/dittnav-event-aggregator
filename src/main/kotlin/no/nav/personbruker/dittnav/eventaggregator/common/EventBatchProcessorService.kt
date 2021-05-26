@@ -1,15 +1,15 @@
 package no.nav.personbruker.dittnav.eventaggregator.common
 
-import no.nav.brukernotifikasjon.schemas.Nokkel
+import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 
 interface EventBatchProcessorService<T> {
 
-    suspend fun processEvents(events: ConsumerRecords<Nokkel, T>)
+    suspend fun processEvents(events: ConsumerRecords<NokkelIntern, T>)
 
-    val ConsumerRecord<Nokkel, T>.systembruker : String? get() = key()?.getSystembruker()
+    val ConsumerRecord<NokkelIntern, T>.systembruker: String get() = key().getSystembruker()
 
-    val ConsumerRecord<Nokkel, T>.eventId : String? get() = key()?.getEventId()
+    val ConsumerRecord<NokkelIntern, T>.eventId: String get() = key().getEventId()
 
 }

@@ -2,8 +2,8 @@ package no.nav.personbruker.dittnav.eventaggregator
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import no.nav.brukernotifikasjon.schemas.Beskjed
-import no.nav.brukernotifikasjon.schemas.Nokkel
+import no.nav.brukernotifikasjon.schemas.internal.BeskjedIntern
+import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 import no.nav.common.KafkaEnvironment
 import no.nav.personbruker.dittnav.common.metrics.StubMetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.*
@@ -83,7 +83,7 @@ class EndToEndTestIT {
         val beskjedPersistingService = BrukernotifikasjonPersistingService(beskjedRepository)
         val eventProcessor = BeskjedEventService(beskjedPersistingService, metricsProbe)
         val consumerProps = KafkaEmbed.consumerProps(testEnvironment, EventType.BESKJED, true)
-        val kafkaConsumer = KafkaConsumer<Nokkel, Beskjed>(consumerProps)
+        val kafkaConsumer = KafkaConsumer<NokkelIntern, BeskjedIntern>(consumerProps)
         val consumer = Consumer(topicen, kafkaConsumer, eventProcessor)
 
         runBlocking {

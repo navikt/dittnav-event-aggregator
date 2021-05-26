@@ -1,7 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
-import no.nav.brukernotifikasjon.schemas.builders.domain.Eventtype
-import no.nav.brukernotifikasjon.schemas.builders.util.ValidationUtil
 import java.time.LocalDateTime
 
 data class Innboks(
@@ -40,15 +38,7 @@ data class Innboks(
             sikkerhetsnivaa,
             sistOppdatert,
             aktiv
-    ) {
-        ValidationUtil.validateNonNullFieldMaxLength(systembruker, "systembruker", ValidationUtil.MAX_LENGTH_SYSTEMBRUKER)
-        ValidationUtil.validateNonNullFieldMaxLength(eventId, "eventId", ValidationUtil.MAX_LENGTH_EVENTID)
-        ValidationUtil.validateNonNullFieldMaxLength(fodselsnummer, "fodselsnummer", ValidationUtil.MAX_LENGTH_FODSELSNUMMER)
-        ValidationUtil.validateNonNullFieldMaxLength(grupperingsId, "grupperingsId", ValidationUtil.MAX_LENGTH_GRUPPERINGSID)
-        ValidationUtil.validateNonNullFieldMaxLength(tekst, "tekst", ValidationUtil.MAX_LENGTH_TEXT_INNBOKS)
-        ValidationUtil.validateLinkAndConvertToString(ValidationUtil.validateLinkAndConvertToURL(link), "link", ValidationUtil.MAX_LENGTH_LINK, ValidationUtil.isLinkRequired(Eventtype.INNBOKS))
-        ValidationUtil.validateSikkerhetsnivaa(sikkerhetsnivaa)
-    }
+    )
 
     override fun toString(): String {
         return "Innboks(" +

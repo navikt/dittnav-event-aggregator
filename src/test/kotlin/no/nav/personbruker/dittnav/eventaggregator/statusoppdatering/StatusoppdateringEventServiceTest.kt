@@ -119,29 +119,6 @@ internal class StatusoppdateringEventServiceTest {
         coVerify(exactly = numberOfRecords) { metricsSession.countSuccessfulEventForProducer(any()) }
     }
 
-    @Test
-    fun `skal forkaste eventer som har valideringsfeil`() {
-        val statusoppdateringWithTooLongStatusInternField = AvroStatusoppdateringObjectMother.createStatusoppdateringWithStatusIntern("S".repeat(101))
-        val cr = ConsumerRecordsObjectMother.createConsumerRecord("statusoppdatering", statusoppdateringWithTooLongStatusInternField)
-        val records = ConsumerRecordsObjectMother.giveMeConsumerRecordsWithThisConsumerRecord(cr)
-
-        val slot = slot<suspend EventMetricsSession.() -> Unit>()
-        coEvery { metricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
-            slot.captured.invoke(metricsSession)
-        }
-
-        val capturedNumberOfEntitiesWrittenToTheDb = slot<List<Statusoppdatering>>()
-        coEvery { persistingService.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns emptyPersistResult()
-
-        runBlocking {
-            eventService.processEvents(records)
-        }
-
-        capturedNumberOfEntitiesWrittenToTheDb.captured.size `should be` 0
-
-        coVerify(exactly = 1) { metricsSession.countFailedEventForProducer(any()) }
-    }
-
     private fun createANumberOfTransformedRecords(numberOfRecords: Int): MutableList<Statusoppdatering> {
         val transformedRecords = mutableListOf<Statusoppdatering>()
         for (i in 0 until numberOfRecords) {

@@ -1,7 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.kafka
 
 import kotlinx.coroutines.*
-import no.nav.brukernotifikasjon.schemas.Nokkel
+import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
@@ -21,7 +21,7 @@ import kotlin.coroutines.CoroutineContext
 
 class Consumer<T>(
         val topic: String,
-        val kafkaConsumer: KafkaConsumer<Nokkel, T>,
+        val kafkaConsumer: KafkaConsumer<NokkelIntern, T>,
         val eventBatchProcessorService: EventBatchProcessorService<T>,
         val job: Job = Job(),
         val maxPollTimeout: Long = 100L
@@ -108,7 +108,7 @@ class Consumer<T>(
         }
     }
 
-    fun ConsumerRecords<Nokkel, T>.containsEvents() = count() > 0
+    fun ConsumerRecords<NokkelIntern, T>.containsEvents() = count() > 0
 
     private suspend fun rollbackOffset() {
         withContext(Dispatchers.IO) {
