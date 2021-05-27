@@ -5,12 +5,8 @@ import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeoutOrNull
 import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
-import no.nav.common.JAAS_PLAIN_LOGIN
-import no.nav.common.JAAS_REQUIRED
-import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.apache.kafka.common.config.SaslConfigs
 import java.time.Duration
 import java.util.*
 
@@ -20,8 +16,6 @@ object KafkaConsumerUtil {
             brokersURL: String,
             schemaRegistryUrl: String,
             topic: String,
-            user: String,
-            pwd: String,
             noOfEvents: Int
     ): Map<NokkelIntern, String> =
             try {
@@ -38,9 +32,6 @@ object KafkaConsumerUtil {
                             set(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true)
                             set(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
                             set(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 4)
-                            set(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT")
-                            set(SaslConfigs.SASL_MECHANISM, "PLAIN")
-                            set(SaslConfigs.SASL_JAAS_CONFIG, "$JAAS_PLAIN_LOGIN $JAAS_REQUIRED username=\"$user\" password=\"$pwd\";")
                         }
                 ).use { c ->
                     c.subscribe(listOf(topic))
@@ -63,8 +54,6 @@ object KafkaConsumerUtil {
     suspend fun kafkaConsume(
             brokersURL: String,
             topic: String,
-            user: String,
-            pwd: String,
             noOfEvents: Int
     ): Map<String, String> =
             try {
@@ -78,9 +67,6 @@ object KafkaConsumerUtil {
                             set(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true)
                             set(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
                             set(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 4)
-                            set(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT")
-                            set(SaslConfigs.SASL_MECHANISM, "PLAIN")
-                            set(SaslConfigs.SASL_JAAS_CONFIG, "$JAAS_PLAIN_LOGIN $JAAS_REQUIRED username=\"$user\" password=\"$pwd\";")
                         }
                 ).use { c ->
                     c.subscribe(listOf(topic))

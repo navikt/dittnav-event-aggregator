@@ -23,8 +23,6 @@ import org.junit.jupiter.api.Test
 class AvroBasicKafkaEmbeddedTesting {
 
     private val topicen = Kafka.beskjedHovedTopicName
-    private val username = "srvkafkaclient"
-    private val password = "kafkaclient"
     private val embeddedEnv = KafkaTestUtil.createDefaultKafkaEmbeddedInstance(listOf(topicen))
 
     private val events = (1..9).map { createNokkel(it) to AvroBeskjedObjectMother.createBeskjed(it) }.toMap()
@@ -50,8 +48,6 @@ class AvroBasicKafkaEmbeddedTesting {
             KafkaConsumerUtil.kafkaAvroConsume(embeddedEnv.brokersURL,
                     embeddedEnv.schemaRegistry!!.url,
                     topicen,
-                    username,
-                    password,
                     events.size)
         } shouldContainAll events
     }

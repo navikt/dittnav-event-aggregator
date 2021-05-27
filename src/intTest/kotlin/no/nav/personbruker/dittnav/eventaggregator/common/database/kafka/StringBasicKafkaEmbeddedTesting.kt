@@ -24,7 +24,7 @@ class StringBasicKafkaEmbeddedTesting {
     private val password = "kafkaclient"
     private val embeddedEnv = KafkaEnvironment(
         topicNames = listOf(topicen),
-        withSecurity = true,
+        withSecurity = false,
         users = listOf(JAASCredential(username, password))
     )
     private val kafkaBrokerUrl = embeddedEnv.brokersURL.substringAfterLast("/")
@@ -52,8 +52,6 @@ class StringBasicKafkaEmbeddedTesting {
             KafkaConsumerUtil.kafkaConsume(
                 kafkaBrokerUrl,
                 topicen,
-                username,
-                password,
                 events.size
             )
         } shouldContainAll events

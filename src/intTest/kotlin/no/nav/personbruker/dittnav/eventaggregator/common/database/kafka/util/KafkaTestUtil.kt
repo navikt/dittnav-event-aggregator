@@ -25,7 +25,7 @@ object KafkaTestUtil {
 
         return KafkaEnvironment(
                 topicInfos = topicInfos,
-                withSecurity = true,
+                withSecurity = false,
                 withSchemaRegistry = true,
                 users = listOf(JAASCredential(username, password))
         )
