@@ -25,7 +25,7 @@ spec:
     max: 1
     cpuThresholdPercentage: 50
   ingresses:
-    - "https://dittnav-event-aggregator.dev.nav.no"
+    - "https://dittnav-event-aggregator.nais.oera.no"
   webproxy: true
   resources:
     limits:
@@ -35,9 +35,9 @@ spec:
       cpu: "1"
       memory: 2048Mi
   kafka:
-    pool: nav-dev
+    pool: nav-prod
   accessPolicy:
     outbound:
       external:
-        - host: kafka-schema-registry.nais-q.adeo.no
+        - host: kafka-schema-registry.nais.adeo.no
         - host: sensu.nais
