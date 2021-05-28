@@ -40,4 +40,3 @@ spec:
     outbound:
       external:
         - host: kafka-schema-registry.nais.adeo.no
-        - host: sensu.nais
