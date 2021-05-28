@@ -54,7 +54,7 @@ object KafkaConsumerSetup {
 
     fun setupConsumerForTheInnboksTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<InnboksIntern>): Consumer<InnboksIntern> {
         val kafkaConsumer = KafkaConsumer<NokkelIntern, InnboksIntern>(kafkaProps)
-        return Consumer(Kafka.innboksTopicName, kafkaConsumer, eventProcessor)
+        return Consumer(Kafka.innboksHovedTopicName, kafkaConsumer, eventProcessor)
     }
 
     fun setupConsumerForTheDoneTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<DoneIntern>): Consumer<DoneIntern> {

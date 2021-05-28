@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test
 
 class MultipleTopicsConsumerTest {
 
-    private val topics = listOf(Kafka.beskjedHovedTopicName, Kafka.oppgaveHovedTopicName, Kafka.innboksTopicName)
+    private val topics = listOf(Kafka.beskjedHovedTopicName, Kafka.oppgaveHovedTopicName, Kafka.innboksHovedTopicName)
     private val embeddedEnv = KafkaTestUtil.createDefaultKafkaEmbeddedInstance(topics)
     private val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
     private val adminClient = embeddedEnv.adminClient
@@ -59,7 +59,7 @@ class MultipleTopicsConsumerTest {
         runBlocking {
             val producedAllBeskjed = KafkaTestUtil.produceEvents(testEnvironment, Kafka.beskjedHovedTopicName, beskjedEvents)
             val producedAllOppgave = KafkaTestUtil.produceEvents(testEnvironment, Kafka.oppgaveHovedTopicName, oppgaveEvents)
-            val producedAllInnboks = KafkaTestUtil.produceEvents(testEnvironment, Kafka.innboksTopicName, innboksEvents)
+            val producedAllInnboks = KafkaTestUtil.produceEvents(testEnvironment, Kafka.innboksHovedTopicName, innboksEvents)
             producedAllBeskjed `should be equal to` true
             producedAllOppgave `should be equal to` true
             producedAllInnboks `should be equal to` true

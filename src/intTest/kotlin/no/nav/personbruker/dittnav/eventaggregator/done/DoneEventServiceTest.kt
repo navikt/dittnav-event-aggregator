@@ -98,7 +98,7 @@ class DoneEventServiceTest {
 
     @Test
     fun `Setter Innboks-event inaktivt hvis Done-event mottas`() {
-        val record = ConsumerRecord<NokkelIntern, DoneIntern>(Kafka.innboksTopicName, 1, 1, createNokkel(eventId = 3), AvroDoneObjectMother.createDone(eventId = "3"))
+        val record = ConsumerRecord<NokkelIntern, DoneIntern>(Kafka.innboksHovedTopicName, 1, 1, createNokkel(eventId = 3), AvroDoneObjectMother.createDone(eventId = "3"))
         val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(record)
         runBlocking {
             doneEventService.processEvents(records)

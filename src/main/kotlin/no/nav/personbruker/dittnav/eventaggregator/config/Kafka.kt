@@ -21,7 +21,7 @@ object Kafka {
 
     val doneHovedTopicName = "min-side.privat-brukernotifikasjon-done-v1"
     val beskjedHovedTopicName = "min-side.privat-brukernotifikasjon-beskjed-v1"
-    val innboksTopicName = "aapen-brukernotifikasjon-nyInnboks-v1"
+    val innboksHovedTopicName = "min-side.privat-brukernotifikasjon-innboks-v1"
     val oppgaveHovedTopicName = "min-side.privat-brukernotifikasjon-oppgave-v1"
     val statusoppdateringHovedTopicName = "min-side.privat-brukernotifikasjon-statusoppdatering-v1"
 
