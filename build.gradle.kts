@@ -40,7 +40,7 @@ configurations["intTestRuntimeOnly"].extendsFrom(configurations.testRuntimeOnly.
 dependencies {
     implementation(Brukernotifikasjon.schemas_internal)
     implementation(DittNAV.Common.utils)
-    implementation(DittNAV.Common.influx)
+    implementation(DittNAV.Common.influxdb)
     implementation(Flyway.core)
     implementation(Hikari.cp)
     implementation(Influxdb.java)
