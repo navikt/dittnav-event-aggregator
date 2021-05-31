@@ -1,0 +1,42 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: dittnav-event-aggregator
+  namespace: personbruker
+  labels:
+    team: personbruker
+spec:
+  envFrom:
+    - secret: dittnav-event-aggregator-secrets
+    - secret: influxdb-credentials
+  image: {{version}}
+  port: 8080
+  liveness:
+    path: /internal/isAlive
+    initialDelay: 30
+  readiness:
+    path: /internal/isReady
+    initialDelay: 30
+  prometheus:
+    enabled: true
+    path: /metrics
+  replicas:
+    min: 1
+    max: 1
+    cpuThresholdPercentage: 50
+  ingresses:
+    - "https://dittnav-event-aggregator.nais.oera.no"
+  webproxy: true
+  resources:
+    limits:
+      cpu: "3"
+      memory: 2400Mi
+    requests:
+      cpu: "1"
+      memory: 2048Mi
+  kafka:
+    pool: nav-prod
+  accessPolicy:
+    outbound:
+      external:
+        - host: kafka-schema-registry.nais.adeo.no

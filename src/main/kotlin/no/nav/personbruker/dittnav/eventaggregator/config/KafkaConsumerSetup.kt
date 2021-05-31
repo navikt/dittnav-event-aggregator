@@ -44,27 +44,27 @@ object KafkaConsumerSetup {
 
     fun setupConsumerForTheBeskjedTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<BeskjedIntern>): Consumer<BeskjedIntern> {
         val kafkaConsumer = KafkaConsumer<NokkelIntern, BeskjedIntern>(kafkaProps)
-        return Consumer(Kafka.beskjedTopicName, kafkaConsumer, eventProcessor)
+        return Consumer(Kafka.beskjedHovedTopicName, kafkaConsumer, eventProcessor)
     }
 
     fun setupConsumerForTheOppgaveTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<OppgaveIntern>): Consumer<OppgaveIntern> {
         val kafkaConsumer = KafkaConsumer<NokkelIntern, OppgaveIntern>(kafkaProps)
-        return Consumer(Kafka.oppgaveTopicName, kafkaConsumer, eventProcessor)
+        return Consumer(Kafka.oppgaveHovedTopicName, kafkaConsumer, eventProcessor)
     }
 
     fun setupConsumerForTheInnboksTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<InnboksIntern>): Consumer<InnboksIntern> {
         val kafkaConsumer = KafkaConsumer<NokkelIntern, InnboksIntern>(kafkaProps)
-        return Consumer(Kafka.innboksTopicName, kafkaConsumer, eventProcessor)
+        return Consumer(Kafka.innboksHovedTopicName, kafkaConsumer, eventProcessor)
     }
 
     fun setupConsumerForTheDoneTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<DoneIntern>): Consumer<DoneIntern> {
         val kafkaConsumer = KafkaConsumer<NokkelIntern, DoneIntern>(kafkaProps)
-        return Consumer(Kafka.doneTopicName, kafkaConsumer, eventProcessor)
+        return Consumer(Kafka.doneHovedTopicName, kafkaConsumer, eventProcessor)
     }
 
     fun setupConsumerForTheStatusoppdateringTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<StatusoppdateringIntern>): Consumer<StatusoppdateringIntern> {
         val kafkaConsumer = KafkaConsumer<NokkelIntern, StatusoppdateringIntern>(kafkaProps)
-        return Consumer(Kafka.statusoppdateringTopicName, kafkaConsumer, eventProcessor)
+        return Consumer(Kafka.statusoppdateringHovedTopicName, kafkaConsumer, eventProcessor)
     }
 
     fun <T> createCountConsumer(eventType: EventType,

@@ -46,7 +46,7 @@ class SingleTopicConsumerTest {
     fun `Lese inn alle testeventene fra Kafka`() {
         `Produserer noen testeventer`()
         val eventProcessor = SimpleEventCounterService<BeskjedIntern>()
-        val consumerProps = KafkaEmbed.consumerProps(testEnvironment, EventType.BESKJED, true)
+        val consumerProps = KafkaEmbed.consumerProps(testEnvironment, EventType.BESKJED, enableSecurity = false)
         val kafkaConsumer = KafkaConsumer<NokkelIntern, BeskjedIntern>(consumerProps)
         val consumer = Consumer(topicen, kafkaConsumer, eventProcessor)
 
