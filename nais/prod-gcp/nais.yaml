@@ -34,6 +34,23 @@ spec:
     requests:
       cpu: "1"
       memory: 2048Mi
+  gcp:
+    sqlInstances:
+      - name: brukernotifikasjon-cache
+        type: POSTGRES_11
+        tier: db-f1-micro
+        diskType: SSD
+        highAvailability: true
+        diskSize: 100
+        diskAutoresize: true
+        autoBackupTime: "03:00"
+        databases:
+          - name: brukernotifikasjon-cache
+            envVarPrefix: DB
+      maintenanceWindow:
+        day: 1
+        hour: 4
+      cascadingDelete: false
   kafka:
     pool: nav-prod
   accessPolicy:
