@@ -65,6 +65,7 @@ dependencies {
     testImplementation(Kafka.Confluent.schemaRegistry)
     testImplementation(Mockk.mockk)
     testImplementation(NAV.kafkaEmbedded)
+    testImplementation(TestContainers.postgresql)
 
     intTestImplementation(Junit.engine)
 }
