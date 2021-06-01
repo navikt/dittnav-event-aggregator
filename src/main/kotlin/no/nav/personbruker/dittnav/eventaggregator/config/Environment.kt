@@ -1,6 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
 import no.nav.personbruker.dittnav.common.util.config.IntEnvVar.getEnvVarAsInt
+import no.nav.personbruker.dittnav.common.util.config.StringEnvVar
 import no.nav.personbruker.dittnav.common.util.config.StringEnvVar.getEnvVar
 
 data class Environment(val username: String = getEnvVar("SERVICEUSER_USERNAME"),
@@ -32,3 +33,13 @@ data class Environment(val username: String = getEnvVar("SERVICEUSER_USERNAME"),
 fun isOtherEnvironmentThanProd() = System.getenv("NAIS_CLUSTER_NAME") != "prod-sbs"
 
 fun isProdEnvironment() = System.getenv("NAIS_CLUSTER_NAME") == "prod-sbs"
+
+fun shouldPollBeskjed() = StringEnvVar.getOptionalEnvVar("POLL_BESKJED", "false").toBoolean()
+
+fun shouldPollOppgave() = StringEnvVar.getOptionalEnvVar("POLL_OPPGAVE", "false").toBoolean()
+
+fun shouldPollInnboks() = StringEnvVar.getOptionalEnvVar("POLL_INNBOKS", "false").toBoolean()
+
+fun shouldPollStatusoppdatering() = StringEnvVar.getOptionalEnvVar("POLL_STATUSOPPDATERING", "false").toBoolean()
+
+fun shouldPollDone() = StringEnvVar.getOptionalEnvVar("POLL_DONE", "false").toBoolean()

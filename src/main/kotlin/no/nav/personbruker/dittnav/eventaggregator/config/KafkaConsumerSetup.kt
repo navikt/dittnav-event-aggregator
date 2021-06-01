@@ -13,25 +13,68 @@ object KafkaConsumerSetup {
     private val log: Logger = LoggerFactory.getLogger(KafkaConsumerSetup::class.java)
 
     fun startAllKafkaPollers(appContext: ApplicationContext) {
-        appContext.beskjedConsumer.startPolling()
-        appContext.oppgaveConsumer.startPolling()
-        appContext.doneConsumer.startPolling()
-        if (isOtherEnvironmentThanProd()) {
-            appContext.innboksConsumer.startPolling()
-            appContext.statusoppdateringConsumer.startPolling()
+        if (shouldPollBeskjed()) {
+            appContext.beskjedConsumer.startPolling()
         } else {
-            log.info("Er i produksjonsmiljø, unnlater å starte innboksconsumer.")
+            log.info("Unnlater å starte polling av beskjed")
+        }
+
+        if (shouldPollOppgave()) {
+            appContext.oppgaveConsumer.startPolling()
+        } else {
+            log.info("Unnlater å starte polling av oppgave")
+        }
+
+        if (shouldPollDone()) {
+            appContext.doneConsumer.startPolling()
+        } else {
+            log.info("Unnlater å starte polling av done")
+        }
+
+        if (isOtherEnvironmentThanProd()) {
+            if (shouldPollInnboks()) {
+                appContext.innboksConsumer.startPolling()
+            } else {
+                log.info("Unnlater å starte polling av innboks")
+            }
+
+            if (shouldPollStatusoppdatering()) {
+                appContext.statusoppdateringConsumer.startPolling()
+            } else {
+                log.info("Unnlater å starte polling av statusoppdatering")
+            }
+        } else {
+            log.info("Er i produksjonsmiljø, unnlater å starte innboksconsumer og statusoppdateringsconsumer.")
         }
     }
 
     suspend fun stopAllKafkaConsumers(appContext: ApplicationContext) {
         log.info("Begynner å stoppe kafka-pollerne...")
-        appContext.beskjedConsumer.stopPolling()
-        appContext.oppgaveConsumer.stopPolling()
-        appContext.doneConsumer.stopPolling()
+
+        if (!appContext.beskjedConsumer.isCompleted()) {
+            appContext.beskjedConsumer.stopPolling()
+        }
+
+        if (!appContext.oppgaveConsumer.isCompleted()) {
+            appContext.oppgaveConsumer.stopPolling()
+        }
+
+        if (!appContext.oppgaveConsumer.isCompleted()) {
+            appContext.oppgaveConsumer.stopPolling()
+        }
+
+        if (!appContext.doneConsumer.isCompleted()) {
+            appContext.doneConsumer.stopPolling()
+        }
+
         if (isOtherEnvironmentThanProd()) {
-            appContext.innboksConsumer.stopPolling()
-            appContext.statusoppdateringConsumer.stopPolling()
+            if (!appContext.innboksConsumer.isCompleted()) {
+                appContext.innboksConsumer.stopPolling()
+            }
+
+            if (!appContext.statusoppdateringConsumer.isCompleted()) {
+                appContext.statusoppdateringConsumer.stopPolling()
+            }
         }
         log.info("...ferdig med å stoppe kafka-pollerne.")
     }
