@@ -3,6 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.config
 import no.nav.personbruker.dittnav.common.util.config.IntEnvVar.getEnvVarAsInt
 import no.nav.personbruker.dittnav.common.util.config.StringEnvVar
 import no.nav.personbruker.dittnav.common.util.config.StringEnvVar.getEnvVar
+import no.nav.personbruker.dittnav.eventaggregator.config.ConfigUtil.isCurrentlyRunningOnNais
 
 data class Environment(val username: String = getEnvVar("SERVICEUSER_USERNAME"),
                        val password: String = getEnvVar("SERVICEUSER_PASSWORD"),
@@ -16,19 +17,33 @@ data class Environment(val username: String = getEnvVar("SERVICEUSER_USERNAME"),
                        val influxdbPassword: String = getEnvVar("INFLUXDB_PASSWORD"),
                        val influxdbRetentionPolicy: String = getEnvVar("INFLUXDB_RETENTION_POLICY"),
                        val aivenBrokers: String = getEnvVar("KAFKA_BROKERS"),
-                       val aivenTruststorePath: String = getEnvVar("KAFKA_TRUSTSTORE_PATH"),
-                       val aivenKeystorePath: String = getEnvVar("KAFKA_KEYSTORE_PATH"),
-                       val aivenCredstorePassword: String = getEnvVar("KAFKA_CREDSTORE_PASSWORD"),
                        val aivenSchemaRegistry: String = getEnvVar("KAFKA_SCHEMA_REGISTRY"),
-                       val aivenSchemaRegistryUser: String = getEnvVar("KAFKA_SCHEMA_REGISTRY_USER"),
-                       val aivenSchemaRegistryPassword: String = getEnvVar("KAFKA_SCHEMA_REGISTRY_PASSWORD"),
+                       val securityConfig: SecurityConfig = SecurityConfig(isCurrentlyRunningOnNais()),
                        val dbUser: String = getEnvVar("DB_USERNAME"),
                        val dbPassword: String = getEnvVar("DB_PASSWORD"),
                        val dbHost: String = getEnvVar("DB_HOST"),
                        val dbPort: String = getEnvVar("DB_PORT"),
                        val dbName: String = getEnvVar("DB_DATABASE"),
-                       val dbUrl: String = "jdbc:postgresql://${dbHost}:${dbPort}/${dbName}"
+                       val dbUrl: String = getDbUrl(dbHost, dbPort, dbName)
 
+)
+
+data class SecurityConfig(
+        val enabled: Boolean,
+
+        val variables: SecurityVars? = if (enabled) {
+            SecurityVars()
+        } else {
+            null
+        }
+)
+
+data class SecurityVars(
+        val aivenTruststorePath: String = getEnvVar("KAFKA_TRUSTSTORE_PATH"),
+        val aivenKeystorePath: String = getEnvVar("KAFKA_KEYSTORE_PATH"),
+        val aivenCredstorePassword: String = getEnvVar("KAFKA_CREDSTORE_PASSWORD"),
+        val aivenSchemaRegistryUser: String = getEnvVar("KAFKA_SCHEMA_REGISTRY_USER"),
+        val aivenSchemaRegistryPassword: String = getEnvVar("KAFKA_SCHEMA_REGISTRY_PASSWORD")
 )
 
 fun isOtherEnvironmentThanProd() = System.getenv("NAIS_CLUSTER_NAME") != "prod-sbs"
@@ -44,3 +59,11 @@ fun shouldPollInnboks() = StringEnvVar.getOptionalEnvVar("POLL_INNBOKS", "false"
 fun shouldPollStatusoppdatering() = StringEnvVar.getOptionalEnvVar("POLL_STATUSOPPDATERING", "false").toBoolean()
 
 fun shouldPollDone() = StringEnvVar.getOptionalEnvVar("POLL_DONE", "false").toBoolean()
+
+fun getDbUrl(host: String, port: String, name: String): String {
+    return if (host.endsWith(":$port")) {
+        "jdbc:postgresql://${host}/$name"
+    } else {
+        "jdbc:postgresql://${host}:${port}/${name}"
+    }
+}
