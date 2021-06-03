@@ -9,8 +9,8 @@ import java.util.*
 
 object KafkaEmbed {
 
-    fun consumerProps(env: Environment, eventTypeToConsume: EventType, enableSecurity: Boolean = ConfigUtil.isCurrentlyRunningOnNais()): Properties {
-        return Kafka.consumerProps(env, eventTypeToConsume, enableSecurity).apply {
+    fun consumerProps(env: Environment, eventTypeToConsume: EventType): Properties {
+        return Kafka.consumerProps(env, eventTypeToConsume).apply {
             put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
         }
     }

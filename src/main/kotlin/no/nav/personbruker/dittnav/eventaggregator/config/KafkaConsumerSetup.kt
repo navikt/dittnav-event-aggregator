@@ -109,16 +109,4 @@ object KafkaConsumerSetup {
         val kafkaConsumer = KafkaConsumer<NokkelIntern, StatusoppdateringIntern>(kafkaProps)
         return Consumer(Kafka.statusoppdateringHovedTopicName, kafkaConsumer, eventProcessor)
     }
-
-    fun <T> createCountConsumer(eventType: EventType,
-                                topic: String,
-                                environment: Environment,
-                                enableSecurity: Boolean = ConfigUtil.isCurrentlyRunningOnNais()): KafkaConsumer<NokkelIntern, T> {
-
-        val kafkaProps = Kafka.counterConsumerProps(environment, eventType, enableSecurity)
-        val consumer = KafkaConsumer<NokkelIntern, T>(kafkaProps)
-        consumer.subscribe(listOf(topic))
-        return consumer
-    }
-
 }

@@ -25,49 +25,50 @@ object Kafka {
     val oppgaveHovedTopicName = "min-side.privat-brukernotifikasjon-oppgave-v1"
     val statusoppdateringHovedTopicName = "min-side.privat-brukernotifikasjon-statusoppdatering-v1"
 
-    fun counterConsumerProps(env: Environment, eventTypeToConsume: EventType, enableSecurity: Boolean = isCurrentlyRunningOnNais()): Properties {
+    fun counterConsumerProps(env: Environment, eventTypeToConsume: EventType): Properties {
         val groupIdAndEventType = "dn-aggregator_metrics_counter_" + eventTypeToConsume.eventType
         val sixMinutes = 6 * 60 * 1000
         return Properties().apply {
             put(ConsumerConfig.GROUP_ID_CONFIG, groupIdAndEventType)
             put(ConsumerConfig.CLIENT_ID_CONFIG, groupIdAndEventType + getHostname(InetSocketAddress(0)))
             put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, sixMinutes)
-            if (enableSecurity) {
-                putAll(credentialPropsAiven(env))
+            if (env.securityConfig.enabled) {
+                putAll(credentialPropsAiven(env.securityConfig.variables!!))
             }
         }
     }
 
-    fun consumerProps(env: Environment, eventtypeToConsume: EventType, enableSecurity: Boolean = isCurrentlyRunningOnNais()): Properties {
+    fun consumerProps(env: Environment, eventtypeToConsume: EventType): Properties {
         val groupIdAndEventType = buildGroupIdIncludingEventType(env, eventtypeToConsume)
         return Properties().apply {
             put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, env.aivenBrokers)
             put(KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG, env.aivenSchemaRegistry)
             put(ConsumerConfig.GROUP_ID_CONFIG, groupIdAndEventType)
-            put(ConsumerConfig.CLIENT_ID_CONFIG, groupIdAndEventType + NetUtil.getHostname(InetSocketAddress(0)))
+            put(ConsumerConfig.CLIENT_ID_CONFIG, groupIdAndEventType + getHostname(InetSocketAddress(0)))
             put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false)
             put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, SwallowSerializationErrorsAvroDeserializer::class.java)
             put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, SwallowSerializationErrorsAvroDeserializer::class.java)
             put(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, true)
-            if (enableSecurity) {
-                putAll(credentialPropsAiven(env))
+            if (env.securityConfig.enabled) {
+                putAll(credentialPropsAiven(env.securityConfig.variables!!))
             }
         }
     }
 
-    private fun credentialPropsAiven(env: Environment): Properties {
+    private fun credentialPropsAiven(securityVars: SecurityVars): Properties {
+
         return Properties().apply {
-            put(KafkaAvroSerializerConfig.USER_INFO_CONFIG, "${env.aivenSchemaRegistryUser}:${env.aivenSchemaRegistryPassword}")
+            put(KafkaAvroSerializerConfig.USER_INFO_CONFIG, "${securityVars.aivenSchemaRegistryUser}:${securityVars.aivenSchemaRegistryPassword}")
             put(KafkaAvroSerializerConfig.BASIC_AUTH_CREDENTIALS_SOURCE, "USER_INFO")
             put(SaslConfigs.SASL_MECHANISM, "PLAIN")
             put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SSL")
             put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, "jks")
             put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, "PKCS12")
-            put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, env.aivenTruststorePath)
-            put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, env.aivenCredstorePassword)
-            put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, env.aivenKeystorePath)
-            put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, env.aivenCredstorePassword)
-            put(SslConfigs.SSL_KEY_PASSWORD_CONFIG, env.aivenCredstorePassword)
+            put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, securityVars.aivenTruststorePath)
+            put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, securityVars.aivenCredstorePassword)
+            put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, securityVars.aivenKeystorePath)
+            put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, securityVars.aivenCredstorePassword)
+            put(SslConfigs.SSL_KEY_PASSWORD_CONFIG, securityVars.aivenCredstorePassword)
             put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "")
         }
     }
