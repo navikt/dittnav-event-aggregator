@@ -53,7 +53,7 @@ class Consumer<T>(
         return if (job.isActive) {
             HealthStatus(serviceName, Status.OK, "Consumer is running", includeInReadiness = false)
         } else {
-            log.error("Selftest mot Kafka-consumere feilet, consumer kjører ikke.")
+            log.info("Selftest mot Kafka-consumere feilet, consumer kjører ikke. Vil startes igjen av PeriodicConsumerPollingCheck innen 30 minutter.")
             HealthStatus(serviceName, Status.ERROR, "Consumer is not running", includeInReadiness = false)
         }
     }
