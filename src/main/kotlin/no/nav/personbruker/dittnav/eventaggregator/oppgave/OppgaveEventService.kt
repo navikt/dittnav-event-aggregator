@@ -43,8 +43,11 @@ class OppgaveEventService(
                     val msg = "Eventet kan ikke brukes fordi det inneholder valideringsfeil, eventet vil bli forkastet. EventId: ${event.eventId}, systembruker: ${event.systembruker}, $fve"
                     log.warn(msg, fve)
                 } catch (cce: ClassCastException) {
-                    log.warn("Feil eventtype funnet på topic, fant et event av typen ${event.javaClass.name} med feltene: $event. Feilmelding: ${cce.message}", cce)
-                    throw cce
+                    countFailedEventForProducer(event.systembruker ?: "NoProducerSpecified")
+                    val funnetType = event.javaClass.name
+                    val eventId = event.eventId
+                    val systembruker = event.systembruker
+                    log.warn("Feil eventtype funnet på topic, fant et event av typen $funnetType. Eventet blir forkastet. EventId: $eventId, systembruker: $systembruker, $cce", cce)
 
                 } catch (e: Exception) {
                     countFailedEventForProducer(event.systembruker ?: "NoProducerSpecified")
