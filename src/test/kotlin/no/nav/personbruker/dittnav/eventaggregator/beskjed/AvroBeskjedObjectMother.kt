@@ -1,6 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import no.nav.brukernotifikasjon.schemas.Beskjed
+import no.nav.brukernotifikasjon.schemas.builders.domain.PreferertKanal
 import java.time.Instant
 
 object AvroBeskjedObjectMother {
@@ -9,6 +10,7 @@ object AvroBeskjedObjectMother {
     private val defaultFodselsnr = "12345"
     private val defaultText = "Dette er Beskjed til brukeren"
     private val defaultEksternVarsling = true
+    private val defaultPrefererteKanaler = listOf(PreferertKanal.EPOST.toString(), PreferertKanal.SMS.toString())
 
     fun createBeskjedWithText(text: String): Beskjed {
         return createBeskjed(defaultLopenummer, defaultFodselsnr, text)
@@ -31,7 +33,8 @@ object AvroBeskjedObjectMother {
                 text,
                 "https://nav.no/systemX/$lopenummer",
                 4,
-                defaultEksternVarsling)
+                defaultEksternVarsling,
+                defaultPrefererteKanaler)
     }
 
     fun createBeskjedWithoutSynligFremTilSatt(): Beskjed {
@@ -43,7 +46,7 @@ object AvroBeskjedObjectMother {
                 defaultText,
                 "https://nav.no/systemX/$defaultLopenummer",
                 4,
-                defaultEksternVarsling)
+                defaultEksternVarsling,
+                defaultPrefererteKanaler)
     }
-
 }

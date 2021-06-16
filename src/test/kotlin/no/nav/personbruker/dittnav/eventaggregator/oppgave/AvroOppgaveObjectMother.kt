@@ -1,6 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
 import no.nav.brukernotifikasjon.schemas.Oppgave
+import no.nav.brukernotifikasjon.schemas.builders.domain.PreferertKanal
 import java.time.Instant
 
 object AvroOppgaveObjectMother {
@@ -9,6 +10,7 @@ object AvroOppgaveObjectMother {
     private val defaultFodselsnr = "12345"
     private val defaultTekst = "Dette er oppgave til brukeren"
     private val defaultEksternVarsling = true
+    private val defaultPrefererteKanaler = listOf(PreferertKanal.EPOST.toString(), PreferertKanal.SMS.toString())
 
     fun createOppgave(lopenummer: Int): Oppgave {
         return createOppgave(lopenummer, defaultFodselsnr, defaultTekst)
@@ -30,7 +32,7 @@ object AvroOppgaveObjectMother {
                 tekst,
                 "https://nav.no/systemX/$lopenummer",
                 4,
-                defaultEksternVarsling)
+                defaultEksternVarsling,
+                defaultPrefererteKanaler)
     }
-
 }

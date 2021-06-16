@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
 import no.nav.brukernotifikasjon.schemas.builders.domain.Eventtype
 import no.nav.brukernotifikasjon.schemas.builders.util.ValidationUtil
+import no.nav.personbruker.dittnav.eventaggregator.common.validation.validatePrefererteKanaler
 import java.time.LocalDateTime
 
 data class Oppgave(
@@ -16,7 +17,8 @@ data class Oppgave(
         val sikkerhetsnivaa: Int,
         val sistOppdatert: LocalDateTime,
         val aktiv: Boolean,
-        val eksternVarsling: Boolean
+        val eksternVarsling: Boolean,
+        val prefererteKanaler: List<String> = emptyList()
 ) {
     constructor(
             systembruker: String,
@@ -29,7 +31,8 @@ data class Oppgave(
             sikkerhetsnivaa: Int,
             sistOppdatert: LocalDateTime,
             aktiv: Boolean,
-            eksternVarsling: Boolean
+            eksternVarsling: Boolean,
+            prefererteKanaler: List<String> = emptyList()
     ) : this(null,
             systembruker,
             eventId,
@@ -41,7 +44,8 @@ data class Oppgave(
             sikkerhetsnivaa,
             sistOppdatert,
             aktiv,
-            eksternVarsling
+            eksternVarsling,
+            prefererteKanaler
     ) {
         ValidationUtil.validateNonNullFieldMaxLength(systembruker, "systembruker", ValidationUtil.MAX_LENGTH_SYSTEMBRUKER)
         ValidationUtil.validateNonNullFieldMaxLength(eventId, "eventId", ValidationUtil.MAX_LENGTH_EVENTID)
@@ -50,6 +54,7 @@ data class Oppgave(
         ValidationUtil.validateNonNullFieldMaxLength(tekst, "tekst", ValidationUtil.MAX_LENGTH_TEXT_OPPGAVE)
         ValidationUtil.validateLinkAndConvertToString(ValidationUtil.validateLinkAndConvertToURL(link), "link", ValidationUtil.MAX_LENGTH_LINK, ValidationUtil.isLinkRequired(Eventtype.OPPGAVE))
         ValidationUtil.validateSikkerhetsnivaa(sikkerhetsnivaa)
+        validatePrefererteKanaler(eksternVarsling, prefererteKanaler)
     }
 
     override fun toString(): String {
@@ -65,6 +70,7 @@ data class Oppgave(
                 "sikkerhetsnivaa=$sikkerhetsnivaa, " +
                 "sistOppdatert=$sistOppdatert, " +
                 "aktiv=$aktiv, " +
-                "eksternVarsling=$eksternVarsling"
+                "eksternVarsling=$eksternVarsling, " +
+                "prefererteKanaler=$prefererteKanaler"
     }
 }

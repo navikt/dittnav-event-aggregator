@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import no.nav.brukernotifikasjon.schemas.builders.domain.Eventtype
 import no.nav.brukernotifikasjon.schemas.builders.util.ValidationUtil
+import no.nav.personbruker.dittnav.eventaggregator.common.validation.validatePrefererteKanaler
 import java.time.LocalDateTime
 
 data class Beskjed(
@@ -18,7 +19,8 @@ data class Beskjed(
         val sistOppdatert: LocalDateTime,
         val synligFremTil: LocalDateTime?,
         val aktiv: Boolean,
-        val eksternVarsling: Boolean
+        val eksternVarsling: Boolean,
+        val prefererteKanaler: List<String> = emptyList()
 ) {
     constructor(uid: String,
                 systembruker: String,
@@ -32,7 +34,8 @@ data class Beskjed(
                 sistOppdatert: LocalDateTime,
                 synligFremTil: LocalDateTime?,
                 aktiv: Boolean,
-                eksternVarsling: Boolean
+                eksternVarsling: Boolean,
+                prefererteKanaler: List<String> = emptyList()
     ) : this(uid,
             null,
             systembruker,
@@ -46,7 +49,8 @@ data class Beskjed(
             sistOppdatert,
             synligFremTil,
             aktiv,
-            eksternVarsling
+            eksternVarsling,
+            prefererteKanaler
     ) {
         ValidationUtil.validateNonNullFieldMaxLength(systembruker, "systembruker", ValidationUtil.MAX_LENGTH_SYSTEMBRUKER)
         ValidationUtil.validateNonNullFieldMaxLength(eventId, "eventId", ValidationUtil.MAX_LENGTH_EVENTID)
@@ -56,6 +60,7 @@ data class Beskjed(
         ValidationUtil.validateLinkAndConvertToString(ValidationUtil.validateLinkAndConvertToURL(link), "link", ValidationUtil.MAX_LENGTH_LINK, ValidationUtil.isLinkRequired(Eventtype.BESKJED))
         ValidationUtil.validateSikkerhetsnivaa(sikkerhetsnivaa)
         ValidationUtil.validateNonNullFieldMaxLength(uid, "uid", ValidationUtil.MAX_LENGTH_UID)
+        validatePrefererteKanaler(eksternVarsling, prefererteKanaler)
     }
 
     override fun toString(): String {
@@ -73,6 +78,7 @@ data class Beskjed(
                 "sistOppdatert=$sistOppdatert, " +
                 "synligFremTil=$synligFremTil, " +
                 "aktiv=$aktiv, " +
-                "eksternVarsling=$eksternVarsling"
+                "eksternVarsling=$eksternVarsling, " +
+                "prefererteKanaler=$prefererteKanaler"
     }
 }
