@@ -31,8 +31,8 @@ object BeskjedObjectMother {
     }
 
     fun giveMeAktivBeskjedWithEksternVarslingAndPrefererteKanaler(eksternVarsling: Boolean, prefererteKanaler: List<String>): Beskjed {
-        val beskjed = giveMeAktivBeskjed(eventId = "B-2", fodselsnummer = "1234", systembruker = "dummySystembruker", link = "https://nav.no/systemX/")
-        return beskjed.copy(prefererteKanaler = listOf(PreferertKanal.EPOST.toString(), PreferertKanal.SMS.toString()))
+        val beskjed = giveMeAktivBeskjed(eventId = "B-3", fodselsnummer = "1234", systembruker = "dummySystembruker", link = "https://nav.no/systemX/")
+        return beskjed.copy(eksternVarsling = eksternVarsling, prefererteKanaler = prefererteKanaler)
     }
 
     private fun giveMeAktivBeskjed(eventId: String, fodselsnummer: String, systembruker: String, link: String): Beskjed {

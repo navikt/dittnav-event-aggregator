@@ -128,6 +128,18 @@ class beskjedQueriesTest {
     }
 
     @Test
+    fun `Skal haandtere at prefererteKanaler er tom`() {
+        val beskjed = BeskjedObjectMother.giveMeAktivBeskjedWithEksternVarslingAndPrefererteKanaler(true, emptyList())
+        invoking {
+            runBlocking {
+                database.dbQuery { createBeskjed(beskjed) }
+                val result = database.dbQuery { getBeskjedByEventId(beskjed.eventId) }
+                result.prefererteKanaler.`should be empty`()
+            }
+        }
+    }
+
+    @Test
     fun `Skal skrive eventer i batch`() {
         val beskjed1 = BeskjedObjectMother.giveMeAktivBeskjed("b-1", "123")
         val beskjed2 = BeskjedObjectMother.giveMeAktivBeskjed("b-2", "123")
