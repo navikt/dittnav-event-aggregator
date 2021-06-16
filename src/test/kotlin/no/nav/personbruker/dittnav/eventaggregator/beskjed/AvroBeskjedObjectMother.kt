@@ -24,6 +24,20 @@ object AvroBeskjedObjectMother {
         return createBeskjed(defaultLopenummer, fodselsnummer, defaultText)
     }
 
+    fun createBeskjedWithEksternVarslingAndPrefererteKanaler(eksternVarsling: Boolean, prefererteKanaler: List<String>): Beskjed {
+        return Beskjed(
+            Instant.now().toEpochMilli(),
+            Instant.now().toEpochMilli(),
+            defaultFodselsnr,
+            "100$defaultLopenummer",
+            defaultText,
+            "https://nav.no/systemX/$defaultLopenummer",
+            4,
+            eksternVarsling,
+            prefererteKanaler
+        )
+    }
+
     fun createBeskjed(lopenummer: Int, fodselsnummer: String, text: String): Beskjed {
         return Beskjed(
                 Instant.now().toEpochMilli(),

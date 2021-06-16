@@ -15,7 +15,7 @@ fun timestampToUTCDateOrNull(timestamp: Long?): LocalDateTime? {
 fun validatePrefererteKanaler(eksternVarsling: Boolean, field: List<String>): List<String> {
     val fieldName = "prefererteKanaler"
     if (!eksternVarsling && field.isNotEmpty()) {
-        throw FieldValidationException("Feltet $fieldName kan ikke settes så lenge eksternVarsling er satt til true.")
+        throw FieldValidationException("Feltet $fieldName kan ikke settes så lenge eksternVarsling er false.")
     } else {
         try {
             field.forEach { preferertKanal -> PreferertKanal.valueOf(preferertKanal) }

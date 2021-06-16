@@ -25,7 +25,8 @@ object BeskjedTransformer {
                 LocalDateTime.now(ZoneId.of("UTC")),
                 externalValue.synligFremTilAsUTCDateTime(),
                 newRecordsAreActiveByDefault,
-                externalValue.getEksternVarsling()
+                externalValue.getEksternVarsling(),
+                externalValue.getPrefererteKanaler()
         )
     }
 
