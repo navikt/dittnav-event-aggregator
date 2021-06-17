@@ -48,7 +48,7 @@ class DoneEventService(
                     val funnetType = event.javaClass.name
                     val eventId = event.eventId
                     val systembruker = event.systembruker
-                    log.warn("Feil eventtype funnet på topic, fant et event av typen $funnetType. Eventet blir forkastet. EventId: $eventId, systembruker: $systembruker, $cce", cce)
+                    log.warn("Feil eventtype funnet på done-topic. Fant et event av typen $funnetType. Eventet blir forkastet. EventId: $eventId, systembruker: $systembruker, $cce", cce)
 
                 } catch (e: Exception) {
                     countFailedEventForProducer(event.systembruker ?: "NoProducerSpecified")
