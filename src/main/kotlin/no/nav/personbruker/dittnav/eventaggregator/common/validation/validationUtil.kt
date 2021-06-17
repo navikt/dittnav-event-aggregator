@@ -16,12 +16,11 @@ fun validatePrefererteKanaler(eksternVarsling: Boolean, field: List<String>): Li
     val fieldName = "prefererteKanaler"
     if (!eksternVarsling && field.isNotEmpty()) {
         throw FieldValidationException("Feltet $fieldName kan ikke settes så lenge eksternVarsling er false.")
-    } else {
-        try {
-            field.forEach { preferertKanal -> PreferertKanal.valueOf(preferertKanal) }
-        } catch(e: IllegalArgumentException) {
-            throw FieldValidationException("Feltet $fieldName kan bare innholde følgende verdier: ${PreferertKanal.values()}")
-        }
+    }
+    try {
+        field.forEach { preferertKanal -> PreferertKanal.valueOf(preferertKanal) }
+    } catch(e: IllegalArgumentException) {
+        throw FieldValidationException("Feltet $fieldName kan bare innholde følgende verdier: ${PreferertKanal.values()}")
     }
     return field
 }
