@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
+import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.emptyPersistResult
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
@@ -14,6 +15,7 @@ import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsSession
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should throw`
 import org.amshove.kluent.invoking
+import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -213,6 +215,26 @@ class DoneEventServiceTest {
         coEvery {
             persistingService.fetchBrukernotifikasjonerFromViewForEventIds(any())
         } returns listOf(beskjedInDbToMatch)
+
+        runBlocking {
+            service.processEvents(records)
+        }
+
+        coVerify(exactly = 1) { persistingService.writeDoneEventsForBeskjedToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeDoneEventsForInnboksToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeDoneEventsForOppgaveToCache(emptyList()) }
+        coVerify(exactly = 1) { persistingService.writeEventsToCache(emptyList()) }
+    }
+
+    @Test
+    fun `skal haandtere at et event med feil type har havnet paa topic`() {
+        val beskjed = ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(1, "done")
+
+        val records = beskjed as ConsumerRecords<Nokkel, no.nav.brukernotifikasjon.schemas.Done>
+
+        coEvery {
+            persistingService.fetchBrukernotifikasjonerFromViewForEventIds(any())
+        } returns emptyList()
 
         runBlocking {
             service.processEvents(records)

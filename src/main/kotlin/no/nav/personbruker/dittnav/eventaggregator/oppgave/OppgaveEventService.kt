@@ -42,10 +42,17 @@ class OppgaveEventService(
                     countFailedEventForProducer(event.systembruker ?: "NoProducerSpecified")
                     val msg = "Eventet kan ikke brukes fordi det inneholder valideringsfeil, eventet vil bli forkastet. EventId: ${event.eventId}, systembruker: ${event.systembruker}, $fve"
                     log.warn(msg, fve)
+                } catch (cce: ClassCastException) {
+                    countFailedEventForProducer(event.systembruker ?: "NoProducerSpecified")
+                    val funnetType = event.javaClass.name
+                    val eventId = event.eventId
+                    val systembruker = event.systembruker
+                    log.warn("Feil eventtype funnet på oppgave-topic. Fant et event av typen $funnetType. Eventet blir forkastet. EventId: $eventId, systembruker: $systembruker, $cce", cce)
+
                 } catch (e: Exception) {
                     countFailedEventForProducer(event.systembruker ?: "NoProducerSpecified")
                     problematicEvents.add(event)
-                    log.warn("Transformasjon av oppgave-event fra Kafka feilet.", e)
+                    log.warn("Transformasjon av oppgave-event fra Kafka feilet, fullfører batch-en før pollig stoppes.", e)
                 }
             }
 
