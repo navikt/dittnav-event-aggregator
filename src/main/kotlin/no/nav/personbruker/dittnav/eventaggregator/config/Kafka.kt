@@ -2,10 +2,8 @@ package no.nav.personbruker.dittnav.eventaggregator.config
 
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
-import io.netty.util.NetUtil
 import io.netty.util.NetUtil.getHostname
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.SwallowSerializationErrorsAvroDeserializer
-import no.nav.personbruker.dittnav.eventaggregator.config.ConfigUtil.isCurrentlyRunningOnNais
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.config.SaslConfigs
@@ -45,6 +43,7 @@ object Kafka {
             put(KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG, env.aivenSchemaRegistry)
             put(ConsumerConfig.GROUP_ID_CONFIG, groupIdAndEventType)
             put(ConsumerConfig.CLIENT_ID_CONFIG, groupIdAndEventType + getHostname(InetSocketAddress(0)))
+            put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
             put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false)
             put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, SwallowSerializationErrorsAvroDeserializer::class.java)
             put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, SwallowSerializationErrorsAvroDeserializer::class.java)
