@@ -1,6 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.config
 
-import no.nav.personbruker.dittnav.eventaggregator.config.ConfigUtil
 import no.nav.personbruker.dittnav.eventaggregator.config.Environment
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
