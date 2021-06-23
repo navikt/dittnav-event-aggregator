@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
+import no.nav.brukernotifikasjon.schemas.builders.domain.PreferertKanal
 import no.nav.brukernotifikasjon.schemas.builders.exception.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.common.`with message containing`
 import org.amshove.kluent.`should contain`
@@ -205,4 +206,44 @@ class OppgaveTest {
         } `should throw` FieldValidationException::class `with message containing` "Sikkerhetsnivaa"
     }
 
+    @Test
+    fun `do not allow unknown preferert kanal`() {
+        val unknownPreferertKanal = "Unknown"
+        invoking {
+            Oppgave(
+                systembruker = validSystembruker,
+                eventTidspunkt = eventTidspunkt,
+                fodselsnummer = validFodselsnummer,
+                eventId = validEventId,
+                grupperingsId = validGrupperingsId,
+                tekst = validTekst,
+                link = validLink,
+                sistOppdatert = sistOppdatert,
+                sikkerhetsnivaa = validSikkerhetsnivaa,
+                aktiv = true,
+                eksternVarsling = true,
+                prefererteKanaler = listOf(unknownPreferertKanal)
+            )
+        } `should throw` FieldValidationException::class `with message containing` "prefererteKanaler"
+    }
+
+    @Test
+    fun `do not allow prefererteKanaler if eksternVarsling is false`() {
+        invoking {
+            Oppgave(
+                systembruker = validSystembruker,
+                eventTidspunkt = eventTidspunkt,
+                fodselsnummer = validFodselsnummer,
+                eventId = validEventId,
+                grupperingsId = validGrupperingsId,
+                tekst = validTekst,
+                link = validLink,
+                sistOppdatert = sistOppdatert,
+                sikkerhetsnivaa = validSikkerhetsnivaa,
+                aktiv = true,
+                eksternVarsling = false,
+                prefererteKanaler = listOf(PreferertKanal.SMS.toString())
+            )
+        } `should throw` FieldValidationException::class `with message containing` "prefererteKanaler"
+    }
 }

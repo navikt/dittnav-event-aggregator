@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
+import no.nav.brukernotifikasjon.schemas.builders.domain.PreferertKanal
 import no.nav.brukernotifikasjon.schemas.builders.exception.FieldValidationException
 import no.nav.personbruker.dittnav.eventaggregator.common.`with message containing`
 import org.amshove.kluent.`should be equal to`
@@ -39,19 +40,20 @@ class BeskjedTest {
         val tooLongSystembruker = "P".repeat(101)
         invoking {
             Beskjed(
-                    uid = uid,
-                    systembruker = tooLongSystembruker,
-                    eventTidspunkt = eventTidspunkt,
-                    synligFremTil = synligFremTil,
-                    fodselsnummer = validFodselsnummer,
-                    eventId = validEventId,
-                    grupperingsId = validGrupperingsId,
-                    tekst = validTekst,
-                    link = validLink,
-                    sistOppdatert = sistOppdatert,
-                    sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true,
-                    eksternVarsling = false)
+                uid = uid,
+                systembruker = tooLongSystembruker,
+                eventTidspunkt = eventTidspunkt,
+                synligFremTil = synligFremTil,
+                fodselsnummer = validFodselsnummer,
+                eventId = validEventId,
+                grupperingsId = validGrupperingsId,
+                tekst = validTekst,
+                link = validLink,
+                sistOppdatert = sistOppdatert,
+                sikkerhetsnivaa = validSikkerhetsnivaa,
+                aktiv = true,
+                eksternVarsling = false
+            )
         } `should throw` FieldValidationException::class `with message containing` "systembruker"
     }
 
@@ -60,19 +62,20 @@ class BeskjedTest {
         val tooLongFnr = "1".repeat(12)
         invoking {
             Beskjed(
-                    uid = uid,
-                    systembruker = validSystembruker,
-                    eventTidspunkt = eventTidspunkt,
-                    synligFremTil = synligFremTil,
-                    fodselsnummer = tooLongFnr,
-                    eventId = validEventId,
-                    grupperingsId = validGrupperingsId,
-                    tekst = validTekst,
-                    link = validLink,
-                    sistOppdatert = sistOppdatert,
-                    sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true,
-                    eksternVarsling = false)
+                uid = uid,
+                systembruker = validSystembruker,
+                eventTidspunkt = eventTidspunkt,
+                synligFremTil = synligFremTil,
+                fodselsnummer = tooLongFnr,
+                eventId = validEventId,
+                grupperingsId = validGrupperingsId,
+                tekst = validTekst,
+                link = validLink,
+                sistOppdatert = sistOppdatert,
+                sikkerhetsnivaa = validSikkerhetsnivaa,
+                aktiv = true,
+                eksternVarsling = false
+            )
         } `should throw` FieldValidationException::class `with message containing` "fodselsnummer"
     }
 
@@ -81,19 +84,20 @@ class BeskjedTest {
         val tooLongEventId = "E".repeat(51)
         invoking {
             Beskjed(
-                    uid = uid,
-                    systembruker = validSystembruker,
-                    eventTidspunkt = eventTidspunkt,
-                    synligFremTil = synligFremTil,
-                    fodselsnummer = validFodselsnummer,
-                    eventId = tooLongEventId,
-                    grupperingsId = validGrupperingsId,
-                    tekst = validTekst,
-                    link = validLink,
-                    sistOppdatert = sistOppdatert,
-                    sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true,
-                    eksternVarsling = false)
+                uid = uid,
+                systembruker = validSystembruker,
+                eventTidspunkt = eventTidspunkt,
+                synligFremTil = synligFremTil,
+                fodselsnummer = validFodselsnummer,
+                eventId = tooLongEventId,
+                grupperingsId = validGrupperingsId,
+                tekst = validTekst,
+                link = validLink,
+                sistOppdatert = sistOppdatert,
+                sikkerhetsnivaa = validSikkerhetsnivaa,
+                aktiv = true,
+                eksternVarsling = false
+            )
         } `should throw` FieldValidationException::class `with message containing` "eventId"
     }
 
@@ -102,19 +106,20 @@ class BeskjedTest {
         val tooLongGrupperingsId = "G".repeat(101)
         invoking {
             Beskjed(
-                    uid = uid,
-                    systembruker = validSystembruker,
-                    eventTidspunkt = eventTidspunkt,
-                    synligFremTil = synligFremTil,
-                    fodselsnummer = validFodselsnummer,
-                    eventId = validEventId,
-                    grupperingsId = tooLongGrupperingsId,
-                    tekst = validTekst,
-                    link = validLink,
-                    sistOppdatert = sistOppdatert,
-                    sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true,
-                    eksternVarsling = false)
+                uid = uid,
+                systembruker = validSystembruker,
+                eventTidspunkt = eventTidspunkt,
+                synligFremTil = synligFremTil,
+                fodselsnummer = validFodselsnummer,
+                eventId = validEventId,
+                grupperingsId = tooLongGrupperingsId,
+                tekst = validTekst,
+                link = validLink,
+                sistOppdatert = sistOppdatert,
+                sikkerhetsnivaa = validSikkerhetsnivaa,
+                aktiv = true,
+                eksternVarsling = false
+            )
         } `should throw` FieldValidationException::class `with message containing` "grupperingsId"
     }
 
@@ -123,19 +128,20 @@ class BeskjedTest {
         val tooLongText = "T".repeat(501)
         invoking {
             Beskjed(
-                    uid = uid,
-                    systembruker = validSystembruker,
-                    eventTidspunkt = eventTidspunkt,
-                    synligFremTil = synligFremTil,
-                    fodselsnummer = validFodselsnummer,
-                    eventId = validEventId,
-                    grupperingsId = validGrupperingsId,
-                    tekst = tooLongText,
-                    link = validLink,
-                    sistOppdatert = sistOppdatert,
-                    sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true,
-                    eksternVarsling = false)
+                uid = uid,
+                systembruker = validSystembruker,
+                eventTidspunkt = eventTidspunkt,
+                synligFremTil = synligFremTil,
+                fodselsnummer = validFodselsnummer,
+                eventId = validEventId,
+                grupperingsId = validGrupperingsId,
+                tekst = tooLongText,
+                link = validLink,
+                sistOppdatert = sistOppdatert,
+                sikkerhetsnivaa = validSikkerhetsnivaa,
+                aktiv = true,
+                eksternVarsling = false
+            )
         } `should throw` FieldValidationException::class `with message containing` "tekst"
     }
 
@@ -144,19 +150,20 @@ class BeskjedTest {
         val tooLongLink = "http://" + "L".repeat(201)
         invoking {
             Beskjed(
-                    uid = uid,
-                    systembruker = validSystembruker,
-                    eventTidspunkt = eventTidspunkt,
-                    synligFremTil = synligFremTil,
-                    fodselsnummer = validFodselsnummer,
-                    eventId = validEventId,
-                    grupperingsId = validGrupperingsId,
-                    tekst = validTekst,
-                    link = tooLongLink,
-                    sistOppdatert = sistOppdatert,
-                    sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true,
-                    eksternVarsling = false)
+                uid = uid,
+                systembruker = validSystembruker,
+                eventTidspunkt = eventTidspunkt,
+                synligFremTil = synligFremTil,
+                fodselsnummer = validFodselsnummer,
+                eventId = validEventId,
+                grupperingsId = validGrupperingsId,
+                tekst = validTekst,
+                link = tooLongLink,
+                sistOppdatert = sistOppdatert,
+                sikkerhetsnivaa = validSikkerhetsnivaa,
+                aktiv = true,
+                eksternVarsling = false
+            )
         } `should throw` FieldValidationException::class `with message containing` "link"
     }
 
@@ -165,19 +172,20 @@ class BeskjedTest {
         val invalidLink = "invalidUrl"
         invoking {
             Beskjed(
-                    uid = uid,
-                    systembruker = validSystembruker,
-                    eventTidspunkt = eventTidspunkt,
-                    synligFremTil = synligFremTil,
-                    fodselsnummer = validFodselsnummer,
-                    eventId = validEventId,
-                    grupperingsId = validGrupperingsId,
-                    tekst = validTekst,
-                    link = invalidLink,
-                    sistOppdatert = sistOppdatert,
-                    sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true,
-                    eksternVarsling = false)
+                uid = uid,
+                systembruker = validSystembruker,
+                eventTidspunkt = eventTidspunkt,
+                synligFremTil = synligFremTil,
+                fodselsnummer = validFodselsnummer,
+                eventId = validEventId,
+                grupperingsId = validGrupperingsId,
+                tekst = validTekst,
+                link = invalidLink,
+                sistOppdatert = sistOppdatert,
+                sikkerhetsnivaa = validSikkerhetsnivaa,
+                aktiv = true,
+                eksternVarsling = false
+            )
         } `should throw` FieldValidationException::class `with message containing` "link"
     }
 
@@ -192,19 +200,20 @@ class BeskjedTest {
         val invalidSikkerhetsnivaa = 2
         invoking {
             Beskjed(
-                    uid = uid,
-                    systembruker = validSystembruker,
-                    eventTidspunkt = eventTidspunkt,
-                    synligFremTil = synligFremTil,
-                    fodselsnummer = validFodselsnummer,
-                    eventId = validEventId,
-                    grupperingsId = validGrupperingsId,
-                    tekst = validTekst,
-                    link = validLink,
-                    sistOppdatert = sistOppdatert,
-                    sikkerhetsnivaa = invalidSikkerhetsnivaa,
-                    aktiv = true,
-                    eksternVarsling = false)
+                uid = uid,
+                systembruker = validSystembruker,
+                eventTidspunkt = eventTidspunkt,
+                synligFremTil = synligFremTil,
+                fodselsnummer = validFodselsnummer,
+                eventId = validEventId,
+                grupperingsId = validGrupperingsId,
+                tekst = validTekst,
+                link = validLink,
+                sistOppdatert = sistOppdatert,
+                sikkerhetsnivaa = invalidSikkerhetsnivaa,
+                aktiv = true,
+                eksternVarsling = false
+            )
         } `should throw` FieldValidationException::class `with message containing` "Sikkerhetsnivaa"
     }
 
@@ -213,20 +222,65 @@ class BeskjedTest {
         val tooLongUid = "U".repeat(101)
         invoking {
             Beskjed(
-                    uid = tooLongUid,
-                    systembruker = validSystembruker,
-                    eventTidspunkt = eventTidspunkt,
-                    synligFremTil = synligFremTil,
-                    fodselsnummer = validFodselsnummer,
-                    eventId = validEventId,
-                    grupperingsId = validGrupperingsId,
-                    tekst = validTekst,
-                    link = validLink,
-                    sistOppdatert = sistOppdatert,
-                    sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true,
-                    eksternVarsling = false)
+                uid = tooLongUid,
+                systembruker = validSystembruker,
+                eventTidspunkt = eventTidspunkt,
+                synligFremTil = synligFremTil,
+                fodselsnummer = validFodselsnummer,
+                eventId = validEventId,
+                grupperingsId = validGrupperingsId,
+                tekst = validTekst,
+                link = validLink,
+                sistOppdatert = sistOppdatert,
+                sikkerhetsnivaa = validSikkerhetsnivaa,
+                aktiv = true,
+                eksternVarsling = false
+            )
         } `should throw` FieldValidationException::class `with message containing` "uid"
     }
 
+    @Test
+    fun `do not allow unknown preferert kanal`() {
+        val unknownPreferertKanal = "Unknown"
+        invoking {
+            Beskjed(
+                uid = uid,
+                systembruker = validSystembruker,
+                eventTidspunkt = eventTidspunkt,
+                synligFremTil = synligFremTil,
+                fodselsnummer = validFodselsnummer,
+                eventId = validEventId,
+                grupperingsId = validGrupperingsId,
+                tekst = validTekst,
+                link = validLink,
+                sistOppdatert = sistOppdatert,
+                sikkerhetsnivaa = validSikkerhetsnivaa,
+                aktiv = true,
+                eksternVarsling = true,
+                prefererteKanaler = listOf(unknownPreferertKanal)
+            )
+        } `should throw` FieldValidationException::class `with message containing` "prefererteKanaler"
+    }
+
+    @Test
+    fun `do not allow prefererteKanaler if eksternVarsling is false`() {
+        invoking {
+            Beskjed(
+                uid = uid,
+                systembruker = validSystembruker,
+                eventTidspunkt = eventTidspunkt,
+                synligFremTil = synligFremTil,
+                fodselsnummer = validFodselsnummer,
+                eventId = validEventId,
+                grupperingsId = validGrupperingsId,
+                tekst = validTekst,
+                link = validLink,
+                sistOppdatert = sistOppdatert,
+                sikkerhetsnivaa = validSikkerhetsnivaa,
+                aktiv = true,
+                eksternVarsling = false,
+                prefererteKanaler = listOf(PreferertKanal.SMS.toString())
+            )
+        } `should throw` FieldValidationException::class `with message containing` "prefererteKanaler"
+    }
 }

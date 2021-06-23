@@ -1,7 +1,9 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
 import kotlinx.coroutines.runBlocking
+import no.nav.brukernotifikasjon.schemas.builders.domain.PreferertKanal
 import no.nav.brukernotifikasjon.schemas.builders.exception.FieldValidationException
+import no.nav.personbruker.dittnav.eventaggregator.common.`with message containing`
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import org.amshove.kluent.*
 import org.junit.jupiter.api.Test
@@ -30,6 +32,7 @@ class OppgaveTransformerTest {
 
         internal.aktiv `should be equal to` true
         internal.eksternVarsling `should be equal to` true
+        internal.prefererteKanaler `should be equal to` external.getPrefererteKanaler()
         internal.sistOppdatert.`should not be null`()
         internal.id.`should be null`()
     }
@@ -45,6 +48,25 @@ class OppgaveTransformerTest {
             runBlocking {
                 OppgaveTransformer.toInternal(nokkel, event)
             }
-        } `should throw` FieldValidationException::class
+        } `should throw` FieldValidationException::class `with message containing` "fodselsnummer"
+    }
+
+    @Test
+    fun `should allow prefererteKanaler to be empty`() {
+        val eventId = 1
+        val nokkel = createNokkel(eventId)
+        val eventUtenPrefererteKanaler = AvroOppgaveObjectMother.createOppgaveWithEksternVarslingAndPrefererteKanaler(true, emptyList())
+        val internal = OppgaveTransformer.toInternal(nokkel, eventUtenPrefererteKanaler)
+        internal.prefererteKanaler.`should be empty`()
+    }
+
+    @Test
+    fun `should not allow prefererteKanaler if eksternVarsling is false`() {
+        val eventId = 1
+        val nokkel = createNokkel(eventId)
+        val eventUtenEksternVarsling = AvroOppgaveObjectMother.createOppgaveWithEksternVarslingAndPrefererteKanaler(false, listOf(PreferertKanal.EPOST.toString()))
+        invoking {
+            OppgaveTransformer.toInternal(nokkel, eventUtenEksternVarsling)
+        } `should throw` FieldValidationException::class `with message containing` "prefererteKanaler"
     }
 }

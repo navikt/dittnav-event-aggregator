@@ -1,7 +1,9 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import kotlinx.coroutines.runBlocking
+import no.nav.brukernotifikasjon.schemas.builders.domain.PreferertKanal
 import no.nav.brukernotifikasjon.schemas.builders.exception.FieldValidationException
+import no.nav.personbruker.dittnav.eventaggregator.common.`with message containing`
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import org.amshove.kluent.*
 import org.junit.jupiter.api.Test
@@ -32,6 +34,7 @@ class BeskjedTransformerTest {
 
         transformed.aktiv `should be equal to` true
         transformed.eksternVarsling `should be equal to` true
+        transformed.prefererteKanaler `should be equal to` original.getPrefererteKanaler()
         transformed.sistOppdatert.`should not be null`()
         transformed.id.`should be null`()
     }
@@ -45,7 +48,7 @@ class BeskjedTransformerTest {
             runBlocking {
                 BeskjedTransformer.toInternal(dummyNokkel, event)
             }
-        } `should throw` FieldValidationException::class
+        } `should throw` FieldValidationException::class `with message containing` "fodselsnummer"
     }
 
     @Test
@@ -57,7 +60,7 @@ class BeskjedTransformerTest {
             runBlocking {
                 BeskjedTransformer.toInternal(dummyNokkel, event)
             }
-        } `should throw` FieldValidationException::class
+        } `should throw` FieldValidationException::class `with message containing` "tekst"
     }
 
     @Test
@@ -79,7 +82,7 @@ class BeskjedTransformerTest {
             runBlocking {
                 BeskjedTransformer.toInternal(dummyNokkel, event)
             }
-        } `should throw` FieldValidationException::class
+        } `should throw` FieldValidationException::class `with message containing` "tekst"
     }
 
     @Test
@@ -91,4 +94,18 @@ class BeskjedTransformerTest {
         transformed.synligFremTil.`should be null`()
     }
 
+    @Test
+    fun `should allow prefererteKanaler to be empty`() {
+        val beskjedUtenPrefererteKanaler = AvroBeskjedObjectMother.createBeskjedWithEksternVarslingAndPrefererteKanaler(true, emptyList())
+        val transformed = BeskjedTransformer.toInternal(dummyNokkel, beskjedUtenPrefererteKanaler)
+        transformed.prefererteKanaler.`should be empty`()
+    }
+
+    @Test
+    fun `should not allow prefererteKanaler if eksternVarsling is false`() {
+        val beskjedUtenEksternVarsling = AvroBeskjedObjectMother.createBeskjedWithEksternVarslingAndPrefererteKanaler(false, listOf(PreferertKanal.EPOST.toString()))
+        invoking {
+            BeskjedTransformer.toInternal(dummyNokkel, beskjedUtenEksternVarsling)
+        } `should throw` FieldValidationException::class `with message containing` "prefererteKanaler"
+    }
 }

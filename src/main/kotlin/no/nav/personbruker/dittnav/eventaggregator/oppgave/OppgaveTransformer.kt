@@ -21,7 +21,8 @@ object OppgaveTransformer {
                 external.getSikkerhetsnivaa(),
                 LocalDateTime.now(ZoneId.of("UTC")),
                 newRecordsAreActiveByDefault,
-                external.getEksternVarsling()
+                external.getEksternVarsling(),
+                external.getPrefererteKanaler()
         )
     }
 }
