@@ -13,6 +13,11 @@ object OppgaveObjectMother {
         return giveMeAktivOppgave(eventId, fodselsnummer, "dummySystembruker")
     }
 
+    fun giveMeAktivOppgaveWithEksternVarslingAndPrefererteKanaler(eksternVarsling: Boolean, prefererteKanaler: List<String>): Oppgave {
+        val oppgave = giveMeAktivOppgave(eventId = "O-2", fodselsnummer = "123", systembruker = "dummySystembruker")
+        return oppgave.copy(eksternVarsling = eksternVarsling, prefererteKanaler = prefererteKanaler)
+    }
+
     fun giveMeAktivOppgave(eventId: String, fodselsnummer: String, systembruker: String): Oppgave {
         return Oppgave(
                 systembruker = systembruker,
@@ -42,5 +47,4 @@ object OppgaveObjectMother {
                 aktiv = false,
                 eksternVarsling = false)
     }
-
 }

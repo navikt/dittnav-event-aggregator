@@ -18,8 +18,8 @@ fun Connection.getAllBeskjed(): List<Beskjed> =
                     }
                 }
 
-private val createQuery = """INSERT INTO beskjed (uid, systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv, eksternVarsling)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+private val createQuery = """INSERT INTO beskjed (uid, systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv, eksternVarsling, prefererteKanaler)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
 fun Connection.createBeskjed(beskjed: Beskjed): PersistActionResult =
         executePersistQuery(createQuery) {
@@ -48,6 +48,7 @@ private fun PreparedStatement.buildStatementForSingleRow(beskjed: Beskjed) {
     setObject(11, beskjed.synligFremTil, Types.TIMESTAMP)
     setBoolean(12, beskjed.aktiv)
     setBoolean(13, beskjed.eksternVarsling)
+    setObject(14, beskjed.prefererteKanaler.joinToString(","))
 }
 
 fun Connection.setBeskjederAktivflagg(doneEvents: List<Done>, aktiv: Boolean) {
@@ -113,11 +114,11 @@ private fun ResultSet.toBeskjed(): Beskjed {
             sistOppdatert = getUtcDateTime("sistOppdatert"),
             synligFremTil = getNullableLocalDateTime("synligFremTil"),
             aktiv = getBoolean("aktiv"),
-            eksternVarsling = getBoolean("eksternVarsling")
+            eksternVarsling = getBoolean("eksternVarsling"),
+            prefererteKanaler = getListFromSeparatedString("prefererteKanaler", ",")
     )
 }
 
 private fun ResultSet.getNullableLocalDateTime(label: String): LocalDateTime? {
     return getTimestamp(label)?.toLocalDateTime()
 }
-

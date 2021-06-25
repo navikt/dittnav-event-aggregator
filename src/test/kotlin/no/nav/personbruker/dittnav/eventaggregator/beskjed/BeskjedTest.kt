@@ -13,5 +13,4 @@ class BeskjedTest {
         beskjedAsString `should contain` "tekst=***"
         beskjedAsString `should contain` "link=***"
     }
-
 }
