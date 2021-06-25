@@ -47,6 +47,8 @@ spec:
         databases:
           - name: brukernotifikasjon-cache
             envVarPrefix: DB
+            users:
+            - name: eventhandler
         maintenanceWindow:
           day: 1
           hour: 4
