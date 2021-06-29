@@ -14,7 +14,8 @@ data class Oppgave(
         val sikkerhetsnivaa: Int,
         val sistOppdatert: LocalDateTime,
         val aktiv: Boolean,
-        val eksternVarsling: Boolean
+        val eksternVarsling: Boolean,
+        val prefererteKanaler: List<String> = emptyList()
 ) {
     constructor(
             systembruker: String,
@@ -27,7 +28,8 @@ data class Oppgave(
             sikkerhetsnivaa: Int,
             sistOppdatert: LocalDateTime,
             aktiv: Boolean,
-            eksternVarsling: Boolean
+            eksternVarsling: Boolean,
+            prefererteKanaler: List<String> = emptyList()
     ) : this(null,
             systembruker,
             eventId,
@@ -39,7 +41,8 @@ data class Oppgave(
             sikkerhetsnivaa,
             sistOppdatert,
             aktiv,
-            eksternVarsling
+            eksternVarsling,
+            prefererteKanaler
     )
 
     override fun toString(): String {
@@ -55,6 +58,7 @@ data class Oppgave(
                 "sikkerhetsnivaa=$sikkerhetsnivaa, " +
                 "sistOppdatert=$sistOppdatert, " +
                 "aktiv=$aktiv, " +
-                "eksternVarsling=$eksternVarsling"
+                "eksternVarsling=$eksternVarsling, " +
+                "prefererteKanaler=$prefererteKanaler"
     }
 }

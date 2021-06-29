@@ -16,7 +16,8 @@ data class Beskjed(
         val sistOppdatert: LocalDateTime,
         val synligFremTil: LocalDateTime?,
         val aktiv: Boolean,
-        val eksternVarsling: Boolean
+        val eksternVarsling: Boolean,
+        val prefererteKanaler: List<String> = emptyList()
 ) {
     constructor(uid: String,
                 systembruker: String,
@@ -30,7 +31,8 @@ data class Beskjed(
                 sistOppdatert: LocalDateTime,
                 synligFremTil: LocalDateTime?,
                 aktiv: Boolean,
-                eksternVarsling: Boolean
+                eksternVarsling: Boolean,
+                prefererteKanaler: List<String> = emptyList()
     ) : this(uid,
             null,
             systembruker,
@@ -44,7 +46,8 @@ data class Beskjed(
             sistOppdatert,
             synligFremTil,
             aktiv,
-            eksternVarsling
+            eksternVarsling,
+            prefererteKanaler
     )
 
     override fun toString(): String {
@@ -62,6 +65,7 @@ data class Beskjed(
                 "sistOppdatert=$sistOppdatert, " +
                 "synligFremTil=$synligFremTil, " +
                 "aktiv=$aktiv, " +
-                "eksternVarsling=$eksternVarsling"
+                "eksternVarsling=$eksternVarsling, " +
+                "prefererteKanaler=$prefererteKanaler"
     }
 }

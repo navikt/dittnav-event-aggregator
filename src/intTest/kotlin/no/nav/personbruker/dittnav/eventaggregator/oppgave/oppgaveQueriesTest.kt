@@ -136,6 +136,18 @@ class oppgaveQueriesTest {
     }
 
     @Test
+    fun `Skal haandtere at prefererteKanaler er tom`() {
+        val oppgave = OppgaveObjectMother.giveMeAktivOppgaveWithEksternVarslingAndPrefererteKanaler(true, emptyList())
+        invoking {
+            runBlocking {
+                database.dbQuery { createOppgave(oppgave) }
+                val result = database.dbQuery { getOppgaveByEventId(oppgave.eventId) }
+                result.prefererteKanaler.`should be empty`()
+            }
+        }
+    }
+
+    @Test
     fun `Skal skrive eventer i batch`() {
         val oppgave1 = OppgaveObjectMother.giveMeAktivOppgave("o-1", "123")
         val oppgave2 = OppgaveObjectMother.giveMeAktivOppgave("o-2", "123")

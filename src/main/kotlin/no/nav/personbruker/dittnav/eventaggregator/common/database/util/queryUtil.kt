@@ -95,3 +95,13 @@ fun Connection.countTotalNumberOfEventsByActiveStatus(eventType: EventType, akti
             }
     return numberOfEvents
 }
+
+fun ResultSet.getListFromSeparatedString(columnLabel: String, separator: String): List<String> {
+    var stringValue = getString(columnLabel)
+    return if(stringValue.isNullOrEmpty()) {
+        emptyList()
+    }
+    else {
+        stringValue.split(separator)
+    }
+}
