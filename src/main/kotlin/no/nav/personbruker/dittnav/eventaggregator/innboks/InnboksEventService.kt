@@ -30,12 +30,6 @@ class InnboksEventService(
                     val internalEventValue = InnboksTransformer.toInternal(event.key(), event.value())
                     successfullyTransformedEvents.add(internalEventValue)
                     countSuccessfulEventForProducer(internalEventValue.systembruker)
-                } catch (cce: ClassCastException) {
-                    countFailedEventForProducer(event.systembruker)
-                    val funnetType = event.javaClass.name
-                    val eventId = event.eventId
-                    val systembruker = event.systembruker
-                    log.warn("Feil eventtype funnet på innboks-topic. Fant et event av typen $funnetType. Eventet blir forkastet. EventId: $eventId, systembruker: $systembruker, $cce", cce)
                 } catch (e: Exception) {
                     countFailedEventForProducer(event.systembruker)
                     problematicEvents.add(event)

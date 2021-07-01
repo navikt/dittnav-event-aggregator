@@ -2,8 +2,6 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
-import no.nav.brukernotifikasjon.schemas.internal.BeskjedIntern
-import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.emptyPersistResult
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
@@ -14,7 +12,6 @@ import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsSession
 import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should throw`
 import org.amshove.kluent.invoking
-import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -120,34 +117,6 @@ class BeskjedEventServiceTest {
         }
 
         coVerify(exactly = numberOfRecords) { metricsSession.countSuccessfulEventForProducer(any()) }
-    }
-
-    @Test
-    fun `Skal haandtere at et event med feil type har havnet paa topic`() {
-        val numberOfRecords = 1
-
-        val malplacedRecords = ConsumerRecordsObjectMother.giveMeANumberOfInnboksRecords(numberOfRecords, "beskjed")
-
-        val records = malplacedRecords as ConsumerRecords<NokkelIntern, BeskjedIntern>
-
-        val slot = slot<suspend EventMetricsSession.() -> Unit>()
-
-        coEvery{ persistingService.writeEventsToCache(any()) } returns emptyPersistResult()
-
-        coEvery { metricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
-            slot.captured.invoke(metricsSession)
-        }
-
-        val capturedNumberOfEntitiesWrittenToTheDb = slot<List<Beskjed>>()
-        coEvery { persistingService.writeEventsToCache(capture(capturedNumberOfEntitiesWrittenToTheDb)) } returns emptyPersistResult()
-
-        runBlocking {
-            eventService.processEvents(records)
-        }
-
-        capturedNumberOfEntitiesWrittenToTheDb.captured.size `should be` 0
-
-        coVerify (exactly = 1) { metricsSession.countFailedEventForProducer(any()) }
     }
 
     private fun createANumberOfTransformedRecords(numberOfRecords: Int): MutableList<Beskjed> {
