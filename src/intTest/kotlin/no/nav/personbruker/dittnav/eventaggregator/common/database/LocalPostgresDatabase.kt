@@ -3,7 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.common.database
 import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway
 
-class H2Database : Database {
+class LocalPostgresDatabase : Database {
 
     private val memDataSource: HikariDataSource
     private val container = TestPostgresqlContainer()

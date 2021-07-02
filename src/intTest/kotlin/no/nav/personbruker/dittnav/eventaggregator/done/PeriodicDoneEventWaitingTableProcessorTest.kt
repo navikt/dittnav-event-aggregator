@@ -6,7 +6,7 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.getBeskjedByEventId
-import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
+import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test
 
 class PeriodicDoneEventWaitingTableProcessorTest {
 
-    private val database = H2Database()
+    private val database = LocalPostgresDatabase()
     private val doneRepository = DoneRepository(database)
     private val donePersistingService = DonePersistingService(doneRepository)
     private val nameResolver = ProducerNameResolver(database)

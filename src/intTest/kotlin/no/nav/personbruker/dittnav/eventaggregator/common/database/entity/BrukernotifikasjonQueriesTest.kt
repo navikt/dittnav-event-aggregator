@@ -4,7 +4,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
-import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
+import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.BrukernotifikasjonObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test
 
 class BrukernotifikasjonQueriesTest {
 
-    private val database = H2Database()
+    private val database = LocalPostgresDatabase()
     private val aktivOppgave = OppgaveObjectMother.giveMeAktivOppgave()
     private val aktivBeskjed = BeskjedObjectMother.giveMeAktivBeskjed()
     private val aktivInnboks = InnboksObjectMother.giveMeAktivInnboks()

@@ -1,14 +1,14 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
+import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import org.amshove.kluent.`should contain same`
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
 class OppgaveRepositoryTest {
 
-    val database = H2Database()
+    val database = LocalPostgresDatabase()
 
     val oppgaveRepository = OppgaveRepository(database)
 

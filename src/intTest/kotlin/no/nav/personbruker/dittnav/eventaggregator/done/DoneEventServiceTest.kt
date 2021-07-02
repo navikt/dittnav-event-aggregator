@@ -8,7 +8,7 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.getAllBeskjed
-import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
+import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.ConsumerRecordsObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
 import no.nav.personbruker.dittnav.eventaggregator.done.schema.AvroDoneObjectMother
@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test
 
 class DoneEventServiceTest {
 
-    private val database = H2Database()
+    private val database = LocalPostgresDatabase()
     private val metricsReporter = StubMetricsReporter()
     private val producerNameResolver = ProducerNameResolver(database)
     private val producerNameScrubber = ProducerNameScrubber(producerNameResolver)

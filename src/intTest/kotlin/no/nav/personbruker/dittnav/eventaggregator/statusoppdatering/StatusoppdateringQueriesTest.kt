@@ -1,7 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.statusoppdatering
 
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
+import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.countTotalNumberOfEvents
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import org.amshove.kluent.*
@@ -11,7 +11,7 @@ import java.sql.SQLException
 
 class StatusoppdateringQueriesTest {
 
-    private val database = H2Database()
+    private val database = LocalPostgresDatabase()
 
     private val statusoppdatering1: Statusoppdatering
     private val statusoppdatering2: Statusoppdatering
