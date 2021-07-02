@@ -6,7 +6,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorSer
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
-import no.nav.personbruker.dittnav.eventaggregator.config.EventType.INNBOKS
+import no.nav.personbruker.dittnav.eventaggregator.config.EventType.INNBOKS_INTERN
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsSession
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -24,7 +24,7 @@ class InnboksEventService(
         val successfullyTransformedEvents = mutableListOf<Innboks>()
         val problematicEvents = mutableListOf<ConsumerRecord<NokkelIntern, InnboksIntern>>()
 
-        metricsProbe.runWithMetrics(eventType = INNBOKS) {
+        metricsProbe.runWithMetrics(eventType = INNBOKS_INTERN) {
             events.forEach { event ->
                 try {
                     val internalEventValue = InnboksTransformer.toInternal(event.key(), event.value())

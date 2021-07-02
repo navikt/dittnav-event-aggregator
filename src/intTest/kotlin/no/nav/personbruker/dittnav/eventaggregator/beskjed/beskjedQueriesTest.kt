@@ -164,7 +164,7 @@ class beskjedQueriesTest {
     fun `Skal telle det totale antall beskjeder`() {
         runBlocking {
             database.dbQuery {
-                countTotalNumberOfEvents(EventType.BESKJED)
+                countTotalNumberOfEvents(EventType.BESKJED_INTERN)
             }
         } `should be equal to` allEvents.size.toLong()
     }
@@ -173,7 +173,7 @@ class beskjedQueriesTest {
     fun `Skal telle det totale antall aktive beskjeder`() {
         runBlocking {
             database.dbQuery {
-                countTotalNumberOfEventsByActiveStatus(EventType.BESKJED, true)
+                countTotalNumberOfEventsByActiveStatus(EventType.BESKJED_INTERN, true)
             }
         } `should be equal to` allEvents.size.toLong()
     }
@@ -182,7 +182,7 @@ class beskjedQueriesTest {
     fun `Skal telle det totale antall inaktive beskjeder`() {
         runBlocking {
             database.dbQuery {
-                countTotalNumberOfEventsByActiveStatus(EventType.BESKJED, false)
+                countTotalNumberOfEventsByActiveStatus(EventType.BESKJED_INTERN, false)
             }
         } `should be equal to` 0
     }

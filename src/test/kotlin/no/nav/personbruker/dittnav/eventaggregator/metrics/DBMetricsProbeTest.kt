@@ -35,7 +35,7 @@ class DBMetricsProbeTest {
         every { PrometheusMetricsCollector.registerEventsCached(any(), any(), capture(producerNameForPrometheus)) } returns Unit
 
         runBlocking {
-            metricsProbe.runWithMetrics(EventType.DONE) {
+            metricsProbe.runWithMetrics(EventType.DONE_INTERN) {
                 countCachedEventForProducer(producerName)
             }
         }
@@ -55,7 +55,7 @@ class DBMetricsProbeTest {
         coEvery { metricsReporter.registerDataPoint(DB_EVENTS_CACHED, capture(capturedFieldsForCachedEvents), any()) } returns Unit
 
         runBlocking {
-            metricsProbe.runWithMetrics(EventType.DONE) {
+            metricsProbe.runWithMetrics(EventType.DONE_INTERN) {
                 countCachedEventForProducer("dummyProducer")
                 countCachedEventForProducer("dummyProducer")
             }
@@ -64,8 +64,8 @@ class DBMetricsProbeTest {
         coVerify(exactly = 1) { metricsReporter.registerDataPoint(
                 DB_EVENTS_CACHED,
                 listOf("counter" to 2).toMap(),
-                listOf("eventType" to EventType.DONE.toString(), "producer" to "test-user").toMap()) }
-        verify(exactly = 1) { PrometheusMetricsCollector.registerEventsCached(2, EventType.DONE, "test-user") }
+                listOf("eventType" to EventType.DONE_INTERN.toString(), "producer" to "test-user").toMap()) }
+        verify(exactly = 1) { PrometheusMetricsCollector.registerEventsCached(2, EventType.DONE_INTERN, "test-user") }
 
         capturedFieldsForCachedEvents.captured["counter"] `should be equal to` 2
     }

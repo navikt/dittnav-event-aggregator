@@ -6,7 +6,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorSer
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
-import no.nav.personbruker.dittnav.eventaggregator.config.EventType.STATUSOPPDATERING
+import no.nav.personbruker.dittnav.eventaggregator.config.EventType.STATUSOPPDATERING_INTERN
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsSession
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -25,7 +25,7 @@ class StatusoppdateringEventService(
         val successfullyTransformedEvents = mutableListOf<Statusoppdatering>()
         val problematicEvents = mutableListOf<ConsumerRecord<NokkelIntern, StatusoppdateringIntern>>()
 
-        metricsProbe.runWithMetrics(eventType = STATUSOPPDATERING) {
+        metricsProbe.runWithMetrics(eventType = STATUSOPPDATERING_INTERN) {
             events.forEach { event ->
                 try {
                     val internalEventValue = StatusoppdateringTransformer.toInternal(event.key(), event.value())

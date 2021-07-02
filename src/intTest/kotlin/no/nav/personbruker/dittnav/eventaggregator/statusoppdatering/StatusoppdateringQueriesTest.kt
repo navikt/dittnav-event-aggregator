@@ -137,7 +137,7 @@ class StatusoppdateringQueriesTest {
     fun `Skal telle det totale antall statusoppdateringer`() {
         runBlocking {
             database.dbQuery {
-                countTotalNumberOfEvents(EventType.STATUSOPPDATERING)
+                countTotalNumberOfEvents(EventType.STATUSOPPDATERING_INTERN)
             }
         } `should be equal to` allEvents.size.toLong()
     }

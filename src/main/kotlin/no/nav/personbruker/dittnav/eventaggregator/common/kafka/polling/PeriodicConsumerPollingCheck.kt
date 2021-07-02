@@ -43,13 +43,13 @@ class PeriodicConsumerPollingCheck(
         val stoppedConsumers = mutableListOf<EventType>()
 
         if (appContext.beskjedConsumer.isStopped()) {
-            stoppedConsumers.add(EventType.BESKJED)
+            stoppedConsumers.add(EventType.BESKJED_INTERN)
         }
         if (appContext.doneConsumer.isStopped()) {
-            stoppedConsumers.add(EventType.DONE)
+            stoppedConsumers.add(EventType.DONE_INTERN)
         }
         if (appContext.oppgaveConsumer.isStopped()) {
-            stoppedConsumers.add(EventType.OPPGAVE)
+            stoppedConsumers.add(EventType.OPPGAVE_INTERN)
         }
         return stoppedConsumers
     }

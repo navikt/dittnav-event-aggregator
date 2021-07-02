@@ -82,7 +82,7 @@ class EndToEndTestIT {
         val beskjedRepository = BeskjedRepository(database)
         val beskjedPersistingService = BrukernotifikasjonPersistingService(beskjedRepository)
         val eventProcessor = BeskjedEventService(beskjedPersistingService, metricsProbe)
-        val consumerProps = KafkaEmbed.consumerProps(testEnvironment, EventType.BESKJED)
+        val consumerProps = KafkaEmbed.consumerProps(testEnvironment, EventType.BESKJED_INTERN)
         val kafkaConsumer = KafkaConsumer<NokkelIntern, BeskjedIntern>(consumerProps)
         val consumer = Consumer(topicen, kafkaConsumer, eventProcessor)
 
