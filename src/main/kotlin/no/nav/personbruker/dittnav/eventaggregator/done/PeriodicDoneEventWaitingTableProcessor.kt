@@ -71,7 +71,7 @@ class PeriodicDoneEventWaitingTableProcessor(
     private suspend fun processEvents(allDone: List<Done>) {
         val groupedDoneEvents = fetchRelatedEvents(allDone)
         groupedDoneEvents.process(allDone)
-        dbMetricsProbe.runWithMetrics(eventType = EventType.DONE) {
+        dbMetricsProbe.runWithMetrics(eventType = EventType.DONE_INTERN) {
             groupedDoneEvents.notFoundEvents.forEach { event ->
                 countCachedEventForProducer(event.systembruker)
             }

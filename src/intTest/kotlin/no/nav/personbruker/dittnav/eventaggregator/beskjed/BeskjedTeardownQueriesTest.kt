@@ -1,13 +1,13 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
+import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 
 class BeskjedTeardownQueriesTest {
 
-    private val database = H2Database()
+    private val database = LocalPostgresDatabase()
 
     private val beskjed1 = BeskjedObjectMother.giveMeAktivBeskjed("1", "12345")
     private val beskjed2 = BeskjedObjectMother.giveMeAktivBeskjed("2", "12345")

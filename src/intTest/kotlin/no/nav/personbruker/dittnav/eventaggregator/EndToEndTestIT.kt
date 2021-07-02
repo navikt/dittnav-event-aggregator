@@ -9,7 +9,7 @@ import no.nav.personbruker.dittnav.common.metrics.StubMetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.*
 import no.nav.personbruker.dittnav.eventaggregator.common.config.KafkaEmbed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
-import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
+import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util.KafkaTestUtil
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test
 
 class EndToEndTestIT {
 
-    private val database = H2Database()
+    private val database = LocalPostgresDatabase()
 
     private val topicen = "endToEndTestItBeskjed"
     private val embeddedEnv = KafkaTestUtil.createDefaultKafkaEmbeddedInstance(listOf(topicen))
@@ -82,7 +82,7 @@ class EndToEndTestIT {
         val beskjedRepository = BeskjedRepository(database)
         val beskjedPersistingService = BrukernotifikasjonPersistingService(beskjedRepository)
         val eventProcessor = BeskjedEventService(beskjedPersistingService, metricsProbe)
-        val consumerProps = KafkaEmbed.consumerProps(testEnvironment, EventType.BESKJED, enableSecurity = false)
+        val consumerProps = KafkaEmbed.consumerProps(testEnvironment, EventType.BESKJED_INTERN)
         val kafkaConsumer = KafkaConsumer<NokkelIntern, BeskjedIntern>(consumerProps)
         val consumer = Consumer(topicen, kafkaConsumer, eventProcessor)
 

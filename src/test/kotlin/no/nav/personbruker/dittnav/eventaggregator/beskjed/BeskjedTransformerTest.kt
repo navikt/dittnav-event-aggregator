@@ -1,5 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
+import org.amshove.kluent.`should be empty`
+
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be null`
@@ -32,6 +34,7 @@ class BeskjedTransformerTest {
 
         transformed.aktiv `should be equal to` true
         transformed.eksternVarsling `should be equal to` true
+        transformed.prefererteKanaler `should be equal to` original.getPrefererteKanaler()
         transformed.sistOppdatert.`should not be null`()
         transformed.id.`should be null`()
     }
@@ -43,6 +46,13 @@ class BeskjedTransformerTest {
         val transformed = BeskjedTransformer.toInternal(dummyNokkel, beskjedUtenSynligTilSatt)
 
         transformed.synligFremTil.`should be null`()
+    }
+
+    @Test
+    fun `should allow prefererteKanaler to be empty`() {
+        val beskjedUtenPrefererteKanaler = AvroBeskjedObjectMother.createBeskjedWithEksternVarslingAndPrefererteKanaler(true, emptyList())
+        val transformed = BeskjedTransformer.toInternal(dummyNokkel, beskjedUtenPrefererteKanaler)
+        transformed.prefererteKanaler.`should be empty`()
     }
 
 }

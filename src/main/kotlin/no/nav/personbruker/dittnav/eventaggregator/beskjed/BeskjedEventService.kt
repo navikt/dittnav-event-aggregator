@@ -6,7 +6,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorSer
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
-import no.nav.personbruker.dittnav.eventaggregator.config.EventType.BESKJED
+import no.nav.personbruker.dittnav.eventaggregator.config.EventType.BESKJED_INTERN
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsSession
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -25,7 +25,7 @@ class BeskjedEventService(
         val successfullyTransformedEvents = mutableListOf<Beskjed>()
         val problematicEvents = mutableListOf<ConsumerRecord<NokkelIntern, BeskjedIntern>>()
 
-        metricsProbe.runWithMetrics(eventType = BESKJED) {
+        metricsProbe.runWithMetrics(eventType = BESKJED_INTERN) {
             events.forEach { event ->
                 try {
                     val internalEventValue = BeskjedTransformer.toInternal(event.key(), event.value())

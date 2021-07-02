@@ -33,13 +33,13 @@ class DoneBatchProcessor(private val existingEntitiesInDatabase: List<Brukernoti
     private fun groupEventsByType(matchingEntityInTheCache: Brukernotifikasjon, matchedDoneEntity: Done) {
         allFoundEvents.add(matchedDoneEntity)
         when (matchingEntityInTheCache.type) {
-            EventType.OPPGAVE -> {
+            EventType.OPPGAVE_INTERN -> {
                 foundOppgave.add(matchedDoneEntity)
             }
-            EventType.BESKJED -> {
+            EventType.BESKJED_INTERN -> {
                 foundBeskjed.add(matchedDoneEntity)
             }
-            EventType.INNBOKS -> {
+            EventType.INNBOKS_INTERN -> {
                 foundInnboks.add(matchedDoneEntity)
             }
             else -> {

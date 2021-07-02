@@ -13,5 +13,4 @@ class OppgaveTest {
         oppgaveAsString `should contain` "tekst=***"
         oppgaveAsString `should contain` "link=***"
     }
-
 }

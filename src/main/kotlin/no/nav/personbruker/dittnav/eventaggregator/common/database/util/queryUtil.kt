@@ -72,7 +72,7 @@ fun ResultSet.getEpochTimeInSeconds(label: String): Long {
 }
 
 fun Connection.countTotalNumberOfEvents(eventType: EventType): Long {
-    val numberOfEvents = prepareStatement("SELECT count(*) from $eventType",
+    val numberOfEvents = prepareStatement("SELECT count(*) from ${eventType.eventType}",
             ResultSet.TYPE_SCROLL_INSENSITIVE,
             ResultSet.CONCUR_READ_ONLY)
             .use { statement ->
@@ -84,7 +84,7 @@ fun Connection.countTotalNumberOfEvents(eventType: EventType): Long {
 }
 
 fun Connection.countTotalNumberOfEventsByActiveStatus(eventType: EventType, aktiv: Boolean): Long {
-    val numberOfEvents = prepareStatement("SELECT count(*) from $eventType where aktiv = ?",
+    val numberOfEvents = prepareStatement("SELECT count(*) from ${eventType.eventType} where aktiv = ?",
             ResultSet.TYPE_SCROLL_INSENSITIVE,
             ResultSet.CONCUR_READ_ONLY)
             .use { statement ->
@@ -94,4 +94,14 @@ fun Connection.countTotalNumberOfEventsByActiveStatus(eventType: EventType, akti
                 resultSet.getLong(countResultColumnIndex)
             }
     return numberOfEvents
+}
+
+fun ResultSet.getListFromSeparatedString(columnLabel: String, separator: String): List<String> {
+    var stringValue = getString(columnLabel)
+    return if(stringValue.isNullOrEmpty()) {
+        emptyList()
+    }
+    else {
+        stringValue.split(separator)
+    }
 }

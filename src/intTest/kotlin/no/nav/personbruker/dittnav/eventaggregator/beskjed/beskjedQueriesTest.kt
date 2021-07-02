@@ -1,7 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
+import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.countTotalNumberOfEvents
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.countTotalNumberOfEventsByActiveStatus
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
@@ -13,7 +13,7 @@ import java.sql.SQLException
 
 class beskjedQueriesTest {
 
-    private val database = H2Database()
+    private val database = LocalPostgresDatabase()
 
     private val beskjed1: Beskjed
     private val beskjed2: Beskjed
@@ -128,6 +128,18 @@ class beskjedQueriesTest {
     }
 
     @Test
+    fun `Skal haandtere at prefererteKanaler er tom`() {
+        val beskjed = BeskjedObjectMother.giveMeAktivBeskjedWithEksternVarslingAndPrefererteKanaler(true, emptyList())
+        invoking {
+            runBlocking {
+                database.dbQuery { createBeskjed(beskjed) }
+                val result = database.dbQuery { getBeskjedByEventId(beskjed.eventId) }
+                result.prefererteKanaler.`should be empty`()
+            }
+        }
+    }
+
+    @Test
     fun `Skal skrive eventer i batch`() {
         val beskjed1 = BeskjedObjectMother.giveMeAktivBeskjed("b-1", "123")
         val beskjed2 = BeskjedObjectMother.giveMeAktivBeskjed("b-2", "123")
@@ -152,7 +164,7 @@ class beskjedQueriesTest {
     fun `Skal telle det totale antall beskjeder`() {
         runBlocking {
             database.dbQuery {
-                countTotalNumberOfEvents(EventType.BESKJED)
+                countTotalNumberOfEvents(EventType.BESKJED_INTERN)
             }
         } `should be equal to` allEvents.size.toLong()
     }
@@ -161,7 +173,7 @@ class beskjedQueriesTest {
     fun `Skal telle det totale antall aktive beskjeder`() {
         runBlocking {
             database.dbQuery {
-                countTotalNumberOfEventsByActiveStatus(EventType.BESKJED, true)
+                countTotalNumberOfEventsByActiveStatus(EventType.BESKJED_INTERN, true)
             }
         } `should be equal to` allEvents.size.toLong()
     }
@@ -170,7 +182,7 @@ class beskjedQueriesTest {
     fun `Skal telle det totale antall inaktive beskjeder`() {
         runBlocking {
             database.dbQuery {
-                countTotalNumberOfEventsByActiveStatus(EventType.BESKJED, false)
+                countTotalNumberOfEventsByActiveStatus(EventType.BESKJED_INTERN, false)
             }
         } `should be equal to` 0
     }

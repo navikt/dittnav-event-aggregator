@@ -6,7 +6,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorSer
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
-import no.nav.personbruker.dittnav.eventaggregator.config.EventType.OPPGAVE
+import no.nav.personbruker.dittnav.eventaggregator.config.EventType.OPPGAVE_INTERN
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsSession
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -24,7 +24,7 @@ class OppgaveEventService(
         val successfullyTransformedEvents = mutableListOf<Oppgave>()
         val problematicEvents = mutableListOf<ConsumerRecord<NokkelIntern, OppgaveIntern>>()
 
-        metricsProbe.runWithMetrics(eventType = OPPGAVE) {
+        metricsProbe.runWithMetrics(eventType = OPPGAVE_INTERN) {
             events.forEach { event ->
                 try {
                     val internalEventValue = OppgaveTransformer.toInternal(event.key(), event.value())
@@ -33,7 +33,7 @@ class OppgaveEventService(
                 } catch (e: Exception) {
                     countFailedEventForProducer(event.systembruker)
                     problematicEvents.add(event)
-                    log.warn("Transformasjon av oppgave-event fra Kafka feilet.", e)
+                    log.warn("Transformasjon av oppgave-event fra Kafka feilet, fullfører batch-en før pollig stoppes.", e)
                 }
             }
 

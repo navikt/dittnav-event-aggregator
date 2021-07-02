@@ -36,7 +36,7 @@ internal class EventMetricsProbeTest {
         every { PrometheusMetricsCollector.registerEventsSeen(any(), any(), capture(producerNameForPrometheus)) } returns Unit
 
         runBlocking {
-            metricsProbe.runWithMetrics(EventType.BESKJED) {
+            metricsProbe.runWithMetrics(EventType.BESKJED_INTERN) {
                 countSuccessfulEventForProducer(producerName)
             }
         }
@@ -66,7 +66,7 @@ internal class EventMetricsProbeTest {
         every { PrometheusMetricsCollector.registerEventsFailed(any(), any(), capture(producerNameForPrometheus)) } returns Unit
 
         runBlocking {
-            metricsProbe.runWithMetrics(EventType.BESKJED) {
+            metricsProbe.runWithMetrics(EventType.BESKJED_INTERN) {
                 countFailedEventForProducer(producerName)
             }
         }
@@ -95,7 +95,7 @@ internal class EventMetricsProbeTest {
         coEvery { metricsReporter.registerDataPoint(KAFKA_EVENTS_BATCH, any(), any()) } returns Unit
 
         runBlocking {
-            metricsProbe.runWithMetrics(EventType.BESKJED) {
+            metricsProbe.runWithMetrics(EventType.BESKJED_INTERN) {
                 countSuccessfulEventForProducer("producer")
                 countSuccessfulEventForProducer("producer")
                 countFailedEventForProducer("producer")

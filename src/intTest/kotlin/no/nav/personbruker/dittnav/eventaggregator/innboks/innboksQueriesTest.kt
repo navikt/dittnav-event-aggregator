@@ -1,17 +1,16 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
+import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneObjectMother
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should contain all`
-import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should not contain`
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 
 class innboksQueriesTest {
-    private val database = H2Database()
+    private val database = LocalPostgresDatabase()
 
     private val fodselsnummer1 = "12345"
     private val fodselsnummer2 = "67890"

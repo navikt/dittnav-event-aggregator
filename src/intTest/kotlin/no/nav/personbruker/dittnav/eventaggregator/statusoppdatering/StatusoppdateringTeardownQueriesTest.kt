@@ -1,14 +1,14 @@
 package no.nav.personbruker.dittnav.eventaggregator.statusoppdatering
 
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
-import org.amshove.kluent.`should be equal to`
+import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 
 class StatusoppdateringTeardownQueriesTest {
 
-    private val database = H2Database()
+    private val database = LocalPostgresDatabase()
 
     private val statusoppdatering1 = StatusoppdateringObjectMother.giveMeStatusoppdatering("1", "12345")
     private val statusoppdatering2 = StatusoppdateringObjectMother.giveMeStatusoppdatering("2", "12345")
@@ -18,6 +18,7 @@ class StatusoppdateringTeardownQueriesTest {
     fun `Verifiser at alle rader i Statusoppdateringstabellen slettes`() {
         runBlocking {
             `Opprett tre elementer i databasen`()
+            delay(100)
             val skalHaElementerIDatabasen = database.dbQuery { getAllStatusoppdatering() }
             skalHaElementerIDatabasen.size `should be equal to` 3
 

@@ -19,7 +19,7 @@ private fun ResultSet.toBrukernotifikasjon(): Brukernotifikasjon {
     return Brukernotifikasjon(
             eventId = getString("eventId"),
             systembruker = getString("systembruker"),
-            type = EventType.valueOf(getString("type").toUpperCase()),
+            type = EventType.valueOf("${getString("type")}_intern".toUpperCase()),
             fodselsnummer = getString("fodselsnummer")
     )
 }

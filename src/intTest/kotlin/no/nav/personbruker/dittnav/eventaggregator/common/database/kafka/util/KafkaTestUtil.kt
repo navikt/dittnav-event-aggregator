@@ -4,6 +4,7 @@ import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 import no.nav.common.JAASCredential
 import no.nav.common.KafkaEnvironment
 import no.nav.personbruker.dittnav.eventaggregator.config.Environment
+import no.nav.personbruker.dittnav.eventaggregator.config.SecurityConfig
 import org.apache.avro.generic.GenericRecord
 
 object KafkaTestUtil {
@@ -36,12 +37,12 @@ object KafkaTestUtil {
                 username = username,
                 password = password,
                 groupId = "groupId-for-tests",
-                dbAdmin = "dbAdminIkkeIBrukHer",
                 dbHost = "dbHostIkkeIBrukHer",
-                dbMountPath = "dbMountPathIkkeIBrukHer",
+                dbPort = "dbPortIkkeIBrukHer",
                 dbName = "dbNameIkkeIBrukHer",
                 dbUrl = "dbUrlIkkeIBrukHer",
                 dbUser = "dbUserIkkeIBrukHer",
+                dbPassword = "dbPWIkkeIBrukHer",
                 clusterName = "clusterNameIkkeIBrukHer",
                 namespace = "namespaceIkkeIBrukHer",
                 influxdbHost = "",
@@ -51,12 +52,8 @@ object KafkaTestUtil {
                 influxdbPassword = "",
                 influxdbRetentionPolicy = "",
                 aivenBrokers = embeddedEnv.brokersURL.substringAfterLast("/"),
-                aivenTruststorePath = "kafkaTruststorePathIkkeIBrukHer",
-                aivenKeystorePath = "kafkaKeystorePathIkkeIBrukerHer",
-                aivenCredstorePassword = "kafkaCredstorePasswordIkkeIBrukHer",
                 aivenSchemaRegistry = embeddedEnv.schemaRegistry!!.url,
-                aivenSchemaRegistryUser = username,
-                aivenSchemaRegistryPassword = password
+                securityConfig = SecurityConfig(enabled = false)
         )
     }
 

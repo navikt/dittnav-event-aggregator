@@ -5,7 +5,7 @@ import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
-import no.nav.personbruker.dittnav.eventaggregator.config.EventType.DONE
+import no.nav.personbruker.dittnav.eventaggregator.config.EventType.DONE_INTERN
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsSession
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -24,7 +24,7 @@ class DoneEventService(
         val successfullyTransformedEvents = mutableListOf<Done>()
         val problematicEvents = mutableListOf<ConsumerRecord<NokkelIntern, DoneIntern>>()
 
-        eventMetricsProbe.runWithMetrics(eventType = DONE) {
+        eventMetricsProbe.runWithMetrics(eventType = DONE_INTERN) {
 
             events.forEach { event ->
                 try {

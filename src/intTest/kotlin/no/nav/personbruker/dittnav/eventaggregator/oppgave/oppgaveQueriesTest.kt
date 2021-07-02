@@ -1,7 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.common.database.H2Database
+import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneObjectMother
 import org.amshove.kluent.*
 import org.junit.jupiter.api.AfterAll
@@ -10,7 +10,7 @@ import java.sql.SQLException
 
 class oppgaveQueriesTest {
 
-    private val database = H2Database()
+    private val database = LocalPostgresDatabase()
 
     private val fodselsnummer1 = "12345"
     private val fodselsnummer2 = "54321"
@@ -131,6 +131,18 @@ class oppgaveQueriesTest {
                 val numberOfEvents = getAllOppgave().size
                 createOppgave(oppgave1)
                 getAllOppgave().size `should be equal to` numberOfEvents
+            }
+        }
+    }
+
+    @Test
+    fun `Skal haandtere at prefererteKanaler er tom`() {
+        val oppgave = OppgaveObjectMother.giveMeAktivOppgaveWithEksternVarslingAndPrefererteKanaler(true, emptyList())
+        invoking {
+            runBlocking {
+                database.dbQuery { createOppgave(oppgave) }
+                val result = database.dbQuery { getOppgaveByEventId(oppgave.eventId) }
+                result.prefererteKanaler.`should be empty`()
             }
         }
     }

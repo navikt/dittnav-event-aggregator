@@ -25,11 +25,12 @@ object BeskjedObjectMother {
         return giveMeAktivBeskjed(eventId = eventId, fodselsnummer = fodselsnummer, systembruker =  systembruker, link = "https://nav.no/systemX/$eventId")
     }
 
-    fun giveMeAktivBeskjedWithLink(link: String): Beskjed {
-        return giveMeAktivBeskjed(eventId = "B-2", fodselsnummer = "1234", systembruker = "dummySystembruker", link = link)
+    fun giveMeAktivBeskjedWithEksternVarslingAndPrefererteKanaler(eksternVarsling: Boolean, prefererteKanaler: List<String>): Beskjed {
+        val beskjed = giveMeAktivBeskjed(eventId = "B-3", fodselsnummer = "1234", systembruker = "dummySystembruker", link = "https://nav.no/systemX/")
+        return beskjed.copy(eksternVarsling = eksternVarsling, prefererteKanaler = prefererteKanaler)
     }
 
-    fun giveMeAktivBeskjed(eventId: String, fodselsnummer: String, systembruker: String, link: String): Beskjed {
+    private fun giveMeAktivBeskjed(eventId: String, fodselsnummer: String, systembruker: String, link: String): Beskjed {
         return Beskjed(
                 uid = Random.nextInt(1, 100).toString(),
                 systembruker = systembruker,
@@ -43,7 +44,8 @@ object BeskjedObjectMother {
                 sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
                 sikkerhetsnivaa = 4,
                 aktiv = true,
-                eksternVarsling = false)
+                eksternVarsling = false
+            )
     }
 
     fun giveMeInaktivBeskjed(): Beskjed {
@@ -60,6 +62,7 @@ object BeskjedObjectMother {
                 sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
                 sikkerhetsnivaa = 4,
                 aktiv = false,
-                eksternVarsling = false)
+                eksternVarsling = false
+            )
     }
 }

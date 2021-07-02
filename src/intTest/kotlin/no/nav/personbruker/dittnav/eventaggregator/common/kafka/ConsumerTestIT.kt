@@ -32,7 +32,7 @@ class ConsumerTestIT {
 
         val embeddedEnv = KafkaTestUtil.createKafkaEmbeddedInstanceWithNumPartitions(listOf(topic), 4)
         val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
-        val consumerProps = KafkaEmbed.consumerProps(testEnvironment, EventType.BESKJED, enableSecurity = false).apply {
+        val consumerProps = KafkaEmbed.consumerProps(testEnvironment, EventType.BESKJED_INTERN).apply {
             put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1)
         }
 
@@ -60,7 +60,7 @@ class ConsumerTestIT {
 
         val embeddedEnv = KafkaTestUtil.createKafkaEmbeddedInstanceWithNumPartitions(listOf(topic), 4)
         val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
-        val consumerProps = KafkaEmbed.consumerProps(testEnvironment, EventType.BESKJED, enableSecurity = false).apply {
+        val consumerProps = KafkaEmbed.consumerProps(testEnvironment, EventType.BESKJED_INTERN).apply {
             put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1)
         }
 
@@ -88,7 +88,7 @@ class ConsumerTestIT {
 
         val embeddedEnv = KafkaTestUtil.createKafkaEmbeddedInstanceWithNumPartitions(listOf(topic), 4)
         val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
-        val consumerProps = KafkaEmbed.consumerProps(testEnvironment, EventType.BESKJED, enableSecurity = false).apply {
+        val consumerProps = KafkaEmbed.consumerProps(testEnvironment, EventType.BESKJED_INTERN).apply {
             put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1)
         }
 

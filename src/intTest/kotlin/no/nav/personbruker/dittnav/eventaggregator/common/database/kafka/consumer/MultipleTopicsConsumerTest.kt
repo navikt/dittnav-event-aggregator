@@ -108,17 +108,17 @@ class MultipleTopicsConsumerTest {
     }
 
     private fun createInfoConsumer(env: Environment, BeskjedEventProcessor: SimpleEventCounterService<BeskjedIntern>): Consumer<BeskjedIntern> {
-        val kafkaProps = KafkaEmbed.consumerProps(env, EventType.BESKJED, enableSecurity = false)
+        val kafkaProps = KafkaEmbed.consumerProps(env, EventType.BESKJED_INTERN)
         return setupConsumerForTheBeskjedTopic(kafkaProps, BeskjedEventProcessor)
     }
 
     private fun createOppgaveConsumer(env: Environment, oppgaveEventProcessor: SimpleEventCounterService<OppgaveIntern>): Consumer<OppgaveIntern> {
-        val kafkaProps = KafkaEmbed.consumerProps(env, EventType.OPPGAVE, enableSecurity = false)
+        val kafkaProps = KafkaEmbed.consumerProps(env, EventType.OPPGAVE_INTERN)
         return setupConsumerForTheOppgaveTopic(kafkaProps, oppgaveEventProcessor)
     }
 
     private fun createInnboksConsumer(env: Environment, innboksEventProcessor: SimpleEventCounterService<InnboksIntern>): Consumer<InnboksIntern> {
-        val kafkaProps = KafkaEmbed.consumerProps(env, EventType.INNBOKS, enableSecurity = false)
+        val kafkaProps = KafkaEmbed.consumerProps(env, EventType.INNBOKS_INTERN)
         return setupConsumerForTheInnboksTopic(kafkaProps, innboksEventProcessor)
     }
 
