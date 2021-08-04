@@ -18,7 +18,7 @@ object Kafka {
     private val log: Logger = LoggerFactory.getLogger(Kafka::class.java)
 
     val doneHovedTopicName = "min-side.privat-brukernotifikasjon-done-v2"
-    val beskjedHovedTopicName = "min-side.privat-brukernotifikasjon-beskjed-v2"
+    val beskjedHovedTopicName = "min-side.privat-brukernotifikasjon-beskjed-v3"
     val innboksHovedTopicName = "min-side.privat-brukernotifikasjon-innboks-v2"
     val oppgaveHovedTopicName = "min-side.privat-brukernotifikasjon-oppgave-v2"
     val statusoppdateringHovedTopicName = "min-side.privat-brukernotifikasjon-statusoppdatering-v2"
