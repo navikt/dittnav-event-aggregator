@@ -44,6 +44,7 @@ object Kafka {
         return Properties().apply {
             put(ConsumerConfig.GROUP_ID_CONFIG, groupIdAndEventType)
             put(ConsumerConfig.CLIENT_ID_CONFIG, groupIdAndEventType + getHostname(InetSocketAddress(0)))
+            put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
             commonProps(env, enableSecurity)
         }
     }
