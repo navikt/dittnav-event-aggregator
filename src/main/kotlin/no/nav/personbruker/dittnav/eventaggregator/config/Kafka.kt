@@ -36,6 +36,7 @@ object Kafka {
         }
     }
 
+
     fun consumerProps(env: Environment, eventtypeToConsume: EventType): Properties {
         val groupIdAndEventType = buildGroupIdIncludingEventType(env, eventtypeToConsume)
         return Properties().apply {
