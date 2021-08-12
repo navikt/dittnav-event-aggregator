@@ -17,11 +17,11 @@ object Kafka {
 
     private val log: Logger = LoggerFactory.getLogger(Kafka::class.java)
 
-    val doneHovedTopicName = "min-side.privat-brukernotifikasjon-done-v2"
-    val beskjedHovedTopicName = "min-side.privat-brukernotifikasjon-beskjed-v3"
-    val innboksHovedTopicName = "min-side.privat-brukernotifikasjon-innboks-v2"
-    val oppgaveHovedTopicName = "min-side.privat-brukernotifikasjon-oppgave-v2"
-    val statusoppdateringHovedTopicName = "min-side.privat-brukernotifikasjon-statusoppdatering-v2"
+    val doneHovedTopicName = "min-side.privat-brukernotifikasjon-done-v3"
+    val beskjedHovedTopicName = "min-side.privat-brukernotifikasjon-beskjed-v4"
+    val innboksHovedTopicName = "min-side.privat-brukernotifikasjon-innboks-v3"
+    val oppgaveHovedTopicName = "min-side.privat-brukernotifikasjon-oppgave-v3"
+    val statusoppdateringHovedTopicName = "min-side.privat-brukernotifikasjon-statusoppdatering-v3"
 
     fun counterConsumerProps(env: Environment, eventTypeToConsume: EventType): Properties {
         val groupIdAndEventType = "dn-aggregator_metrics_counter_" + eventTypeToConsume.eventType
