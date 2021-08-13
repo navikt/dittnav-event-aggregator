@@ -47,10 +47,10 @@ spec:
         databases:
           - name: brukernotifikasjon-cache
             envVarPrefix: DB
-      maintenanceWindow:
-        day: 1
-        hour: 4
-      cascadingDelete: false
+        maintenanceWindow:
+          day: 1
+          hour: 4
+        cascadingDelete: false
   kafka:
     pool: nav-prod
   accessPolicy:
