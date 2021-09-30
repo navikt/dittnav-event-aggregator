@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.innboks
 
 import no.nav.brukernotifikasjon.schemas.builders.domain.Eventtype
 import no.nav.brukernotifikasjon.schemas.builders.util.ValidationUtil
+import no.nav.personbruker.dittnav.eventaggregator.common.validation.validatePrefererteKanaler
 import java.time.LocalDateTime
 
 data class Innboks(
@@ -15,7 +16,9 @@ data class Innboks(
         val link: String,
         val sikkerhetsnivaa: Int,
         val sistOppdatert: LocalDateTime,
-        val aktiv: Boolean
+        val aktiv: Boolean,
+        val eksternVarsling: Boolean,
+        val prefererteKanaler: List<String> = emptyList()
 ) {
     constructor(
             systembruker: String,
@@ -27,7 +30,9 @@ data class Innboks(
             link: String,
             sikkerhetsnivaa: Int,
             sistOppdatert: LocalDateTime,
-            aktiv: Boolean
+            aktiv: Boolean,
+            eksternVarsling: Boolean,
+            prefererteKanaler: List<String> = emptyList()
     ) : this(
             null,
             systembruker,
@@ -39,7 +44,9 @@ data class Innboks(
             link,
             sikkerhetsnivaa,
             sistOppdatert,
-            aktiv
+            aktiv,
+            eksternVarsling,
+            prefererteKanaler
     ) {
         ValidationUtil.validateNonNullFieldMaxLength(systembruker, "systembruker", ValidationUtil.MAX_LENGTH_SYSTEMBRUKER)
         ValidationUtil.validateNonNullFieldMaxLength(eventId, "eventId", ValidationUtil.MAX_LENGTH_EVENTID)
@@ -48,6 +55,7 @@ data class Innboks(
         ValidationUtil.validateNonNullFieldMaxLength(tekst, "tekst", ValidationUtil.MAX_LENGTH_TEXT_INNBOKS)
         ValidationUtil.validateLinkAndConvertToString(ValidationUtil.validateLinkAndConvertToURL(link), "link", ValidationUtil.MAX_LENGTH_LINK, ValidationUtil.isLinkRequired(Eventtype.INNBOKS))
         ValidationUtil.validateSikkerhetsnivaa(sikkerhetsnivaa)
+        validatePrefererteKanaler(eksternVarsling, prefererteKanaler)
     }
 
     override fun toString(): String {
@@ -62,7 +70,8 @@ data class Innboks(
                 "link=***, " +
                 "sikkerhetsnivaa=$sikkerhetsnivaa, " +
                 "sistOppdatert=$sistOppdatert, " +
-                "aktiv=$aktiv"
+                "aktiv=$aktiv, " +
+                "eksternVarsling=$eksternVarsling, " +
+                "prefererteKanaler=$prefererteKanaler"
     }
-
 }

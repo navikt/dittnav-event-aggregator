@@ -1,6 +1,8 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
+import no.nav.brukernotifikasjon.schemas.builders.domain.PreferertKanal
 import no.nav.brukernotifikasjon.schemas.builders.exception.FieldValidationException
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.`with message containing`
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should contain`
@@ -45,7 +47,8 @@ class InnboksTest {
                     link = validLink,
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true
+                    aktiv = true,
+                    eksternVarsling = false
             )
         } `should throw` FieldValidationException::class `with message containing` "systembruker"
     }
@@ -64,7 +67,8 @@ class InnboksTest {
                     link = validLink,
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true
+                    aktiv = true,
+                    eksternVarsling = false
             )
         } `should throw` FieldValidationException::class `with message containing` "fodselsnummer"
     }
@@ -83,7 +87,9 @@ class InnboksTest {
                     link = validLink,
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true)
+                    aktiv = true,
+                    eksternVarsling = false
+            )
         } `should throw` FieldValidationException::class `with message containing` "eventId"
     }
 
@@ -101,7 +107,9 @@ class InnboksTest {
                     link = validLink,
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true)
+                    aktiv = true,
+                    eksternVarsling = false
+            )
         } `should throw` FieldValidationException::class `with message containing` "grupperingsId"
     }
 
@@ -119,7 +127,9 @@ class InnboksTest {
                     link = validLink,
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true)
+                    aktiv = true,
+                    eksternVarsling = false
+            )
         } `should throw` FieldValidationException::class `with message containing` "tekst"
     }
 
@@ -138,7 +148,9 @@ class InnboksTest {
                     link = tooLongLink,
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true)
+                    aktiv = true,
+                    eksternVarsling = false
+            )
         } `should throw` FieldValidationException::class `with message containing` "link"
     }
 
@@ -157,7 +169,9 @@ class InnboksTest {
                     link = invalidLink,
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = validSikkerhetsnivaa,
-                    aktiv = true)
+                    aktiv = true,
+                    eksternVarsling = false
+            )
         } `should throw` FieldValidationException::class `with message containing` "link"
     }
 
@@ -181,9 +195,50 @@ class InnboksTest {
                     link = validLink,
                     sistOppdatert = sistOppdatert,
                     sikkerhetsnivaa = invalidSikkerhetsnivaa,
-                    aktiv = true)
+                    aktiv = true,
+                    eksternVarsling = false
+            )
         } `should throw` FieldValidationException::class `with message containing` "Sikkerhetsnivaa"
     }
 
+    @Test
+    fun `do not allow unknown preferert kanal`() {
+        val unknownPreferertKanal = "Unknown"
+        invoking {
+            Innboks(
+                    systembruker = validSystembruker,
+                    eventTidspunkt = eventTidspunkt,
+                    fodselsnummer = validFodselsnummer,
+                    eventId = validEventId,
+                    grupperingsId = validGrupperingsId,
+                    tekst = validTekst,
+                    link = validLink,
+                    sistOppdatert = sistOppdatert,
+                    sikkerhetsnivaa = validSikkerhetsnivaa,
+                    aktiv = true,
+                    eksternVarsling = true,
+                    prefererteKanaler = listOf(unknownPreferertKanal)
+            )
+        } `should throw` FieldValidationException::class `with message containing` "prefererteKanaler"
+    }
 
+    @Test
+    fun `do not allow prefererteKanaler if eksternVarsling is false`() {
+        invoking {
+            Innboks(
+                    systembruker = validSystembruker,
+                    eventTidspunkt = eventTidspunkt,
+                    fodselsnummer = validFodselsnummer,
+                    eventId = validEventId,
+                    grupperingsId = validGrupperingsId,
+                    tekst = validTekst,
+                    link = validLink,
+                    sistOppdatert = sistOppdatert,
+                    sikkerhetsnivaa = validSikkerhetsnivaa,
+                    aktiv = true,
+                    eksternVarsling = false,
+                    prefererteKanaler = listOf(PreferertKanal.SMS.toString())
+            )
+        } `should throw` FieldValidationException::class `with message containing` "prefererteKanaler"
+    }
 }
