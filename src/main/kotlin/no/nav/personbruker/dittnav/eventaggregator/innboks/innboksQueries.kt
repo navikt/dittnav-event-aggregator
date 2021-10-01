@@ -25,8 +25,8 @@ fun Connection.getInnboksById(entityId: Int): Innboks =
                     }
                 }
 
-private val createQuery = """INSERT INTO innboks(systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv)
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+private val createQuery = """INSERT INTO innboks(systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv, eksternVarsling, prefererteKanaler)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
 fun Connection.createInnboksEventer(innboksEventer: List<Innboks>) =
         executeBatchPersistQuery(createQuery) {
@@ -52,6 +52,8 @@ private fun PreparedStatement.buildStatementForSingleRow(innboks: Innboks) {
     setInt(8, innboks.sikkerhetsnivaa)
     setObject(9, innboks.sistOppdatert, Types.TIMESTAMP)
     setBoolean(10, innboks.aktiv)
+    setBoolean(11, innboks.eksternVarsling)
+    setObject(12, innboks.prefererteKanaler.joinToString(","))
 }
 
 fun Connection.setInnboksEventerAktivFlag(doneEvents: List<Done>, aktiv: Boolean) {
