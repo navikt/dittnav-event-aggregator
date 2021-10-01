@@ -1,6 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
-import no.nav.brukernotifikasjon.schemas.builders.domain.PreferertKanal
 import java.time.LocalDateTime
 import java.time.ZoneId
 import kotlin.random.Random

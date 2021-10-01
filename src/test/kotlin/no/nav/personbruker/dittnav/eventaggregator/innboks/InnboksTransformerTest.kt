@@ -1,7 +1,9 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
 import kotlinx.coroutines.runBlocking
+import no.nav.brukernotifikasjon.schemas.builders.domain.PreferertKanal
 import no.nav.brukernotifikasjon.schemas.builders.exception.FieldValidationException
+import no.nav.personbruker.dittnav.eventaggregator.common.`with message containing`
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import org.amshove.kluent.*
 import org.junit.jupiter.api.Test
@@ -24,6 +26,8 @@ class InnboksTransformerTest {
         internal.tekst `should be equal to` external.getTekst()
         internal.systembruker `should be equal to` nokkel.getSystembruker()
         internal.sikkerhetsnivaa `should be equal to` external.getSikkerhetsnivaa()
+        internal.eksternVarsling `should be equal to` external.getEksternVarsling()
+        internal.prefererteKanaler `should be equal to` external.getPrefererteKanaler()
 
         val transformedEventTidspunktAsLong = internal.eventTidspunkt.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
         transformedEventTidspunktAsLong `should be equal to` external.getTidspunkt()
@@ -45,5 +49,22 @@ class InnboksTransformerTest {
                 InnboksTransformer.toInternal(nokkel, event)
             }
         } `should throw` FieldValidationException::class
+    }
+
+    @Test
+    fun `should allow prefererteKanaler to be empty`() {
+        val innboksUtenPrefererteKanaler = AvroInnboksObjectMother.createInnboksWithEksternVarslingAndPrefererteKanaler(true, emptyList())
+        val nokkel = createNokkel(123)
+        val transformed = InnboksTransformer.toInternal(nokkel, innboksUtenPrefererteKanaler)
+        transformed.prefererteKanaler.`should be empty`()
+    }
+
+    @Test
+    fun `should not allow prefererteKanaler if eksternVarsling is false`() {
+        val innboksUtenEksternVarsling = AvroInnboksObjectMother.createInnboksWithEksternVarslingAndPrefererteKanaler(false, listOf(PreferertKanal.EPOST.toString()))
+        val nokkel = createNokkel(123)
+        invoking {
+            InnboksTransformer.toInternal(nokkel, innboksUtenEksternVarsling)
+        } `should throw` FieldValidationException::class `with message containing` "prefererteKanaler"
     }
 }

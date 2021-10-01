@@ -106,6 +106,8 @@ private fun ResultSet.toInnboks(): Innboks {
             link = getString("link"),
             sikkerhetsnivaa = getInt("sikkerhetsnivaa"),
             sistOppdatert = getUtcDateTime("sistOppdatert"),
-            aktiv = getBoolean("aktiv")
+            aktiv = getBoolean("aktiv"),
+            eksternVarsling = getBoolean("eksternVarsling"),
+            prefererteKanaler = getListFromSeparatedString("prefererteKanaler", ",")
     )
 }

@@ -20,7 +20,9 @@ object InnboksTransformer {
                 external.getLink(),
                 external.getSikkerhetsnivaa(),
                 LocalDateTime.now(ZoneId.of("UTC")),
-                newRecordsAreActiveByDefault
+                newRecordsAreActiveByDefault,
+                external.getEksternVarsling(),
+                external.getPrefererteKanaler()
         )
     }
 
