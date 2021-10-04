@@ -13,6 +13,8 @@ object OppgaveTransformer {
     fun toInternal(nokkel: NokkelIntern, external: OppgaveIntern): Oppgave {
         return Oppgave(
                 nokkel.getSystembruker(),
+                nokkel.getNamespace(),
+                nokkel.getAppnavn(),
                 nokkel.getEventId(),
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(external.getTidspunkt()), ZoneId.of("UTC")),
                 nokkel.getFodselsnummer(),

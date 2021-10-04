@@ -18,8 +18,8 @@ fun Connection.getAllBeskjed(): List<Beskjed> =
                     }
                 }
 
-private val createQuery = """INSERT INTO beskjed (uid, systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv, eksternVarsling, prefererteKanaler)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+private val createQuery = """INSERT INTO beskjed (uid, systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
 fun Connection.createBeskjed(beskjed: Beskjed): PersistActionResult =
         executePersistQuery(createQuery) {
@@ -49,6 +49,8 @@ private fun PreparedStatement.buildStatementForSingleRow(beskjed: Beskjed) {
     setBoolean(12, beskjed.aktiv)
     setBoolean(13, beskjed.eksternVarsling)
     setObject(14, beskjed.prefererteKanaler.joinToString(","))
+    setString(15, beskjed.namespace)
+    setString(16, beskjed.appnavn)
 }
 
 fun Connection.setBeskjederAktivflagg(doneEvents: List<Done>, aktiv: Boolean) {
@@ -104,6 +106,8 @@ private fun ResultSet.toBeskjed(): Beskjed {
             uid = getString("uid"),
             id = getInt("id"),
             systembruker = getString("systembruker"),
+            namespace = getString("namespace"),
+            appnavn = getString("appnavn"),
             eventTidspunkt = getUtcDateTime("eventTidspunkt"),
             fodselsnummer = getString("fodselsnummer"),
             eventId = getString("eventId"),

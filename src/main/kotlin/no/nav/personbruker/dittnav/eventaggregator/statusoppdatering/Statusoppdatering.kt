@@ -5,6 +5,8 @@ import java.time.LocalDateTime
 data class Statusoppdatering(
         val id: Int?,
         val systembruker: String,
+        val namespace: String,
+        val appnavn: String,
         val eventId: String,
         val eventTidspunkt: LocalDateTime,
         val fodselsnummer: String,
@@ -18,6 +20,8 @@ data class Statusoppdatering(
 ) {
     constructor(
             systembruker: String,
+            namespace: String,
+            appnavn: String,
             eventId: String,
             eventTidspunkt: LocalDateTime,
             fodselsnummer: String,
@@ -30,6 +34,8 @@ data class Statusoppdatering(
             sakstema: String
     ) : this(null,
             systembruker,
+            namespace,
+            appnavn,
             eventId,
             eventTidspunkt,
             fodselsnummer,
@@ -47,6 +53,8 @@ data class Statusoppdatering(
         return "Statusoppdatering(" +
                 "id=$id, " +
                 "systembruker=***, " +
+                "namespace=$namespace, " +
+                "appnavn=$appnavn, " +
                 "eventId=$eventId, " +
                 "eventTidspunkt=$eventTidspunkt, " +
                 "fodselsnummer=***, " +

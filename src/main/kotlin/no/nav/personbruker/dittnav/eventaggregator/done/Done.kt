@@ -4,6 +4,8 @@ import java.time.LocalDateTime
 
 data class Done(
         val systembruker: String,
+        val namespace: String,
+        val appnavn: String,
         val eventId: String,
         val eventTidspunkt: LocalDateTime,
         val fodselsnummer: String,
@@ -13,6 +15,8 @@ data class Done(
     override fun toString(): String {
         return "Done(" +
                 "systembruker=***, " +
+                "namespace=$namespace, " +
+                "appnavn=$appnavn, " +
                 "eventId=$eventId, " +
                 "eventTidspunkt=$eventTidspunkt, " +
                 "fodselsnummer=***, " +

@@ -24,6 +24,8 @@ object InnboksObjectMother {
     fun giveMeAktivInnboks(eventId: String, fodselsnummer: String, systembruker: String, link: String): Innboks {
         return Innboks(
                 systembruker,
+                "dummyNamespace",
+                "dummyAppnavn",
                 eventId,
                 LocalDateTime.now(ZoneId.of("UTC")),
                 fodselsnummer,
@@ -38,6 +40,8 @@ object InnboksObjectMother {
     fun giveMeInaktivInnboks(): Innboks {
         return Innboks(
                 "dummySystembruker",
+                "dummyNamespace",
+                "dummyAppnavn",
                 "76543",
                 LocalDateTime.now(ZoneId.of("UTC")),
                 "123",

@@ -16,8 +16,8 @@ fun Connection.getAllStatusoppdatering(): List<Statusoppdatering> =
                     }
                 }
 
-private val createQuery = """INSERT INTO statusoppdatering (systembruker, eventId, eventTidspunkt, fodselsnummer, grupperingsId, link, sikkerhetsnivaa, sistOppdatert, statusGlobal, statusIntern, sakstema)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+private val createQuery = """INSERT INTO statusoppdatering (systembruker, eventId, eventTidspunkt, fodselsnummer, grupperingsId, link, sikkerhetsnivaa, sistOppdatert, statusGlobal, statusIntern, sakstema, namespace, appnavn)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
 fun Connection.createStatusoppdatering(statusoppdatering: Statusoppdatering): PersistActionResult =
         executePersistQuery(createQuery) {
@@ -44,6 +44,8 @@ private fun PreparedStatement.buildStatementForSingleRow(statusoppdatering: Stat
     setString(9, statusoppdatering.statusGlobal)
     setString(10, statusoppdatering.statusIntern)
     setString(11, statusoppdatering.sakstema)
+    setString(12, statusoppdatering.namespace)
+    setString(13, statusoppdatering.appnavn)
 }
 
 fun Connection.getStatusoppdateringByFodselsnummer(fodselsnummer: String): List<Statusoppdatering> =
@@ -77,6 +79,8 @@ private fun ResultSet.toStatusoppdatering(): Statusoppdatering {
     return Statusoppdatering(
             id = getInt("id"),
             systembruker = getString("systembruker"),
+            namespace = getString("namespace"),
+            appnavn = getString("appnavn"),
             eventId = getString("eventId"),
             eventTidspunkt = getUtcDateTime("eventTidspunkt"),
             fodselsnummer = getString("fodselsnummer"),

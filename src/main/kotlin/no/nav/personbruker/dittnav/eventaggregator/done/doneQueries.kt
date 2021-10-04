@@ -27,8 +27,8 @@ fun Connection.getAllDoneEventWithLimit(limit: Int): List<Done> =
                     }
                 }
 
-private const val createQuery = """INSERT INTO done(systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId)
-            VALUES (?, ?, ?, ?, ?)"""
+private const val createQuery = """INSERT INTO done(systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, namespace, appnavn)
+            VALUES (?, ?, ?, ?, ?, ?, ?)"""
 
 fun Connection.createDoneEvents(doneEvents: List<Done>): ListPersistActionResult<Done> =
     executeBatchPersistQuery(createQuery) {
@@ -59,6 +59,8 @@ private fun ResultSet.toDoneEvent(): Done {
     return Done(
             eventId = getString("eventId"),
             systembruker = getString("systembruker"),
+            namespace = getString("namespace"),
+            appnavn = getString("appnavn"),
             eventTidspunkt = getUtcDateTime("eventTidspunkt"),
             fodselsnummer = getString("fodselsnummer"),
             grupperingsId = getString("grupperingsId")
@@ -71,4 +73,6 @@ private fun PreparedStatement.buildStatementForSingleRow(doneEvent: Done) {
     setString(3, doneEvent.fodselsnummer)
     setString(4, doneEvent.eventId)
     setString(5, doneEvent.grupperingsId)
+    setString(6, doneEvent.namespace)
+    setString(7, doneEvent.appnavn)
 }

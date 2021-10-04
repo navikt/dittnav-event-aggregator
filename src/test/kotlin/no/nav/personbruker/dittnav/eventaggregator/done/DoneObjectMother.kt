@@ -19,11 +19,13 @@ object DoneObjectMother {
 
     fun giveMeDone(eventId: String, systembruker: String, fodselsnummer: String): Done {
         return Done(
-                systembruker,
-                eventId,
-                LocalDateTime.now(ZoneId.of("UTC")),
-                fodselsnummer,
-                "100${eventId}"
+                systembruker = systembruker,
+                namespace = "dummyNamespace",
+                appnavn = "dummyAppnavn",
+                eventId = eventId,
+                eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
+                fodselsnummer = fodselsnummer,
+                grupperingsId = "100${eventId}"
         )
     }
 

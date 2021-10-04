@@ -16,6 +16,8 @@ object StatusoppdateringObjectMother {
     fun giveMeStatusoppdatering(eventId: String, fodselsnummer: String, systembruker: String, link: String): Statusoppdatering {
         return Statusoppdatering(
                 systembruker = systembruker,
+                namespace = "dummyNamespace",
+                appnavn = "dummyAppnavn",
                 eventId = eventId,
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
                 fodselsnummer = fodselsnummer,
