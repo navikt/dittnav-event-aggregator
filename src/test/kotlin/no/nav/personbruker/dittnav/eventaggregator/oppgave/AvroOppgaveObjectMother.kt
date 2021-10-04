@@ -17,9 +17,7 @@ object AvroOppgaveObjectMother {
 
     fun createOppgaveWithEksternVarslingAndPrefererteKanaler(eksternVarsling: Boolean, prefererteKanaler: List<String>): OppgaveIntern {
         return OppgaveIntern(
-            defaultLopenummer.toString(),
             Instant.now().toEpochMilli(),
-            "100$defaultLopenummer",
             defaultTekst,
             "https://nav.no/systemX",
             4,
@@ -30,9 +28,7 @@ object AvroOppgaveObjectMother {
 
     fun createOppgave(lopenummer: Int, tekst: String): OppgaveIntern {
         return OppgaveIntern(
-                lopenummer.toString(),
                 Instant.now().toEpochMilli(),
-                "100$lopenummer",
                 tekst,
                 "https://nav.no/systemX/$lopenummer",
                 4,

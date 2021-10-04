@@ -112,7 +112,7 @@ object ConsumerRecordsObjectMother {
     private fun createStatusoppdateringRecords(topicName: String, totalNumber: Int): List<ConsumerRecord<NokkelIntern, StatusoppdateringIntern>> {
         val allRecords = mutableListOf<ConsumerRecord<NokkelIntern, StatusoppdateringIntern>>()
         for (i in 0 until totalNumber) {
-            val schemaRecord = AvroStatusoppdateringObjectMother.createStatusoppdatering(i)
+            val schemaRecord = AvroStatusoppdateringObjectMother.createStatusoppdatering()
             val nokkel = createNokkel(i)
             allRecords.add(ConsumerRecord(topicName, i, i.toLong(), nokkel, schemaRecord))
         }

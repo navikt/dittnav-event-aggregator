@@ -12,13 +12,13 @@ class StatusoppdateringTransformerTest {
     @Test
     fun `should transform form external to internal`() {
         val eventId = 1
-        val original = AvroStatusoppdateringObjectMother.createStatusoppdatering(eventId)
+        val original = AvroStatusoppdateringObjectMother.createStatusoppdatering()
         val nokkel = createNokkel(eventId)
 
         val transformed = StatusoppdateringTransformer.toInternal(nokkel, original)
 
         transformed.fodselsnummer `should be equal to` nokkel.getFodselsnummer()
-        transformed.grupperingsId `should be equal to` original.getGrupperingsId()
+        transformed.grupperingsId `should be equal to` nokkel.getGrupperingsId()
         transformed.eventId `should be equal to` nokkel.getEventId()
         transformed.link `should be equal to` original.getLink()
         transformed.systembruker `should be equal to` nokkel.getSystembruker()
