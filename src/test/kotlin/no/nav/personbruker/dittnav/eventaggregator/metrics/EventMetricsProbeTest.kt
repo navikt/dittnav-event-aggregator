@@ -12,7 +12,6 @@ internal class EventMetricsProbeTest {
 
     private val metricsReporter = mockk<MetricsReporter>()
     private val prometheusCollector = mockkObject(PrometheusMetricsCollector)
-    private val producerNameResolver = mockk<ProducerNameResolver>()
 
     @BeforeEach
     fun cleanup() {
@@ -20,13 +19,10 @@ internal class EventMetricsProbeTest {
     }
 
     @Test
-    fun shouldReplaceSystemNameWithAliasForEventProcessed() {
-        val producerName = "sys-t-user"
-        val producerAlias = "test-user"
+    fun shouldUseProducerNameForEventProcessed() {
+        val producerName = "appnavn"
 
-        coEvery { producerNameResolver.getProducerNameAlias(producerName) } returns producerAlias
-        val nameScrubber = ProducerNameScrubber(producerNameResolver)
-        val metricsProbe = EventMetricsProbe(metricsReporter, nameScrubber)
+        val metricsProbe = EventMetricsProbe(metricsReporter)
 
         val producerNameForPrometheus = slot<String>()
         val capturedTags = slot<Map<String, String>>()
@@ -45,18 +41,15 @@ internal class EventMetricsProbeTest {
         verify(exactly = 1) { PrometheusMetricsCollector.registerEventsSeen(any(), any(), any()) }
         verify(exactly = 1) { PrometheusMetricsCollector.registerEventsProcessed(any(), any(), any()) }
 
-        producerNameForPrometheus.captured `should be equal to` producerAlias
-        capturedTags.captured["producer"] `should be equal to` producerAlias
+        producerNameForPrometheus.captured `should be equal to` producerName
+        capturedTags.captured["producer"] `should be equal to` producerName
     }
 
     @Test
-    fun shouldReplaceSystemNameWithAliasForEventFailed() {
-        val producerName = "sys-t-user"
-        val producerAlias = "test-user"
+    fun shouldUseProducerNameForEventFailed() {
+        val producerName = "appnavn"
 
-        coEvery { producerNameResolver.getProducerNameAlias(producerName) } returns producerAlias
-        val nameScrubber = ProducerNameScrubber(producerNameResolver)
-        val metricsProbe = EventMetricsProbe(metricsReporter, nameScrubber)
+        val metricsProbe = EventMetricsProbe(metricsReporter)
 
         val capturedTags = slot<Map<String, String>>()
         val producerNameForPrometheus = slot<String>()
@@ -75,15 +68,13 @@ internal class EventMetricsProbeTest {
         verify(exactly = 1) { PrometheusMetricsCollector.registerEventsSeen(any(), any(), any()) }
         verify(exactly = 1) { PrometheusMetricsCollector.registerEventsFailed(any(), any(), any()) }
 
-        producerNameForPrometheus.captured `should be equal to` producerAlias
-        capturedTags.captured["producer"] `should be equal to` producerAlias
+        producerNameForPrometheus.captured `should be equal to` producerName
+        capturedTags.captured["producer"] `should be equal to` producerName
     }
 
     @Test
     fun shouldReportCorrectNumberOfEvents() {
-        coEvery { producerNameResolver.getProducerNameAlias(any()) } returns "test-user"
-        val nameScrubber = ProducerNameScrubber(producerNameResolver)
-        val metricsProbe = EventMetricsProbe(metricsReporter, nameScrubber)
+        val metricsProbe = EventMetricsProbe(metricsReporter)
 
         val capturedFieldsForSeen = slot<Map<String, Any>>()
         val capturedFieldsForProcessed = slot<Map<String, Any>>()

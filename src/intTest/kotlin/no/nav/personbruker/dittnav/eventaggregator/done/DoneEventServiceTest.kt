@@ -17,8 +17,6 @@ import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.getAllInnboks
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
-import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameResolver
-import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameScrubber
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
@@ -36,9 +34,7 @@ class DoneEventServiceTest {
 
     private val database = LocalPostgresDatabase()
     private val metricsReporter = StubMetricsReporter()
-    private val producerNameResolver = ProducerNameResolver(database)
-    private val producerNameScrubber = ProducerNameScrubber(producerNameResolver)
-    private val metricsProbe = EventMetricsProbe(metricsReporter, producerNameScrubber)
+    private val metricsProbe = EventMetricsProbe(metricsReporter)
     private val doneRepository = DoneRepository(database)
     private val donePersistingService = DonePersistingService(doneRepository)
     private val doneEventService = DoneEventService(donePersistingService, metricsProbe)

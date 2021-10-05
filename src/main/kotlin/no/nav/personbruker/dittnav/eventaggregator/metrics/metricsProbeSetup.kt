@@ -7,14 +7,14 @@ import no.nav.personbruker.dittnav.common.metrics.influxdb.InfluxMetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.config.Environment
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
 
-fun buildEventMetricsProbe(environment: Environment, nameScrubber: ProducerNameScrubber): EventMetricsProbe {
+fun buildEventMetricsProbe(environment: Environment): EventMetricsProbe {
     val metricsReporter = resolveMetricsReporter(environment)
-    return EventMetricsProbe(metricsReporter, nameScrubber)
+    return EventMetricsProbe(metricsReporter)
 }
 
-fun buildDBMetricsProbe(environment: Environment, nameScrubber: ProducerNameScrubber): DBMetricsProbe {
+fun buildDBMetricsProbe(environment: Environment): DBMetricsProbe {
     val metricsReporter = resolveMetricsReporter(environment)
-    return DBMetricsProbe(metricsReporter, nameScrubber)
+    return DBMetricsProbe(metricsReporter)
 }
 
 private fun resolveMetricsReporter(environment: Environment): MetricsReporter {

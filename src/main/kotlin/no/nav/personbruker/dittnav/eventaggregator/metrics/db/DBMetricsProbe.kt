@@ -3,11 +3,9 @@ package no.nav.personbruker.dittnav.eventaggregator.metrics.db
 import no.nav.personbruker.dittnav.common.metrics.MetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.metrics.DB_EVENTS_CACHED
-import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameScrubber
 import no.nav.personbruker.dittnav.eventaggregator.metrics.PrometheusMetricsCollector
 
-class DBMetricsProbe(private val metricsReporter: MetricsReporter,
-                     private val nameScrubber: ProducerNameScrubber) {
+class DBMetricsProbe(private val metricsReporter: MetricsReporter) {
 
     suspend fun runWithMetrics(eventType: EventType, block: suspend DBMetricsSession.() -> Unit) {
         val session = DBMetricsSession(eventType)
@@ -21,14 +19,13 @@ class DBMetricsProbe(private val metricsReporter: MetricsReporter,
         session.getUniqueProducers().forEach { producer ->
             val numberOfCachedEvents = session.getNumberOfCachedEventsForProducer(producer)
             val eventType = session.eventType
-            val producerPublicAlias = nameScrubber.getPublicAlias(producer)
             metricsReporter.registerDataPoint(
                     DB_EVENTS_CACHED,
                     listOf("counter" to numberOfCachedEvents).toMap(),
                     listOf("eventType" to eventType.toString(),
-                            "producer" to producerPublicAlias).toMap()
+                            "producer" to producer).toMap()
             )
-            PrometheusMetricsCollector.registerEventsCached(numberOfCachedEvents, eventType, producerPublicAlias)
+            PrometheusMetricsCollector.registerEventsCached(numberOfCachedEvents, eventType, producer)
         }
     }
 }
