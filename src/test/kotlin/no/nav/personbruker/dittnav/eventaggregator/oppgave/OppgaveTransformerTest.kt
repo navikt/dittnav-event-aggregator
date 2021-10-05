@@ -26,6 +26,8 @@ class OppgaveTransformerTest {
         internal.tekst `should be equal to` external.getTekst()
         internal.systembruker `should be equal to` nokkel.getSystembruker()
         internal.sikkerhetsnivaa `should be equal to` external.getSikkerhetsnivaa()
+        internal.namespace `should be equal to` nokkel.getNamespace()
+        internal.appnavn `should be equal to` nokkel.getAppnavn()
 
         val transformedEventTidspunktAsLong = internal.eventTidspunkt.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
         transformedEventTidspunktAsLong `should be equal to` external.getTidspunkt()

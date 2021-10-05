@@ -29,9 +29,9 @@ class InnboksEventService(
                 try {
                     val internalEventValue = InnboksTransformer.toInternal(event.key(), event.value())
                     successfullyTransformedEvents.add(internalEventValue)
-                    countSuccessfulEventForProducer(internalEventValue.systembruker)
+                        countSuccessfulEventForProducer(internalEventValue.appnavn)
                 } catch (e: Exception) {
-                    countFailedEventForProducer(event.systembruker)
+                    countFailedEventForProducer(event.appnavn)
                     problematicEvents.add(event)
                     log.warn("Transformasjon av innboks-event fra Kafka feilet, fullfører batch-en før pollig stoppes.", e)
                 }
@@ -52,10 +52,10 @@ class InnboksEventService(
             val totalEntities = result.getAllEntities().size
 
             result.getConflictingEntities()
-                    .groupingBy { innboks -> innboks.systembruker }
+                    .groupingBy { innboks -> innboks.appnavn }
                     .eachCount()
-                    .forEach { (systembruker, duplicates) ->
-                        countDuplicateEventKeysByProducer(systembruker, duplicates)
+                    .forEach { (appnavn, duplicates) ->
+                        countDuplicateEventKeysByProducer(appnavn, duplicates)
                     }
 
             val msg = """Traff $constraintErrors feil på duplikate eventId-er ved behandling av $totalEntities innboks-eventer.

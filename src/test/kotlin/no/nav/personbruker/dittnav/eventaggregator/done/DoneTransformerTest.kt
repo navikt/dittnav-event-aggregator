@@ -19,6 +19,8 @@ class DoneTransformerTest {
         transformed.fodselsnummer `should be equal to` nokkel.getFodselsnummer()
         transformed.grupperingsId `should be equal to` nokkel.getGrupperingsId()
         transformed.eventId `should be equal to` nokkel.getEventId()
+        transformed.namespace `should be equal to` nokkel.getNamespace()
+        transformed.appnavn `should be equal to` nokkel.getAppnavn()
 
         val transformedEventTidspunktAsLong = transformed.eventTidspunkt.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
         transformedEventTidspunktAsLong `should be equal to` original.getTidspunkt()

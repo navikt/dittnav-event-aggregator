@@ -26,6 +26,8 @@ class StatusoppdateringTransformerTest {
         transformed.statusGlobal `should be equal to` original.getStatusGlobal()
         transformed.statusIntern?.`should be equal to`(original.getStatusIntern())
         transformed.sakstema `should be equal to` original.getSakstema()
+        transformed.namespace `should be equal to` nokkel.getNamespace()
+        transformed.appnavn `should be equal to` nokkel.getAppnavn()
 
         val transformedEventTidspunktAsLong = transformed.eventTidspunkt.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
         transformedEventTidspunktAsLong `should be equal to` original.getTidspunkt()

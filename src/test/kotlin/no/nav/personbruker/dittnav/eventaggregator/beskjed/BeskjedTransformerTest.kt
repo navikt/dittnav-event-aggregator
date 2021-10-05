@@ -28,6 +28,8 @@ class BeskjedTransformerTest {
         transformed.tekst `should be equal to` original.getTekst()
         transformed.systembruker `should be equal to` nokkel.getSystembruker()
         transformed.sikkerhetsnivaa `should be equal to` original.getSikkerhetsnivaa()
+        transformed.appnavn `should be equal to` nokkel.getAppnavn()
+        transformed.namespace `should be equal to` nokkel.getNamespace()
 
         val transformedEventTidspunktAsLong = transformed.eventTidspunkt.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
         transformedEventTidspunktAsLong `should be equal to` original.getTidspunkt()
