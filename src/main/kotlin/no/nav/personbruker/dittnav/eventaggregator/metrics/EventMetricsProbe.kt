@@ -23,8 +23,9 @@ class EventMetricsProbe(private val metricsReporter: MetricsReporter) {
         session.getUniqueProducers().forEach { producerName ->
             val numberSeen = session.getEventsSeen(producerName)
             val eventTypeName = session.eventType.toString()
+            val producerNamespace = session.getNamespace()
 
-            reportEvents(numberSeen, eventTypeName, producerName, KAFKA_EVENTS_SEEN)
+            reportEvents(numberSeen, eventTypeName, producerName, KAFKA_EVENTS_SEEN, producerNamespace)
             PrometheusMetricsCollector.registerEventsSeen(numberSeen, eventTypeName, producerName)
         }
     }
@@ -33,9 +34,10 @@ class EventMetricsProbe(private val metricsReporter: MetricsReporter) {
         session.getUniqueProducers().forEach { producerName ->
             val numberProcessed = session.getEventsProcessed(producerName)
             val eventTypeName = session.eventType.toString()
+            val producerNamespace = session.getNamespace()
 
             if (numberProcessed > 0) {
-                reportEvents(numberProcessed, eventTypeName, producerName, KAFKA_EVENTS_PROCESSED)
+                reportEvents(numberProcessed, eventTypeName, producerName, KAFKA_EVENTS_PROCESSED, producerNamespace)
                 PrometheusMetricsCollector.registerEventsProcessed(numberProcessed, eventTypeName, producerName)
             }
         }
@@ -45,9 +47,10 @@ class EventMetricsProbe(private val metricsReporter: MetricsReporter) {
         session.getUniqueProducers().forEach { producerName ->
             val numberFailed = session.getEventsFailed(producerName)
             val eventTypeName = session.eventType.toString()
+            val producerNamespace = session.getNamespace()
 
             if (numberFailed > 0) {
-                reportEvents(numberFailed, eventTypeName, producerName, KAFKA_EVENTS_FAILED)
+                reportEvents(numberFailed, eventTypeName, producerName, KAFKA_EVENTS_FAILED, producerNamespace)
                 PrometheusMetricsCollector.registerEventsFailed(numberFailed, eventTypeName, producerName)
             }
         }
@@ -57,9 +60,10 @@ class EventMetricsProbe(private val metricsReporter: MetricsReporter) {
         session.getUniqueProducers().forEach { producerName ->
             val numberDuplicateKeyEvents = session.getDuplicateKeyEvents(producerName)
             val eventTypeName = session.eventType.toString()
+            val producerNamespace = session.getNamespace()
 
             if (numberDuplicateKeyEvents > 0) {
-                reportEvents(numberDuplicateKeyEvents, eventTypeName, producerName, KAFKA_EVENTS_DUPLICATE_KEY)
+                reportEvents(numberDuplicateKeyEvents, eventTypeName, producerName, KAFKA_EVENTS_DUPLICATE_KEY, producerNamespace)
                 PrometheusMetricsCollector.registerEventsDuplicateKey(numberDuplicateKeyEvents, eventTypeName, producerName)
             }
         }
@@ -80,12 +84,12 @@ class EventMetricsProbe(private val metricsReporter: MetricsReporter) {
         metricsReporter.registerDataPoint(KAFKA_EVENTS_BATCH, fieldMap, tagMap)
     }
 
-    private suspend fun reportEvents(count: Int, eventType: String, producerName: String, metricName: String) {
-        metricsReporter.registerDataPoint(metricName, counterField(count), createTagMap(eventType, producerName))
+    private suspend fun reportEvents(count: Int, eventType: String, producerName: String, metricName: String, producerNamespace: String) {
+        metricsReporter.registerDataPoint(metricName, counterField(count), createTagMap(eventType, producerName, producerNamespace))
     }
 
     private fun counterField(events: Int): Map<String, Int> = listOf("counter" to events).toMap()
 
-    private fun createTagMap(eventType: String, producer: String): Map<String, String> =
-            listOf("eventType" to eventType, "producer" to producer).toMap()
+    private fun createTagMap(eventType: String, producer: String, producerNamespace: String): Map<String, String> =
+            listOf("eventType" to eventType, "producer" to producer, "producerNamespace" to producerNamespace).toMap()
 }

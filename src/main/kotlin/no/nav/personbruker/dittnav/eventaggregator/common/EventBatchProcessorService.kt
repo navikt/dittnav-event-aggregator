@@ -8,6 +8,8 @@ interface EventBatchProcessorService<T> {
 
     suspend fun processEvents(events: ConsumerRecords<NokkelIntern, T>)
 
+    val ConsumerRecord<NokkelIntern, T>.namespace: String get() = key().getNamespace()
+
     val ConsumerRecord<NokkelIntern, T>.appnavn: String get() = key().getAppnavn()
 
     val ConsumerRecord<NokkelIntern, T>.systembruker: String get() = key().getSystembruker()

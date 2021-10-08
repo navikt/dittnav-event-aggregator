@@ -8,6 +8,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.Untransform
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType.DONE_INTERN
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsSession
+import no.nav.personbruker.dittnav.eventaggregator.metrics.Produsent
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.slf4j.Logger
@@ -30,9 +31,9 @@ class DoneEventService(
                 try {
                     val internalEventValue = DoneTransformer.toInternal(event.key(), event.value())
                     successfullyTransformedEvents.add(internalEventValue)
-                    countSuccessfulEventForProducer(internalEventValue.appnavn)
+                    countSuccessfulEventForProducer(Produsent(internalEventValue.appnavn, internalEventValue.namespace))
                 } catch (e: Exception) {
-                    countFailedEventForProducer(event.appnavn)
+                    countFailedEventForProducer(Produsent(event.appnavn, event.namespace))
                     problematicEvents.add(event)
                     log.warn("Transformasjon av done-event fra Kafka feilet.", e)
                 }

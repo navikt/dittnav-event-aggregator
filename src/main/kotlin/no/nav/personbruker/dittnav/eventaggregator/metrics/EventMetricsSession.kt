@@ -12,13 +12,16 @@ class EventMetricsSession(val eventType: EventType) {
     private val numberFailedByProducer = HashMap<String, Int>()
     private val numberDuplicateKeysByProducer = HashMap<String, Int>()
     private val startTime = System.nanoTime()
+    private var namespace = ""
 
-    fun countSuccessfulEventForProducer(producer: String) {
-        numberProcessedByProducer[producer] = numberProcessedByProducer.getOrDefault(producer, 0).inc()
+    fun countSuccessfulEventForProducer(producer: Produsent) {
+        namespace = producer.namespace
+        numberProcessedByProducer[producer.appnavn] = numberProcessedByProducer.getOrDefault(producer, 0).inc()
     }
 
-    fun countFailedEventForProducer(producer: String) {
-        numberFailedByProducer[producer] = numberFailedByProducer.getOrDefault(producer, 0).inc()
+    fun countFailedEventForProducer(producer: Produsent) {
+        namespace = producer.namespace
+        numberFailedByProducer[producer.appnavn] = numberFailedByProducer.getOrDefault(producer, 0).inc()
     }
 
     fun countDuplicateEventKeysByProducer(producer: String, number: Int = 1) {
@@ -66,6 +69,10 @@ class EventMetricsSession(val eventType: EventType) {
 
     fun getNumberDuplicateKeysByProducer(): HashMap<String, Int> {
         return numberDuplicateKeysByProducer
+    }
+
+    fun getNamespace(): String {
+        return namespace
     }
 
     fun timeElapsedSinceSessionStartNanos(): Long {
