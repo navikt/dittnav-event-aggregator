@@ -16,12 +16,12 @@ class EventMetricsSession(val eventType: EventType) {
 
     fun countSuccessfulEventForProducer(producer: Produsent) {
         namespace = producer.namespace
-        numberProcessedByProducer[producer.appnavn] = numberProcessedByProducer.getOrDefault(producer, 0).inc()
+        numberProcessedByProducer[producer.appnavn] = numberProcessedByProducer.getOrDefault(producer.appnavn, 0).inc()
     }
 
     fun countFailedEventForProducer(producer: Produsent) {
         namespace = producer.namespace
-        numberFailedByProducer[producer.appnavn] = numberFailedByProducer.getOrDefault(producer, 0).inc()
+        numberFailedByProducer[producer.appnavn] = numberFailedByProducer.getOrDefault(producer.appnavn, 0).inc()
     }
 
     fun countDuplicateEventKeysByProducer(producer: String, number: Int = 1) {

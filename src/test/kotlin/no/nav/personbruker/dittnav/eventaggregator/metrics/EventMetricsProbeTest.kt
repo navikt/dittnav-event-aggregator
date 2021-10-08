@@ -72,7 +72,7 @@ internal class EventMetricsProbeTest {
         capturedTags.captured["producer"] `should be equal to` producer.appnavn
         capturedTags.captured["producerNamespace"] `should be equal to` producer.namespace
     }
-/*
+
     @Test
     fun shouldReportCorrectNumberOfEvents() {
         val metricsProbe = EventMetricsProbe(metricsReporter)
@@ -102,5 +102,5 @@ internal class EventMetricsProbeTest {
         capturedFieldsForSeen.captured["counter"] `should be equal to` 3
         capturedFieldsForProcessed.captured["counter"] `should be equal to` 2
         capturedFieldsForFailed.captured["counter"] `should be equal to` 1
-    }*/
+    }
 }
