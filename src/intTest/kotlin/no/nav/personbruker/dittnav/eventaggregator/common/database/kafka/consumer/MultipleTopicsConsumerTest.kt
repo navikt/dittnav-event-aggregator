@@ -10,6 +10,7 @@ import no.nav.common.KafkaEnvironment
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.common.SimpleEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.common.config.KafkaEmbed
+import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.KafkaTestTopics
 import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util.KafkaTestUtil
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.config.Environment
@@ -27,7 +28,7 @@ import org.junit.jupiter.api.Test
 
 class MultipleTopicsConsumerTest {
 
-    private val topics = listOf(Kafka.beskjedHovedTopicName, Kafka.oppgaveHovedTopicName, Kafka.innboksHovedTopicName)
+    private val topics = listOf(KafkaTestTopics.beskjedInternTopicName, KafkaTestTopics.oppgaveInternTopicName, KafkaTestTopics.innboksInternTopicName)
     private val embeddedEnv = KafkaTestUtil.createDefaultKafkaEmbeddedInstance(topics)
     private val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
     private val adminClient = embeddedEnv.adminClient
@@ -57,9 +58,9 @@ class MultipleTopicsConsumerTest {
 
     fun `Produserer testeventer for alle topics`() {
         runBlocking {
-            val producedAllBeskjed = KafkaTestUtil.produceEvents(testEnvironment, Kafka.beskjedHovedTopicName, beskjedEvents)
-            val producedAllOppgave = KafkaTestUtil.produceEvents(testEnvironment, Kafka.oppgaveHovedTopicName, oppgaveEvents)
-            val producedAllInnboks = KafkaTestUtil.produceEvents(testEnvironment, Kafka.innboksHovedTopicName, innboksEvents)
+            val producedAllBeskjed = KafkaTestUtil.produceEvents(testEnvironment, KafkaTestTopics.beskjedInternTopicName, beskjedEvents)
+            val producedAllOppgave = KafkaTestUtil.produceEvents(testEnvironment, KafkaTestTopics.oppgaveInternTopicName, oppgaveEvents)
+            val producedAllInnboks = KafkaTestUtil.produceEvents(testEnvironment, KafkaTestTopics.innboksInternTopicName, innboksEvents)
             producedAllBeskjed `should be equal to` true
             producedAllOppgave `should be equal to` true
             producedAllInnboks `should be equal to` true
@@ -109,17 +110,17 @@ class MultipleTopicsConsumerTest {
 
     private fun createInfoConsumer(env: Environment, BeskjedEventProcessor: SimpleEventCounterService<BeskjedIntern>): Consumer<BeskjedIntern> {
         val kafkaProps = KafkaEmbed.consumerProps(env, EventType.BESKJED_INTERN)
-        return setupConsumerForTheBeskjedTopic(kafkaProps, BeskjedEventProcessor)
+        return setupConsumerForTheBeskjedTopic(kafkaProps, BeskjedEventProcessor, KafkaTestTopics.beskjedInternTopicName)
     }
 
     private fun createOppgaveConsumer(env: Environment, oppgaveEventProcessor: SimpleEventCounterService<OppgaveIntern>): Consumer<OppgaveIntern> {
         val kafkaProps = KafkaEmbed.consumerProps(env, EventType.OPPGAVE_INTERN)
-        return setupConsumerForTheOppgaveTopic(kafkaProps, oppgaveEventProcessor)
+        return setupConsumerForTheOppgaveTopic(kafkaProps, oppgaveEventProcessor, KafkaTestTopics.oppgaveInternTopicName)
     }
 
     private fun createInnboksConsumer(env: Environment, innboksEventProcessor: SimpleEventCounterService<InnboksIntern>): Consumer<InnboksIntern> {
         val kafkaProps = KafkaEmbed.consumerProps(env, EventType.INNBOKS_INTERN)
-        return setupConsumerForTheInnboksTopic(kafkaProps, innboksEventProcessor)
+        return setupConsumerForTheInnboksTopic(kafkaProps, innboksEventProcessor, KafkaTestTopics.innboksInternTopicName)
     }
 
 }

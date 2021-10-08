@@ -3,6 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util
 import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 import no.nav.common.JAASCredential
 import no.nav.common.KafkaEnvironment
+import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.KafkaTestTopics
 import no.nav.personbruker.dittnav.eventaggregator.config.Environment
 import no.nav.personbruker.dittnav.eventaggregator.config.SecurityConfig
 import org.apache.avro.generic.GenericRecord
@@ -53,7 +54,12 @@ object KafkaTestUtil {
                 influxdbRetentionPolicy = "",
                 aivenBrokers = embeddedEnv.brokersURL.substringAfterLast("/"),
                 aivenSchemaRegistry = embeddedEnv.schemaRegistry!!.url,
-                securityConfig = SecurityConfig(enabled = false)
+                securityConfig = SecurityConfig(enabled = false),
+                beskjedInternTopicName = KafkaTestTopics.beskjedInternTopicName,
+                oppgaveInternTopicName = KafkaTestTopics.oppgaveInternTopicName,
+                innboksInternTopicName = KafkaTestTopics.innboksInternTopicName,
+                statusoppdateringInternTopicName = KafkaTestTopics.statusoppdateringInternTopicName,
+                doneInternTopicName = KafkaTestTopics.doneInternTopicName
         )
     }
 

@@ -66,19 +66,19 @@ class ApplicationContext {
     val healthService = HealthService(this)
 
     private fun initializeBeskjedConsumer() =
-            KafkaConsumerSetup.setupConsumerForTheBeskjedTopic(beskjedKafkaProps, beskjedEventProcessor)
+            KafkaConsumerSetup.setupConsumerForTheBeskjedTopic(beskjedKafkaProps, beskjedEventProcessor, environment.beskjedInternTopicName)
 
     private fun initializeOppgaveConsumer() =
-            KafkaConsumerSetup.setupConsumerForTheOppgaveTopic(oppgaveKafkaProps, oppgaveEventProcessor)
+            KafkaConsumerSetup.setupConsumerForTheOppgaveTopic(oppgaveKafkaProps, oppgaveEventProcessor, environment.oppgaveInternTopicName)
 
     private fun initializeInnboksConsumer() =
-            KafkaConsumerSetup.setupConsumerForTheInnboksTopic(innboksKafkaProps, innboksEventProcessor)
+            KafkaConsumerSetup.setupConsumerForTheInnboksTopic(innboksKafkaProps, innboksEventProcessor, environment.innboksInternTopicName)
 
     private fun initializeDoneConsumer() =
-            KafkaConsumerSetup.setupConsumerForTheDoneTopic(doneKafkaProps, doneEventService)
+            KafkaConsumerSetup.setupConsumerForTheDoneTopic(doneKafkaProps, doneEventService, environment.doneInternTopicName)
 
     private fun initializeStatusoppdateringConsumer() =
-            KafkaConsumerSetup.setupConsumerForTheStatusoppdateringTopic(statusoppdateringKafkaProps, statusoppdateringEventProcessor)
+            KafkaConsumerSetup.setupConsumerForTheStatusoppdateringTopic(statusoppdateringKafkaProps, statusoppdateringEventProcessor, environment.statusoppdateringInternTopicName)
 
     private fun initializeDoneWaitingTableProcessor() = PeriodicDoneEventWaitingTableProcessor(donePersistingService, dbMetricsProbe)
 

@@ -17,12 +17,6 @@ object Kafka {
 
     private val log: Logger = LoggerFactory.getLogger(Kafka::class.java)
 
-    val doneHovedTopicName = "min-side.privat-brukernotifikasjon-done-v1"
-    val beskjedHovedTopicName = "min-side.privat-brukernotifikasjon-beskjed-v1"
-    val innboksHovedTopicName = "min-side.privat-brukernotifikasjon-innboks-v1"
-    val oppgaveHovedTopicName = "min-side.privat-brukernotifikasjon-oppgave-v1"
-    val statusoppdateringHovedTopicName = "min-side.privat-brukernotifikasjon-statusoppdatering-v1"
-
     fun counterConsumerProps(env: Environment, eventTypeToConsume: EventType): Properties {
         val groupIdAndEventType = "dn-aggregator_metrics_counter_" + eventTypeToConsume.eventType
         val sixMinutes = 6 * 60 * 1000

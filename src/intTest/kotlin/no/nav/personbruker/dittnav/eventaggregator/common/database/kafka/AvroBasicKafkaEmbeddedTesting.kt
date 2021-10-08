@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test
  */
 class AvroBasicKafkaEmbeddedTesting {
 
-    private val topicen = Kafka.beskjedHovedTopicName
+    private val topicen = KafkaTestTopics.beskjedInternTopicName
     private val embeddedEnv = KafkaTestUtil.createDefaultKafkaEmbeddedInstance(listOf(topicen))
 
     private val events = (1..9).map { createNokkel(it) to AvroBeskjedObjectMother.createBeskjed(it) }.toMap()
