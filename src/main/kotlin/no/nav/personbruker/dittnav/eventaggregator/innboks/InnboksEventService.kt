@@ -53,10 +53,10 @@ class InnboksEventService(
             val totalEntities = result.getAllEntities().size
 
             result.getConflictingEntities()
-                    .groupingBy { innboks -> innboks.appnavn }
+                    .groupingBy { innboks -> Produsent(innboks.appnavn, innboks.namespace) }
                     .eachCount()
-                    .forEach { (appnavn, duplicates) ->
-                        countDuplicateEventKeysByProducer(appnavn, duplicates)
+                    .forEach { (produsent, duplicates) ->
+                        countDuplicateEventKeysByProducer(produsent, duplicates)
                     }
 
             val msg = """Traff $constraintErrors feil på duplikate eventId-er ved behandling av $totalEntities innboks-eventer.

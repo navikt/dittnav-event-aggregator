@@ -54,10 +54,10 @@ class StatusoppdateringEventService(
             val totalEntities = result.getAllEntities().size
 
             result.getConflictingEntities()
-                    .groupingBy { statusoppdatering -> statusoppdatering.appnavn }
+                    .groupingBy { statusoppdatering -> Produsent(statusoppdatering.appnavn, statusoppdatering.namespace)}
                     .eachCount()
-                    .forEach { (appnavn, duplicates) ->
-                        countDuplicateEventKeysByProducer(appnavn, duplicates)
+                    .forEach { (produsent, duplicates) ->
+                        countDuplicateEventKeysByProducer(produsent, duplicates)
                     }
 
             val msg = """Traff $constraintErrors feil på duplikate eventId-er ved behandling av $totalEntities statusoppdaterings-eventer.

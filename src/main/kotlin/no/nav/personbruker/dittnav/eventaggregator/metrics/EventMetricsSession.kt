@@ -8,46 +8,43 @@ class EventMetricsSession(val eventType: EventType) {
 
     private val log: Logger = LoggerFactory.getLogger(EventMetricsSession::class.java)
 
-    private val numberProcessedByProducer = HashMap<String, Int>()
-    private val numberFailedByProducer = HashMap<String, Int>()
-    private val numberDuplicateKeysByProducer = HashMap<String, Int>()
+    private val numberProcessedByProducer = HashMap<Produsent, Int>()
+    private val numberFailedByProducer = HashMap<Produsent, Int>()
+    private val numberDuplicateKeysByProducer = HashMap<Produsent, Int>()
     private val startTime = System.nanoTime()
-    private var namespace = ""
 
     fun countSuccessfulEventForProducer(producer: Produsent) {
-        namespace = producer.namespace
-        numberProcessedByProducer[producer.appnavn] = numberProcessedByProducer.getOrDefault(producer.appnavn, 0).inc()
+        numberProcessedByProducer[producer] = numberProcessedByProducer.getOrDefault(producer, 0).inc()
     }
 
     fun countFailedEventForProducer(producer: Produsent) {
-        namespace = producer.namespace
-        numberFailedByProducer[producer.appnavn] = numberFailedByProducer.getOrDefault(producer.appnavn, 0).inc()
+        numberFailedByProducer[producer] = numberFailedByProducer.getOrDefault(producer, 0).inc()
     }
 
-    fun countDuplicateEventKeysByProducer(producer: String, number: Int = 1) {
+    fun countDuplicateEventKeysByProducer(producer: Produsent, number: Int = 1) {
         numberDuplicateKeysByProducer[producer] = numberDuplicateKeysByProducer.getOrDefault(producer, 0) + number
     }
 
-    fun getUniqueProducers(): List<String> {
-        val producers = ArrayList<String>()
+    fun getUniqueProducers(): List<Produsent> {
+        val producers = ArrayList<Produsent>()
         producers.addAll(numberProcessedByProducer.keys)
         producers.addAll(numberFailedByProducer.keys)
         return producers.distinct()
     }
 
-    fun getEventsSeen(producer: String): Int {
+    fun getEventsSeen(producer: Produsent): Int {
         return getEventsProcessed(producer) + getEventsFailed(producer)
     }
 
-    fun getEventsProcessed(producer: String): Int {
+    fun getEventsProcessed(producer: Produsent): Int {
         return numberProcessedByProducer.getOrDefault(producer, 0)
     }
 
-    fun getEventsFailed(producer: String): Int {
+    fun getEventsFailed(producer: Produsent): Int {
         return numberFailedByProducer.getOrDefault(producer, 0)
     }
 
-    fun getDuplicateKeyEvents(producer: String): Int {
+    fun getDuplicateKeyEvents(producer: Produsent): Int {
         return numberDuplicateKeysByProducer.getOrDefault(producer, 0)
     }
 
@@ -67,12 +64,8 @@ class EventMetricsSession(val eventType: EventType) {
         return numberDuplicateKeysByProducer.values.sum()
     }
 
-    fun getNumberDuplicateKeysByProducer(): HashMap<String, Int> {
+    fun getNumberDuplicateKeysByProducer(): HashMap<Produsent, Int> {
         return numberDuplicateKeysByProducer
-    }
-
-    fun getNamespace(): String {
-        return namespace
     }
 
     fun timeElapsedSinceSessionStartNanos(): Long {
@@ -82,7 +75,7 @@ class EventMetricsSession(val eventType: EventType) {
     // Midlertidig logikk for å ikke få alarmer i Slack fra en produsent som sender mange duplikater.
     fun isDuplicatesFromFpinfoHistorikkOnly(): Boolean {
         return if (onlyOneProducerMadeDuplicates()) {
-            numberDuplicateKeysByProducer.keys.any { key -> key.contains("fpinfo-historikk") }
+            numberDuplicateKeysByProducer.keys.any { key -> key.appnavn.contains("fpinfo-historikk") }
 
         } else {
             false

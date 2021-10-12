@@ -53,10 +53,10 @@ class OppgaveEventService(
             val totalEntities = result.getAllEntities().size
 
             result.getConflictingEntities()
-                    .groupingBy { oppgave -> oppgave.appnavn }
+                    .groupingBy { oppgave -> Produsent(oppgave.appnavn, oppgave.namespace) }
                     .eachCount()
-                    .forEach { (appnavn, duplicates) ->
-                        countDuplicateEventKeysByProducer(appnavn, duplicates)
+                    .forEach { (produsent, duplicates) ->
+                        countDuplicateEventKeysByProducer(produsent, duplicates)
                     }
 
             val msg = """Traff $constraintErrors feil på duplikate eventId-er ved behandling av $totalEntities oppgave-eventer.

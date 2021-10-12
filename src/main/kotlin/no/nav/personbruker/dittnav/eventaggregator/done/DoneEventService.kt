@@ -64,10 +64,10 @@ class DoneEventService(
             val totalEntities = result.getAllEntities().size
 
             result.getConflictingEntities()
-                    .groupingBy { done -> done.appnavn }
+                    .groupingBy { done -> Produsent(done.appnavn, done.namespace) }
                     .eachCount()
-                    .forEach { (appnavn, duplicates) ->
-                        countDuplicateEventKeysByProducer(appnavn, duplicates)
+                    .forEach { (produsent, duplicates) ->
+                        countDuplicateEventKeysByProducer(produsent, duplicates)
                     }
 
             val msg = """Traff $constraintErrors feil på duplikate eventId-er ved behandling av $totalEntities done-eventer.

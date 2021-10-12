@@ -54,10 +54,10 @@ class BeskjedEventService(
             val totalEntities = result.getAllEntities().size
 
             result.getConflictingEntities()
-                    .groupingBy { beskjed -> beskjed.appnavn }
+                    .groupingBy { beskjed -> Produsent(beskjed.appnavn, beskjed.namespace) }
                     .eachCount()
-                    .forEach { (appnavn, duplicates) ->
-                        countDuplicateEventKeysByProducer(appnavn, duplicates)
+                    .forEach { (produsent, duplicates) ->
+                        countDuplicateEventKeysByProducer(produsent, duplicates)
                     }
 
             val msg = """Traff $constraintErrors feil på duplikate eventId-er ved behandling av $totalEntities beskjed-eventer.

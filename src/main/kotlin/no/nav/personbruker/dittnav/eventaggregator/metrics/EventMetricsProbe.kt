@@ -20,51 +20,47 @@ class EventMetricsProbe(private val metricsReporter: MetricsReporter) {
     }
 
     private suspend fun handleEventsSeen(session: EventMetricsSession) {
-        session.getUniqueProducers().forEach { producerName ->
-            val numberSeen = session.getEventsSeen(producerName)
+        session.getUniqueProducers().forEach { producer ->
+            val numberSeen = session.getEventsSeen(producer)
             val eventTypeName = session.eventType.toString()
-            val producerNamespace = session.getNamespace()
 
-            reportEvents(numberSeen, eventTypeName, producerName, KAFKA_EVENTS_SEEN, producerNamespace)
-            PrometheusMetricsCollector.registerEventsSeen(numberSeen, eventTypeName, producerName)
+            reportEvents(numberSeen, eventTypeName, producer.appnavn, KAFKA_EVENTS_SEEN, producer.namespace)
+            PrometheusMetricsCollector.registerEventsSeen(numberSeen, eventTypeName, producer.appnavn)
         }
     }
 
     private suspend fun handleEventsProcessed(session: EventMetricsSession) {
-        session.getUniqueProducers().forEach { producerName ->
-            val numberProcessed = session.getEventsProcessed(producerName)
+        session.getUniqueProducers().forEach { producer ->
+            val numberProcessed = session.getEventsProcessed(producer)
             val eventTypeName = session.eventType.toString()
-            val producerNamespace = session.getNamespace()
 
             if (numberProcessed > 0) {
-                reportEvents(numberProcessed, eventTypeName, producerName, KAFKA_EVENTS_PROCESSED, producerNamespace)
-                PrometheusMetricsCollector.registerEventsProcessed(numberProcessed, eventTypeName, producerName)
+                reportEvents(numberProcessed, eventTypeName, producer.appnavn, KAFKA_EVENTS_PROCESSED, producer.namespace)
+                PrometheusMetricsCollector.registerEventsProcessed(numberProcessed, eventTypeName, producer.appnavn)
             }
         }
     }
 
     private suspend fun handleEventsFailed(session: EventMetricsSession) {
-        session.getUniqueProducers().forEach { producerName ->
-            val numberFailed = session.getEventsFailed(producerName)
+        session.getUniqueProducers().forEach { producer ->
+            val numberFailed = session.getEventsFailed(producer)
             val eventTypeName = session.eventType.toString()
-            val producerNamespace = session.getNamespace()
 
             if (numberFailed > 0) {
-                reportEvents(numberFailed, eventTypeName, producerName, KAFKA_EVENTS_FAILED, producerNamespace)
-                PrometheusMetricsCollector.registerEventsFailed(numberFailed, eventTypeName, producerName)
+                reportEvents(numberFailed, eventTypeName, producer.appnavn, KAFKA_EVENTS_FAILED, producer.namespace)
+                PrometheusMetricsCollector.registerEventsFailed(numberFailed, eventTypeName, producer.appnavn)
             }
         }
     }
 
     private suspend fun handleDuplicateEventKeys(session: EventMetricsSession) {
-        session.getUniqueProducers().forEach { producerName ->
-            val numberDuplicateKeyEvents = session.getDuplicateKeyEvents(producerName)
+        session.getUniqueProducers().forEach { producer ->
+            val numberDuplicateKeyEvents = session.getDuplicateKeyEvents(producer)
             val eventTypeName = session.eventType.toString()
-            val producerNamespace = session.getNamespace()
 
             if (numberDuplicateKeyEvents > 0) {
-                reportEvents(numberDuplicateKeyEvents, eventTypeName, producerName, KAFKA_EVENTS_DUPLICATE_KEY, producerNamespace)
-                PrometheusMetricsCollector.registerEventsDuplicateKey(numberDuplicateKeyEvents, eventTypeName, producerName)
+                reportEvents(numberDuplicateKeyEvents, eventTypeName, producer.appnavn, KAFKA_EVENTS_DUPLICATE_KEY, producer.namespace)
+                PrometheusMetricsCollector.registerEventsDuplicateKey(numberDuplicateKeyEvents, eventTypeName, producer.appnavn)
             }
         }
     }
