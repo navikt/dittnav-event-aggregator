@@ -9,6 +9,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.getBru
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.persistEachIndividuallyAndAggregateResults
 import no.nav.personbruker.dittnav.eventaggregator.innboks.setInnboksEventerAktivFlag
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.setOppgaverAktivFlag
+import java.time.LocalDateTime
 
 class DoneRepository(private val database: Database) : BrukernotifikasjonRepository<Done> {
 
@@ -64,7 +65,7 @@ class DoneRepository(private val database: Database) : BrukernotifikasjonReposit
     suspend fun fetchAllDoneEventsWithLimit(): List<Done> {
         var resultat = emptyList<Done>()
         database.queryWithExceptionTranslation {
-            resultat = getAllDoneEventWithLimit(10000)
+            resultat = getAllDoneEventWithLimit(2500)
         }
         return resultat
     }
@@ -72,6 +73,12 @@ class DoneRepository(private val database: Database) : BrukernotifikasjonReposit
     suspend fun deleteDoneEventsFromCache(doneEventsToDelete: List<Done>) {
         database.queryWithExceptionTranslation {
             deleteDoneEvents(doneEventsToDelete)
+        }
+    }
+
+    suspend fun updateDoneEventsSistBehandlet(doneEvents: List<Done>, sistBehandlet: LocalDateTime) {
+        database.queryWithExceptionTranslation {
+            updateDoneSistbehandlet(doneEvents, sistBehandlet)
         }
     }
 }

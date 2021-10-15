@@ -2,6 +2,8 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 class DonePersistingService(private val doneRepository: DoneRepository) : BrukernotifikasjonPersistingService<Done>(doneRepository) {
 
@@ -27,5 +29,9 @@ class DonePersistingService(private val doneRepository: DoneRepository) : Bruker
 
     suspend fun deleteDoneEventsFromCache(doneEventsToDelete: List<Done>) {
         doneRepository.deleteDoneEventsFromCache(doneEventsToDelete)
+    }
+
+    suspend fun updateDoneSistBehandetForUnmatchedEvents(doneEvents: List<Done>) {
+        doneRepository.updateDoneEventsSistBehandlet(doneEvents, LocalDateTime.now(ZoneId.of("UTC")))
     }
 }

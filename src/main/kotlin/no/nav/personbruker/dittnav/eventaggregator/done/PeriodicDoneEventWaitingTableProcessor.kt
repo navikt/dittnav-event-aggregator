@@ -20,7 +20,7 @@ class PeriodicDoneEventWaitingTableProcessor(
 ) : CoroutineScope {
 
     private val log: Logger = LoggerFactory.getLogger(PeriodicDoneEventWaitingTableProcessor::class.java)
-    private val minutesToWait = Duration.ofMinutes(2)
+    private val timeToWait = Duration.ofSeconds(30)
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default + job
@@ -42,10 +42,10 @@ class PeriodicDoneEventWaitingTableProcessor(
     }
 
     fun start() {
-        log.info("Periodisk prosessering av ventetabellen har blitt aktivert, første prosessering skjer om $minutesToWait minutter.")
+        log.info("Periodisk prosessering av ventetabellen har blitt aktivert, første prosessering skjer om $timeToWait minutter.")
         launch {
             while (job.isActive) {
-                delay(minutesToWait)
+                delay(timeToWait)
                 processDoneEvents()
             }
         }
@@ -90,5 +90,6 @@ class PeriodicDoneEventWaitingTableProcessor(
         donePersistingService.writeDoneEventsForOppgaveToCache(groupedDoneEvents.foundOppgave)
         donePersistingService.writeDoneEventsForInnboksToCache(groupedDoneEvents.foundInnboks)
         donePersistingService.deleteDoneEventsFromCache(groupedDoneEvents.allFoundEvents)
+        donePersistingService.updateDoneSistBehandetForUnmatchedEvents(groupedDoneEvents.notFoundEvents)
     }
 }

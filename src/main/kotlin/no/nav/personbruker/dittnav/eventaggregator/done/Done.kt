@@ -9,7 +9,8 @@ data class Done(
         val eventId: String,
         val eventTidspunkt: LocalDateTime,
         val fodselsnummer: String,
-        val grupperingsId: String
+        val grupperingsId: String,
+        val sistBehandlet: LocalDateTime
 ) {
 
     override fun toString(): String {
@@ -20,7 +21,8 @@ data class Done(
                 "eventId=$eventId, " +
                 "eventTidspunkt=$eventTidspunkt, " +
                 "fodselsnummer=***, " +
-                "grupperingsId=$grupperingsId"
+                "grupperingsId=$grupperingsId" +
+                "sistBehandlet=$sistBehandlet"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -34,6 +36,7 @@ data class Done(
         if (eventTidspunkt != other.eventTidspunkt) return false
         if (fodselsnummer != other.fodselsnummer) return false
         if (grupperingsId != other.grupperingsId) return false
+        if (sistBehandlet != other.sistBehandlet) return false
 
         return true
     }

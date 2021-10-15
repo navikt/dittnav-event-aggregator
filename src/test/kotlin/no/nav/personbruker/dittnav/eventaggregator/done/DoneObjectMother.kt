@@ -25,7 +25,8 @@ object DoneObjectMother {
                 eventId = eventId,
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
                 fodselsnummer = fodselsnummer,
-                grupperingsId = "100${eventId}"
+                grupperingsId = "100${eventId}",
+                sistBehandlet = LocalDateTime.now(ZoneId.of("UTC"))
         )
     }
 
