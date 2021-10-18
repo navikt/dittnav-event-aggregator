@@ -10,15 +10,17 @@ class DoneTransformerTest {
 
     @Test
     fun `should transform form external to internal`() {
-        val eventId = "123"
-        val original = AvroDoneObjectMother.createDone(eventId)
-        val nokkel = createNokkel(123)
+        val eventId = 123
+        val original = AvroDoneObjectMother.createDone()
+        val nokkel = createNokkel(eventId)
         val transformed = DoneTransformer.toInternal(nokkel, original)
 
         transformed.systembruker `should be equal to` nokkel.getSystembruker()
         transformed.fodselsnummer `should be equal to` nokkel.getFodselsnummer()
-        transformed.grupperingsId `should be equal to` original.getGrupperingsId()
+        transformed.grupperingsId `should be equal to` nokkel.getGrupperingsId()
         transformed.eventId `should be equal to` nokkel.getEventId()
+        transformed.namespace `should be equal to` nokkel.getNamespace()
+        transformed.appnavn `should be equal to` nokkel.getAppnavn()
 
         val transformedEventTidspunktAsLong = transformed.eventTidspunkt.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
         transformedEventTidspunktAsLong `should be equal to` original.getTidspunkt()

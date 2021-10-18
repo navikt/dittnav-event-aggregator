@@ -34,6 +34,8 @@ object BeskjedObjectMother {
         return Beskjed(
                 uid = Random.nextInt(1, 100).toString(),
                 systembruker = systembruker,
+                namespace = "dummyNamespace",
+                appnavn = "dummyAppnavn",
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
                 synligFremTil = LocalDateTime.now(ZoneId.of("UTC")),
                 fodselsnummer = fodselsnummer,
@@ -52,6 +54,8 @@ object BeskjedObjectMother {
         return Beskjed(
                 uid = Random.nextInt(1, 100).toString(),
                 systembruker = "dummySystembruker",
+                namespace = "dummyNamespace",
+                appnavn = "dummyAppnavn",
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
                 synligFremTil = LocalDateTime.now(ZoneId.of("UTC")),
                 fodselsnummer = "123",

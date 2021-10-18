@@ -13,7 +13,6 @@ class DBMetricsProbeTest {
 
     private val metricsReporter = mockk<MetricsReporter>()
     private val prometheusCollector = mockkObject(PrometheusMetricsCollector)
-    private val producerNameResolver = mockk<ProducerNameResolver>()
 
     @BeforeEach
     fun cleanup() {
@@ -21,13 +20,10 @@ class DBMetricsProbeTest {
     }
 
     @Test
-    fun `skal bruke alias for systembruker`() {
-        val producerName = "sys-t-user"
-        val producerAlias = "test-user"
+    fun `skal bruke appnavn som produsent navn`() {
+        val producerName = "appnavn"
 
-        coEvery { producerNameResolver.getProducerNameAlias(producerName) } returns producerAlias
-        val nameScrubber = ProducerNameScrubber(producerNameResolver)
-        val metricsProbe = DBMetricsProbe(metricsReporter, nameScrubber)
+        val metricsProbe = DBMetricsProbe(metricsReporter)
 
         val producerNameForPrometheus = slot<String>()
 
@@ -43,14 +39,12 @@ class DBMetricsProbeTest {
         coVerify(exactly = 1) { metricsReporter.registerDataPoint(DB_EVENTS_CACHED, any(), any()) }
         verify(exactly = 1) { PrometheusMetricsCollector.registerEventsCached(any(), any(), any()) }
 
-        producerNameForPrometheus.captured `should be equal to` producerAlias
+        producerNameForPrometheus.captured `should be equal to` producerName
     }
 
     @Test
     fun `skal telle riktig antall eventer av gitt type i cache`() {
-        coEvery { producerNameResolver.getProducerNameAlias(any()) } returns "test-user"
-        val nameScrubber = ProducerNameScrubber(producerNameResolver)
-        val metricsProbe = DBMetricsProbe(metricsReporter, nameScrubber)
+        val metricsProbe = DBMetricsProbe(metricsReporter)
         val capturedFieldsForCachedEvents = slot<Map<String, Any>>()
         coEvery { metricsReporter.registerDataPoint(DB_EVENTS_CACHED, capture(capturedFieldsForCachedEvents), any()) } returns Unit
 
@@ -64,8 +58,8 @@ class DBMetricsProbeTest {
         coVerify(exactly = 1) { metricsReporter.registerDataPoint(
                 DB_EVENTS_CACHED,
                 listOf("counter" to 2).toMap(),
-                listOf("eventType" to EventType.DONE_INTERN.toString(), "producer" to "test-user").toMap()) }
-        verify(exactly = 1) { PrometheusMetricsCollector.registerEventsCached(2, EventType.DONE_INTERN, "test-user") }
+                listOf("eventType" to EventType.DONE_INTERN.toString(), "producer" to "dummyProducer").toMap()) }
+        verify(exactly = 1) { PrometheusMetricsCollector.registerEventsCached(2, EventType.DONE_INTERN, "dummyProducer") }
 
         capturedFieldsForCachedEvents.captured["counter"] `should be equal to` 2
     }

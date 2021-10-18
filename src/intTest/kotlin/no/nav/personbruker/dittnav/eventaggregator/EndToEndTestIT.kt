@@ -14,8 +14,6 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util.Ka
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
-import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameResolver
-import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameScrubber
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import org.amshove.kluent.`should be equal to`
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -31,9 +29,7 @@ class EndToEndTestIT {
     private val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
 
     private val metricsReporter = StubMetricsReporter()
-    private val nameResolver = ProducerNameResolver(database)
-    private val nameScrubber = ProducerNameScrubber(nameResolver)
-    private val metricsProbe = EventMetricsProbe(metricsReporter, nameScrubber)
+    private val metricsProbe = EventMetricsProbe(metricsReporter)
 
     private val adminClient = embeddedEnv.adminClient
 
@@ -102,7 +98,7 @@ class EndToEndTestIT {
                 database.dbQuery {
                     currentNumberOfRecords = getAllBeskjed().size
                 }
-                delay(100)
+                delay(200)
             }
         }
     }

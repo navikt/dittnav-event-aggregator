@@ -12,13 +12,13 @@ class StatusoppdateringTransformerTest {
     @Test
     fun `should transform form external to internal`() {
         val eventId = 1
-        val original = AvroStatusoppdateringObjectMother.createStatusoppdatering(eventId)
+        val original = AvroStatusoppdateringObjectMother.createStatusoppdatering()
         val nokkel = createNokkel(eventId)
 
         val transformed = StatusoppdateringTransformer.toInternal(nokkel, original)
 
         transformed.fodselsnummer `should be equal to` nokkel.getFodselsnummer()
-        transformed.grupperingsId `should be equal to` original.getGrupperingsId()
+        transformed.grupperingsId `should be equal to` nokkel.getGrupperingsId()
         transformed.eventId `should be equal to` nokkel.getEventId()
         transformed.link `should be equal to` original.getLink()
         transformed.systembruker `should be equal to` nokkel.getSystembruker()
@@ -26,6 +26,8 @@ class StatusoppdateringTransformerTest {
         transformed.statusGlobal `should be equal to` original.getStatusGlobal()
         transformed.statusIntern?.`should be equal to`(original.getStatusIntern())
         transformed.sakstema `should be equal to` original.getSakstema()
+        transformed.namespace `should be equal to` nokkel.getNamespace()
+        transformed.appnavn `should be equal to` nokkel.getAppnavn()
 
         val transformedEventTidspunktAsLong = transformed.eventTidspunkt.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
         transformedEventTidspunktAsLong `should be equal to` original.getTidspunkt()

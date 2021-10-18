@@ -11,10 +11,12 @@ object StatusoppdateringTransformer {
     fun toInternal(externalNokkel: NokkelIntern, externalValue: StatusoppdateringIntern): Statusoppdatering {
         return Statusoppdatering(
                 externalNokkel.getSystembruker(),
+                externalNokkel.getNamespace(),
+                externalNokkel.getAppnavn(),
                 externalNokkel.getEventId(),
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(externalValue.getTidspunkt()), ZoneId.of("UTC")),
                 externalNokkel.getFodselsnummer(),
-                externalValue.getGrupperingsId(),
+                externalNokkel.getGrupperingsId(),
                 externalValue.getLink(),
                 externalValue.getSikkerhetsnivaa(),
                 LocalDateTime.now(ZoneId.of("UTC")),

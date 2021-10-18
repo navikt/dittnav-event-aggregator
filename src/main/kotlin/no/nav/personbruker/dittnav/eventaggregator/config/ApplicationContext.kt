@@ -12,8 +12,6 @@ import no.nav.personbruker.dittnav.eventaggregator.done.PeriodicDoneEventWaiting
 import no.nav.personbruker.dittnav.eventaggregator.health.HealthService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksEventService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
-import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameResolver
-import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameScrubber
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildDBMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildEventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveEventService
@@ -29,10 +27,8 @@ class ApplicationContext {
     val environment = Environment()
     val database: Database = PostgresDatabase(environment)
 
-    val nameResolver = ProducerNameResolver(database)
-    val nameScrubber = ProducerNameScrubber(nameResolver)
-    val eventMetricsProbe = buildEventMetricsProbe(environment, nameScrubber)
-    val dbMetricsProbe = buildDBMetricsProbe(environment, nameScrubber)
+    val eventMetricsProbe = buildEventMetricsProbe(environment)
+    val dbMetricsProbe = buildDBMetricsProbe(environment)
 
     val beskjedRepository = BeskjedRepository(database)
     val beskjedPersistingService = BrukernotifikasjonPersistingService(beskjedRepository)
@@ -70,19 +66,19 @@ class ApplicationContext {
     val healthService = HealthService(this)
 
     private fun initializeBeskjedConsumer() =
-            KafkaConsumerSetup.setupConsumerForTheBeskjedTopic(beskjedKafkaProps, beskjedEventProcessor)
+            KafkaConsumerSetup.setupConsumerForTheBeskjedTopic(beskjedKafkaProps, beskjedEventProcessor, environment.beskjedInternTopicName)
 
     private fun initializeOppgaveConsumer() =
-            KafkaConsumerSetup.setupConsumerForTheOppgaveTopic(oppgaveKafkaProps, oppgaveEventProcessor)
+            KafkaConsumerSetup.setupConsumerForTheOppgaveTopic(oppgaveKafkaProps, oppgaveEventProcessor, environment.oppgaveInternTopicName)
 
     private fun initializeInnboksConsumer() =
-            KafkaConsumerSetup.setupConsumerForTheInnboksTopic(innboksKafkaProps, innboksEventProcessor)
+            KafkaConsumerSetup.setupConsumerForTheInnboksTopic(innboksKafkaProps, innboksEventProcessor, environment.innboksInternTopicName)
 
     private fun initializeDoneConsumer() =
-            KafkaConsumerSetup.setupConsumerForTheDoneTopic(doneKafkaProps, doneEventService)
+            KafkaConsumerSetup.setupConsumerForTheDoneTopic(doneKafkaProps, doneEventService, environment.doneInternTopicName)
 
     private fun initializeStatusoppdateringConsumer() =
-            KafkaConsumerSetup.setupConsumerForTheStatusoppdateringTopic(statusoppdateringKafkaProps, statusoppdateringEventProcessor)
+            KafkaConsumerSetup.setupConsumerForTheStatusoppdateringTopic(statusoppdateringKafkaProps, statusoppdateringEventProcessor, environment.statusoppdateringInternTopicName)
 
     private fun initializeDoneWaitingTableProcessor() = PeriodicDoneEventWaitingTableProcessor(donePersistingService, dbMetricsProbe)
 

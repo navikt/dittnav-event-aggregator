@@ -13,10 +13,12 @@ object InnboksTransformer {
     fun toInternal(nokkel: NokkelIntern, external: InnboksIntern): Innboks {
         return Innboks(
                 nokkel.getSystembruker(),
+                nokkel.getNamespace(),
+                nokkel.getAppnavn(),
                 nokkel.getEventId(),
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(external.getTidspunkt()), ZoneId.of("UTC")),
                 nokkel.getFodselsnummer(),
-                external.getGrupperingsId(),
+                nokkel.getGrupperingsId(),
                 external.getTekst(),
                 external.getLink(),
                 external.getSikkerhetsnivaa(),

@@ -13,11 +13,16 @@ object AvroDoneObjectMother {
     private val defaultUlid = "123"
 
     fun createDoneRecord(eventId: String, fodselsnr: String): ConsumerRecord<NokkelIntern, DoneIntern> {
-        val key = NokkelIntern("dummySystembruker", eventId, fodselsnr)
+        val key = NokkelIntern(defaultUlid,
+                eventId,
+                "dummyGrupperingsid",
+                fodselsnr,
+                "dummyNamespace",
+                "dummyAppnavn",
+                "dummySystembruker")
+
         val value = DoneIntern(
-                defaultUlid,
-                Instant.now().toEpochMilli(),
-                "100${eventId}"
+                Instant.now().toEpochMilli()
         )
         return ConsumerRecord(defaultDummyTopicName, defaultPartition, defaultOffset, key, value)
     }
@@ -31,11 +36,9 @@ object AvroDoneObjectMother {
         }
     }
 
-    fun createDone(eventId: String): DoneIntern {
+    fun createDone(): DoneIntern {
         return DoneIntern(
-                defaultUlid,
-                Instant.now().toEpochMilli(),
-                "100${eventId}"
+                Instant.now().toEpochMilli()
         )
     }
 }

@@ -11,8 +11,6 @@ import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.getInnboksByEventId
-import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameResolver
-import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameScrubber
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
@@ -27,8 +25,7 @@ class PeriodicDoneEventWaitingTableProcessorTest {
     private val database = LocalPostgresDatabase()
     private val doneRepository = DoneRepository(database)
     private val donePersistingService = DonePersistingService(doneRepository)
-    private val nameResolver = ProducerNameResolver(database)
-    private val dbMetricsProbe = DBMetricsProbe(StubMetricsReporter(), ProducerNameScrubber(nameResolver))
+    private val dbMetricsProbe = DBMetricsProbe(StubMetricsReporter())
     private val eventConsumer = PeriodicDoneEventWaitingTableProcessor(donePersistingService, dbMetricsProbe)
 
     private val systembruker = "dummySystembruker"

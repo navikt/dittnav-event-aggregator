@@ -21,6 +21,8 @@ object OppgaveObjectMother {
     fun giveMeAktivOppgave(eventId: String, fodselsnummer: String, systembruker: String): Oppgave {
         return Oppgave(
                 systembruker = systembruker,
+                namespace = "dummyNamespace",
+                appnavn = "dummyAppnavn",
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
                 fodselsnummer = fodselsnummer,
                 eventId = eventId,
@@ -36,6 +38,8 @@ object OppgaveObjectMother {
     fun giveMeInaktivOppgave(): Oppgave {
         return Oppgave(
                 systembruker = "dummySystembruker",
+                namespace = "dummyNamespace",
+                appnavn = "dummyAppnavn",
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
                 fodselsnummer = "123",
                 eventId = "o-2",

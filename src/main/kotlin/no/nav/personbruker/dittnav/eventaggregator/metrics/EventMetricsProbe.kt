@@ -3,8 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.metrics
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.common.metrics.MetricsReporter
 
-class EventMetricsProbe(private val metricsReporter: MetricsReporter,
-                        private val nameScrubber: ProducerNameScrubber) {
+class EventMetricsProbe(private val metricsReporter: MetricsReporter) {
 
     suspend fun runWithMetrics(eventType: EventType, block: suspend EventMetricsSession.() -> Unit) {
         val session = EventMetricsSession(eventType)
@@ -21,51 +20,47 @@ class EventMetricsProbe(private val metricsReporter: MetricsReporter,
     }
 
     private suspend fun handleEventsSeen(session: EventMetricsSession) {
-        session.getUniqueProducers().forEach { producerName ->
-            val numberSeen = session.getEventsSeen(producerName)
+        session.getUniqueProducers().forEach { producer ->
+            val numberSeen = session.getEventsSeen(producer)
             val eventTypeName = session.eventType.toString()
-            val printableAlias = nameScrubber.getPublicAlias(producerName)
 
-            reportEvents(numberSeen, eventTypeName, printableAlias, KAFKA_EVENTS_SEEN)
-            PrometheusMetricsCollector.registerEventsSeen(numberSeen, eventTypeName, printableAlias)
+            reportEvents(numberSeen, eventTypeName, producer.appnavn, KAFKA_EVENTS_SEEN, producer.namespace)
+            PrometheusMetricsCollector.registerEventsSeen(numberSeen, eventTypeName, producer.appnavn)
         }
     }
 
     private suspend fun handleEventsProcessed(session: EventMetricsSession) {
-        session.getUniqueProducers().forEach { producerName ->
-            val numberProcessed = session.getEventsProcessed(producerName)
+        session.getUniqueProducers().forEach { producer ->
+            val numberProcessed = session.getEventsProcessed(producer)
             val eventTypeName = session.eventType.toString()
-            val printableAlias = nameScrubber.getPublicAlias(producerName)
 
             if (numberProcessed > 0) {
-                reportEvents(numberProcessed, eventTypeName, printableAlias, KAFKA_EVENTS_PROCESSED)
-                PrometheusMetricsCollector.registerEventsProcessed(numberProcessed, eventTypeName, printableAlias)
+                reportEvents(numberProcessed, eventTypeName, producer.appnavn, KAFKA_EVENTS_PROCESSED, producer.namespace)
+                PrometheusMetricsCollector.registerEventsProcessed(numberProcessed, eventTypeName, producer.appnavn)
             }
         }
     }
 
     private suspend fun handleEventsFailed(session: EventMetricsSession) {
-        session.getUniqueProducers().forEach { producerName ->
-            val numberFailed = session.getEventsFailed(producerName)
+        session.getUniqueProducers().forEach { producer ->
+            val numberFailed = session.getEventsFailed(producer)
             val eventTypeName = session.eventType.toString()
-            val printableAlias = nameScrubber.getPublicAlias(producerName)
 
             if (numberFailed > 0) {
-                reportEvents(numberFailed, eventTypeName, printableAlias, KAFKA_EVENTS_FAILED)
-                PrometheusMetricsCollector.registerEventsFailed(numberFailed, eventTypeName, printableAlias)
+                reportEvents(numberFailed, eventTypeName, producer.appnavn, KAFKA_EVENTS_FAILED, producer.namespace)
+                PrometheusMetricsCollector.registerEventsFailed(numberFailed, eventTypeName, producer.appnavn)
             }
         }
     }
 
     private suspend fun handleDuplicateEventKeys(session: EventMetricsSession) {
-        session.getUniqueProducers().forEach { producerName ->
-            val numberDuplicateKeyEvents = session.getDuplicateKeyEvents(producerName)
+        session.getUniqueProducers().forEach { producer ->
+            val numberDuplicateKeyEvents = session.getDuplicateKeyEvents(producer)
             val eventTypeName = session.eventType.toString()
-            val printableAlias = nameScrubber.getPublicAlias(producerName)
 
             if (numberDuplicateKeyEvents > 0) {
-                reportEvents(numberDuplicateKeyEvents, eventTypeName, printableAlias, KAFKA_EVENTS_DUPLICATE_KEY)
-                PrometheusMetricsCollector.registerEventsDuplicateKey(numberDuplicateKeyEvents, eventTypeName, printableAlias)
+                reportEvents(numberDuplicateKeyEvents, eventTypeName, producer.appnavn, KAFKA_EVENTS_DUPLICATE_KEY, producer.namespace)
+                PrometheusMetricsCollector.registerEventsDuplicateKey(numberDuplicateKeyEvents, eventTypeName, producer.appnavn)
             }
         }
     }
@@ -85,12 +80,12 @@ class EventMetricsProbe(private val metricsReporter: MetricsReporter,
         metricsReporter.registerDataPoint(KAFKA_EVENTS_BATCH, fieldMap, tagMap)
     }
 
-    private suspend fun reportEvents(count: Int, eventType: String, producerAlias: String, metricName: String) {
-        metricsReporter.registerDataPoint(metricName, counterField(count), createTagMap(eventType, producerAlias))
+    private suspend fun reportEvents(count: Int, eventType: String, producerName: String, metricName: String, producerNamespace: String) {
+        metricsReporter.registerDataPoint(metricName, counterField(count), createTagMap(eventType, producerName, producerNamespace))
     }
 
     private fun counterField(events: Int): Map<String, Int> = listOf("counter" to events).toMap()
 
-    private fun createTagMap(eventType: String, producer: String): Map<String, String> =
-            listOf("eventType" to eventType, "producer" to producer).toMap()
+    private fun createTagMap(eventType: String, producer: String, producerNamespace: String): Map<String, String> =
+            listOf("eventType" to eventType, "producer" to producer, "producerNamespace" to producerNamespace).toMap()
 }

@@ -20,12 +20,14 @@ class OppgaveTransformerTest {
         val internal = OppgaveTransformer.toInternal(nokkel, external)
 
         internal.fodselsnummer `should be equal to` nokkel.getFodselsnummer()
-        internal.grupperingsId `should be equal to` external.getGrupperingsId()
+        internal.grupperingsId `should be equal to` nokkel.getGrupperingsId()
         internal.eventId `should be equal to` nokkel.getEventId()
         internal.link `should be equal to` external.getLink()
         internal.tekst `should be equal to` external.getTekst()
         internal.systembruker `should be equal to` nokkel.getSystembruker()
         internal.sikkerhetsnivaa `should be equal to` external.getSikkerhetsnivaa()
+        internal.namespace `should be equal to` nokkel.getNamespace()
+        internal.appnavn `should be equal to` nokkel.getAppnavn()
 
         val transformedEventTidspunktAsLong = internal.eventTidspunkt.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
         transformedEventTidspunktAsLong `should be equal to` external.getTidspunkt()

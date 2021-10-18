@@ -85,28 +85,28 @@ object KafkaConsumerSetup {
         startAllKafkaPollers(appContext)
     }
 
-    fun setupConsumerForTheBeskjedTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<BeskjedIntern>): Consumer<BeskjedIntern> {
+    fun setupConsumerForTheBeskjedTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<BeskjedIntern>, topic: String): Consumer<BeskjedIntern> {
         val kafkaConsumer = KafkaConsumer<NokkelIntern, BeskjedIntern>(kafkaProps)
-        return Consumer(Kafka.beskjedHovedTopicName, kafkaConsumer, eventProcessor)
+        return Consumer(topic, kafkaConsumer, eventProcessor)
     }
 
-    fun setupConsumerForTheOppgaveTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<OppgaveIntern>): Consumer<OppgaveIntern> {
+    fun setupConsumerForTheOppgaveTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<OppgaveIntern>, topic: String): Consumer<OppgaveIntern> {
         val kafkaConsumer = KafkaConsumer<NokkelIntern, OppgaveIntern>(kafkaProps)
-        return Consumer(Kafka.oppgaveHovedTopicName, kafkaConsumer, eventProcessor)
+        return Consumer(topic, kafkaConsumer, eventProcessor)
     }
 
-    fun setupConsumerForTheInnboksTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<InnboksIntern>): Consumer<InnboksIntern> {
+    fun setupConsumerForTheInnboksTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<InnboksIntern>, topic: String): Consumer<InnboksIntern> {
         val kafkaConsumer = KafkaConsumer<NokkelIntern, InnboksIntern>(kafkaProps)
-        return Consumer(Kafka.innboksHovedTopicName, kafkaConsumer, eventProcessor)
+        return Consumer(topic, kafkaConsumer, eventProcessor)
     }
 
-    fun setupConsumerForTheDoneTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<DoneIntern>): Consumer<DoneIntern> {
+    fun setupConsumerForTheDoneTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<DoneIntern>, topic: String): Consumer<DoneIntern> {
         val kafkaConsumer = KafkaConsumer<NokkelIntern, DoneIntern>(kafkaProps)
-        return Consumer(Kafka.doneHovedTopicName, kafkaConsumer, eventProcessor)
+        return Consumer(topic, kafkaConsumer, eventProcessor)
     }
 
-    fun setupConsumerForTheStatusoppdateringTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<StatusoppdateringIntern>): Consumer<StatusoppdateringIntern> {
+    fun setupConsumerForTheStatusoppdateringTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<StatusoppdateringIntern>, topic: String): Consumer<StatusoppdateringIntern> {
         val kafkaConsumer = KafkaConsumer<NokkelIntern, StatusoppdateringIntern>(kafkaProps)
-        return Consumer(Kafka.statusoppdateringHovedTopicName, kafkaConsumer, eventProcessor)
+        return Consumer(topic, kafkaConsumer, eventProcessor)
     }
 }

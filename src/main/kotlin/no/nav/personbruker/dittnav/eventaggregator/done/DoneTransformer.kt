@@ -10,10 +10,12 @@ object DoneTransformer {
 
     fun toInternal(nokkel: NokkelIntern, external: DoneIntern): Done {
         return Done(nokkel.getSystembruker(),
+                nokkel.getNamespace(),
+                nokkel.getAppnavn(),
                 nokkel.getEventId(),
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(external.getTidspunkt()), ZoneId.of("UTC")),
                 nokkel.getFodselsnummer(),
-                external.getGrupperingsId()
+                nokkel.getGrupperingsId()
         )
     }
 }

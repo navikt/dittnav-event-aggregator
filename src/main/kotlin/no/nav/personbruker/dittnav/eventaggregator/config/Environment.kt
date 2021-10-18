@@ -24,7 +24,12 @@ data class Environment(val username: String = getEnvVar("SERVICEUSER_USERNAME"),
                        val dbHost: String = getEnvVar("DB_HOST"),
                        val dbPort: String = getEnvVar("DB_PORT"),
                        val dbName: String = getEnvVar("DB_DATABASE"),
-                       val dbUrl: String = getDbUrl(dbHost, dbPort, dbName)
+                       val dbUrl: String = getDbUrl(dbHost, dbPort, dbName),
+                       val beskjedInternTopicName: String = getEnvVar("INTERN_BESKJED_TOPIC"),
+                       val oppgaveInternTopicName: String = getEnvVar("INTERN_OPPGAVE_TOPIC"),
+                       val innboksInternTopicName: String = getEnvVar("INTERN_INNBOKS_TOPIC"),
+                       val statusoppdateringInternTopicName: String = getEnvVar("INTERN_STATUSOPPDATERING_TOPIC"),
+                       val doneInternTopicName: String = getEnvVar("INTERN_DONE_TOPIC")
 
 )
 

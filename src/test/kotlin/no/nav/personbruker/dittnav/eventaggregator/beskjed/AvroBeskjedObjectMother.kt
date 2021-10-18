@@ -17,10 +17,8 @@ object AvroBeskjedObjectMother {
 
     fun createBeskjedWithEksternVarslingAndPrefererteKanaler(eksternVarsling: Boolean, prefererteKanaler: List<String>): BeskjedIntern {
         return BeskjedIntern(
-            defaultLopenummer.toString(),
             Instant.now().toEpochMilli(),
             Instant.now().toEpochMilli(),
-            "100$defaultLopenummer",
             defaultText,
             "https://nav.no/systemX/$defaultLopenummer",
             4,
@@ -31,10 +29,8 @@ object AvroBeskjedObjectMother {
 
     fun createBeskjed(lopenummer: Int, text: String): BeskjedIntern {
         return BeskjedIntern(
-                lopenummer.toString(),
                 Instant.now().toEpochMilli(),
                 Instant.now().toEpochMilli(),
-                "100$lopenummer",
                 text,
                 "https://nav.no/systemX/$lopenummer",
                 4,
@@ -44,10 +40,8 @@ object AvroBeskjedObjectMother {
 
     fun createBeskjedWithoutSynligFremTilSatt(): BeskjedIntern {
         return BeskjedIntern(
-                defaultLopenummer.toString(),
                 Instant.now().toEpochMilli(),
                 null,
-                "100$defaultLopenummer",
                 defaultText,
                 "https://nav.no/systemX/$defaultLopenummer",
                 4,

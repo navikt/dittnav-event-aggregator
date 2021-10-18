@@ -73,7 +73,7 @@ class PeriodicDoneEventWaitingTableProcessor(
         groupedDoneEvents.process(allDone)
         dbMetricsProbe.runWithMetrics(eventType = EventType.DONE_INTERN) {
             groupedDoneEvents.notFoundEvents.forEach { event ->
-                countCachedEventForProducer(event.systembruker)
+                countCachedEventForProducer(event.appnavn)
             }
         }
         updateTheDatabase(groupedDoneEvents)

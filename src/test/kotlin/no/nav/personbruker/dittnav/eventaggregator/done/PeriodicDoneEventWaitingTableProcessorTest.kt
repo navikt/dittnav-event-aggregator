@@ -66,6 +66,6 @@ internal class PeriodicDoneEventWaitingTableProcessorTest {
             consumer.processDoneEvents()
         }
 
-        coVerify(exactly = 2) { metricsSession.countCachedEventForProducer("dummySystembruker") }
+        coVerify(exactly = 2) { metricsSession.countCachedEventForProducer("dummyAppnavn") }
     }
 }
