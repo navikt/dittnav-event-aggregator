@@ -7,8 +7,9 @@ import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
+import java.time.LocalDateTime
 
-private const val allDoneQuery = "SELECT * FROM done"
+private const val allDoneQuery = "SELECT * FROM done ORDER BY sistBehandlet"
 
 fun Connection.getAllDoneEvent(): List<Done> =
         prepareStatement(allDoneQuery)
@@ -27,8 +28,8 @@ fun Connection.getAllDoneEventWithLimit(limit: Int): List<Done> =
                     }
                 }
 
-private const val createQuery = """INSERT INTO done(systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, namespace, appnavn)
-            VALUES (?, ?, ?, ?, ?, ?, ?)"""
+private const val createQuery = """INSERT INTO done(systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, namespace, appnavn, sistBehandlet)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)"""
 
 fun Connection.createDoneEvents(doneEvents: List<Done>): ListPersistActionResult<Done> =
     executeBatchPersistQuery(createQuery) {
@@ -55,6 +56,18 @@ fun Connection.deleteDoneEvents(doneEvents: List<Done>) {
     }
 }
 
+fun Connection.updateDoneSistbehandlet(doneEvents: List<Done>, sistBehandlet: LocalDateTime) {
+    executeBatchUpdateQuery("""UPDATE done SET sistBehandlet = ? WHERE eventId = ? AND systembruker = ? AND fodselsnummer = ?""") {
+        doneEvents.forEach { done ->
+            setObject(1, sistBehandlet, Types.TIMESTAMP)
+            setString(2, done.eventId)
+            setString(3, done.systembruker)
+            setString(4, done.fodselsnummer)
+            addBatch()
+        }
+    }
+}
+
 private fun ResultSet.toDoneEvent(): Done {
     return Done(
             eventId = getString("eventId"),
@@ -63,7 +76,8 @@ private fun ResultSet.toDoneEvent(): Done {
             appnavn = getString("appnavn"),
             eventTidspunkt = getUtcDateTime("eventTidspunkt"),
             fodselsnummer = getString("fodselsnummer"),
-            grupperingsId = getString("grupperingsId")
+            grupperingsId = getString("grupperingsId"),
+            sistBehandlet = getUtcDateTime("sistBehandlet")
     )
 }
 
@@ -75,4 +89,5 @@ private fun PreparedStatement.buildStatementForSingleRow(doneEvent: Done) {
     setString(5, doneEvent.grupperingsId)
     setString(6, doneEvent.namespace)
     setString(7, doneEvent.appnavn)
+    setObject(8, doneEvent.sistBehandlet, Types.TIMESTAMP)
 }

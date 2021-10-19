@@ -15,7 +15,8 @@ object DoneTransformer {
                 nokkel.getEventId(),
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(external.getTidspunkt()), ZoneId.of("UTC")),
                 nokkel.getFodselsnummer(),
-                nokkel.getGrupperingsId()
+                nokkel.getGrupperingsId(),
+                LocalDateTime.now(ZoneId.of("UTC"))
         )
     }
 }
