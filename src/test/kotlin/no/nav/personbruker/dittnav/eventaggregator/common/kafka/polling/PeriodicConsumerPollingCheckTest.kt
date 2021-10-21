@@ -34,9 +34,10 @@ class PeriodicConsumerPollingCheckTest {
         coEvery { appContext.beskjedConsumer.isStopped() } returns true
         coEvery { appContext.doneConsumer.isStopped() } returns true
         coEvery { appContext.oppgaveConsumer.isStopped() } returns false
+        coEvery { appContext.innboksConsumer.isStopped() } returns true
 
         runBlocking {
-            periodicConsumerPollingCheck.getConsumersThatHaveStopped().size `should be equal to` 2
+            periodicConsumerPollingCheck.getConsumersThatHaveStopped().size `should be equal to` 3
         }
     }
 
@@ -45,6 +46,7 @@ class PeriodicConsumerPollingCheckTest {
         coEvery { appContext.beskjedConsumer.isStopped() } returns false
         coEvery { appContext.doneConsumer.isStopped() } returns false
         coEvery { appContext.oppgaveConsumer.isStopped() } returns false
+        coEvery { appContext.innboksConsumer.isStopped() } returns false
 
         runBlocking {
             periodicConsumerPollingCheck.getConsumersThatHaveStopped().`should be empty`()
@@ -56,6 +58,7 @@ class PeriodicConsumerPollingCheckTest {
         coEvery { appContext.beskjedConsumer.isStopped() } returns true
         coEvery { appContext.doneConsumer.isStopped() } returns false
         coEvery { appContext.oppgaveConsumer.isStopped() } returns true
+        coEvery { appContext.innboksConsumer.isStopped() } returns true
 
         runBlocking {
             periodicConsumerPollingCheck.checkIfConsumersAreRunningAndRestartIfNot()
@@ -70,6 +73,7 @@ class PeriodicConsumerPollingCheckTest {
         coEvery { appContext.beskjedConsumer.isStopped() } returns false
         coEvery { appContext.doneConsumer.isStopped() } returns false
         coEvery { appContext.oppgaveConsumer.isStopped() } returns false
+        coEvery { appContext.innboksConsumer.isStopped() } returns false
 
         runBlocking {
             periodicConsumerPollingCheck.checkIfConsumersAreRunningAndRestartIfNot()
