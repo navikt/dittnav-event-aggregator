@@ -16,11 +16,11 @@ object KafkaConsumerSetup {
         appContext.beskjedConsumer.startPolling()
         appContext.oppgaveConsumer.startPolling()
         appContext.doneConsumer.startPolling()
+        appContext.innboksConsumer.startPolling()
         if (isOtherEnvironmentThanProd()) {
-            appContext.innboksConsumer.startPolling()
             appContext.statusoppdateringConsumer.startPolling()
         } else {
-            log.info("Er i produksjonsmiljø, unnlater å starte innboksconsumer.")
+            log.info("Er i produksjonsmiljø, unnlater å starte statusoppdatering-consumer.")
         }
     }
 
@@ -29,8 +29,8 @@ object KafkaConsumerSetup {
         appContext.beskjedConsumer.stopPolling()
         appContext.oppgaveConsumer.stopPolling()
         appContext.doneConsumer.stopPolling()
+        appContext.innboksConsumer.stopPolling()
         if (isOtherEnvironmentThanProd()) {
-            appContext.innboksConsumer.stopPolling()
             appContext.statusoppdateringConsumer.stopPolling()
         }
         log.info("...ferdig med å stoppe kafka-pollerne.")

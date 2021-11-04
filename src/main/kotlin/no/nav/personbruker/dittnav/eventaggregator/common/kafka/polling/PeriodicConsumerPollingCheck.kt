@@ -51,6 +51,9 @@ class PeriodicConsumerPollingCheck(
         if (appContext.oppgaveConsumer.isStopped()) {
             stoppedConsumers.add(EventType.OPPGAVE)
         }
+        if(appContext.innboksConsumer.isStopped()) {
+            stoppedConsumers.add(EventType.INNBOKS)
+        }
         return stoppedConsumers
     }
 
