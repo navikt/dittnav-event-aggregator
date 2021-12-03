@@ -63,6 +63,12 @@ fun Connection.setBeskjederAktivflagg(doneEvents: List<Done>, aktiv: Boolean) {
     }
 }
 
+fun Connection.getExpiredBeskjedFromCursor(): List<Beskjed> =
+    prepareStatement("""SELECT * FROM beskjed WHERE aktiv = true AND synligFremTil <= NOW() LIMIT 10000""")
+        .use {
+            it.executeQuery().list { toBeskjed() }
+        }
+
 fun Connection.getAllBeskjedByAktiv(aktiv: Boolean): List<Beskjed> =
         prepareStatement("""SELECT * FROM beskjed WHERE aktiv = ?""")
                 .use {
