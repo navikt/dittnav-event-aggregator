@@ -5,6 +5,7 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.getExpiredBeskjedFrom
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 
 class ExpiredPersistingService(private val database: Database) {
+
     suspend fun getExpiredBeskjeder(): List<Beskjed> {
         return database.queryWithExceptionTranslation {
             getExpiredBeskjedFromCursor()
