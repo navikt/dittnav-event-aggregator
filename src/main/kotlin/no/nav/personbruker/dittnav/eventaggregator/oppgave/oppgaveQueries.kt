@@ -7,6 +7,8 @@ import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 fun Connection.getAllOppgave(): List<Oppgave> =
         prepareStatement("""SELECT * FROM oppgave""")
@@ -59,6 +61,16 @@ fun Connection.setOppgaverAktivFlag(doneEvents: List<Done>, aktiv: Boolean) {
     }
 }
 
+fun Connection.getExpiredOppgave(): List<Oppgave> {
+    val now = LocalDateTime.now(ZoneId.of("UTC"))
+    return prepareStatement("""SELECT * FROM oppgave WHERE aktiv = true AND synligFremTil <= ? LIMIT 10000""")
+        .use {
+            it.setObject(1, now, Types.TIMESTAMP)
+            it.executeQuery().list { toOppgave() }
+        }
+}
+
+
 fun Connection.getAllOppgaveByAktiv(aktiv: Boolean): List<Oppgave> =
         prepareStatement("""SELECT * FROM oppgave WHERE aktiv = ?""")
                 .use {
@@ -109,6 +121,7 @@ private fun ResultSet.toOppgave(): Oppgave {
             sistOppdatert = getUtcDateTime("sistOppdatert"),
             aktiv = getBoolean("aktiv"),
             eksternVarsling = getBoolean("eksternVarsling"),
-            prefererteKanaler = getListFromSeparatedString("prefererteKanaler", ",")
+            prefererteKanaler = getListFromSeparatedString("prefererteKanaler", ","),
+            synligFremTil = getNullableLocalDateTime("synligFremTil")
     )
 }

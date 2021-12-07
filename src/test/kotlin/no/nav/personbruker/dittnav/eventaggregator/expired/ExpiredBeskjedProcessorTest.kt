@@ -2,9 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.expired
 
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
-import org.amshove.kluent.called
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -12,7 +10,7 @@ internal class ExpiredBeskjedProcessorTest {
 
     private val expiredPersistingService = mockk<ExpiredPersistingService>(relaxed = true)
     private val doneEmitter = mockk<DoneEventEmitter>(relaxed = true)
-    private val processor = ExpiredBeskjedProcessor(expiredPersistingService, doneEmitter)
+    private val processor = ExpiredNotificationProcessor(expiredPersistingService, doneEmitter)
 
     @BeforeEach
     fun `reset mocks`() {

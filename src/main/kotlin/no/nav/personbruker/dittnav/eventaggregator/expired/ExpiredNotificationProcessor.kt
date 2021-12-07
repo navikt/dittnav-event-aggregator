@@ -9,13 +9,13 @@ import org.slf4j.LoggerFactory
 import java.time.Duration
 import kotlin.coroutines.CoroutineContext
 
-class ExpiredBeskjedProcessor(
+class ExpiredNotificationProcessor(
     private val expiredPersistingService: ExpiredPersistingService,
     private val doneEventEmitter: DoneEventEmitter,
     private val job: Job = Job()
 ) : CoroutineScope {
 
-    private val log: Logger = LoggerFactory.getLogger(ExpiredBeskjedProcessor::class.java)
+    private val log: Logger = LoggerFactory.getLogger(ExpiredNotificationProcessor::class.java)
     private val timeToWait = Duration.ofMinutes(10)
 
     override val coroutineContext: CoroutineContext
@@ -43,6 +43,7 @@ class ExpiredBeskjedProcessor(
             while (job.isActive) {
                 delay(timeToWait)
                 sendDoneEventsForExpiredBeskjeder()
+                sendDoneEventsForExpiredOppgaver()
             }
         }
     }
@@ -54,11 +55,26 @@ class ExpiredBeskjedProcessor(
                 log.info("Ingen utgått beskjed å prosessere")
                 return
             }
-            log.info("Har hentet {} beskjeder som er utgått", beskjeder.size)
 
             doneEventEmitter.emittBeskjedDone(beskjeder)
+            log.info("Har prosessert {} utgått beskjeder", beskjeder.size)
         } catch (e: Exception) {
             log.error("Uventet feil ved processering av utgått beskjeder", e)
+        }
+    }
+
+    suspend fun sendDoneEventsForExpiredOppgaver() {
+        try {
+            val oppgaver = expiredPersistingService.getExpiredOppgaver()
+            if (oppgaver.isEmpty()) {
+                log.info("Ingen utgått oppgave å prosessere")
+                return
+            }
+
+            doneEventEmitter.emittOppgaveDone(oppgaver)
+            log.info("Har prosessert {} utgått oppgaver", oppgaver.size)
+        } catch (e: Exception) {
+            log.error("Uventet feil ved processering av utgått oppgaver", e)
         }
     }
 }

@@ -127,7 +127,3 @@ private fun ResultSet.toBeskjed(): Beskjed {
             prefererteKanaler = getListFromSeparatedString("prefererteKanaler", ",")
     )
 }
-
-private fun ResultSet.getNullableLocalDateTime(label: String): LocalDateTime? {
-    return getTimestamp(label)?.toLocalDateTime()
-}

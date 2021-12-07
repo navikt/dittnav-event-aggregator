@@ -10,6 +10,11 @@ object OppgaveTransformer {
     private const val newRecordsAreActiveByDefault = true
 
     fun toInternal(nokkel: Nokkel, external: no.nav.brukernotifikasjon.schemas.Oppgave): Oppgave {
+        val synligFremTil: LocalDateTime? = if (external.getSynligFremTil() != null) {
+            LocalDateTime.ofInstant(Instant.ofEpochMilli(external.getSynligFremTil()), ZoneId.of("UTC"))
+        } else {
+            null
+        }
         return Oppgave(
                 nokkel.getSystembruker(),
                 nokkel.getEventId(),
@@ -22,7 +27,8 @@ object OppgaveTransformer {
                 LocalDateTime.now(ZoneId.of("UTC")),
                 newRecordsAreActiveByDefault,
                 external.getEksternVarsling(),
-                external.getPrefererteKanaler()
+                external.getPrefererteKanaler(),
+                synligFremTil
         )
     }
 }

@@ -25,6 +25,10 @@ fun <T> ResultSet.list(result: ResultSet.() -> T): List<T> =
 
 fun ResultSet.getUtcDateTime(columnLabel: String): LocalDateTime = getTimestamp(columnLabel).toLocalDateTime()
 
+fun ResultSet.getNullableLocalDateTime(label: String): LocalDateTime? {
+    return getTimestamp(label)?.toLocalDateTime()
+}
+
 fun Connection.executeBatchUpdateQuery(sql: String, paramInit: PreparedStatement.() -> Unit) {
     autoCommit = false
     prepareStatement(sql).use { statement ->
