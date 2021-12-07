@@ -24,11 +24,12 @@ class DoneEventEmitter(private val kafkaProducerWrapper: KafkaProducerWrapper<Do
     }
 
     private fun createDoneEvent(fodselsnummer: String, grupperingsId: String, sistOppdatert: ZonedDateTime = ZonedDateTime.now()): no.nav.brukernotifikasjon.schemas.Done {
-        val build = DoneBuilder()
-            .withFodselsnummer(fodselsnummer)
-            .withTidspunkt(LocalDateTime.ofInstant(Instant.ofEpochMilli(sistOppdatert.toEpochSecond()), ZoneOffset.UTC))
-            .withGrupperingsId(grupperingsId)
-        return build.build()
+        val tidspunkt = LocalDateTime.ofInstant(Instant.ofEpochMilli(sistOppdatert.toEpochSecond()), ZoneOffset.UTC)
+        return Done(
+            tidspunkt.toInstant(ZoneOffset.UTC).toEpochMilli(),
+            fodselsnummer,
+            grupperingsId
+        )
     }
 
     private fun createKeyForEvent(eventId: String, systembruker: String): Nokkel {
