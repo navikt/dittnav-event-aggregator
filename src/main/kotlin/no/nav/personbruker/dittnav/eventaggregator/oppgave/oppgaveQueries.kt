@@ -18,7 +18,7 @@ fun Connection.getAllOppgave(): List<Oppgave> =
                     }
                 }
 
-private val createQuery = """INSERT INTO oppgave (systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv, eksternVarsling, prefererteKanaler) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?)"""
+private val createQuery = """INSERT INTO oppgave (systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv, eksternVarsling, prefererteKanaler, synligFremTil) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?)"""
 
 fun Connection.createOppgaver(oppgaver: List<Oppgave>) =
         executeBatchPersistQuery(createQuery) {
@@ -47,6 +47,7 @@ private fun PreparedStatement.buildStatementForSingleRow(oppgave: Oppgave) {
     setBoolean(10, oppgave.aktiv)
     setBoolean(11, oppgave.eksternVarsling)
     setObject(12, oppgave.prefererteKanaler.joinToString(","))
+    setObject(13, oppgave.synligFremTil, Types.TIMESTAMP)
 }
 
 fun Connection.setOppgaverAktivFlag(doneEvents: List<Done>, aktiv: Boolean) {

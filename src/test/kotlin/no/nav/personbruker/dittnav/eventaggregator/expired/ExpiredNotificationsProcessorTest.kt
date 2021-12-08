@@ -3,10 +3,11 @@ package no.nav.personbruker.dittnav.eventaggregator.expired
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveObjectMother
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-internal class ExpiredBeskjedProcessorTest {
+internal class ExpiredNotificationsProcessorTest {
 
     private val expiredPersistingService = mockk<ExpiredPersistingService>(relaxed = true)
     private val doneEmitter = mockk<DoneEventEmitter>(relaxed = true)
@@ -35,9 +36,40 @@ internal class ExpiredBeskjedProcessorTest {
     }
 
     @Test
+    fun `skal sende done-eventer for hver utgaat oppgave`() {
+        val result = listOf(
+            OppgaveObjectMother.giveMeAktivOppgave().copy(id = 1),
+            OppgaveObjectMother.giveMeAktivOppgave().copy(id = 2)
+        )
+        coEvery { expiredPersistingService.getExpiredOppgaver()
+        } returns result andThen listOf()
+
+        runBlocking {
+            processor.sendDoneEventsForExpiredOppgaver()
+        }
+
+        verify(exactly = 1) { doneEmitter.emittOppgaveDone(result) }
+    }
+
+    @Test
     fun `Hvis ingen beskjed har utgaatt, ingen done-event skal bli sent`() {
         coEvery { expiredPersistingService.getExpiredBeskjeder() } returns listOf()
 
+        runBlocking {
+            processor.sendDoneEventsForExpiredBeskjeder()
+        }
+
         verify(exactly = 0) { doneEmitter.emittBeskjedDone(listOf()) }
+    }
+
+    @Test
+    internal fun `Hvis ingen oppgave har utgaat, ingen done-event skal bli sent`() {
+        coEvery { expiredPersistingService.getExpiredOppgaver() } returns listOf()
+
+        runBlocking {
+            processor.sendDoneEventsForExpiredOppgaver()
+        }
+
+        verify(exactly = 0) { doneEmitter.emittOppgaveDone(listOf()) }
     }
 }
