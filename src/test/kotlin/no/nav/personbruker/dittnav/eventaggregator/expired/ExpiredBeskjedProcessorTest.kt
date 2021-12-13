@@ -1,23 +1,29 @@
 package no.nav.personbruker.dittnav.eventaggregator.expired
 
-import io.mockk.*
+import io.mockk.clearMocks
+import io.mockk.coEvery
+import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
+import no.nav.brukernotifikasjon.schemas.Done
+import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
-import org.amshove.kluent.called
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.KafkaProducerWrapper
+import org.amshove.kluent.shouldBe
+import org.apache.kafka.clients.producer.MockProducer
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 internal class ExpiredBeskjedProcessorTest {
 
+    private val producer = MockProducer<Nokkel, Done>()
     private val expiredPersistingService = mockk<ExpiredPersistingService>(relaxed = true)
-    private val doneEmitter = mockk<DoneEventEmitter>(relaxed = true)
+    private val doneEmitter = DoneEventEmitter(KafkaProducerWrapper("test", producer))
     private val processor = ExpiredBeskjedProcessor(expiredPersistingService, doneEmitter)
 
     @BeforeEach
     fun `reset mocks`() {
         clearMocks(expiredPersistingService)
-        clearMocks(doneEmitter)
+        producer.clear()
     }
 
     @Test
@@ -33,13 +39,13 @@ internal class ExpiredBeskjedProcessorTest {
             processor.sendDoneEventsForExpiredBeskjeder()
         }
 
-        verify(exactly = 1) { doneEmitter.emittBeskjedDone(result) }
+        producer.history().size shouldBe 2
     }
 
     @Test
     fun `Hvis ingen beskjed har utgaatt, ingen done-event skal bli sent`() {
         coEvery { expiredPersistingService.getExpiredBeskjeder() } returns listOf()
 
-        verify(exactly = 0) { doneEmitter.emittBeskjedDone(listOf()) }
+        producer.history().size shouldBe 0
     }
 }
