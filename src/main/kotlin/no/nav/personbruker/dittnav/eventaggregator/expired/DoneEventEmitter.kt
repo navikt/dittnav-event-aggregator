@@ -1,5 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.expired
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import no.nav.brukernotifikasjon.schemas.Done
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.brukernotifikasjon.schemas.builders.DoneBuilder
@@ -14,12 +16,16 @@ import java.util.*
 
 class DoneEventEmitter(private val kafkaProducerWrapper: KafkaProducerWrapper<Done>) {
 
-    fun emittBeskjedDone(beskjeder: List<Beskjed>) {
+    suspend fun emittBeskjedDone(beskjeder: List<Beskjed>) {
         beskjeder.forEach {
             val key = createKeyForEvent(UUID.randomUUID().toString(), it.systembruker)
             val event = createDoneEvent(it.fodselsnummer, it.grupperingsId)
 
             kafkaProducerWrapper.sendEvent(key, event)
+        }
+
+        withContext(Dispatchers.IO) {
+            kafkaProducerWrapper.kafkaProducer.flush()
         }
     }
 
