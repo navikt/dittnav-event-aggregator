@@ -54,9 +54,9 @@ class ExpiredBeskjedProcessor(
                 log.info("Ingen utgått beskjed å prosessere")
                 return
             }
-            log.info("Har hentet {} beskjeder som er utgått", beskjeder.size)
 
             doneEventEmitter.emittBeskjedDone(beskjeder)
+            log.info("Har prosessert {} utgått beskjeder", beskjeder.size)
         } catch (e: Exception) {
             log.error("Uventet feil ved processering av utgått beskjeder", e)
         }
