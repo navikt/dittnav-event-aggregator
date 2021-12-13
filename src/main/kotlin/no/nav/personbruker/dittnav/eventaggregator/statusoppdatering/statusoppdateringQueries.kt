@@ -89,4 +89,3 @@ private fun ResultSet.toStatusoppdatering(): Statusoppdatering {
             sakstema = getString("sakstema")
     )
 }
-
