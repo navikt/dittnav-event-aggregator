@@ -3,6 +3,8 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 import no.nav.brukernotifikasjon.schemas.Beskjed
 import no.nav.brukernotifikasjon.schemas.builders.domain.PreferertKanal
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 object AvroBeskjedObjectMother {
 
@@ -38,17 +40,24 @@ object AvroBeskjedObjectMother {
         )
     }
 
-    fun createBeskjed(lopenummer: Int, fodselsnummer: String, text: String): Beskjed {
+    fun createBeskjed(
+        lopenummer: Int,
+        fodselsnummer: String,
+        text: String,
+        tidspunkt: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC")),
+        synligFremTil: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC"))
+    ): Beskjed {
         return Beskjed(
-                Instant.now().toEpochMilli(),
-                Instant.now().toEpochMilli(),
-                fodselsnummer,
-                "100$lopenummer",
-                text,
-                "https://nav.no/systemX/$lopenummer",
-                4,
-                defaultEksternVarsling,
-                defaultPrefererteKanaler)
+            tidspunkt.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli(),
+            synligFremTil.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli(),
+            fodselsnummer,
+            "100$lopenummer",
+            text,
+            "https://nav.no/systemX/$lopenummer",
+            4,
+            defaultEksternVarsling,
+            defaultPrefererteKanaler
+        )
     }
 
     fun createBeskjedWithoutSynligFremTilSatt(): Beskjed {

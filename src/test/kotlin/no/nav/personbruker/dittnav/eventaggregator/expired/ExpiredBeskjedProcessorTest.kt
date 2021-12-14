@@ -18,7 +18,7 @@ internal class ExpiredBeskjedProcessorTest {
     private val producer = MockProducer<Nokkel, Done>()
     private val expiredPersistingService = mockk<ExpiredPersistingService>(relaxed = true)
     private val doneEmitter = DoneEventEmitter(KafkaProducerWrapper("test", producer))
-    private val processor = ExpiredBeskjedProcessor(expiredPersistingService, doneEmitter)
+    private val processor = PeriodicExpiredBeskjedProcessor(expiredPersistingService, doneEmitter)
 
     @BeforeEach
     fun `reset mocks`() {

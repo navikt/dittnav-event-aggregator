@@ -9,13 +9,13 @@ import org.slf4j.LoggerFactory
 import java.time.Duration
 import kotlin.coroutines.CoroutineContext
 
-class ExpiredBeskjedProcessor(
+class PeriodicExpiredBeskjedProcessor(
     private val expiredPersistingService: ExpiredPersistingService,
     private val doneEventEmitter: DoneEventEmitter,
     private val job: Job = Job()
 ) : CoroutineScope {
 
-    private val log: Logger = LoggerFactory.getLogger(ExpiredBeskjedProcessor::class.java)
+    private val log: Logger = LoggerFactory.getLogger(PeriodicExpiredBeskjedProcessor::class.java)
     private val timeToWait = Duration.ofMinutes(10)
 
     override val coroutineContext: CoroutineContext

@@ -13,7 +13,7 @@ import no.nav.personbruker.dittnav.eventaggregator.done.DonePersistingService
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
 import no.nav.personbruker.dittnav.eventaggregator.done.PeriodicDoneEventWaitingTableProcessor
 import no.nav.personbruker.dittnav.eventaggregator.expired.DoneEventEmitter
-import no.nav.personbruker.dittnav.eventaggregator.expired.ExpiredBeskjedProcessor
+import no.nav.personbruker.dittnav.eventaggregator.expired.PeriodicExpiredBeskjedProcessor
 import no.nav.personbruker.dittnav.eventaggregator.expired.ExpiredPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.health.HealthService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksEventService
@@ -100,7 +100,8 @@ class ApplicationContext {
 
     private fun initializePeriodicConsumerPollingCheck() = PeriodicConsumerPollingCheck(this)
 
-    private fun initializeExpiredBeskjedProcessor() = ExpiredBeskjedProcessor(expiredPersistingService, doneEventEmitter)
+    private fun initializeExpiredBeskjedProcessor() =
+        PeriodicExpiredBeskjedProcessor(expiredPersistingService, doneEventEmitter)
 
     fun reinitializeConsumers() {
         if (beskjedConsumer.isCompleted()) {
