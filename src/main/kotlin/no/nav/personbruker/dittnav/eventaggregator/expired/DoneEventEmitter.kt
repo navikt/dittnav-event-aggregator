@@ -14,16 +14,12 @@ import java.time.ZonedDateTime
 
 class DoneEventEmitter(private val kafkaProducerWrapper: KafkaProducerWrapper<Done>) {
 
-    suspend fun emittBeskjedDone(beskjeder: List<Beskjed>) {
+    fun emittBeskjedDone(beskjeder: List<Beskjed>) {
         beskjeder.forEach {
             val key = createKeyForEvent(it.eventId, it.systembruker)
             val event = createDoneEvent(it.fodselsnummer, it.grupperingsId)
 
             kafkaProducerWrapper.sendEvent(key, event)
-        }
-
-        withContext(Dispatchers.IO) {
-            kafkaProducerWrapper.kafkaProducer.flush()
         }
     }
 
