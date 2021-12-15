@@ -20,6 +20,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.kafka.KafkaProducerWra
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneEventService
 import no.nav.personbruker.dittnav.eventaggregator.done.DonePersistingService
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
+import no.nav.personbruker.dittnav.eventaggregator.done.deleteAllDone
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameResolver
 import no.nav.personbruker.dittnav.eventaggregator.metrics.ProducerNameScrubber
@@ -31,7 +32,7 @@ import org.apache.kafka.clients.consumer.OffsetResetStrategy
 import org.apache.kafka.clients.producer.MockProducer
 import org.apache.kafka.common.TopicPartition
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 
@@ -53,7 +54,7 @@ class ExpiredTest {
         it.rebalance(listOf(beskjedPartition))
         it.updateBeginningOffsets(mapOf(beskjedPartition to 0))
     }
-    private val beskjedConsumer = Consumer("test", beskjedConsumerMock, eventProcessor)
+    private val beskjedConsumer = Consumer(beskjedPartition.topic(), beskjedConsumerMock, eventProcessor)
 
     private val oppgaveRepository = OppgaveRepository(database)
     private val oppgavePersistingService = BrukernotifikasjonPersistingService(oppgaveRepository)
@@ -64,48 +65,50 @@ class ExpiredTest {
         it.rebalance(listOf(oppgavePartition))
         it.updateBeginningOffsets(mapOf(oppgavePartition to 0))
     }
-    private val oppgaveConsumer = Consumer("test", oppgaveConsumerMock, oppgaveEventProcessor)
+    private val oppgaveConsumer = Consumer(oppgavePartition.topic(), oppgaveConsumerMock, oppgaveEventProcessor)
 
     private val doneRepository = DoneRepository(database)
     private val donePersistingService = DonePersistingService(doneRepository)
     private val doneProcessor = DoneEventService(donePersistingService, metricsProbe)
     private val donePartition = TopicPartition("done", 0)
-    private val doneConsumerMock = MockConsumer<Nokkel, Done>(OffsetResetStrategy.EARLIEST).also {
+    private var doneConsumerMock = MockConsumer<Nokkel, Done>(OffsetResetStrategy.EARLIEST).also {
         it.subscribe(listOf(donePartition.topic()))
         it.rebalance(listOf(donePartition))
         it.updateBeginningOffsets(mapOf(donePartition to 0))
     }
-    private val doneConsumer = Consumer("done", doneConsumerMock, doneProcessor)
+    private var doneConsumer = Consumer("done", doneConsumerMock, doneProcessor)
 
     private val doneProducerMock = MockProducer<Nokkel, Done>()
     private val doneEmitter = DoneEventEmitter(KafkaProducerWrapper("done", doneProducerMock))
     private val expiredPersistingService = ExpiredPersistingService(database)
     private val periodicExpiredProcessor = PeriodicExpiredNotificationProcessor(expiredPersistingService, doneEmitter)
 
-    @BeforeAll
-    fun setUp() {
-        beskjedConsumer.startPolling()
-        oppgaveConsumer.startPolling()
-        doneConsumer.startPolling()
-    }
-
     @AfterAll
     fun tearDown() {
         runBlocking {
-            beskjedConsumer.stopPolling()
-            oppgaveConsumer.stopPolling()
-            doneConsumer.stopPolling()
-
             database.dbQuery {
                 deleteAllBeskjed()
                 deleteAllOppgave()
+                deleteAllDone()
             }
         }
     }
 
+    @BeforeEach
+    fun setUp() {
+        doneProducerMock.clear()
+        doneConsumerMock = MockConsumer<Nokkel, Done>(OffsetResetStrategy.EARLIEST).also {
+            it.subscribe(listOf(donePartition.topic()))
+            it.rebalance(listOf(donePartition))
+            it.updateBeginningOffsets(mapOf(donePartition to 0))
+        }
+        doneConsumer = Consumer("done", doneConsumerMock, doneProcessor)
+    }
+
     @Test
     fun `Utgåtte beskjeder blir satt til inaktive via done-event`() {
-
+        beskjedConsumer.startPolling()
+        doneConsumer.startPolling()
         val expiredBeskjeder = genererateBeskjeder()
 
         runBlocking {
@@ -125,12 +128,15 @@ class ExpiredTest {
             database.dbQuery {
                 getAllBeskjedByAktiv(true).size
             } `should be equal to` 0
+            beskjedConsumer.stopPolling()
+            doneConsumer.startPolling()
         }
     }
 
     @Test
     fun `Utgåtte oppgaver blir satt til inaktive via done-event`() {
-
+        oppgaveConsumer.startPolling()
+        doneConsumer.startPolling()
         val expiredOppgaver = genererateOppgaver()
 
         runBlocking {
@@ -150,6 +156,8 @@ class ExpiredTest {
             database.dbQuery {
                 getAllOppgaveByAktiv(true).size
             } `should be equal to` 0
+            oppgaveConsumer.stopPolling()
+            doneConsumer.stopPolling()
         }
     }
 
