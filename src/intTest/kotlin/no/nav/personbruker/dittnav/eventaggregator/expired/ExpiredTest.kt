@@ -89,16 +89,8 @@ class ExpiredTest {
 
     @Test
     fun `Utgåtte beskjeder blir satt til inaktive via done-event`() {
-        val beskjed = AvroBeskjedObjectMother.createBeskjed(
-            10101,
-            "12345678910",
-            "beskjed",
-            synligFremTil = LocalDateTime.now().minusDays(30)
-        )
 
-        val expiredBeskjeder = (0..9).map {
-            ConsumerRecord("beskjed", 0, it.toLong(), Nokkel("dummySystembruker", it.toString()), beskjed)
-        }
+        val expiredBeskjeder = genererateBeskjeder()
 
         runBlocking {
             expiredBeskjeder.forEach { beskjedConsumerMock.addRecord(it) }
@@ -120,7 +112,30 @@ class ExpiredTest {
         }
     }
 
-    private suspend fun <K, V> delayUntilCommittedOffset(consumer: MockConsumer<K, V>, partition: TopicPartition, offset: Long) {
+    private fun genererateBeskjeder(): List<ConsumerRecord<Nokkel, Beskjed>> {
+        val beskjed = AvroBeskjedObjectMother.createBeskjed(
+            10101,
+            "12345678910",
+            "beskjed",
+            synligFremTil = LocalDateTime.now().minusDays(30)
+        )
+
+        return (0..9).map {
+            ConsumerRecord(
+                beskjedPartition.topic(),
+                beskjedPartition.partition(),
+                it.toLong(),
+                Nokkel("dummySystembruker", it.toString()),
+                beskjed
+            )
+        }
+    }
+
+    private suspend fun <K, V> delayUntilCommittedOffset(
+        consumer: MockConsumer<K, V>,
+        partition: TopicPartition,
+        offset: Long
+    ) {
         withTimeout(1000) {
             while ((consumer.committed(setOf(partition))[partition]?.offset() ?: 0) < offset) {
                 delay(10)
@@ -132,7 +147,11 @@ class ExpiredTest {
         var offset = 0L
         producer.history().forEach { producerRecord ->
             if (producerRecord.topic() in consumer.subscription()) {
-                val partition = TopicPartition(producerRecord.topic(), consumer.assignment().first().partition())
+                val partition =
+                    TopicPartition(
+                        producerRecord.topic(),
+                        consumer.assignment().first { it.topic() == producerRecord.topic() }.partition()
+                    )
                 val consumerRecord = ConsumerRecord(
                     producerRecord.topic(),
                     partition.partition(),
