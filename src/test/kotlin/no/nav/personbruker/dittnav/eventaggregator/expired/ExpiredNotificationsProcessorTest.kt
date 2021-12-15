@@ -15,7 +15,7 @@ import org.apache.kafka.clients.producer.MockProducer
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-internal class ExpiredBeskjedProcessorTest {
+internal class PeriodicExpiredNotificationProcessorTest {
 
     private val producer = MockProducer<Nokkel, Done>()
     private val expiredPersistingService = mockk<ExpiredPersistingService>(relaxed = true)
@@ -57,7 +57,7 @@ internal class ExpiredBeskjedProcessorTest {
             processor.sendDoneEventsForExpiredOppgaver()
         }
 
-        verify(exactly = 1) { doneEmitter.emittOppgaveDone(result) }
+        producer.history().size shouldBe 2
     }
 
     @Test
@@ -72,13 +72,13 @@ internal class ExpiredBeskjedProcessorTest {
     }
 
     @Test
-    internal fun `Hvis ingen oppgave har utgaat, ingen done-event skal bli sent`() {
+    fun `Hvis ingen oppgave har utgaat, ingen done-event skal bli sent`() {
         coEvery { expiredPersistingService.getExpiredOppgaver() } returns listOf()
 
         runBlocking {
             processor.sendDoneEventsForExpiredOppgaver()
         }
 
-        verify(exactly = 0) { doneEmitter.emittOppgaveDone(listOf()) }
+        producer.history().size shouldBe 0
     }
 }
