@@ -39,7 +39,7 @@ object BeskjedObjectMother {
                 uid = Random.nextInt(1, 100).toString(),
                 systembruker = systembruker,
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
-                synligFremTil = LocalDateTime.now(ZoneId.of("UTC")),
+                synligFremTil = LocalDateTime.now(ZoneId.of("UTC")).plusDays(1),
                 fodselsnummer = fodselsnummer,
                 eventId = eventId,
                 grupperingsId = "systemA010",

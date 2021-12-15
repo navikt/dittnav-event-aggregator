@@ -4,11 +4,11 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistAc
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.*
 import no.nav.personbruker.dittnav.eventaggregator.done.Done
-import java.sql.Connection
-import java.sql.PreparedStatement
-import java.sql.ResultSet
-import java.sql.Types
+import java.sql.*
+import java.time.Clock
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
 
 fun Connection.getAllBeskjed(): List<Beskjed> =
         prepareStatement("""SELECT * FROM beskjed""")
@@ -61,6 +61,15 @@ fun Connection.setBeskjederAktivflagg(doneEvents: List<Done>, aktiv: Boolean) {
             addBatch()
         }
     }
+}
+
+fun Connection.getExpiredBeskjedFromCursor(): List<Beskjed> {
+    val now = LocalDateTime.now(ZoneId.of("UTC"))
+    return prepareStatement("""SELECT * FROM beskjed WHERE aktiv = true AND synligFremTil <= ? LIMIT 10000""")
+            .use {
+                it.setObject(1, now, Types.TIMESTAMP)
+                it.executeQuery().list { toBeskjed() }
+            }
 }
 
 fun Connection.getAllBeskjedByAktiv(aktiv: Boolean): List<Beskjed> =
