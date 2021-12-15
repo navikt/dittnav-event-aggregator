@@ -9,13 +9,12 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
-import java.util.*
 
 class DoneEventEmitter(private val kafkaProducerWrapper: KafkaProducerWrapper<Done>) {
 
     fun emittBeskjedDone(beskjeder: List<Beskjed>) {
         beskjeder.forEach {
-            val key = createKeyForEvent(UUID.randomUUID().toString(), it.systembruker)
+            val key = createKeyForEvent(it.eventId, it.systembruker)
             val event = createDoneEvent(it.fodselsnummer, it.grupperingsId)
 
             kafkaProducerWrapper.sendEvent(key, event)
@@ -24,14 +23,18 @@ class DoneEventEmitter(private val kafkaProducerWrapper: KafkaProducerWrapper<Do
 
     fun emittOppgaveDone(oppgaver: List<Oppgave>) {
         oppgaver.forEach {
-            val key = createKeyForEvent(UUID.randomUUID().toString(), it.systembruker)
+            val key = createKeyForEvent(it.eventId, it.systembruker)
             val event = createDoneEvent(it.fodselsnummer, it.grupperingsId)
 
             kafkaProducerWrapper.sendEvent(key, event)
         }
     }
 
-    private fun createDoneEvent(fodselsnummer: String, grupperingsId: String, sistOppdatert: ZonedDateTime = ZonedDateTime.now()): no.nav.brukernotifikasjon.schemas.Done {
+    private fun createDoneEvent(
+        fodselsnummer: String,
+        grupperingsId: String,
+        sistOppdatert: ZonedDateTime = ZonedDateTime.now()
+    ): Done {
         val tidspunkt = LocalDateTime.ofInstant(Instant.ofEpochMilli(sistOppdatert.toEpochSecond()), ZoneOffset.UTC)
         return Done(
             tidspunkt.toInstant(ZoneOffset.UTC).toEpochMilli(),

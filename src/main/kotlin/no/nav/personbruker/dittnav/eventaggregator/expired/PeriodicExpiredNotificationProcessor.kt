@@ -9,13 +9,13 @@ import org.slf4j.LoggerFactory
 import java.time.Duration
 import kotlin.coroutines.CoroutineContext
 
-class ExpiredNotificationProcessor(
+class PeriodicExpiredNotificationProcessor(
     private val expiredPersistingService: ExpiredPersistingService,
     private val doneEventEmitter: DoneEventEmitter,
     private val job: Job = Job()
 ) : CoroutineScope {
 
-    private val log: Logger = LoggerFactory.getLogger(ExpiredNotificationProcessor::class.java)
+    private val log: Logger = LoggerFactory.getLogger(PeriodicExpiredNotificationProcessor::class.java)
     private val timeToWait = Duration.ofMinutes(10)
 
     override val coroutineContext: CoroutineContext
@@ -48,21 +48,6 @@ class ExpiredNotificationProcessor(
         }
     }
 
-    suspend fun sendDoneEventsForExpiredBeskjeder() {
-        try {
-            val beskjeder = expiredPersistingService.getExpiredBeskjeder()
-            if (beskjeder.isEmpty()) {
-                log.info("Ingen utgått beskjed å prosessere")
-                return
-            }
-
-            doneEventEmitter.emittBeskjedDone(beskjeder)
-            log.info("Har prosessert {} utgått beskjeder", beskjeder.size)
-        } catch (e: Exception) {
-            log.error("Uventet feil ved processering av utgått beskjeder", e)
-        }
-    }
-
     suspend fun sendDoneEventsForExpiredOppgaver() {
         try {
             val oppgaver = expiredPersistingService.getExpiredOppgaver()
@@ -75,6 +60,21 @@ class ExpiredNotificationProcessor(
             log.info("Har prosessert {} utgått oppgaver", oppgaver.size)
         } catch (e: Exception) {
             log.error("Uventet feil ved processering av utgått oppgaver", e)
+        }
+    }
+
+    suspend fun sendDoneEventsForExpiredBeskjeder() {
+        try {
+            val beskjeder = expiredPersistingService.getExpiredBeskjeder()
+            if (beskjeder.isEmpty()) {
+                log.info("Ingen utgått beskjed å prosessere")
+                return
+            }
+
+            doneEventEmitter.emittBeskjedDone(beskjeder)
+            log.info("Har prosessert {} utgått beskjeder", beskjeder.size)
+        } catch (e: Exception) {
+            log.error("Uventet feil ved processering av utgått beskjeder", e)
         }
     }
 }

@@ -42,6 +42,7 @@ private fun Application.configureShutdownHook(appContext: ApplicationContext) {
             appContext.periodicDoneEventWaitingTableProcessor.stop()
             appContext.periodicConsumerPollingCheck.stop()
             appContext.periodicExpiredBeskjedProcessor.stop()
+            appContext.kafkaProducerDone.flushAndClose()
         }
         appContext.database.dataSource.close()
     }

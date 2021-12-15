@@ -3,6 +3,8 @@ package no.nav.personbruker.dittnav.eventaggregator.oppgave
 import no.nav.brukernotifikasjon.schemas.Oppgave
 import no.nav.brukernotifikasjon.schemas.builders.domain.PreferertKanal
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalUnit
 
@@ -40,10 +42,15 @@ object AvroOppgaveObjectMother {
         )
     }
 
-    fun createOppgave(lopenummer: Int, fodselsnummer: String, tekst: String): Oppgave {
+    fun createOppgave(
+        lopenummer: Int,
+        fodselsnummer: String,
+        tekst: String,
+        synligFremTil: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC"))
+    ): Oppgave {
         return Oppgave(
                 Instant.now().toEpochMilli(),
-                Instant.now().plus(7, ChronoUnit.DAYS).toEpochMilli(),
+                synligFremTil.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli(),
                 fodselsnummer,
                 "100$lopenummer",
                 tekst,
