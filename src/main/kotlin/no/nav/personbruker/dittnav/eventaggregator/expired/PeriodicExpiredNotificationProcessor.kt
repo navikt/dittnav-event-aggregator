@@ -23,8 +23,8 @@ class PeriodicExpiredNotificationProcessor(
 
     fun status(): HealthStatus {
         return when (job.isActive) {
-            true -> HealthStatus("ExpiredBeskjedProcessor", Status.OK, "Processor is running", false)
-            false -> HealthStatus("ExpiredBeskjedProcessor", Status.ERROR, "Processor is not running", false)
+            true -> HealthStatus("PeriodicExpiredNotificationProcessor", Status.OK, "Processor is running", false)
+            false -> HealthStatus("PeriodicExpiredNotificationProcessor", Status.ERROR, "Processor is not running", false)
         }
     }
 
