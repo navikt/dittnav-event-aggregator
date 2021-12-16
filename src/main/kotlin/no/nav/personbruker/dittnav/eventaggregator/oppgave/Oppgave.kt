@@ -18,7 +18,8 @@ data class Oppgave(
         val sistOppdatert: LocalDateTime,
         val aktiv: Boolean,
         val eksternVarsling: Boolean,
-        val prefererteKanaler: List<String> = emptyList()
+        val prefererteKanaler: List<String> = emptyList(),
+        val synligFremTil: LocalDateTime? = null
 ) {
     constructor(
             systembruker: String,
@@ -32,7 +33,8 @@ data class Oppgave(
             sistOppdatert: LocalDateTime,
             aktiv: Boolean,
             eksternVarsling: Boolean,
-            prefererteKanaler: List<String> = emptyList()
+            prefererteKanaler: List<String> = emptyList(),
+            synligFremTil: LocalDateTime? = null
     ) : this(null,
             systembruker,
             eventId,
@@ -45,7 +47,8 @@ data class Oppgave(
             sistOppdatert,
             aktiv,
             eksternVarsling,
-            prefererteKanaler
+            prefererteKanaler,
+            synligFremTil
     ) {
         ValidationUtil.validateNonNullFieldMaxLength(systembruker, "systembruker", ValidationUtil.MAX_LENGTH_SYSTEMBRUKER)
         ValidationUtil.validateNonNullFieldMaxLength(eventId, "eventId", ValidationUtil.MAX_LENGTH_EVENTID)
@@ -71,6 +74,7 @@ data class Oppgave(
                 "sistOppdatert=$sistOppdatert, " +
                 "aktiv=$aktiv, " +
                 "eksternVarsling=$eksternVarsling, " +
-                "prefererteKanaler=$prefererteKanaler"
+                "prefererteKanaler=$prefererteKanaler, " +
+                "synligFremTil=$synligFremTil"
     }
 }
