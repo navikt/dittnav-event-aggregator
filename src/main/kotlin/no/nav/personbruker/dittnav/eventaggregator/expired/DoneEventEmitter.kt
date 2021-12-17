@@ -1,12 +1,10 @@
 package no.nav.personbruker.dittnav.eventaggregator.expired
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import no.nav.brukernotifikasjon.schemas.Done
 import no.nav.brukernotifikasjon.schemas.Nokkel
-import no.nav.brukernotifikasjon.schemas.builders.NokkelBuilder
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.KafkaProducerWrapper
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -16,6 +14,15 @@ class DoneEventEmitter(private val kafkaProducerWrapper: KafkaProducerWrapper<Do
 
     fun emittBeskjedDone(beskjeder: List<Beskjed>) {
         beskjeder.forEach {
+            val key = createKeyForEvent(it.eventId, it.systembruker)
+            val event = createDoneEvent(it.fodselsnummer, it.grupperingsId)
+
+            kafkaProducerWrapper.sendEvent(key, event)
+        }
+    }
+
+    fun emittOppgaveDone(oppgaver: List<Oppgave>) {
+        oppgaver.forEach {
             val key = createKeyForEvent(it.eventId, it.systembruker)
             val event = createDoneEvent(it.fodselsnummer, it.grupperingsId)
 
@@ -37,9 +44,9 @@ class DoneEventEmitter(private val kafkaProducerWrapper: KafkaProducerWrapper<Do
     }
 
     private fun createKeyForEvent(eventId: String, systembruker: String): Nokkel {
-        return NokkelBuilder()
-            .withEventId(eventId)
-            .withSystembruker(systembruker)
-            .build()
+        return Nokkel(
+            systembruker,
+            eventId
+        )
     }
 }
