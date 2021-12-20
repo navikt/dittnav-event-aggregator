@@ -21,7 +21,7 @@ import kotlin.coroutines.CoroutineContext
 
 class Consumer<T>(
         val topic: String,
-        val kafkaConsumer: KafkaConsumer<NokkelIntern, T>,
+        val kafkaConsumer: org.apache.kafka.clients.consumer.Consumer<NokkelIntern, T>,
         val eventBatchProcessorService: EventBatchProcessorService<T>,
         val job: Job = Job(),
         val maxPollTimeout: Long = 100L
@@ -112,7 +112,9 @@ class Consumer<T>(
 
     private suspend fun rollbackOffset() {
         withContext(Dispatchers.IO) {
-            kafkaConsumer.rollbackToLastCommitted()
+            if (kafkaConsumer is KafkaConsumer) {
+                kafkaConsumer.rollbackToLastCommitted()
+            }
         }
     }
 }

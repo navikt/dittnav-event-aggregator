@@ -7,6 +7,7 @@ import org.amshove.kluent.*
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
+import java.time.LocalDateTime
 
 class oppgaveQueriesTest {
 
@@ -19,6 +20,8 @@ class oppgaveQueriesTest {
     private val oppgave2: Oppgave
     private val oppgave3: Oppgave
 
+    private val expiredOppgave: Oppgave
+
     private val systembruker = "dummySystembruker"
     private val eventId = "2"
 
@@ -29,12 +32,24 @@ class oppgaveQueriesTest {
         oppgave1 = createOppgave("1", fodselsnummer1)
         oppgave2 = createOppgave("2", fodselsnummer2)
         oppgave3 = createOppgave("3", fodselsnummer1)
-        allEvents = listOf(oppgave1, oppgave2, oppgave3)
+        expiredOppgave = createExpiredOppgave("4", "5678")
+        allEvents = listOf(oppgave1, oppgave2, oppgave3, expiredOppgave)
         allEventsForSingleUser = listOf(oppgave1, oppgave3)
     }
 
     private fun createOppgave(eventId: String, fodselsnummer: String): Oppgave {
         var oppgave = OppgaveObjectMother.giveMeAktivOppgave(eventId, fodselsnummer)
+        runBlocking {
+            database.dbQuery {
+                val generatedId = createOppgave(oppgave).entityId
+                oppgave = oppgave.copy(id = generatedId)
+            }
+        }
+        return oppgave
+    }
+
+    private fun createExpiredOppgave(eventId: String, fodselsnummer: String): Oppgave {
+        var oppgave = OppgaveObjectMother.giveMeAktivOppgave(eventId, fodselsnummer).copy(synligFremTil = LocalDateTime.now().minusDays(1))
         runBlocking {
             database.dbQuery {
                 val generatedId = createOppgave(oppgave).entityId
@@ -165,6 +180,18 @@ class oppgaveQueriesTest {
 
             database.dbQuery { deleteOppgaveWithEventId(oppgave1.eventId) }
             database.dbQuery { deleteOppgaveWithEventId(oppgave2.eventId) }
+        }
+    }
+
+    @Test
+    fun `Finner utaatt oppgaver`() {
+        runBlocking {
+            val result = database.dbQuery {
+                getExpiredOppgave()
+            }
+
+            result shouldHaveSize 1
+            result `should contain` expiredOppgave
         }
     }
 

@@ -1,14 +1,20 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
+import no.nav.brukernotifikasjon.schemas.input.DoneInput
+import no.nav.brukernotifikasjon.schemas.input.NokkelInput
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedEventService
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.KafkaProducerWrapper
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.polling.PeriodicConsumerPollingCheck
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneEventService
 import no.nav.personbruker.dittnav.eventaggregator.done.DonePersistingService
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
 import no.nav.personbruker.dittnav.eventaggregator.done.PeriodicDoneEventWaitingTableProcessor
+import no.nav.personbruker.dittnav.eventaggregator.expired.DoneEventEmitter
+import no.nav.personbruker.dittnav.eventaggregator.expired.PeriodicExpiredNotificationProcessor
+import no.nav.personbruker.dittnav.eventaggregator.expired.ExpiredPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.health.HealthService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksEventService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
@@ -18,6 +24,7 @@ import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveEventService
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
 import no.nav.personbruker.dittnav.eventaggregator.statusoppdatering.StatusoppdateringEventService
 import no.nav.personbruker.dittnav.eventaggregator.statusoppdatering.StatusoppdateringRepository
+import org.apache.kafka.clients.producer.KafkaProducer
 import org.slf4j.LoggerFactory
 
 class ApplicationContext {
@@ -63,6 +70,11 @@ class ApplicationContext {
     var periodicDoneEventWaitingTableProcessor = initializeDoneWaitingTableProcessor()
     var periodicConsumerPollingCheck = initializePeriodicConsumerPollingCheck()
 
+    val expiredPersistingService = ExpiredPersistingService(database)
+    val kafkaProducerDone = KafkaProducerWrapper(environment.doneInputTopicName, KafkaProducer<NokkelInput, DoneInput>(Kafka.producerProps(environment)))
+    val doneEventEmitter = DoneEventEmitter(kafkaProducerDone, environment.namespace, environment.appnavn)
+    var periodicExpiredBeskjedProcessor = initializeExpiredBeskjedProcessor()
+
     val healthService = HealthService(this)
 
     private fun initializeBeskjedConsumer() =
@@ -83,6 +95,9 @@ class ApplicationContext {
     private fun initializeDoneWaitingTableProcessor() = PeriodicDoneEventWaitingTableProcessor(donePersistingService, dbMetricsProbe)
 
     private fun initializePeriodicConsumerPollingCheck() = PeriodicConsumerPollingCheck(this)
+
+    private fun initializeExpiredBeskjedProcessor() =
+        PeriodicExpiredNotificationProcessor(expiredPersistingService, doneEventEmitter)
 
     fun reinitializeConsumers() {
         if (beskjedConsumer.isCompleted()) {

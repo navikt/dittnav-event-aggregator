@@ -46,6 +46,7 @@ object KafkaTestUtil {
                 dbPassword = "dbPWIkkeIBrukHer",
                 clusterName = "clusterNameIkkeIBrukHer",
                 namespace = "namespaceIkkeIBrukHer",
+                appnavn = "test-app",
                 influxdbHost = "",
                 influxdbPort = 0,
                 influxdbName = "",
@@ -59,7 +60,8 @@ object KafkaTestUtil {
                 oppgaveInternTopicName = KafkaTestTopics.oppgaveInternTopicName,
                 innboksInternTopicName = KafkaTestTopics.innboksInternTopicName,
                 statusoppdateringInternTopicName = KafkaTestTopics.statusoppdateringInternTopicName,
-                doneInternTopicName = KafkaTestTopics.doneInternTopicName
+                doneInternTopicName = KafkaTestTopics.doneInternTopicName,
+                doneInputTopicName = KafkaTestTopics.doneInputTopicName
         )
     }
 

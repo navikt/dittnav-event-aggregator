@@ -7,6 +7,8 @@ import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 fun Connection.getAllOppgave(): List<Oppgave> =
         prepareStatement("""SELECT * FROM oppgave""")
@@ -16,7 +18,7 @@ fun Connection.getAllOppgave(): List<Oppgave> =
                     }
                 }
 
-private val createQuery = """INSERT INTO oppgave (systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?)"""
+private val createQuery = """INSERT INTO oppgave (systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn, synligFremTil) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?)"""
 
 fun Connection.createOppgaver(oppgaver: List<Oppgave>) =
         executeBatchPersistQuery(createQuery) {
@@ -47,6 +49,7 @@ private fun PreparedStatement.buildStatementForSingleRow(oppgave: Oppgave) {
     setObject(12, oppgave.prefererteKanaler.joinToString(","))
     setString(13, oppgave.namespace)
     setString(14, oppgave.appnavn)
+    setObject(15, oppgave.synligFremTil, Types.TIMESTAMP)
 }
 
 fun Connection.setOppgaverAktivFlag(doneEvents: List<Done>, aktiv: Boolean) {
@@ -60,6 +63,16 @@ fun Connection.setOppgaverAktivFlag(doneEvents: List<Done>, aktiv: Boolean) {
         }
     }
 }
+
+fun Connection.getExpiredOppgave(): List<Oppgave> {
+    val now = LocalDateTime.now(ZoneId.of("UTC"))
+    return prepareStatement("""SELECT * FROM oppgave WHERE aktiv = true AND synligFremTil <= ? LIMIT 10000""")
+        .use {
+            it.setObject(1, now, Types.TIMESTAMP)
+            it.executeQuery().list { toOppgave() }
+        }
+}
+
 
 fun Connection.getAllOppgaveByAktiv(aktiv: Boolean): List<Oppgave> =
         prepareStatement("""SELECT * FROM oppgave WHERE aktiv = ?""")
@@ -113,6 +126,7 @@ private fun ResultSet.toOppgave(): Oppgave {
             sistOppdatert = getUtcDateTime("sistOppdatert"),
             aktiv = getBoolean("aktiv"),
             eksternVarsling = getBoolean("eksternVarsling"),
-            prefererteKanaler = getListFromSeparatedString("prefererteKanaler", ",")
+            prefererteKanaler = getListFromSeparatedString("prefererteKanaler", ","),
+            synligFremTil = getNullableLocalDateTime("synligFremTil")
     )
 }

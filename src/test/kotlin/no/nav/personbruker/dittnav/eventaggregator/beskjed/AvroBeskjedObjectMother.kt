@@ -1,7 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
-import no.nav.brukernotifikasjon.schemas.internal.domain.PreferertKanal
 import no.nav.brukernotifikasjon.schemas.internal.BeskjedIntern
+import no.nav.brukernotifikasjon.schemas.internal.domain.PreferertKanal
 import java.time.Instant
 
 object AvroBeskjedObjectMother {
@@ -27,10 +27,10 @@ object AvroBeskjedObjectMother {
         )
     }
 
-    fun createBeskjed(lopenummer: Int, text: String): BeskjedIntern {
+    fun createBeskjed(lopenummer: Int, text: String, synligFremTil: Instant = Instant.now()): BeskjedIntern {
         return BeskjedIntern(
                 Instant.now().toEpochMilli(),
-                Instant.now().toEpochMilli(),
+                synligFremTil.toEpochMilli(),
                 text,
                 "https://nav.no/systemX/$lopenummer",
                 4,

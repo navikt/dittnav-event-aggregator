@@ -10,6 +10,7 @@ data class Environment(val username: String = getEnvVar("SERVICEUSER_USERNAME"),
                        val groupId: String = getEnvVar("GROUP_ID"),
                        val clusterName: String = getEnvVar("NAIS_CLUSTER_NAME"),
                        val namespace: String = getEnvVar("NAIS_NAMESPACE"),
+                       val appnavn: String = getEnvVar("NAIS_APP_NAME"),
                        val influxdbHost: String = getEnvVar("INFLUXDB_HOST"),
                        val influxdbPort: Int = getEnvVarAsInt("INFLUXDB_PORT"),
                        val influxdbName: String = getEnvVar("INFLUXDB_DATABASE_NAME"),
@@ -29,7 +30,8 @@ data class Environment(val username: String = getEnvVar("SERVICEUSER_USERNAME"),
                        val oppgaveInternTopicName: String = getEnvVar("INTERN_OPPGAVE_TOPIC"),
                        val innboksInternTopicName: String = getEnvVar("INTERN_INNBOKS_TOPIC"),
                        val statusoppdateringInternTopicName: String = getEnvVar("INTERN_STATUSOPPDATERING_TOPIC"),
-                       val doneInternTopicName: String = getEnvVar("INTERN_DONE_TOPIC")
+                       val doneInternTopicName: String = getEnvVar("INTERN_DONE_TOPIC"),
+                       val doneInputTopicName: String = getEnvVar("INPUT_DONE_TOPIC")
 
 )
 
