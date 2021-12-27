@@ -10,7 +10,6 @@ import no.nav.personbruker.dittnav.eventaggregator.health.HealthCheck
 import no.nav.personbruker.dittnav.eventaggregator.health.HealthStatus
 import no.nav.personbruker.dittnav.eventaggregator.health.Status
 import org.apache.kafka.clients.consumer.ConsumerRecords
-import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.errors.RetriableException
 import org.apache.kafka.common.errors.TopicAuthorizationException
 import org.slf4j.Logger
@@ -20,11 +19,11 @@ import java.time.temporal.ChronoUnit
 import kotlin.coroutines.CoroutineContext
 
 class Consumer<T>(
-        val topic: String,
-        val kafkaConsumer: KafkaConsumer<NokkelIntern, T>,
-        val eventBatchProcessorService: EventBatchProcessorService<T>,
-        val job: Job = Job(),
-        val maxPollTimeout: Long = 100L
+    val topic: String,
+    private val kafkaConsumer: org.apache.kafka.clients.consumer.Consumer<NokkelIntern, T>,
+    val eventBatchProcessorService: EventBatchProcessorService<T>,
+    val job: Job = Job(),
+    val maxPollTimeout: Long = 100L
 ) : CoroutineScope, HealthCheck {
 
     private val log: Logger = LoggerFactory.getLogger(Consumer::class.java)
