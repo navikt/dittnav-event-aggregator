@@ -6,11 +6,10 @@ import no.nav.personbruker.dittnav.eventaggregator.done.DoneObjectMother
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should contain all`
 import org.amshove.kluent.`should not contain`
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 
 class innboksQueriesTest {
-    private val database = LocalPostgresDatabase()
+    private val database = LocalPostgresDatabase.migratedDb()
 
     private val fodselsnummer1 = "12345"
     private val fodselsnummer2 = "67890"
@@ -42,15 +41,6 @@ class innboksQueriesTest {
                 createInnboks(innboks).entityId.let {
                     innboks.copy(id = it)
                 }
-            }
-        }
-    }
-
-    @AfterAll
-    fun cleanUp() {
-        runBlocking {
-            database.dbQuery {
-                deleteAllInnboks()
             }
         }
     }

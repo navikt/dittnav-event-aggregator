@@ -18,7 +18,7 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 
 class StatusoppdateringTest {
-    private val database = LocalPostgresDatabase()
+    private val database = LocalPostgresDatabase.migratedDb()
 
     private val metricsReporter = StubMetricsReporter()
     private val metricsProbe = EventMetricsProbe(metricsReporter)

@@ -4,12 +4,11 @@ import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should contain all`
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 
 class DoneQueriesTest {
 
-    private val database = LocalPostgresDatabase()
+    private val database = LocalPostgresDatabase.migratedDb()
     private val done1 = DoneObjectMother.giveMeDone("1")
     private val done2 = DoneObjectMother.giveMeDone("2")
     private val done3 = DoneObjectMother.giveMeDone("3")
@@ -20,13 +19,6 @@ class DoneQueriesTest {
             database.dbQuery {
                 createDoneEvents(listOf(done1, done2, done3))
             }
-        }
-    }
-
-    @AfterAll
-    fun tearDown() {
-        runBlocking {
-            database.dbQuery { deleteAllDone() }
         }
     }
 

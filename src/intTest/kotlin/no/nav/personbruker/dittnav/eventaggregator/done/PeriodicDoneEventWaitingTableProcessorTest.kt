@@ -4,17 +4,14 @@ import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.common.metrics.StubMetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.getBeskjedByEventId
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
-import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.getInnboksByEventId
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.getOppgaveByEventId
 import org.amshove.kluent.*
 import org.junit.jupiter.api.AfterAll
@@ -22,7 +19,7 @@ import org.junit.jupiter.api.Test
 
 class PeriodicDoneEventWaitingTableProcessorTest {
 
-    private val database = LocalPostgresDatabase()
+    private val database = LocalPostgresDatabase.migratedDb()
     private val doneRepository = DoneRepository(database)
     private val donePersistingService = DonePersistingService(doneRepository)
     private val dbMetricsProbe = DBMetricsProbe(StubMetricsReporter())
@@ -50,12 +47,6 @@ class PeriodicDoneEventWaitingTableProcessorTest {
     fun tearDown() {
         runBlocking {
             eventConsumer.stop()
-            database.dbQuery {
-                deleteAllBeskjed()
-                deleteAllOppgave()
-                deleteAllInnboks()
-                deleteAllDone()
-            }
         }
     }
 

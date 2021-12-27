@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 
 class DoneRepositoryTest {
 
-    val database = LocalPostgresDatabase()
+    val database = LocalPostgresDatabase.migratedDb()
 
     val doneRepository = DoneRepository(database)
 

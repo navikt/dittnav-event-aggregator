@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 
 class OppgaveRepositoryTest {
 
-    val database = LocalPostgresDatabase()
+    val database = LocalPostgresDatabase.migratedDb()
 
     val oppgaveRepository = OppgaveRepository(database)
 

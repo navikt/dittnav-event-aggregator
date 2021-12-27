@@ -7,18 +7,17 @@ import no.nav.personbruker.dittnav.common.metrics.StubMetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
-import no.nav.personbruker.dittnav.eventaggregator.common.kafka.delayUntilCommittedOffset
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.createEventRecords
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.delayUntilCommittedOffset
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import org.amshove.kluent.`should be equal to`
 import org.apache.kafka.clients.consumer.MockConsumer
 import org.apache.kafka.clients.consumer.OffsetResetStrategy
 import org.apache.kafka.common.TopicPartition
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 
 class BeskjedTest {
-    private val database = LocalPostgresDatabase()
+    private val database = LocalPostgresDatabase.migratedDb()
 
     private val metricsReporter = StubMetricsReporter()
     private val metricsProbe = EventMetricsProbe(metricsReporter)
@@ -33,15 +32,6 @@ class BeskjedTest {
         it.updateBeginningOffsets(mapOf(beskjedTopicPartition to 0))
     }
     private val beskjedConsumer = Consumer(beskjedTopicPartition.topic(), beskjedConsumerMock, eventProcessor)
-
-    @AfterAll
-    fun tearDown() {
-        runBlocking {
-            database.dbQuery {
-                deleteAllBeskjed()
-            }
-        }
-    }
 
     @Test
     fun `Skal lese inn Beskjed-eventer og skrive de til databasen`() {

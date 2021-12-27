@@ -11,7 +11,6 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.getAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.KafkaTestTopics
 import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.ConsumerRecordsObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
 import no.nav.personbruker.dittnav.eventaggregator.done.schema.AvroDoneObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
@@ -33,7 +32,7 @@ import org.junit.jupiter.api.Test
 
 class DoneEventServiceTest {
 
-    private val database = LocalPostgresDatabase()
+    private val database = LocalPostgresDatabase.migratedDb()
     private val metricsReporter = StubMetricsReporter()
     private val metricsProbe = EventMetricsProbe(metricsReporter)
     private val doneRepository = DoneRepository(database)

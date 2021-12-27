@@ -3,15 +3,26 @@ package no.nav.personbruker.dittnav.eventaggregator.common.database
 import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway
 
-class LocalPostgresDatabase : Database {
+class LocalPostgresDatabase private constructor() : Database {
 
     private val memDataSource: HikariDataSource
     private val container = TestPostgresqlContainer()
 
+    companion object {
+        private val instance by lazy {
+            LocalPostgresDatabase()
+        }
+
+        fun migratedDb(): LocalPostgresDatabase {
+            instance.clean()
+            instance.migrate()
+            return instance
+        }
+    }
+
     init {
         container.start()
         memDataSource = createDataSource()
-        flyway()
     }
 
     override val dataSource: HikariDataSource
@@ -27,10 +38,12 @@ class LocalPostgresDatabase : Database {
         }
     }
 
-    private fun flyway() {
+    private fun migrate() {
         Flyway.configure()
-                .dataSource(dataSource)
-                .load()
-                .migrate()
+            .dataSource(dataSource)
+            .load()
+            .migrate()
     }
+
+    private fun clean() = Flyway.configure().dataSource(dataSource).load().clean()
 }

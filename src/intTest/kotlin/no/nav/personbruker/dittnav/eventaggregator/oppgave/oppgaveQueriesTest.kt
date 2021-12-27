@@ -4,13 +4,12 @@ import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneObjectMother
 import org.amshove.kluent.*
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
 
 class oppgaveQueriesTest {
 
-    private val database = LocalPostgresDatabase()
+    private val database = LocalPostgresDatabase.migratedDb()
 
     private val fodselsnummer1 = "12345"
     private val fodselsnummer2 = "54321"
@@ -42,13 +41,6 @@ class oppgaveQueriesTest {
             }
         }
         return oppgave
-    }
-
-    @AfterAll
-    fun tearDown() {
-        runBlocking {
-            database.dbQuery { deleteAllOppgave() }
-        }
     }
 
     @Test

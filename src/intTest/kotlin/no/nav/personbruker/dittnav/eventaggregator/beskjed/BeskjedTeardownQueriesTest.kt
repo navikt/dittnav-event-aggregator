@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 
 class BeskjedTeardownQueriesTest {
 
-    private val database = LocalPostgresDatabase()
+    private val database = LocalPostgresDatabase.migratedDb()
 
     private val beskjed1 = BeskjedObjectMother.giveMeAktivBeskjed("1", "12345")
     private val beskjed2 = BeskjedObjectMother.giveMeAktivBeskjed("2", "12345")
