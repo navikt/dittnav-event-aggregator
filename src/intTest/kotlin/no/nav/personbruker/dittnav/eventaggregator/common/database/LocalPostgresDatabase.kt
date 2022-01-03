@@ -1,6 +1,12 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.database
 
 import com.zaxxer.hikari.HikariDataSource
+import kotlinx.coroutines.runBlocking
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
+import no.nav.personbruker.dittnav.eventaggregator.done.deleteAllDone
+import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
+import no.nav.personbruker.dittnav.eventaggregator.statusoppdatering.deleteAllStatusoppdatering
 import org.flywaydb.core.Flyway
 
 class LocalPostgresDatabase private constructor() : Database {
@@ -10,12 +16,22 @@ class LocalPostgresDatabase private constructor() : Database {
 
     companion object {
         private val instance by lazy {
-            LocalPostgresDatabase()
+            LocalPostgresDatabase().also {
+                it.migrate()
+            }
         }
 
         fun migratedDb(): LocalPostgresDatabase {
-            instance.clean()
-            instance.migrate()
+            runBlocking {
+                //En del raskere å slette alle radene enn å kjøre clean/migrate hver gang
+                instance.dbQuery {
+                    deleteAllStatusoppdatering()
+                    deleteAllDone()
+                    deleteAllBeskjed()
+                    deleteAllOppgave()
+                    deleteAllInnboks()
+                }
+            }
             return instance
         }
     }
@@ -44,6 +60,4 @@ class LocalPostgresDatabase private constructor() : Database {
             .load()
             .migrate()
     }
-
-    private fun clean() = Flyway.configure().dataSource(dataSource).load().clean()
 }
