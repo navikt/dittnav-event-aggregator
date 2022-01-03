@@ -20,7 +20,7 @@ suspend fun ApplicationCall.buildSelftestPage(healthService: HealthService) = co
             title { +"Selftest dittnav-event-aggregator" }
         }
         body {
-            var text = if(hasFailedChecks) {
+            val text = if(hasFailedChecks) {
                 "FEIL"
             } else {
                 "Service-status: OK"
