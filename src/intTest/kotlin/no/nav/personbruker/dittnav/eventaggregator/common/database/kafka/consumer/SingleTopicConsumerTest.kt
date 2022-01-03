@@ -1,79 +1,44 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.consumer
 
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.internal.BeskjedIntern
 import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
-import no.nav.common.KafkaEnvironment
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.common.SimpleEventCounterService
-import no.nav.personbruker.dittnav.eventaggregator.common.config.KafkaEmbed
-import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util.KafkaTestUtil
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
-import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.createEventRecords
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.delayUntilDone
 import org.amshove.kluent.`should be equal to`
-import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.junit.jupiter.api.AfterAll
+import org.apache.kafka.clients.consumer.MockConsumer
+import org.apache.kafka.clients.consumer.OffsetResetStrategy
+import org.apache.kafka.common.TopicPartition
 import org.junit.jupiter.api.Test
 
 class SingleTopicConsumerTest {
 
-    private val topicen = "singleTopicConsumerTestBeskjed"
-    private val embeddedEnv = KafkaTestUtil.createDefaultKafkaEmbeddedInstance(listOf(topicen))
-    private val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
-
-    private val adminClient = embeddedEnv.adminClient
-
-    private val events = (1..10).map { createNokkel(it) to AvroBeskjedObjectMother.createBeskjed(it) }.toMap()
-
-    init {
-        embeddedEnv.start()
-    }
-
-    @AfterAll
-    fun `tear down`() {
-        adminClient?.close()
-        embeddedEnv.tearDown()
-    }
-
-    @Test
-    fun `Kafka instansen i minnet har blitt startet`() {
-        embeddedEnv.serverPark.status `should be equal to` KafkaEnvironment.ServerParkStatus.Started
-    }
-
     @Test
     fun `Lese inn alle testeventene fra Kafka`() {
-        `Produserer noen testeventer`()
+
         val eventProcessor = SimpleEventCounterService<BeskjedIntern>()
-        val consumerProps = KafkaEmbed.consumerProps(testEnvironment, EventType.BESKJED_INTERN)
-        val kafkaConsumer = KafkaConsumer<NokkelIntern, BeskjedIntern>(consumerProps)
-        val consumer = Consumer(topicen, kafkaConsumer, eventProcessor)
+        val topicPartition = TopicPartition("topic", 0)
+        val consumerMock = MockConsumer<NokkelIntern, BeskjedIntern>(OffsetResetStrategy.EARLIEST).also {
+            it.subscribe(listOf(topicPartition.topic()))
+            it.rebalance(listOf(topicPartition))
+            it.updateBeginningOffsets(mapOf(topicPartition to 0))
+        }
+        val consumer = Consumer(topicPartition.topic(), consumerMock, eventProcessor)
+
+        val events = createEventRecords(10, topicPartition, AvroBeskjedObjectMother::createBeskjed)
 
         runBlocking {
             consumer.startPolling()
 
-            `Vent til alle eventer har blitt konsumert`(eventProcessor)
+            events.forEach { consumerMock.addRecord(it) }
+            delayUntilDone(consumer, events.size)
 
             consumer.stopPolling()
 
             eventProcessor.eventCounter
         } `should be equal to` events.size
     }
-
-    fun `Produserer noen testeventer`() {
-        runBlocking {
-            KafkaTestUtil.produceEvents(testEnvironment, topicen, events)
-        } `should be equal to` true
-    }
-
-    private suspend fun `Vent til alle eventer har blitt konsumert`(eventProcessor: SimpleEventCounterService<BeskjedIntern>) {
-        while (`have all events been consumed`(eventProcessor, events)) {
-            delay(100)
-        }
-    }
-
 }
-
-private fun `have all events been consumed`(eventProcessor: SimpleEventCounterService<BeskjedIntern>, events: Map<NokkelIntern, BeskjedIntern>) =
-        eventProcessor.eventCounter < events.size

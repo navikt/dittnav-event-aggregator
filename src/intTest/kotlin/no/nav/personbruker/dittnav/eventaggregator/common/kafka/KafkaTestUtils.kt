@@ -3,6 +3,8 @@ package no.nav.personbruker.dittnav.eventaggregator.common.kafka
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
 import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
+import no.nav.personbruker.dittnav.eventaggregator.common.SimpleEventCounterService
+import no.nav.personbruker.dittnav.eventaggregator.common.ThrowingEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.MockConsumer
@@ -17,6 +19,24 @@ internal suspend fun <K, V> delayUntilCommittedOffset(
         while ((consumer.committed(setOf(partition))[partition]?.offset() ?: 0) < offset) {
             delay(10)
         }
+    }
+}
+
+internal suspend fun <V> delayUntilDone(consumer: Consumer<V>, numberOfEvents: Int) {
+    withTimeout(1000) {
+        while (getProcessedCount(consumer) < numberOfEvents && consumer.job.isActive) {
+            delay(10)
+        }
+    }
+}
+
+private fun <V> getProcessedCount(consumer: Consumer<V>): Int {
+    val processor = consumer.eventBatchProcessorService
+
+    return when (processor) {
+        is SimpleEventCounterService<*> -> processor.eventCounter
+        is ThrowingEventCounterService<*> -> processor.successfulEventsCounter
+        else -> 0
     }
 }
 

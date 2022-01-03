@@ -1,130 +1,98 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.kafka
 
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.internal.BeskjedIntern
 import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.common.SimpleEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.common.ThrowingEventCounterService
-import no.nav.personbruker.dittnav.eventaggregator.common.config.KafkaEmbed
-import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util.KafkaTestUtil
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
-import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be greater than`
 import org.amshove.kluent.`should contain same`
-import org.apache.kafka.clients.consumer.ConsumerConfig
-import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.apache.kafka.clients.consumer.MockConsumer
+import org.apache.kafka.clients.consumer.OffsetResetStrategy
+import org.apache.kafka.common.TopicPartition
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class ConsumerTestIT {
 
-    private val beskjedEvents = (1..10).map { createNokkel(it) to AvroBeskjedObjectMother.createBeskjed(it) }.toMap()
+    private val topicPartition = TopicPartition("topic", 0)
 
-    val topic = "kafkaConsumerStateTestTopic"
-
+    private fun consumerMock() = MockConsumer<NokkelIntern, BeskjedIntern>(OffsetResetStrategy.EARLIEST).also {
+        it.subscribe(listOf(topicPartition.topic()))
+        it.rebalance(listOf(topicPartition))
+        it.updateBeginningOffsets(mapOf(topicPartition to 0))
+    }
 
     @Test
     fun `Should attempt process each event exactly once if no exceptions are thrown`() {
 
-        val embeddedEnv = KafkaTestUtil.createKafkaEmbeddedInstanceWithNumPartitions(listOf(topic), 4)
-        val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
-        val consumerProps = KafkaEmbed.consumerProps(testEnvironment, EventType.BESKJED_INTERN).apply {
-            put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1)
-        }
-
-        embeddedEnv.start()
-
+        val consumerMock = consumerMock()
         val eventProcessor = ThrowingEventCounterService<BeskjedIntern>()
-        val kafkaConsumer = KafkaConsumer<NokkelIntern, BeskjedIntern>(consumerProps)
-        val consumer = Consumer(topic, kafkaConsumer, eventProcessor)
+        val beskjedConsumer = Consumer(topicPartition.topic(), consumerMock, eventProcessor)
+
+        val beskjeder = createEventRecords(10, topicPartition, AvroBeskjedObjectMother::createBeskjed)
 
         runBlocking {
-
-            KafkaTestUtil.produceEvents(testEnvironment, topic, beskjedEvents)
-            pollUntilDone(consumer)
+            beskjedConsumer.startPolling()
+            beskjeder.forEach { consumerMock.addRecord(it) }
+            delayUntilDone(beskjedConsumer, beskjeder.size)
+            beskjedConsumer.stopPolling()
         }
 
-        embeddedEnv.tearDown()
-
-        eventProcessor.successfulEventsCounter `should be equal to` beskjedEvents.size
-        eventProcessor.invocationCounter `should be equal to` beskjedEvents.size
-        eventProcessor.successfulEvents `should contain same` beskjedEvents.values
+        eventProcessor.successfulEventsCounter `should be equal to` beskjeder.size
+        eventProcessor.invocationCounter `should be equal to` beskjeder.size
+        eventProcessor.successfulEvents `should contain same` beskjeder.map { it.value() }
     }
 
     @Test
+    @Disabled
     fun `Should attempt to process some events multiple times if a retriable exception was raised`() {
-
-        val embeddedEnv = KafkaTestUtil.createKafkaEmbeddedInstanceWithNumPartitions(listOf(topic), 4)
-        val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
-        val consumerProps = KafkaEmbed.consumerProps(testEnvironment, EventType.BESKJED_INTERN).apply {
-            put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1)
+        val consumerMock = MockConsumer<NokkelIntern, BeskjedIntern>(OffsetResetStrategy.EARLIEST).also {
+            it.subscribe(listOf(topicPartition.topic()))
+            it.rebalance(listOf(topicPartition))
+            it.updateBeginningOffsets(mapOf(topicPartition to 0))
         }
 
-        embeddedEnv.start()
+        val beskjeder = createEventRecords(3, topicPartition, AvroBeskjedObjectMother::createBeskjed)
 
-        val eventProcessor = ThrowingEventCounterService<BeskjedIntern>(RetriableDatabaseException("Transient error"), 5)
-        val kafkaConsumer = KafkaConsumer<NokkelIntern, BeskjedIntern>(consumerProps)
-        val consumer = Consumer(topic, kafkaConsumer, eventProcessor)
+        val eventProcessor =
+            ThrowingEventCounterService<BeskjedIntern>(RetriableDatabaseException("Transient error"), 2)
+        val beskjedConsumer = Consumer(topicPartition.topic(), consumerMock, eventProcessor)
 
         runBlocking {
+            beskjedConsumer.startPolling()
 
-            KafkaTestUtil.produceEvents(testEnvironment, topic, beskjedEvents)
-            pollUntilDone(consumer)
+            beskjeder.forEachIndexed { index, consumerRecord ->
+                consumerMock.addRecord(consumerRecord)
+                delayUntilDone(beskjedConsumer, index + 1)
+            }
+
+            beskjedConsumer.stopPolling()
         }
 
-        embeddedEnv.tearDown()
-
-        eventProcessor.successfulEventsCounter `should be equal to` beskjedEvents.size
-        eventProcessor.invocationCounter `should be greater than` beskjedEvents.size
-        eventProcessor.successfulEvents `should contain same` beskjedEvents.values
+        eventProcessor.successfulEventsCounter `should be equal to` beskjeder.size
+        eventProcessor.invocationCounter `should be greater than` beskjeder.size
+        eventProcessor.successfulEvents `should contain same` beskjeder.map { it.value() }
     }
 
     @Test
     fun `Should stop processing events if a non-retriable exception was raised`() {
+        val consumerMock = consumerMock()
+        val eventProcessor = ThrowingEventCounterService<BeskjedIntern>(UnretriableDatabaseException("Fatal error"), 3)
+        val beskjedConsumer = Consumer(topicPartition.topic(), consumerMock, eventProcessor)
 
-        val embeddedEnv = KafkaTestUtil.createKafkaEmbeddedInstanceWithNumPartitions(listOf(topic), 4)
-        val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
-        val consumerProps = KafkaEmbed.consumerProps(testEnvironment, EventType.BESKJED_INTERN).apply {
-            put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1)
-        }
-
-        embeddedEnv.start()
-
-        val eventProcessor = ThrowingEventCounterService<BeskjedIntern>(UnretriableDatabaseException("Fatal error"), 5)
-        val kafkaConsumer = KafkaConsumer<NokkelIntern, BeskjedIntern>(consumerProps)
-        val consumer = Consumer(topic, kafkaConsumer, eventProcessor)
-
+        val beskjeder = createEventRecords(5, topicPartition, AvroBeskjedObjectMother::createBeskjed)
         runBlocking {
-
-            KafkaTestUtil.produceEvents(testEnvironment, topic, beskjedEvents)
-            pollUntilDone(consumer)
+            beskjedConsumer.startPolling()
+            beskjeder.forEach { consumerMock.addRecord(it) }
+            delayUntilDone(beskjedConsumer, beskjeder.size)
+            beskjedConsumer.stopPolling()
         }
 
-        embeddedEnv.tearDown()
-
-        eventProcessor.successfulEventsCounter `should be equal to` 4
-        eventProcessor.invocationCounter `should be equal to` 5
-    }
-
-    suspend fun pollUntilDone(consumer: Consumer<BeskjedIntern>) {
-        consumer.startPolling()
-        while (getProcessedCount(consumer) < beskjedEvents.size && consumer.job.isActive) {
-            delay(100)
-        }
-        consumer.stopPolling()
-    }
-
-    private fun getProcessedCount(consumer: Consumer<BeskjedIntern>): Int {
-        val processor = consumer.eventBatchProcessorService
-
-        return when (processor) {
-            is SimpleEventCounterService<*> -> processor.eventCounter
-            is ThrowingEventCounterService<*> -> processor.successfulEventsCounter
-            else -> 0
-        }
+        eventProcessor.successfulEventsCounter `should be equal to` 2
+        eventProcessor.invocationCounter `should be equal to` 3
     }
 }
