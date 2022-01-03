@@ -1,8 +1,0 @@
-{
-  "namespace": "personbruker",
-  "cluster": "preprod",
-  "environment": "dev",
-  "ingresses": [
-    "https://dittnav-event-aggregator.dev.nav.no"
-  ]
-}
