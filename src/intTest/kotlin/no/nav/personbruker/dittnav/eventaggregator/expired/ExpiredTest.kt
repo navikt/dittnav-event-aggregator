@@ -1,8 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.expired
 
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
 import no.nav.brukernotifikasjon.schemas.input.DoneInput
 import no.nav.brukernotifikasjon.schemas.input.NokkelInput
 import no.nav.brukernotifikasjon.schemas.internal.BeskjedIntern
@@ -19,6 +17,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.Brukernotifik
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.KafkaProducerWrapper
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.delayUntilCommittedOffset
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneEventService
 import no.nav.personbruker.dittnav.eventaggregator.done.DonePersistingService
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
@@ -32,7 +31,6 @@ import org.apache.kafka.clients.consumer.OffsetResetStrategy
 import org.apache.kafka.clients.producer.MockProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.TopicPartition
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Instant
@@ -84,17 +82,6 @@ class ExpiredTest {
     private val doneEmitter = DoneEventEmitter(KafkaProducerWrapper("done", doneInputProducerMock), "test-ns", "test-app")
     private val expiredPersistingService = ExpiredPersistingService(database)
     private val periodicExpiredProcessor = PeriodicExpiredNotificationProcessor(expiredPersistingService, doneEmitter)
-
-    @AfterAll
-    fun tearDown() {
-        runBlocking {
-            database.dbQuery {
-                deleteAllBeskjed()
-                deleteAllOppgave()
-                deleteAllDone()
-            }
-        }
-    }
 
     @BeforeEach
     fun setUp() {
@@ -207,18 +194,6 @@ class ExpiredTest {
                 NokkelIntern("ulid", it.toString(), it.toString(), "12345678910", "test-ns", "test-app", "dummysystembruker"),
                 oppgave
             )
-        }
-    }
-
-    private suspend fun <K, V> delayUntilCommittedOffset(
-        consumer: MockConsumer<K, V>,
-        partition: TopicPartition,
-        offset: Long
-    ) {
-        withTimeout(1000) {
-            while ((consumer.committed(setOf(partition))[partition]?.offset() ?: 0) < offset) {
-                delay(10)
-            }
         }
     }
 
