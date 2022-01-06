@@ -111,9 +111,7 @@ class Consumer<T>(
 
     private suspend fun rollbackOffset() {
         withContext(Dispatchers.IO) {
-            if (kafkaConsumer is KafkaConsumer) {
                 kafkaConsumer.rollbackToLastCommitted()
-            }
         }
     }
 }
