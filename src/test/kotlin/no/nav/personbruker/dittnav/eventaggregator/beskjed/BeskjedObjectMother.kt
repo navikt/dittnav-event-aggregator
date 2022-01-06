@@ -37,7 +37,7 @@ object BeskjedObjectMother {
                 namespace = "dummyNamespace",
                 appnavn = "dummyAppnavn",
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
-                synligFremTil = LocalDateTime.now(ZoneId.of("UTC")),
+                synligFremTil = LocalDateTime.now(ZoneId.of("UTC")).plusDays(1),
                 fodselsnummer = fodselsnummer,
                 eventId = eventId,
                 grupperingsId = "systemA010",

@@ -27,7 +27,7 @@ jobs:
         with:
           repository: navikt/dittnav-docker-compose
           path: dittnav-docker-compose
-          token: ${{ secrets.DOCKER_PKG_TOKEN }}
+          token: ${{ secrets.READER_TOKEN }}
 
       - uses: actions/cache@v2
         with:

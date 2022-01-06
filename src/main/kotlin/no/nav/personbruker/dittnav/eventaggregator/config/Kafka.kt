@@ -1,11 +1,13 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
+import io.confluent.kafka.serializers.KafkaAvroSerializer
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
 import io.netty.util.NetUtil.getHostname
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.serializer.SwallowSerializationErrorsAvroDeserializer
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.config.SaslConfigs
 import org.apache.kafka.common.config.SslConfigs
 import org.slf4j.Logger
@@ -30,6 +32,19 @@ object Kafka {
         }
     }
 
+    fun producerProps(env: Environment): Properties {
+        return Properties().apply {
+            put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, env.aivenBrokers)
+            put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, env.aivenSchemaRegistry)
+            put(ProducerConfig.CLIENT_ID_CONFIG, env.groupId + getHostname(InetSocketAddress(0)))
+            put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer::class.java)
+            put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer::class.java)
+            put(ProducerConfig.MAX_BLOCK_MS_CONFIG, 4000)
+            if (env.securityConfig.enabled) {
+                putAll(credentialPropsAiven(env.securityConfig.variables!!))
+            }
+        }
+    }
 
     fun consumerProps(env: Environment, eventtypeToConsume: EventType): Properties {
         val groupIdAndEventType = buildGroupIdIncludingEventType(env, eventtypeToConsume)

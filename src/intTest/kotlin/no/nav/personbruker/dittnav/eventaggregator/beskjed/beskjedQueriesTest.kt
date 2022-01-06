@@ -9,6 +9,7 @@ import no.nav.personbruker.dittnav.eventaggregator.done.DoneObjectMother
 import org.amshove.kluent.*
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
+import java.time.LocalDateTime
 
 class beskjedQueriesTest {
 
@@ -18,6 +19,7 @@ class beskjedQueriesTest {
     private val beskjed2: Beskjed
     private val beskjed3: Beskjed
     private val beskjed4: Beskjed
+    private val expiredBeskjed: Beskjed
 
     private val systembruker = "dummySystembruker"
     private val fodselsnummer = "12345"
@@ -31,12 +33,24 @@ class beskjedQueriesTest {
         beskjed2 = createBeskjed("2", "12345")
         beskjed3 = createBeskjed("3", "12345")
         beskjed4 = createBeskjed("4", "6789")
-        allEvents = listOf(beskjed1, beskjed2, beskjed3, beskjed4)
+        expiredBeskjed = createExpiredBeskjed("123", "4567")
+        allEvents = listOf(beskjed1, beskjed2, beskjed3, beskjed4, expiredBeskjed)
         allEventsForSingleUser = listOf(beskjed1, beskjed2, beskjed3)
     }
 
     private fun createBeskjed(eventId: String, fodselsnummer: String): Beskjed {
         val beskjed = BeskjedObjectMother.giveMeAktivBeskjed(eventId, fodselsnummer)
+        return runBlocking {
+            database.dbQuery {
+                createBeskjed(beskjed).entityId.let {
+                    beskjed.copy(id = it)
+                }
+            }
+        }
+    }
+
+    private fun createExpiredBeskjed(eventId: String, fodselsnummer: String): Beskjed {
+        val beskjed = BeskjedObjectMother.giveMeAktivBeskjed(eventId, fodselsnummer).copy(synligFremTil = LocalDateTime.now().minusDays(1))
         return runBlocking {
             database.dbQuery {
                 createBeskjed(beskjed).entityId.let {
@@ -178,4 +192,15 @@ class beskjedQueriesTest {
         } `should be equal to` 0
     }
 
+    @Test
+    fun `Finner utgått beskjeder`() {
+        runBlocking {
+            val result = database.dbQuery {
+                getExpiredBeskjedFromCursor()
+            }
+
+            result shouldHaveSize 1
+            result `should contain` expiredBeskjed
+        }
+    }
 }
