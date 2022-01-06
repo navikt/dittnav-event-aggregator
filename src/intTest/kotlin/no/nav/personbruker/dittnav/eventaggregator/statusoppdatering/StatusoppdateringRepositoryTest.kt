@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 
 class StatusoppdateringRepositoryTest {
 
-    val database = LocalPostgresDatabase()
+    val database = LocalPostgresDatabase.migratedDb()
 
     val statusoppdateringRepository = StatusoppdateringRepository(database)
 

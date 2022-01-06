@@ -7,14 +7,13 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.util.countTot
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneObjectMother
 import org.amshove.kluent.*
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
 import java.time.LocalDateTime
 
 class beskjedQueriesTest {
 
-    private val database = LocalPostgresDatabase()
+    private val database = LocalPostgresDatabase.migratedDb()
 
     private val beskjed1: Beskjed
     private val beskjed2: Beskjed
@@ -60,14 +59,6 @@ class beskjedQueriesTest {
             }
         }
     }
-
-    @AfterAll
-    fun tearDown() {
-        runBlocking {
-            database.dbQuery { deleteAllBeskjed() }
-        }
-    }
-
 
     @Test
     fun `Finner alle cachede Beskjed-eventer`() {

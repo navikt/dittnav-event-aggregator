@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 
 class StatusoppdateringTeardownQueriesTest {
 
-    private val database = LocalPostgresDatabase()
+    private val database = LocalPostgresDatabase.migratedDb()
 
     private val statusoppdatering1 = StatusoppdateringObjectMother.giveMeStatusoppdatering("1", "12345")
     private val statusoppdatering2 = StatusoppdateringObjectMother.giveMeStatusoppdatering("2", "12345")

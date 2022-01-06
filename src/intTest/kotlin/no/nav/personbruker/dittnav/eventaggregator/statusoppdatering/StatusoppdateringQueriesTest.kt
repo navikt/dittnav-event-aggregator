@@ -11,7 +11,7 @@ import java.sql.SQLException
 
 class StatusoppdateringQueriesTest {
 
-    private val database = LocalPostgresDatabase()
+    private val database = LocalPostgresDatabase.migratedDb()
 
     private val statusoppdatering1: Statusoppdatering
     private val statusoppdatering2: Statusoppdatering

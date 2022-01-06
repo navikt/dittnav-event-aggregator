@@ -1,126 +1,81 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.consumer
 
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.internal.BeskjedIntern
 import no.nav.brukernotifikasjon.schemas.internal.InnboksIntern
 import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 import no.nav.brukernotifikasjon.schemas.internal.OppgaveIntern
-import no.nav.common.KafkaEnvironment
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.common.SimpleEventCounterService
-import no.nav.personbruker.dittnav.eventaggregator.common.config.KafkaEmbed
-import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.KafkaTestTopics
-import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.util.KafkaTestUtil
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
-import no.nav.personbruker.dittnav.eventaggregator.config.Environment
-import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import no.nav.personbruker.dittnav.eventaggregator.config.Kafka
-import no.nav.personbruker.dittnav.eventaggregator.config.KafkaConsumerSetup.setupConsumerForTheBeskjedTopic
-import no.nav.personbruker.dittnav.eventaggregator.config.KafkaConsumerSetup.setupConsumerForTheInnboksTopic
-import no.nav.personbruker.dittnav.eventaggregator.config.KafkaConsumerSetup.setupConsumerForTheOppgaveTopic
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.createEventRecords
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.delayUntilDone
 import no.nav.personbruker.dittnav.eventaggregator.innboks.AvroInnboksObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.AvroOppgaveObjectMother
 import org.amshove.kluent.`should be equal to`
-import org.junit.jupiter.api.AfterAll
+import org.apache.kafka.clients.consumer.MockConsumer
+import org.apache.kafka.clients.consumer.OffsetResetStrategy
+import org.apache.kafka.common.TopicPartition
 import org.junit.jupiter.api.Test
 
 class MultipleTopicsConsumerTest {
 
-    private val topics = listOf(KafkaTestTopics.beskjedInternTopicName, KafkaTestTopics.oppgaveInternTopicName, KafkaTestTopics.innboksInternTopicName)
-    private val embeddedEnv = KafkaTestUtil.createDefaultKafkaEmbeddedInstance(topics)
-    private val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
-    private val adminClient = embeddedEnv.adminClient
+    private val beskjedProcessor = SimpleEventCounterService<BeskjedIntern>()
+    private val oppgaveProcessor = SimpleEventCounterService<OppgaveIntern>()
+    private val innboksProcessor = SimpleEventCounterService<InnboksIntern>()
 
-    private val beskjedEventProcessor = SimpleEventCounterService<BeskjedIntern>()
-    private val oppgaveEventProcessor = SimpleEventCounterService<OppgaveIntern>()
-    private val innboksEventProcessor = SimpleEventCounterService<InnboksIntern>()
+    private val beskjedTopicPartition = TopicPartition("beskjed", 0)
+    private val oppgaveTopicPartition = TopicPartition("oppgave", 0)
+    private val innboksTopicPartition = TopicPartition("innboks", 0)
 
-    private val beskjedEvents = (1..10).map { createNokkel(it) to AvroBeskjedObjectMother.createBeskjed(it) }.toMap()
-    private val oppgaveEvents = (1..11).map { createNokkel(it) to AvroOppgaveObjectMother.createOppgave(it) }.toMap()
-    private val innboksEvents = (1..12).map { createNokkel(it) to AvroInnboksObjectMother.createInnboks(it) }.toMap()
-
-    init {
-        embeddedEnv.start()
+    private val beskjedConsumerMock = MockConsumer<NokkelIntern, BeskjedIntern>(OffsetResetStrategy.EARLIEST).also {
+        it.subscribe(listOf(beskjedTopicPartition.topic()))
+        it.rebalance(listOf(beskjedTopicPartition))
+        it.updateBeginningOffsets(mapOf(beskjedTopicPartition to 0))
     }
 
-    @AfterAll
-    fun tearDown() {
-        adminClient?.close()
-        embeddedEnv.tearDown()
+    private val oppgaveConsumerMock = MockConsumer<NokkelIntern, OppgaveIntern>(OffsetResetStrategy.EARLIEST).also {
+        it.subscribe(listOf(oppgaveTopicPartition.topic()))
+        it.rebalance(listOf(oppgaveTopicPartition))
+        it.updateBeginningOffsets(mapOf(oppgaveTopicPartition to 0))
     }
+
+    private val innboksConsumerMock = MockConsumer<NokkelIntern, InnboksIntern>(OffsetResetStrategy.EARLIEST).also {
+        it.subscribe(listOf(innboksTopicPartition.topic()))
+        it.rebalance(listOf(innboksTopicPartition))
+        it.updateBeginningOffsets(mapOf(innboksTopicPartition to 0))
+    }
+
+    private val beskjedConsumer = Consumer(beskjedTopicPartition.topic(), beskjedConsumerMock, beskjedProcessor)
+    private val oppgaveConsumer = Consumer(oppgaveTopicPartition.topic(), oppgaveConsumerMock, oppgaveProcessor)
+    private val innboksConsumer = Consumer(innboksTopicPartition.topic(), innboksConsumerMock, innboksProcessor)
 
     @Test
-    fun `Kafka instansen i minnet har blitt startet`() {
-        embeddedEnv.serverPark.status `should be equal to` KafkaEnvironment.ServerParkStatus.Started
-    }
-
-    fun `Produserer testeventer for alle topics`() {
-        runBlocking {
-            val producedAllBeskjed = KafkaTestUtil.produceEvents(testEnvironment, KafkaTestTopics.beskjedInternTopicName, beskjedEvents)
-            val producedAllOppgave = KafkaTestUtil.produceEvents(testEnvironment, KafkaTestTopics.oppgaveInternTopicName, oppgaveEvents)
-            val producedAllInnboks = KafkaTestUtil.produceEvents(testEnvironment, KafkaTestTopics.innboksInternTopicName, innboksEvents)
-            producedAllBeskjed `should be equal to` true
-            producedAllOppgave `should be equal to` true
-            producedAllInnboks `should be equal to` true
-        }
-    }
-
-    @Test
-    fun `Skal kunne konsumere fra flere topics i parallell`() {
-        `Produserer testeventer for alle topics`()
-
-        val beskjedConsumer = createInfoConsumer(testEnvironment, beskjedEventProcessor)
-        val oppgaveConsumer = createOppgaveConsumer(testEnvironment, oppgaveEventProcessor)
-        val innboksConsumer = createInnboksConsumer(testEnvironment, innboksEventProcessor)
+    fun `Skal kunne konsumere fra flere topics i parallell 2`() {
+        val beskjeder = createEventRecords(4, beskjedTopicPartition, AvroBeskjedObjectMother::createBeskjed)
+        val oppgaver = createEventRecords(5, oppgaveTopicPartition, AvroOppgaveObjectMother::createOppgave)
+        val innbokser = createEventRecords(6, innboksTopicPartition, AvroInnboksObjectMother::createInnboks)
 
         runBlocking {
             beskjedConsumer.startPolling()
             oppgaveConsumer.startPolling()
             innboksConsumer.startPolling()
 
-            `Vent til alle eventer har blitt konsumert`()
+            beskjeder.forEach { beskjedConsumerMock.addRecord(it) }
+            oppgaver.forEach { oppgaveConsumerMock.addRecord(it) }
+            innbokser.forEach { innboksConsumerMock.addRecord(it) }
+
+            delayUntilDone(beskjedConsumer, beskjeder.size)
+            delayUntilDone(oppgaveConsumer, oppgaver.size)
+            delayUntilDone(innboksConsumer, innbokser.size)
 
             beskjedConsumer.stopPolling()
             oppgaveConsumer.stopPolling()
             innboksConsumer.stopPolling()
 
-            beskjedEvents.size `should be equal to` beskjedEventProcessor.eventCounter
-            oppgaveEvents.size `should be equal to` oppgaveEventProcessor.eventCounter
-            innboksEvents.size `should be equal to` innboksEventProcessor.eventCounter
+            beskjeder.size `should be equal to` beskjedProcessor.eventCounter
+            oppgaver.size `should be equal to` oppgaveProcessor.eventCounter
+            innbokser.size `should be equal to` innboksProcessor.eventCounter
         }
     }
-
-    private suspend fun `Vent til alle eventer har blitt konsumert`() {
-        while (`Har alle eventer blitt lest`(beskjedEventProcessor, beskjedEvents,
-                        oppgaveEventProcessor, oppgaveEvents,
-                        innboksEventProcessor, innboksEvents)) {
-            delay(100)
-        }
-    }
-
-    private fun `Har alle eventer blitt lest`(beskjed: SimpleEventCounterService<BeskjedIntern>, BeskjedEvents: Map<NokkelIntern, BeskjedIntern>,
-                                              oppgave: SimpleEventCounterService<OppgaveIntern>, oppgaveEvents: Map<NokkelIntern, OppgaveIntern>,
-                                              innboks: SimpleEventCounterService<InnboksIntern>, innboksEvents: Map<NokkelIntern, InnboksIntern>): Boolean {
-        return beskjed.eventCounter < BeskjedEvents.size &&
-                oppgave.eventCounter < oppgaveEvents.size &&
-                innboks.eventCounter < innboksEvents.size
-    }
-
-    private fun createInfoConsumer(env: Environment, BeskjedEventProcessor: SimpleEventCounterService<BeskjedIntern>): Consumer<BeskjedIntern> {
-        val kafkaProps = KafkaEmbed.consumerProps(env, EventType.BESKJED_INTERN)
-        return setupConsumerForTheBeskjedTopic(kafkaProps, BeskjedEventProcessor, KafkaTestTopics.beskjedInternTopicName)
-    }
-
-    private fun createOppgaveConsumer(env: Environment, oppgaveEventProcessor: SimpleEventCounterService<OppgaveIntern>): Consumer<OppgaveIntern> {
-        val kafkaProps = KafkaEmbed.consumerProps(env, EventType.OPPGAVE_INTERN)
-        return setupConsumerForTheOppgaveTopic(kafkaProps, oppgaveEventProcessor, KafkaTestTopics.oppgaveInternTopicName)
-    }
-
-    private fun createInnboksConsumer(env: Environment, innboksEventProcessor: SimpleEventCounterService<InnboksIntern>): Consumer<InnboksIntern> {
-        val kafkaProps = KafkaEmbed.consumerProps(env, EventType.INNBOKS_INTERN)
-        return setupConsumerForTheInnboksTopic(kafkaProps, innboksEventProcessor, KafkaTestTopics.innboksInternTopicName)
-    }
-
 }

@@ -41,7 +41,7 @@ import java.time.temporal.ChronoUnit
 
 class ExpiredTest {
 
-    private val database = LocalPostgresDatabase()
+    private val database = LocalPostgresDatabase.migratedDb()
 
     private val metricsReporter = StubMetricsReporter()
     private val metricsProbe = EventMetricsProbe(metricsReporter)
