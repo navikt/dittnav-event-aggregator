@@ -56,6 +56,7 @@ class LocalPostgresDatabase private constructor() : Database {
 
     private fun migrate() {
         Flyway.configure()
+            .connectRetries(3)
             .dataSource(dataSource)
             .load()
             .migrate()
