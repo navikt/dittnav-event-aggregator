@@ -2,9 +2,9 @@ apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
   name: dittnav-event-aggregator
-  namespace: personbruker
+  namespace: min-side
   labels:
-    team: personbruker
+    team: min-side
 spec:
   envFrom:
     - secret: dittnav-event-aggregator-secrets
