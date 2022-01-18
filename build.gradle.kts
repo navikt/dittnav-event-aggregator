@@ -18,9 +18,9 @@ tasks.withType<KotlinCompile> {
 }
 
 repositories {
-    jcenter()
     mavenCentral()
     maven("https://packages.confluent.io/maven")
+    maven ( "https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven" )
     mavenLocal()
     maven("https://jitpack.io")
 }
