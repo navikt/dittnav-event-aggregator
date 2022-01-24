@@ -3,7 +3,6 @@ package no.nav.personbruker.dittnav.eventaggregator.expired
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.input.DoneInput
 import no.nav.brukernotifikasjon.schemas.input.NokkelInput
@@ -17,7 +16,11 @@ import org.junit.jupiter.api.Test
 
 internal class PeriodicExpiredNotificationProcessorTest {
 
-    private val producer = MockProducer<NokkelInput, DoneInput>()
+    private val producer = MockProducer(
+        false,
+        {_:String, _:NokkelInput -> ByteArray(0) }, //Dummy serializers
+        {_:String, _:DoneInput -> ByteArray(0) }
+    )
     private val expiredPersistingService = mockk<ExpiredPersistingService>(relaxed = true)
     private val doneEmitter = DoneEventEmitter(KafkaProducerWrapper("test", producer), "test-ns", "test-app")
     private val processor = PeriodicExpiredNotificationProcessor(expiredPersistingService, doneEmitter)
