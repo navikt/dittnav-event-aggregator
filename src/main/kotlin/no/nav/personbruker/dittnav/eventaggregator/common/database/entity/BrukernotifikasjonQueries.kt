@@ -5,6 +5,7 @@ import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import java.sql.Array
 import java.sql.Connection
 import java.sql.ResultSet
+import java.util.*
 
 fun Connection.getBrukernotifikasjonFromViewForEventIds(eventIds: List<String>): List<Brukernotifikasjon> =
         prepareStatement("""SELECT brukernotifikasjon_view.* FROM brukernotifikasjon_view WHERE eventid = ANY(?)""")
@@ -19,7 +20,7 @@ private fun ResultSet.toBrukernotifikasjon(): Brukernotifikasjon {
     return Brukernotifikasjon(
             eventId = getString("eventId"),
             systembruker = getString("systembruker"),
-            type = EventType.valueOf(getString("type").toUpperCase()),
+            type = EventType.valueOf(getString("type").uppercase(Locale.getDefault())),
             fodselsnummer = getString("fodselsnummer")
     )
 }
