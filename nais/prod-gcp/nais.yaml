@@ -38,7 +38,7 @@ spec:
     sqlInstances:
       - name: brukernotifikasjon-cache
         type: POSTGRES_11
-        tier: db-custom-2-12288
+        tier: db-custom-4-24576
         diskType: SSD
         highAvailability: true
         diskSize: 100
