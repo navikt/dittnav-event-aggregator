@@ -12,13 +12,11 @@ import java.time.ZonedDateTime
 
 class DoneEventEmitter(
     private val kafkaProducerWrapper: KafkaProducerWrapper<DoneInput>,
-    private val namespace: String,
-    private val appnavn: String
 ) {
 
     fun emittBeskjedDone(beskjeder: List<Beskjed>) {
         beskjeder.forEach {
-            val key = createKeyForEvent(it.eventId, it.fodselsnummer, it.grupperingsId)
+            val key = createKeyForEvent(it)
             val event = createDoneEvent()
 
             kafkaProducerWrapper.sendEvent(key, event)
@@ -27,7 +25,7 @@ class DoneEventEmitter(
 
     fun emittOppgaveDone(oppgaver: List<Oppgave>) {
         oppgaver.forEach {
-            val key = createKeyForEvent(it.eventId, it.fodselsnummer, it.grupperingsId)
+            val key = createKeyForEvent(it)
             val event = createDoneEvent()
 
             kafkaProducerWrapper.sendEvent(key, event)
@@ -43,13 +41,23 @@ class DoneEventEmitter(
         )
     }
 
-    private fun createKeyForEvent(eventId: String, fodselsnummer: String, grupperingsId: String): NokkelInput {
+    private fun createKeyForEvent(oppgave: Oppgave): NokkelInput {
         return NokkelInput(
-            eventId,
-            grupperingsId,
-            fodselsnummer,
-            namespace,
-            appnavn
+            oppgave.eventId,
+            oppgave.grupperingsId,
+            oppgave.fodselsnummer,
+            oppgave.namespace,
+            oppgave.appnavn
+        )
+    }
+
+    private fun createKeyForEvent(beskjed: Beskjed): NokkelInput {
+        return NokkelInput(
+            beskjed.eventId,
+            beskjed.grupperingsId,
+            beskjed.fodselsnummer,
+            beskjed.namespace,
+            beskjed.appnavn
         )
     }
 }

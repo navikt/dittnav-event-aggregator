@@ -87,7 +87,7 @@ class ExpiredTest {
         {_:String, _:NokkelInput -> ByteArray(0) }, //Dummy serializers
         {_:String, _:DoneInput -> ByteArray(0) }
     )
-    private val doneEmitter = DoneEventEmitter(KafkaProducerWrapper("done", doneInputProducerMock), "test-ns", "test-app")
+    private val doneEmitter = DoneEventEmitter(KafkaProducerWrapper("done", doneInputProducerMock))
     private val expiredPersistingService = ExpiredPersistingService(database)
     private val periodicExpiredProcessor = PeriodicExpiredNotificationProcessor(expiredPersistingService, doneEmitter)
 

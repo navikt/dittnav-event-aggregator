@@ -72,7 +72,7 @@ class ApplicationContext {
 
     val expiredPersistingService = ExpiredPersistingService(database)
     val kafkaProducerDone = KafkaProducerWrapper(environment.doneInputTopicName, KafkaProducer<NokkelInput, DoneInput>(Kafka.producerProps(environment)))
-    val doneEventEmitter = DoneEventEmitter(kafkaProducerDone, environment.namespace, environment.appnavn)
+    val doneEventEmitter = DoneEventEmitter(kafkaProducerDone)
     var periodicExpiredBeskjedProcessor = initializeExpiredBeskjedProcessor()
 
     val healthService = HealthService(this)

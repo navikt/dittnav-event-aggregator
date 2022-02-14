@@ -22,7 +22,7 @@ internal class PeriodicExpiredNotificationProcessorTest {
         {_:String, _:DoneInput -> ByteArray(0) }
     )
     private val expiredPersistingService = mockk<ExpiredPersistingService>(relaxed = true)
-    private val doneEmitter = DoneEventEmitter(KafkaProducerWrapper("test", producer), "test-ns", "test-app")
+    private val doneEmitter = DoneEventEmitter(KafkaProducerWrapper("test", producer))
     private val processor = PeriodicExpiredNotificationProcessor(expiredPersistingService, doneEmitter)
 
     @BeforeEach
