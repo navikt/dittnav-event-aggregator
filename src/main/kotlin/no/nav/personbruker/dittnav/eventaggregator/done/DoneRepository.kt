@@ -64,7 +64,7 @@ class DoneRepository(private val database: Database) : BrukernotifikasjonReposit
     suspend fun fetchAllDoneEventsWithLimit(): List<Done> {
         var resultat = emptyList<Done>()
         database.queryWithExceptionTranslation {
-            resultat = getAllDoneEventWithLimit(10000)
+            resultat = getAllDoneEventWithLimit(15000)
         }
         return resultat
     }

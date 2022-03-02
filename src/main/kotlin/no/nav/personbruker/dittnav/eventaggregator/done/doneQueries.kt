@@ -8,7 +8,7 @@ import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
 
-private const val allDoneQuery = "SELECT * FROM done"
+private const val allDoneQuery = "SELECT * FROM done ORDER BY eventtidspunkt DESC"
 
 fun Connection.getAllDoneEvent(): List<Done> =
         prepareStatement(allDoneQuery)
