@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.statusoppdatering
 
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 
 object StatusoppdateringObjectMother {
 
@@ -19,12 +20,12 @@ object StatusoppdateringObjectMother {
                 namespace = "dummyNamespace",
                 appnavn = "dummyAppnavn",
                 eventId = eventId,
-                eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
+                eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
                 fodselsnummer = fodselsnummer,
                 grupperingsId = "systemA010",
                 link = link,
                 sikkerhetsnivaa = 4,
-                sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
+                sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
                 statusGlobal = "SENDT",
                 statusIntern = "dummyStatusIntern",
                 sakstema = "dummySakstema")

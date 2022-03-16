@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 import kotlin.random.Random
 
 object BeskjedObjectMother {
@@ -36,14 +37,14 @@ object BeskjedObjectMother {
                 systembruker = systembruker,
                 namespace = "dummyNamespace",
                 appnavn = "dummyAppnavn",
-                eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
-                synligFremTil = LocalDateTime.now(ZoneId.of("UTC")).plusDays(1),
+                eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
+                synligFremTil = LocalDateTime.now(ZoneId.of("UTC")).plusDays(1).truncatedTo(ChronoUnit.MILLIS),
                 fodselsnummer = fodselsnummer,
                 eventId = eventId,
                 grupperingsId = "systemA010",
                 tekst = "Dette er beskjed til brukeren",
                 link = link,
-                sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
+                sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
                 sikkerhetsnivaa = 4,
                 aktiv = true,
                 eksternVarsling = false
@@ -56,14 +57,14 @@ object BeskjedObjectMother {
                 systembruker = "dummySystembruker",
                 namespace = "dummyNamespace",
                 appnavn = "dummyAppnavn",
-                eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
-                synligFremTil = LocalDateTime.now(ZoneId.of("UTC")),
+                eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
+                synligFremTil = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
                 fodselsnummer = "123",
                 eventId = "b-2",
                 grupperingsId = "65432",
                 tekst = "Dette er beskjed til brukeren",
                 link = "https://nav.no/systemX/",
-                sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
+                sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
                 sikkerhetsnivaa = 4,
                 aktiv = false,
                 eksternVarsling = false

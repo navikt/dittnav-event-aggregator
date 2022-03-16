@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.innboks
 
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 
 object InnboksObjectMother {
 
@@ -27,7 +28,7 @@ object InnboksObjectMother {
                 "dummyNamespace",
                 "dummyAppnavn",
                 eventId,
-                LocalDateTime.now(ZoneId.of("UTC")),
+                LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
                 fodselsnummer,
                 "76543",
                 "Dette er innboksnotifikasjon til brukeren",
@@ -43,13 +44,13 @@ object InnboksObjectMother {
                 "dummyNamespace",
                 "dummyAppnavn",
                 "76543",
-                LocalDateTime.now(ZoneId.of("UTC")),
+                LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
                 "123",
                 "76543",
                 "Dette er innboksnotifikasjon til brukeren",
                 "https://nav.no/systemX/",
                 4,
-                LocalDateTime.now(ZoneId.of("UTC")),
+                LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
                 false)
     }
 
