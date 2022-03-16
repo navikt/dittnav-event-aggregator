@@ -10,6 +10,7 @@ import org.amshove.kluent.*
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 class beskjedQueriesTest {
 
@@ -50,7 +51,8 @@ class beskjedQueriesTest {
     }
 
     private fun createExpiredBeskjed(eventId: String, fodselsnummer: String): Beskjed {
-        val beskjed = BeskjedObjectMother.giveMeAktivBeskjed(eventId, fodselsnummer).copy(synligFremTil = LocalDateTime.now().minusDays(1))
+        val beskjed = BeskjedObjectMother.giveMeAktivBeskjed(eventId, fodselsnummer)
+            .copy(synligFremTil = LocalDateTime.now().minusDays(1).truncatedTo(ChronoUnit.MILLIS))
         return runBlocking {
             database.dbQuery {
                 createBeskjed(beskjed).entityId.let {
