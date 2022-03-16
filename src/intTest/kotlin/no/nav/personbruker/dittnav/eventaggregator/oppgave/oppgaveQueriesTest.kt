@@ -7,6 +7,7 @@ import org.amshove.kluent.*
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 class oppgaveQueriesTest {
 
@@ -48,7 +49,8 @@ class oppgaveQueriesTest {
     }
 
     private fun createExpiredOppgave(eventId: String, fodselsnummer: String): Oppgave {
-        var oppgave = OppgaveObjectMother.giveMeAktivOppgave(eventId, fodselsnummer).copy(synligFremTil = LocalDateTime.now().minusDays(1))
+        var oppgave = OppgaveObjectMother.giveMeAktivOppgave(eventId, fodselsnummer)
+            .copy(synligFremTil = LocalDateTime.now().minusDays(1).truncatedTo(ChronoUnit.MILLIS))
         runBlocking {
             database.dbQuery {
                 val generatedId = createOppgave(oppgave).entityId
