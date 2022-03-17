@@ -35,7 +35,7 @@ class DoneEventEmitter(
     private fun createDoneEvent(
         sistOppdatert: ZonedDateTime = ZonedDateTime.now()
     ): DoneInput {
-        val tidspunkt = LocalDateTime.ofInstant(Instant.ofEpochMilli(sistOppdatert.toEpochSecond()), ZoneOffset.UTC)
+        val tidspunkt = LocalDateTime.ofInstant(Instant.ofEpochSecond(sistOppdatert.toEpochSecond()), ZoneOffset.UTC)
         return DoneInput(
             tidspunkt.toInstant(ZoneOffset.UTC).toEpochMilli()
         )
