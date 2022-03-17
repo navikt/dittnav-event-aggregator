@@ -3,6 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 
 object DoneObjectMother {
 
@@ -23,10 +24,10 @@ object DoneObjectMother {
                 namespace = "dummyNamespace",
                 appnavn = "dummyAppnavn",
                 eventId = eventId,
-                eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
+                eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
                 fodselsnummer = fodselsnummer,
                 grupperingsId = "100${eventId}",
-                sistBehandlet = LocalDateTime.now(ZoneId.of("UTC"))
+                sistBehandlet = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS)
         )
     }
 

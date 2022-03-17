@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 
 object OppgaveObjectMother {
 
@@ -23,14 +24,14 @@ object OppgaveObjectMother {
                 systembruker = systembruker,
                 namespace = "dummyNamespace",
                 appnavn = "dummyAppnavn",
-                eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
+                eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
                 fodselsnummer = fodselsnummer,
                 eventId = eventId,
                 grupperingsId = "Dok12345",
                 tekst = "Dette er en oppgave til brukeren",
                 link = "https://nav.no/systemX/",
                 sikkerhetsnivaa = 4,
-                sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
+                sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
                 aktiv = true,
                 eksternVarsling = false)
     }
@@ -40,14 +41,14 @@ object OppgaveObjectMother {
                 systembruker = "dummySystembruker",
                 namespace = "dummyNamespace",
                 appnavn = "dummyAppnavn",
-                eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")),
+                eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
                 fodselsnummer = "123",
                 eventId = "o-2",
                 grupperingsId = "Dok12345",
                 tekst = "Dette er en oppgave til brukeren",
                 link = "https://nav.no/systemX/",
                 sikkerhetsnivaa = 4,
-                sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
+                sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
                 aktiv = false,
                 eksternVarsling = false)
     }
