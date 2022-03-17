@@ -34,7 +34,7 @@ object InnboksObjectMother {
                 "Dette er innboksnotifikasjon til brukeren",
                 link,
                 4,
-                LocalDateTime.now(ZoneId.of("UTC")),
+                LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
                 true)
     }
 
