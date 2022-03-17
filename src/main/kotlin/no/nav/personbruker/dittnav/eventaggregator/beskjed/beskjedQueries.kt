@@ -54,12 +54,11 @@ private fun PreparedStatement.buildStatementForSingleRow(beskjed: Beskjed) {
 }
 
 fun Connection.setBeskjederAktivflagg(doneEvents: List<Done>, aktiv: Boolean) {
-    executeBatchUpdateQuery("""UPDATE beskjed SET aktiv = ? WHERE eventId = ? AND systembruker = ? AND fodselsnummer = ?""") {
+    executeBatchUpdateQuery("""UPDATE beskjed SET aktiv = ? WHERE eventId = ? AND fodselsnummer = ?""") {
         doneEvents.forEach { done ->
             setBoolean(1, aktiv)
             setString(2, done.eventId)
-            setString(3, done.systembruker)
-            setString(4, done.fodselsnummer)
+            setString(3, done.fodselsnummer)
             addBatch()
         }
     }
