@@ -3,7 +3,6 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 import java.time.LocalDateTime
 
 data class Beskjed(
-        val uid: String,
         val id: Int?,
         val systembruker: String,
         val namespace: String,
@@ -21,7 +20,7 @@ data class Beskjed(
         val eksternVarsling: Boolean,
         val prefererteKanaler: List<String> = emptyList()
 ) {
-    constructor(uid: String,
+    constructor(
                 systembruker: String,
                 namespace: String,
                 appnavn: String,
@@ -37,8 +36,7 @@ data class Beskjed(
                 aktiv: Boolean,
                 eksternVarsling: Boolean,
                 prefererteKanaler: List<String> = emptyList()
-    ) : this(uid,
-            null,
+    ) : this(            null,
             systembruker,
             namespace,
             appnavn,
@@ -58,7 +56,6 @@ data class Beskjed(
 
     override fun toString(): String {
         return "Beskjed(" +
-                "uid=$uid, " +
                 "id=$id, " +
                 "systembruker=***, " +
                 "namespace=$namespace" +

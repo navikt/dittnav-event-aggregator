@@ -33,7 +33,6 @@ object BeskjedObjectMother {
 
     private fun giveMeAktivBeskjed(eventId: String, fodselsnummer: String, systembruker: String, link: String): Beskjed {
         return Beskjed(
-                uid = Random.nextInt(1, 100).toString(),
                 systembruker = systembruker,
                 namespace = "dummyNamespace",
                 appnavn = "dummyAppnavn",
@@ -53,7 +52,6 @@ object BeskjedObjectMother {
 
     fun giveMeInaktivBeskjed(): Beskjed {
         return Beskjed(
-                uid = Random.nextInt(1, 100).toString(),
                 systembruker = "dummySystembruker",
                 namespace = "dummyNamespace",
                 appnavn = "dummyAppnavn",

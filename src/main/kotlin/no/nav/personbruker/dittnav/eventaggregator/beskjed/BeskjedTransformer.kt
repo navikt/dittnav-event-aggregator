@@ -14,7 +14,6 @@ object BeskjedTransformer {
 
     fun toInternal(externalNokkel: NokkelIntern, externalValue: BeskjedIntern): Beskjed {
         return Beskjed(
-                createRandomStringUUID(),
                 externalNokkel.getSystembruker(),
                 externalNokkel.getNamespace(),
                 externalNokkel.getAppnavn(),
@@ -31,10 +30,6 @@ object BeskjedTransformer {
                 externalValue.getEksternVarsling(),
                 externalValue.getPrefererteKanaler()
         )
-    }
-
-    private fun createRandomStringUUID(): String {
-        return UUID.randomUUID().toString()
     }
 
     private fun BeskjedIntern.synligFremTilAsUTCDateTime(): LocalDateTime? {
