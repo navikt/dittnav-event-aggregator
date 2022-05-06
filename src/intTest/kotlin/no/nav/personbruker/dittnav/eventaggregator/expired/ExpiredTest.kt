@@ -247,5 +247,6 @@ private fun NokkelInput.toIntern(): NokkelIntern = NokkelIntern(
 )
 
 private fun DoneInput.toIntern(): DoneIntern = DoneIntern(
+    getTidspunkt(),
     getTidspunkt()
 )

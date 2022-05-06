@@ -30,11 +30,24 @@ object AvroStatusoppdateringObjectMother {
     fun createStatusoppdatering(statusGlobal: String, statusIntern: String?, sakstema: String): StatusoppdateringIntern {
         return StatusoppdateringIntern(
                 Instant.now().toEpochMilli(),
+                Instant.now().toEpochMilli(),
                 defaultLink,
                 defaultSikkerhetsnivaa,
                 statusGlobal,
                 statusIntern,
                 sakstema)
+    }
+
+    fun createStatusoppdateringWithTidspunktAndBehandlet(tidspunkt: Long, behandlet: Long?): StatusoppdateringIntern {
+        return StatusoppdateringIntern(
+            tidspunkt,
+            behandlet,
+            defaultLink,
+            defaultSikkerhetsnivaa,
+            defaultStatusGlobal,
+            defaultStatusIntern,
+            defaultSakstema
+        )
     }
 
 }

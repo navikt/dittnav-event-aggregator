@@ -7,6 +7,7 @@ import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should contain all`
 import org.amshove.kluent.`should not contain`
 import org.junit.jupiter.api.Test
+import java.time.LocalDateTime
 
 class innboksQueriesTest {
     private val database = LocalPostgresDatabase.migratedDb()
@@ -17,6 +18,7 @@ class innboksQueriesTest {
     private val innboks1: Innboks
     private val innboks2: Innboks
     private val innboks3: Innboks
+    private val innboksWithOffsetForstBehandlet: Innboks
 
     private val systembruker = "dummySystembruker"
     private val eventId = "1"
@@ -28,14 +30,28 @@ class innboksQueriesTest {
         innboks1 = createInnboks("1", fodselsnummer1)
         innboks2 = createInnboks("2", fodselsnummer2)
         innboks3 = createInnboks("3", fodselsnummer1)
+        innboksWithOffsetForstBehandlet = createInnboksWithOffsetForstBehandlet("4", fodselsnummer1)
 
-        allInnboks = listOf(innboks1, innboks2, innboks3)
-        allInnboksForAktor1 = listOf(innboks1, innboks3)
+        allInnboks = listOf(innboks1, innboks2, innboks3, innboksWithOffsetForstBehandlet)
+        allInnboksForAktor1 = listOf(innboks1, innboks3, innboksWithOffsetForstBehandlet)
     }
 
     private fun createInnboks(eventId: String, fodselsnummer: String): Innboks {
         val innboks = InnboksObjectMother.giveMeAktivInnboks(eventId, fodselsnummer)
 
+        return runBlocking {
+            database.dbQuery {
+                createInnboks(innboks).entityId.let {
+                    innboks.copy(id = it)
+                }
+            }
+        }
+    }
+
+
+    private fun createInnboksWithOffsetForstBehandlet(eventId: String, fodselsnummer: String): Innboks {
+        val offsetDate = LocalDateTime.now().minusDays(1)
+        val innboks = InnboksObjectMother.giveMeInnboksWithForstBehandlet(eventId, fodselsnummer, offsetDate)
         return runBlocking {
             database.dbQuery {
                 createInnboks(innboks).entityId.let {

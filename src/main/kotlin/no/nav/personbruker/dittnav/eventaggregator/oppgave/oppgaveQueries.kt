@@ -18,7 +18,7 @@ fun Connection.getAllOppgave(): List<Oppgave> =
                     }
                 }
 
-private val createQuery = """INSERT INTO oppgave (systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn, synligFremTil) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?)"""
+private val createQuery = """INSERT INTO oppgave (systembruker, eventTidspunkt, forstBehandlet, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn, synligFremTil) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?)"""
 
 fun Connection.createOppgaver(oppgaver: List<Oppgave>) =
         executeBatchPersistQuery(createQuery) {
@@ -37,19 +37,20 @@ fun Connection.createOppgave(oppgave: Oppgave): PersistActionResult =
 private fun PreparedStatement.buildStatementForSingleRow(oppgave: Oppgave) {
     setString(1, oppgave.systembruker)
     setObject(2, oppgave.eventTidspunkt, Types.TIMESTAMP)
-    setString(3, oppgave.fodselsnummer)
-    setString(4, oppgave.eventId)
-    setString(5, oppgave.grupperingsId)
-    setString(6, oppgave.tekst)
-    setString(7, oppgave.link)
-    setInt(8, oppgave.sikkerhetsnivaa)
-    setObject(9, oppgave.sistOppdatert, Types.TIMESTAMP)
-    setBoolean(10, oppgave.aktiv)
-    setBoolean(11, oppgave.eksternVarsling)
-    setObject(12, oppgave.prefererteKanaler.joinToString(","))
-    setString(13, oppgave.namespace)
-    setString(14, oppgave.appnavn)
-    setObject(15, oppgave.synligFremTil, Types.TIMESTAMP)
+    setObject(3, oppgave.forstBehandlet, Types.TIMESTAMP)
+    setString(4, oppgave.fodselsnummer)
+    setString(5, oppgave.eventId)
+    setString(6, oppgave.grupperingsId)
+    setString(7, oppgave.tekst)
+    setString(8, oppgave.link)
+    setInt(9, oppgave.sikkerhetsnivaa)
+    setObject(10, oppgave.sistOppdatert, Types.TIMESTAMP)
+    setBoolean(11, oppgave.aktiv)
+    setBoolean(12, oppgave.eksternVarsling)
+    setObject(13, oppgave.prefererteKanaler.joinToString(","))
+    setString(14, oppgave.namespace)
+    setString(15, oppgave.appnavn)
+    setObject(16, oppgave.synligFremTil, Types.TIMESTAMP)
 }
 
 fun Connection.setOppgaverAktivFlag(doneEvents: List<Done>, aktiv: Boolean) {
@@ -116,6 +117,7 @@ private fun ResultSet.toOppgave(): Oppgave {
             namespace = getString("namespace"),
             appnavn = getString("appnavn"),
             eventTidspunkt = getUtcDateTime("eventTidspunkt"),
+            forstBehandlet = getUtcDateTime("forstBehandlet"),
             fodselsnummer = getString("fodselsnummer"),
             eventId = getString("eventId"),
             grupperingsId = getString("grupperingsId"),
