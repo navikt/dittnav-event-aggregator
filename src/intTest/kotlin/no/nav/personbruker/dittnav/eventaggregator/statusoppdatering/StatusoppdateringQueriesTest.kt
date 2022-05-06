@@ -12,6 +12,7 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 class StatusoppdateringQueriesTest {
 
@@ -55,7 +56,7 @@ class StatusoppdateringQueriesTest {
     }
 
     private fun createStatusoppdateringWithOffsetForstBehandlet(eventId: String, fodselsnummer: String): Statusoppdatering {
-        val offsetDate = LocalDateTime.now().minusDays(1)
+        val offsetDate = LocalDateTime.now().minusDays(1).truncatedTo(ChronoUnit.MILLIS)
         var statusoppdatering = StatusoppdateringObjectMother.giveMeStatusoppdateringWithForstBehandlet(eventId, fodselsnummer, offsetDate)
         runBlocking {
             database.dbQuery {

@@ -65,7 +65,7 @@ class beskjedQueriesTest {
     }
 
     private fun createBeskjedWithOffsetForstBehandlet(eventId: String, fodselsnummer: String): Beskjed {
-        val offsetDate = LocalDateTime.now().minusDays(1)
+        val offsetDate = LocalDateTime.now().minusDays(1).truncatedTo(ChronoUnit.MILLIS)
         val beskjed = BeskjedObjectMother.giveMeBeskjedWithForstBehandlet(eventId, fodselsnummer, offsetDate)
         return runBlocking {
             database.dbQuery {

@@ -63,7 +63,7 @@ class oppgaveQueriesTest {
     }
 
     private fun createOppgaveWithOffsetForstBehandlet(eventId: String, fodselsnummer: String): Oppgave {
-        val offsetDate = LocalDateTime.now().minusDays(1)
+        val offsetDate = LocalDateTime.now().minusDays(1).truncatedTo(ChronoUnit.MILLIS)
         var oppgave = OppgaveObjectMother.giveMeOppgaveWithForstBehandlet(eventId, fodselsnummer, offsetDate)
         runBlocking {
             database.dbQuery {

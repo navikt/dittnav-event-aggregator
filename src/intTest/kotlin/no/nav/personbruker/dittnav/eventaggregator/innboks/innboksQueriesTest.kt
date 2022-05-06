@@ -8,6 +8,7 @@ import org.amshove.kluent.`should contain all`
 import org.amshove.kluent.`should not contain`
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 class innboksQueriesTest {
     private val database = LocalPostgresDatabase.migratedDb()
@@ -50,7 +51,7 @@ class innboksQueriesTest {
 
 
     private fun createInnboksWithOffsetForstBehandlet(eventId: String, fodselsnummer: String): Innboks {
-        val offsetDate = LocalDateTime.now().minusDays(1)
+        val offsetDate = LocalDateTime.now().minusDays(1).truncatedTo(ChronoUnit.MILLIS)
         val innboks = InnboksObjectMother.giveMeInnboksWithForstBehandlet(eventId, fodselsnummer, offsetDate)
         return runBlocking {
             database.dbQuery {
