@@ -19,33 +19,63 @@ object AvroBeskjedObjectMother {
         return BeskjedIntern(
             Instant.now().toEpochMilli(),
             Instant.now().toEpochMilli(),
+            Instant.now().toEpochMilli(),
             defaultText,
             "https://nav.no/systemX/$defaultLopenummer",
             4,
             eksternVarsling,
-            prefererteKanaler
+            prefererteKanaler,
+            null,
+            null,
+            null
         )
     }
 
     fun createBeskjed(lopenummer: Int, text: String, synligFremTil: Instant = Instant.now()): BeskjedIntern {
         return BeskjedIntern(
-                Instant.now().toEpochMilli(),
-                synligFremTil.toEpochMilli(),
-                text,
-                "https://nav.no/systemX/$lopenummer",
-                4,
-                defaultEksternVarsling,
-                defaultPrefererteKanaler)
+            Instant.now().toEpochMilli(),
+            Instant.now().toEpochMilli(),
+            synligFremTil.toEpochMilli(),
+            text,
+            "https://nav.no/systemX/$lopenummer",
+            4,
+            defaultEksternVarsling,
+            defaultPrefererteKanaler,
+            null,
+            null,
+            null
+        )
     }
 
     fun createBeskjedWithoutSynligFremTilSatt(): BeskjedIntern {
         return BeskjedIntern(
-                Instant.now().toEpochMilli(),
-                null,
-                defaultText,
-                "https://nav.no/systemX/$defaultLopenummer",
-                4,
-                defaultEksternVarsling,
-                defaultPrefererteKanaler)
+            Instant.now().toEpochMilli(),
+            Instant.now().toEpochMilli(),
+            null,
+            defaultText,
+            "https://nav.no/systemX/$defaultLopenummer",
+            4,
+            defaultEksternVarsling,
+            defaultPrefererteKanaler,
+            null,
+            null,
+            null
+        )
+    }
+
+    fun createBeskjedWithTidspunktAndBehandlet(tidspunkt: Long, behandlet: Long?): BeskjedIntern {
+        return BeskjedIntern(
+            tidspunkt,
+            behandlet,
+            null,
+            defaultText,
+            "https://nav.no/systemX/$defaultLopenummer",
+            4,
+            defaultEksternVarsling,
+            defaultPrefererteKanaler,
+            null,
+            null,
+            null
+        )
     }
 }

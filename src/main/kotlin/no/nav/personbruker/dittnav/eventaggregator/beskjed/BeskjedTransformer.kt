@@ -2,11 +2,12 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import no.nav.brukernotifikasjon.schemas.internal.BeskjedIntern
 import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
-import no.nav.personbruker.dittnav.eventaggregator.common.validation.timestampToUTCDateOrNull
+import no.nav.personbruker.dittnav.eventaggregator.common.epochMillisToLocalDateTime
+import no.nav.personbruker.dittnav.eventaggregator.common.timestampToUTCDateOrNull
+import no.nav.personbruker.dittnav.eventaggregator.common.epochToLocalDateTimeFixIfTruncated
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.util.*
 
 object BeskjedTransformer {
 
@@ -14,21 +15,22 @@ object BeskjedTransformer {
 
     fun toInternal(externalNokkel: NokkelIntern, externalValue: BeskjedIntern): Beskjed {
         return Beskjed(
-                externalNokkel.getSystembruker(),
-                externalNokkel.getNamespace(),
-                externalNokkel.getAppnavn(),
-                externalNokkel.getEventId(),
-                LocalDateTime.ofInstant(Instant.ofEpochMilli(externalValue.getTidspunkt()), ZoneId.of("UTC")),
-                externalNokkel.getFodselsnummer(),
-                externalNokkel.getGrupperingsId(),
-                externalValue.getTekst(),
-                externalValue.getLink(),
-                externalValue.getSikkerhetsnivaa(),
-                LocalDateTime.now(ZoneId.of("UTC")),
-                externalValue.synligFremTilAsUTCDateTime(),
-                newRecordsAreActiveByDefault,
-                externalValue.getEksternVarsling(),
-                externalValue.getPrefererteKanaler()
+                systembruker = externalNokkel.getSystembruker(),
+                namespace = externalNokkel.getNamespace(),
+                appnavn = externalNokkel.getAppnavn(),
+                eventId = externalNokkel.getEventId(),
+                eventTidspunkt = epochMillisToLocalDateTime(externalValue.getTidspunkt()),
+                forstBehandlet = determineForstBehandlet(externalValue),
+                fodselsnummer = externalNokkel.getFodselsnummer(),
+                grupperingsId = externalNokkel.getGrupperingsId(),
+                tekst = externalValue.getTekst(),
+                link = externalValue.getLink(),
+                sikkerhetsnivaa = externalValue.getSikkerhetsnivaa(),
+                sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
+                synligFremTil = externalValue.synligFremTilAsUTCDateTime(),
+                aktiv = newRecordsAreActiveByDefault,
+                eksternVarsling = externalValue.getEksternVarsling(),
+                prefererteKanaler = externalValue.getPrefererteKanaler()
         )
     }
 
@@ -36,4 +38,11 @@ object BeskjedTransformer {
         return timestampToUTCDateOrNull(getSynligFremTil())
     }
 
+    private fun determineForstBehandlet(beskjed: BeskjedIntern): LocalDateTime {
+        return if (beskjed.getBehandlet() != null) {
+            epochMillisToLocalDateTime(beskjed.getBehandlet())
+        } else {
+            epochToLocalDateTimeFixIfTruncated(beskjed.getTidspunkt())
+        }
+    }
 }

@@ -1,10 +1,23 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
+import no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks
+import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 
 object InnboksObjectMother {
+
+    const val defaultSystembruker = "systembruker"
+    const val defaultNamespace = "namespace"
+    const val defaultAppnavn = "appnavn"
+    const val defaultFodselsnummer = "123"
+    const val defaultEventId = "76543"
+    const val defaultGrupperingsId = "grupperingsId"
+    const val defaultTekst = "tekst"
+    const val defaultLink = "http://link"
+    const val defaultSikkerhetsnivaa = 4
+    const val defaultAktiv = true
 
     fun giveMeAktivInnboks(): Innboks {
         return giveMeAktivInnboks("i-1", "123")
@@ -23,35 +36,52 @@ object InnboksObjectMother {
     }
 
     fun giveMeAktivInnboks(eventId: String, fodselsnummer: String, systembruker: String, link: String): Innboks {
-        return Innboks(
-                systembruker,
-                "dummyNamespace",
-                "dummyAppnavn",
-                eventId,
-                LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
-                fodselsnummer,
-                "76543",
-                "Dette er innboksnotifikasjon til brukeren",
-                link,
-                4,
-                LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
-                true)
+        return giveMeInnboks(
+            aktiv = true,
+            eventId = eventId,
+            fodselsnummer = fodselsnummer,
+            systembruker = systembruker,
+            link = link
+        )
     }
 
     fun giveMeInaktivInnboks(): Innboks {
-        return Innboks(
-                "dummySystembruker",
-                "dummyNamespace",
-                "dummyAppnavn",
-                "76543",
-                LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
-                "123",
-                "76543",
-                "Dette er innboksnotifikasjon til brukeren",
-                "https://nav.no/systemX/",
-                4,
-                LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
-                false)
+        return giveMeInnboks(aktiv = false)
     }
+
+    fun giveMeInnboksWithForstBehandlet(eventId: String, fodselsnummer: String, forstBehandlet: LocalDateTime): Innboks {
+        return giveMeInnboks(eventId = eventId, fodselsnummer = fodselsnummer, forstBehandlet = forstBehandlet)
+    }
+
+
+    private fun giveMeInnboks(
+        systembruker: String = defaultSystembruker,
+        namespace: String = defaultNamespace,
+        appnavn: String = defaultAppnavn,
+        eventTidspunkt: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
+        forstBehandlet: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
+        fodselsnummer: String = defaultFodselsnummer,
+        eventId: String = defaultEventId,
+        grupperingsId: String = defaultGrupperingsId,
+        tekst: String = defaultTekst,
+        link: String = defaultLink,
+        sistOppdatert: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
+        sikkerhetsnivaa: Int = defaultSikkerhetsnivaa,
+        aktiv: Boolean = defaultAktiv,
+    ) = Innboks(
+        systembruker = systembruker,
+        namespace = namespace,
+        appnavn = appnavn,
+        eventId = eventId,
+        eventTidspunkt = eventTidspunkt,
+        forstBehandlet = forstBehandlet,
+        fodselsnummer = fodselsnummer,
+        grupperingsId = grupperingsId,
+        tekst = tekst,
+        link = link,
+        sikkerhetsnivaa = sikkerhetsnivaa,
+        sistOppdatert = sistOppdatert,
+        aktiv = aktiv,
+    )
 
 }

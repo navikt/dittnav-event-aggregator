@@ -25,8 +25,8 @@ fun Connection.getInnboksById(entityId: Int): Innboks =
                     }
                 }
 
-private val createQuery = """INSERT INTO innboks(systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv, namespace, appnavn)
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+private val createQuery = """INSERT INTO innboks(systembruker, eventTidspunkt, forstBehandlet, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv, namespace, appnavn)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
 fun Connection.createInnboksEventer(innboksEventer: List<Innboks>) =
         executeBatchPersistQuery(createQuery) {
@@ -44,16 +44,17 @@ fun Connection.createInnboks(innboks: Innboks): PersistActionResult =
 private fun PreparedStatement.buildStatementForSingleRow(innboks: Innboks) {
     setString(1, innboks.systembruker)
     setObject(2, innboks.eventTidspunkt, Types.TIMESTAMP)
-    setString(3, innboks.fodselsnummer)
-    setString(4, innboks.eventId)
-    setString(5, innboks.grupperingsId)
-    setString(6, innboks.tekst)
-    setString(7, innboks.link)
-    setInt(8, innboks.sikkerhetsnivaa)
-    setObject(9, innboks.sistOppdatert, Types.TIMESTAMP)
-    setBoolean(10, innboks.aktiv)
-    setString(11, innboks.namespace)
-    setString(12, innboks.appnavn)
+    setObject(3, innboks.forstBehandlet, Types.TIMESTAMP)
+    setString(4, innboks.fodselsnummer)
+    setString(5, innboks.eventId)
+    setString(6, innboks.grupperingsId)
+    setString(7, innboks.tekst)
+    setString(8, innboks.link)
+    setInt(9, innboks.sikkerhetsnivaa)
+    setObject(10, innboks.sistOppdatert, Types.TIMESTAMP)
+    setBoolean(11, innboks.aktiv)
+    setString(12, innboks.namespace)
+    setString(13, innboks.appnavn)
 }
 
 fun Connection.setInnboksEventerAktivFlag(doneEvents: List<Done>, aktiv: Boolean) {
@@ -102,6 +103,7 @@ private fun ResultSet.toInnboks(): Innboks {
             namespace =  getString("namespace"),
             appnavn =  getString("appnavn"),
             eventTidspunkt = getUtcDateTime("eventTidspunkt"),
+            forstBehandlet = getUtcDateTime("forstBehandlet"),
             fodselsnummer = getString("fodselsnummer"),
             eventId = getString("eventId"),
             grupperingsId = getString("grupperingsId"),

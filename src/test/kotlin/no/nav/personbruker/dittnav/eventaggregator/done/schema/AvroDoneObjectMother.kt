@@ -22,7 +22,8 @@ object AvroDoneObjectMother {
                 "dummySystembruker")
 
         val value = DoneIntern(
-                Instant.now().toEpochMilli()
+            Instant.now().toEpochMilli(),
+            Instant.now().toEpochMilli()
         )
         return ConsumerRecord(defaultDummyTopicName, defaultPartition, defaultOffset, key, value)
     }
@@ -38,7 +39,15 @@ object AvroDoneObjectMother {
 
     fun createDone(): DoneIntern {
         return DoneIntern(
-                Instant.now().toEpochMilli()
+            Instant.now().toEpochMilli(),
+            Instant.now().toEpochMilli()
+        )
+    }
+
+    fun createDoneWithTidspunktAndBehandlet(tidspunkt: Long, behandlet: Long?): DoneIntern {
+        return DoneIntern(
+            tidspunkt,
+            behandlet
         )
     }
 }

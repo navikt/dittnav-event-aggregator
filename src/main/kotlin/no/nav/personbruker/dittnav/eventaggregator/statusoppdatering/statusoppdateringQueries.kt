@@ -16,8 +16,8 @@ fun Connection.getAllStatusoppdatering(): List<Statusoppdatering> =
                     }
                 }
 
-private val createQuery = """INSERT INTO statusoppdatering (systembruker, eventId, eventTidspunkt, fodselsnummer, grupperingsId, link, sikkerhetsnivaa, sistOppdatert, statusGlobal, statusIntern, sakstema, namespace, appnavn)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+private val createQuery = """INSERT INTO statusoppdatering (systembruker, eventId, eventTidspunkt, forstBehandlet, fodselsnummer, grupperingsId, link, sikkerhetsnivaa, sistOppdatert, statusGlobal, statusIntern, sakstema, namespace, appnavn)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
 fun Connection.createStatusoppdatering(statusoppdatering: Statusoppdatering): PersistActionResult =
         executePersistQuery(createQuery) {
@@ -36,16 +36,17 @@ private fun PreparedStatement.buildStatementForSingleRow(statusoppdatering: Stat
     setString(1, statusoppdatering.systembruker)
     setString(2, statusoppdatering.eventId)
     setObject(3, statusoppdatering.eventTidspunkt, Types.TIMESTAMP)
-    setString(4, statusoppdatering.fodselsnummer)
-    setString(5, statusoppdatering.grupperingsId)
-    setString(6, statusoppdatering.link)
-    setInt(7, statusoppdatering.sikkerhetsnivaa)
-    setObject(8, statusoppdatering.sistOppdatert, Types.TIMESTAMP)
-    setString(9, statusoppdatering.statusGlobal)
-    setString(10, statusoppdatering.statusIntern)
-    setString(11, statusoppdatering.sakstema)
-    setString(12, statusoppdatering.namespace)
-    setString(13, statusoppdatering.appnavn)
+    setObject(4, statusoppdatering.forstBehandlet, Types.TIMESTAMP)
+    setString(5, statusoppdatering.fodselsnummer)
+    setString(6, statusoppdatering.grupperingsId)
+    setString(7, statusoppdatering.link)
+    setInt(8, statusoppdatering.sikkerhetsnivaa)
+    setObject(9, statusoppdatering.sistOppdatert, Types.TIMESTAMP)
+    setString(10, statusoppdatering.statusGlobal)
+    setString(11, statusoppdatering.statusIntern)
+    setString(12, statusoppdatering.sakstema)
+    setString(13, statusoppdatering.namespace)
+    setString(14, statusoppdatering.appnavn)
 }
 
 fun Connection.getStatusoppdateringByFodselsnummer(fodselsnummer: String): List<Statusoppdatering> =
@@ -83,6 +84,7 @@ private fun ResultSet.toStatusoppdatering(): Statusoppdatering {
             appnavn = getString("appnavn"),
             eventId = getString("eventId"),
             eventTidspunkt = getUtcDateTime("eventTidspunkt"),
+            forstBehandlet = getUtcDateTime("forstBehandlet"),
             fodselsnummer = getString("fodselsnummer"),
             grupperingsId = getString("grupperingsId"),
             link = getString("link"),
