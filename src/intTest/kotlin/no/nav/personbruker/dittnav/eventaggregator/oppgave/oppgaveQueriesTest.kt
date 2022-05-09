@@ -21,7 +21,6 @@ class oppgaveQueriesTest {
     private val oppgave3: Oppgave
 
     private val expiredOppgave: Oppgave
-    private val oppgaveWithOffsetForstBehandlet: Oppgave
 
     private val systembruker = "dummySystembruker"
     private val eventId = "2"
@@ -34,9 +33,8 @@ class oppgaveQueriesTest {
         oppgave2 = createOppgave("2", fodselsnummer2)
         oppgave3 = createOppgave("3", fodselsnummer1)
         expiredOppgave = createExpiredOppgave("4", "5678")
-        oppgaveWithOffsetForstBehandlet = createOppgaveWithOffsetForstBehandlet("5", fodselsnummer1)
-        allEvents = listOf(oppgave1, oppgave2, oppgave3, expiredOppgave, oppgaveWithOffsetForstBehandlet)
-        allEventsForSingleUser = listOf(oppgave1, oppgave3, oppgaveWithOffsetForstBehandlet)
+        allEvents = listOf(oppgave1, oppgave2, oppgave3, expiredOppgave)
+        allEventsForSingleUser = listOf(oppgave1, oppgave3)
     }
 
     private fun createOppgave(eventId: String, fodselsnummer: String): Oppgave {
@@ -53,18 +51,6 @@ class oppgaveQueriesTest {
     private fun createExpiredOppgave(eventId: String, fodselsnummer: String): Oppgave {
         var oppgave = OppgaveObjectMother.giveMeAktivOppgave(eventId, fodselsnummer)
             .copy(synligFremTil = LocalDateTime.now().minusDays(1).truncatedTo(ChronoUnit.MILLIS))
-        runBlocking {
-            database.dbQuery {
-                val generatedId = createOppgave(oppgave).entityId
-                oppgave = oppgave.copy(id = generatedId)
-            }
-        }
-        return oppgave
-    }
-
-    private fun createOppgaveWithOffsetForstBehandlet(eventId: String, fodselsnummer: String): Oppgave {
-        val offsetDate = LocalDateTime.now().minusDays(1).truncatedTo(ChronoUnit.MILLIS)
-        var oppgave = OppgaveObjectMother.giveMeOppgaveWithForstBehandlet(eventId, fodselsnummer, offsetDate)
         runBlocking {
             database.dbQuery {
                 val generatedId = createOppgave(oppgave).entityId

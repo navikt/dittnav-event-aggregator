@@ -19,8 +19,8 @@ fun Connection.getAllBeskjed(): List<Beskjed> =
                     }
                 }
 
-private val createQuery = """INSERT INTO beskjed (systembruker, eventTidspunkt, forstBehandlet, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+private val createQuery = """INSERT INTO beskjed (systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
 fun Connection.createBeskjed(beskjed: Beskjed): PersistActionResult =
         executePersistQuery(createQuery) {
@@ -38,20 +38,19 @@ fun Connection.createBeskjeder(beskjeder: List<Beskjed>): ListPersistActionResul
 private fun PreparedStatement.buildStatementForSingleRow(beskjed: Beskjed) {
     setString(1, beskjed.systembruker)
     setObject(2, beskjed.eventTidspunkt, Types.TIMESTAMP)
-    setObject(3, beskjed.forstBehandlet, Types.TIMESTAMP)
-    setString(4, beskjed.fodselsnummer)
-    setString(5, beskjed.eventId)
-    setString(6, beskjed.grupperingsId)
-    setString(7, beskjed.tekst)
-    setString(8, beskjed.link)
-    setInt(9, beskjed.sikkerhetsnivaa)
-    setObject(10, beskjed.sistOppdatert, Types.TIMESTAMP)
-    setObject(11, beskjed.synligFremTil, Types.TIMESTAMP)
-    setBoolean(12, beskjed.aktiv)
-    setBoolean(13, beskjed.eksternVarsling)
-    setObject(14, beskjed.prefererteKanaler.joinToString(","))
-    setString(15, beskjed.namespace)
-    setString(16, beskjed.appnavn)
+    setString(3, beskjed.fodselsnummer)
+    setString(4, beskjed.eventId)
+    setString(5, beskjed.grupperingsId)
+    setString(6, beskjed.tekst)
+    setString(7, beskjed.link)
+    setInt(8, beskjed.sikkerhetsnivaa)
+    setObject(9, beskjed.sistOppdatert, Types.TIMESTAMP)
+    setObject(10, beskjed.synligFremTil, Types.TIMESTAMP)
+    setBoolean(11, beskjed.aktiv)
+    setBoolean(12, beskjed.eksternVarsling)
+    setObject(13, beskjed.prefererteKanaler.joinToString(","))
+    setString(14, beskjed.namespace)
+    setString(15, beskjed.appnavn)
 }
 
 fun Connection.setBeskjederAktivflagg(doneEvents: List<Done>, aktiv: Boolean) {
@@ -117,7 +116,6 @@ private fun ResultSet.toBeskjed(): Beskjed {
             namespace = getString("namespace"),
             appnavn = getString("appnavn"),
             eventTidspunkt = getUtcDateTime("eventTidspunkt"),
-            forstBehandlet = getUtcDateTime("forstBehandlet"),
             fodselsnummer = getString("fodselsnummer"),
             eventId = getString("eventId"),
             grupperingsId = getString("grupperingsId"),

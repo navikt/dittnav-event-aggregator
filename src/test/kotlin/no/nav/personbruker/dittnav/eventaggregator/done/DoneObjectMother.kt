@@ -25,7 +25,6 @@ object DoneObjectMother {
                 appnavn = "dummyAppnavn",
                 eventId = eventId,
                 eventTidspunkt = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
-                forstBehandlet = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
                 fodselsnummer = fodselsnummer,
                 grupperingsId = "100${eventId}",
                 sistBehandlet = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS)

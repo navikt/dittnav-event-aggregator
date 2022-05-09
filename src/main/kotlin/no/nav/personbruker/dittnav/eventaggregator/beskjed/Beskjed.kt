@@ -9,7 +9,6 @@ data class Beskjed(
         val appnavn: String,
         val eventId: String,
         val eventTidspunkt: LocalDateTime,
-        val forstBehandlet: LocalDateTime,
         val fodselsnummer: String,
         val grupperingsId: String,
         val tekst: String,
@@ -27,7 +26,6 @@ data class Beskjed(
                 appnavn: String,
                 eventId: String,
                 eventTidspunkt: LocalDateTime,
-                forstBehandlet: LocalDateTime,
                 fodselsnummer: String,
                 grupperingsId: String,
                 tekst: String,
@@ -44,7 +42,6 @@ data class Beskjed(
             appnavn,
             eventId,
             eventTidspunkt,
-            forstBehandlet,
             fodselsnummer,
             grupperingsId,
             tekst,
@@ -65,7 +62,6 @@ data class Beskjed(
                 "appnavn=$appnavn" +
                 "eventId=$eventId, " +
                 "eventTidspunkt=$eventTidspunkt, " +
-                "forstBehandlet=$forstBehandlet, " +
                 "fodselsnummer=***, " +
                 "grupperingsId=$grupperingsId, " +
                 "tekst=***, " +

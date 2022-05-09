@@ -28,8 +28,8 @@ fun Connection.getAllDoneEventWithLimit(limit: Int): List<Done> =
                     }
                 }
 
-private const val createQuery = """INSERT INTO done(systembruker, eventTidspunkt, forstbehandlet, fodselsnummer, eventId, grupperingsId, namespace, appnavn, sistBehandlet)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+private const val createQuery = """INSERT INTO done(systembruker, eventTidspunkt, fodselsnummer, eventId, grupperingsId, namespace, appnavn, sistBehandlet)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)"""
 
 fun Connection.createDoneEvents(doneEvents: List<Done>): ListPersistActionResult<Done> =
     executeBatchPersistQuery(createQuery) {
@@ -75,7 +75,6 @@ private fun ResultSet.toDoneEvent(): Done {
             namespace = getString("namespace"),
             appnavn = getString("appnavn"),
             eventTidspunkt = getUtcDateTime("eventTidspunkt"),
-            forstBehandlet = getUtcDateTime("forstBehandlet"),
             fodselsnummer = getString("fodselsnummer"),
             grupperingsId = getString("grupperingsId"),
             sistBehandlet = getUtcDateTime("sistBehandlet")
@@ -85,11 +84,10 @@ private fun ResultSet.toDoneEvent(): Done {
 private fun PreparedStatement.buildStatementForSingleRow(doneEvent: Done) {
     setString(1, doneEvent.systembruker)
     setObject(2, doneEvent.eventTidspunkt, Types.TIMESTAMP)
-    setObject(3, doneEvent.forstBehandlet, Types.TIMESTAMP)
-    setString(4, doneEvent.fodselsnummer)
-    setString(5, doneEvent.eventId)
-    setString(6, doneEvent.grupperingsId)
-    setString(7, doneEvent.namespace)
-    setString(8, doneEvent.appnavn)
-    setObject(9, doneEvent.sistBehandlet, Types.TIMESTAMP)
+    setString(3, doneEvent.fodselsnummer)
+    setString(4, doneEvent.eventId)
+    setString(5, doneEvent.grupperingsId)
+    setString(6, doneEvent.namespace)
+    setString(7, doneEvent.appnavn)
+    setObject(8, doneEvent.sistBehandlet, Types.TIMESTAMP)
 }

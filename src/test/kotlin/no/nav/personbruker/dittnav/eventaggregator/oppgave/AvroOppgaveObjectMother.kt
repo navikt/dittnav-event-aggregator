@@ -22,15 +22,11 @@ object AvroOppgaveObjectMother {
         return OppgaveIntern(
             Instant.now().toEpochMilli(),
             Instant.now().plus(7, ChronoUnit.DAYS).toEpochMilli(),
-            Instant.now().toEpochMilli(),
             defaultTekst,
             "https://nav.no/systemX",
             4,
             eksternVarsling,
-            prefererteKanaler,
-            null,
-            null,
-            null
+            prefererteKanaler
         )
     }
 
@@ -40,32 +36,12 @@ object AvroOppgaveObjectMother {
         synligFremTil: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC"))
     ): OppgaveIntern {
         return OppgaveIntern(
-            Instant.now().toEpochMilli(),
-            synligFremTil.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli(),
-            Instant.now().toEpochMilli(),
-            tekst,
-            "https://nav.no/systemX/$lopenummer",
-            4,
-            defaultEksternVarsling,
-            defaultPrefererteKanaler,
-            null,
-            null,
-            null)
-    }
-
-    fun createOppgaveWithTidspunktAndBehandlet(tidspunkt: Long, behandlet: Long?): OppgaveIntern {
-        return OppgaveIntern(
-            tidspunkt,
-            Instant.now().plus(7, ChronoUnit.DAYS).toEpochMilli(),
-            behandlet,
-            defaultTekst,
-            "https://nav.no/systemX",
-            4,
-            defaultEksternVarsling,
-            defaultPrefererteKanaler,
-            null,
-            null,
-            null
-        )
+                Instant.now().toEpochMilli(),
+                synligFremTil.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli(),
+                tekst,
+                "https://nav.no/systemX/$lopenummer",
+                4,
+                defaultEksternVarsling,
+                defaultPrefererteKanaler)
     }
 }
