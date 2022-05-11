@@ -16,7 +16,7 @@ import org.apache.kafka.clients.consumer.OffsetResetStrategy
 import org.apache.kafka.common.TopicPartition
 import org.junit.jupiter.api.Test
 
-class BeskjedTest {
+class BeskjedIT {
     private val database = LocalPostgresDatabase.migratedDb()
 
     private val metricsReporter = StubMetricsReporter()

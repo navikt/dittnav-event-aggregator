@@ -4,10 +4,11 @@ import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.countTotalNumberOfEvents
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import no.nav.personbruker.dittnav.eventaggregator.statusoppdatering.Statusoppdatering
-import no.nav.personbruker.dittnav.eventaggregator.statusoppdatering.StatusoppdateringObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.statusoppdatering.createStatusoppdatering
-import org.amshove.kluent.*
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should contain all`
+import org.amshove.kluent.`with message`
+import org.amshove.kluent.invoking
+import org.amshove.kluent.shouldThrow
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
@@ -25,7 +26,6 @@ class StatusoppdateringQueriesTest {
 
     private val statusoppdateringWithOffsetForstBehandlet: Statusoppdatering
 
-    private val systembruker = "dummySystembruker"
     private val fodselsnummer = "12345"
     private val eventId = "2"
 

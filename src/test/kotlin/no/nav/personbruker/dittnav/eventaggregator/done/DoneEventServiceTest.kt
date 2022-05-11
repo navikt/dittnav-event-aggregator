@@ -1,186 +1,139 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
-import io.mockk.*
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
-import no.nav.personbruker.dittnav.eventaggregator.common.emptyPersistResult
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
-import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.BrukernotifikasjonObjectMother
+import no.nav.personbruker.dittnav.common.metrics.StubMetricsReporter
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.getAllBeskjed
+import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
+import no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.KafkaTestTopics
 import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.ConsumerRecordsObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.ConsumerRecordsObjectMother.createMatchingRecords
 import no.nav.personbruker.dittnav.eventaggregator.done.schema.AvroDoneObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
+import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
+import no.nav.personbruker.dittnav.eventaggregator.innboks.getAllInnboks
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
-import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsSession
-import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should throw`
-import org.amshove.kluent.invoking
-import org.junit.jupiter.api.AfterAll
+import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.getAllOppgave
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should be false`
+import org.amshove.kluent.shouldBeEmpty
+import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class DoneEventServiceTest {
 
-    private val persistingService = mockk<DonePersistingService>(relaxed = true)
-    private val metricsProbe = mockk<EventMetricsProbe>(relaxed = true)
-    private val metricsSession = mockk<EventMetricsSession>(relaxed = true)
-    private val service = DoneEventService(persistingService, metricsProbe)
-
-    private val dummyFnr = "1".repeat(11)
+    private val database = LocalPostgresDatabase.migratedDb()
+    private val metricsReporter = StubMetricsReporter()
+    private val metricsProbe = EventMetricsProbe(metricsReporter)
+    private val doneRepository = DoneRepository(database)
+    private val donePersistingService = DonePersistingService(doneRepository)
+    private val doneEventService = DoneEventService(donePersistingService, metricsProbe)
+    private val beskjed1 = BeskjedObjectMother.giveMeAktivBeskjed("1", "12345")
+    private val oppgave = OppgaveObjectMother.giveMeAktivOppgave("2", "12345")
+    private val innboks = InnboksObjectMother.giveMeAktivInnboks("3", "12345")
+    private val beskjed2 = BeskjedObjectMother.giveMeAktivBeskjed("4", "12345")
 
     @BeforeEach
-    private fun `reset mocks`() {
-        mockkObject(DoneTransformer)
-        clearMocks(persistingService)
-        clearMocks(metricsProbe)
-        clearMocks(metricsSession)
-        coEvery { persistingService.writeEventsToCache(any()) } returns ListPersistActionResult.emptyInstance()
-        `mock slik at innholdet i runWithMetrics alltid kjores`()
-    }
-
-    private fun `mock slik at innholdet i runWithMetrics alltid kjores`() {
-        val slot = slot<suspend EventMetricsSession.() -> Unit>()
-        coEvery { metricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {
-            slot.captured.invoke(metricsSession)
-        }
-    }
-
-    @AfterAll
-    private fun `clean up`() {
-        unmockkAll()
-    }
-
-    @Test
-    fun `skal oppdatere beskjed-eventer som det blir funnet match for`() {
-        val beskjedInDbToMatch = BrukernotifikasjonObjectMother.giveMeBeskjed(dummyFnr)
-        val records = createMatchingRecords(beskjedInDbToMatch)
-
-        val capturedNumberOfBeskjedEntitiesWrittenToTheDb = slot<List<Done>>()
-        coEvery { persistingService.writeDoneEventsForBeskjedToCache(capture(capturedNumberOfBeskjedEntitiesWrittenToTheDb)) } returns Unit
-
-        coEvery {
-            persistingService.fetchBrukernotifikasjonerFromViewForEventIds(any())
-        } returns listOf(beskjedInDbToMatch)
-
+    fun resetMocks() {
         runBlocking {
-            service.processEvents(records)
-        }
-
-        capturedNumberOfBeskjedEntitiesWrittenToTheDb.captured.size `should be` 1
-
-        coVerify(exactly = 1) { persistingService.writeDoneEventsForBeskjedToCache(any()) }
-        coVerify(exactly = 1) { persistingService.writeDoneEventsForInnboksToCache(emptyList()) }
-        coVerify(exactly = 1) { persistingService.writeDoneEventsForOppgaveToCache(emptyList()) }
-        coVerify(exactly = 1) { persistingService.writeEventsToCache(emptyList()) }
-    }
-
-    @Test
-    fun `skal oppdatere innboks-eventer som det blir funnet match for`() {
-        val innboksEventInDbToMatch = BrukernotifikasjonObjectMother.giveMeInnboks(dummyFnr)
-        val records = createMatchingRecords(innboksEventInDbToMatch)
-
-        val capturedNumberOfInnboksEntitiesWrittenToTheDb = slot<List<Done>>()
-        coEvery { persistingService.writeDoneEventsForInnboksToCache(capture(capturedNumberOfInnboksEntitiesWrittenToTheDb)) } returns Unit
-
-        coEvery {
-            persistingService.fetchBrukernotifikasjonerFromViewForEventIds(any())
-        } returns listOf(innboksEventInDbToMatch)
-
-        runBlocking {
-            service.processEvents(records)
-        }
-
-        capturedNumberOfInnboksEntitiesWrittenToTheDb.captured.size `should be` 1
-
-        coVerify(exactly = 1) { persistingService.writeDoneEventsForInnboksToCache(any()) }
-        coVerify(exactly = 1) { persistingService.writeDoneEventsForBeskjedToCache(emptyList()) }
-        coVerify(exactly = 1) { persistingService.writeDoneEventsForOppgaveToCache(emptyList()) }
-        coVerify(exactly = 1) { persistingService.writeEventsToCache(emptyList()) }
-    }
-
-    @Test
-    fun `skal oppdatere oppgave-eventer som det blir funnet match for`() {
-        val oppgaveEventInDbToMatch = BrukernotifikasjonObjectMother.giveMeOppgave(dummyFnr)
-        val records = createMatchingRecords(oppgaveEventInDbToMatch)
-
-        val capturedNumberOfOppgaveEntitiesWrittenToTheDb = slot<List<Done>>()
-        coEvery { persistingService.writeDoneEventsForOppgaveToCache(capture(capturedNumberOfOppgaveEntitiesWrittenToTheDb)) } returns Unit
-
-        coEvery {
-            persistingService.fetchBrukernotifikasjonerFromViewForEventIds(any())
-        } returns listOf(oppgaveEventInDbToMatch)
-
-        runBlocking {
-            service.processEvents(records)
-        }
-
-        capturedNumberOfOppgaveEntitiesWrittenToTheDb.captured.size `should be` 1
-
-        coVerify(exactly = 1) { persistingService.writeDoneEventsForOppgaveToCache(any()) }
-        coVerify(exactly = 1) { persistingService.writeDoneEventsForInnboksToCache(emptyList()) }
-        coVerify(exactly = 1) { persistingService.writeDoneEventsForBeskjedToCache(emptyList()) }
-        coVerify(exactly = 1) { persistingService.writeEventsToCache(emptyList()) }
-    }
-
-    @Test
-    fun `skal skrive done-eventer det ikke blir funnet match for inn i ventetabellen`() {
-        val beskjedInDbToMatch = BrukernotifikasjonObjectMother.giveMeBeskjed(dummyFnr)
-        val doneEvent = AvroDoneObjectMother.createDoneRecord("eventIdUteMatch", beskjedInDbToMatch.fodselsnummer)
-        val records = ConsumerRecordsObjectMother.giveMeConsumerRecordsWithThisConsumerRecord(doneEvent)
-
-        val capturedNumberOfDoneWrittenToTheDb = slot<List<Done>>()
-        coEvery { persistingService.writeEventsToCache(capture(capturedNumberOfDoneWrittenToTheDb)) } returns emptyPersistResult()
-
-        coEvery {
-            persistingService.fetchBrukernotifikasjonerFromViewForEventIds(any())
-        } returns listOf(beskjedInDbToMatch)
-
-        runBlocking {
-            service.processEvents(records)
-        }
-
-        capturedNumberOfDoneWrittenToTheDb.captured.size `should be` 1
-
-        coVerify(exactly = 1) { persistingService.writeDoneEventsForBeskjedToCache(emptyList()) }
-        coVerify(exactly = 1) { persistingService.writeDoneEventsForInnboksToCache(emptyList()) }
-        coVerify(exactly = 1) { persistingService.writeDoneEventsForOppgaveToCache(emptyList()) }
-        coVerify(exactly = 1) { persistingService.writeEventsToCache(any()) }
-    }
-
-    @Test
-    fun `skal kaste exception hvis det skjer minst en ukjent feil`() {
-        val beskjedInDbToMatch1 = BrukernotifikasjonObjectMother.giveMeBeskjed(dummyFnr)
-        val beskjedInDbToMatch2 = BrukernotifikasjonObjectMother.giveMeBeskjed(dummyFnr)
-        val beskjedInDbToMatch3 = BrukernotifikasjonObjectMother.giveMeBeskjed(dummyFnr)
-        val entitiesInDbToMatch = listOf(beskjedInDbToMatch1, beskjedInDbToMatch2, beskjedInDbToMatch3)
-        val records = createMatchingRecords(entitiesInDbToMatch)
-
-        val capturedNumberOfBeskjedEntitiesWrittenToTheDb = slot<List<Done>>()
-        coEvery { persistingService.writeDoneEventsForBeskjedToCache(capture(capturedNumberOfBeskjedEntitiesWrittenToTheDb)) } returns Unit
-
-        val simulertFeil = UntransformableRecordException("Simulert feil")
-        val matchingDoneEvent2 = DoneObjectMother.giveMeMatchingDoneEvent(beskjedInDbToMatch2)
-        val matchingDoneEvent3 = DoneObjectMother.giveMeMatchingDoneEvent(beskjedInDbToMatch3)
-        val matchingDoneEvents = listOf(matchingDoneEvent2, matchingDoneEvent3)
-        every {
-            DoneTransformer.toInternal(any(), any())
-        } throws simulertFeil andThenMany matchingDoneEvents
-
-        coEvery {
-            persistingService.fetchBrukernotifikasjonerFromViewForEventIds(any())
-        } returns listOf(beskjedInDbToMatch2, beskjedInDbToMatch3)
-
-        invoking {
-            runBlocking {
-                service.processEvents(records)
+            database.dbQuery {
+                createBeskjed(beskjed1)
+                createBeskjed(beskjed2)
+                createOppgave(oppgave)
+                createInnboks(innboks)
             }
-        } `should throw` UntransformableRecordException::class
-
-        capturedNumberOfBeskjedEntitiesWrittenToTheDb.captured.size `should be` 2
-
-        coVerify(exactly = 1) { persistingService.writeDoneEventsForBeskjedToCache(any()) }
-        coVerify(exactly = 1) { persistingService.writeDoneEventsForInnboksToCache(emptyList()) }
-        coVerify(exactly = 1) { persistingService.writeDoneEventsForOppgaveToCache(emptyList()) }
-        coVerify(exactly = 1) { persistingService.writeEventsToCache(emptyList()) }
+        }
     }
 
+    @AfterEach
+    fun cleanUp() {
+        runBlocking {
+            database.dbQuery {
+                deleteAllOppgave()
+                deleteAllBeskjed()
+                deleteAllInnboks()
+                deleteAllDone()
+            }
+        }
+    }
+
+    @Test
+    fun `Setter Beskjed-event inaktivt hvis Done-event mottas`() {
+        val record = ConsumerRecord(KafkaTestTopics.beskjedInternTopicName, 1, 1, createNokkel(eventId = 1), AvroDoneObjectMother.createDone())
+        val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(record)
+        runBlocking {
+            doneEventService.processEvents(records)
+            val allBeskjed = database.dbQuery { getAllBeskjed() }
+            val foundBeskjed = allBeskjed.first { it.eventId == "1" }
+            foundBeskjed.aktiv.`should be false`()
+        }
+    }
+
+    @Test
+    fun `Setter Oppgave-event inaktivt hvis Done-event mottas`() {
+        val record = ConsumerRecord(KafkaTestTopics.oppgaveInternTopicName, 1, 1, createNokkel(eventId = 2), AvroDoneObjectMother.createDone())
+        val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(record)
+        runBlocking {
+            doneEventService.processEvents(records)
+            val allOppgave = database.dbQuery { getAllOppgave() }
+            val foundOppgave = allOppgave.first { it.eventId == "2" }
+            foundOppgave.aktiv.`should be false`()
+        }
+    }
+
+    @Test
+    fun `Setter Innboks-event inaktivt hvis Done-event mottas`() {
+        val record = ConsumerRecord(KafkaTestTopics.innboksInternTopicName, 1, 1, createNokkel(eventId = 3), AvroDoneObjectMother.createDone())
+        val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(record)
+        runBlocking {
+            doneEventService.processEvents(records)
+            val allInnboks = database.dbQuery { getAllInnboks() }
+            val foundInnboks = allInnboks.first { it.eventId == "3" }
+            foundInnboks.aktiv.`should be false`()
+        }
+    }
+
+    @Test
+    fun `Skal ikke lagre Done-event i cache hvis event med matchende eventId finnes`() {
+        val record = ConsumerRecord(KafkaTestTopics.beskjedInternTopicName, 1, 1, createNokkel(eventId = 4), AvroDoneObjectMother.createDone())
+        val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(record)
+        runBlocking {
+            doneEventService.processEvents(records)
+            val allDone = database.dbQuery { getAllDoneEvent() }
+            allDone.shouldBeEmpty()
+        }
+    }
+
+    @Test
+    fun `Lagrer Done-event i cache hvis event med matchende eventId ikke finnes`() {
+        val record = ConsumerRecord(KafkaTestTopics.beskjedInternTopicName, 1, 1, createNokkel(eventId = 5), AvroDoneObjectMother.createDone())
+        val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(record)
+        runBlocking {
+            doneEventService.processEvents(records)
+            val allDone = database.dbQuery { getAllDoneEvent() }
+            allDone.size `should be equal to` 1
+            allDone.first().eventId `should be equal to` "5"
+        }
+    }
+
+    @Test
+    fun `Skal ikke lagre Done-event i cache paa nytt hvis Done-event med samme id allerede er mottatt`() {
+        val record1 = ConsumerRecord(KafkaTestTopics.beskjedInternTopicName, 1, 1, createNokkel(eventId = 5), AvroDoneObjectMother.createDone())
+        val record2 = ConsumerRecord(KafkaTestTopics.beskjedInternTopicName, 1, 1, createNokkel(eventId = 5), AvroDoneObjectMother.createDone())
+        val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(listOf(record1, record2))
+        runBlocking {
+            doneEventService.processEvents(records)
+            val allDone = database.dbQuery { getAllDoneEvent() }
+            allDone.size `should be equal to` 1
+            allDone.first().eventId `should be equal to` "5"
+        }
+    }
 }

@@ -17,7 +17,7 @@ import org.apache.kafka.common.TopicPartition
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 
-class StatusoppdateringTest {
+class StatusoppdateringIT {
     private val database = LocalPostgresDatabase.migratedDb()
 
     private val metricsReporter = StubMetricsReporter()
