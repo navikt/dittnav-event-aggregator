@@ -10,14 +10,6 @@ import java.sql.Types
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-fun Connection.getAllOppgave(): List<Oppgave> =
-        prepareStatement("""SELECT * FROM oppgave""")
-                .use {
-                    it.executeQuery().list {
-                        toOppgave()
-                    }
-                }
-
 private val createQuery = """INSERT INTO oppgave (systembruker, eventTidspunkt, forstBehandlet, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn, synligFremTil) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?)"""
 
 fun Connection.createOppgaver(oppgaver: List<Oppgave>) =
@@ -73,44 +65,7 @@ fun Connection.getExpiredOppgave(): List<Oppgave> {
         }
 }
 
-
-fun Connection.getAllOppgaveByAktiv(aktiv: Boolean): List<Oppgave> =
-        prepareStatement("""SELECT * FROM oppgave WHERE aktiv = ?""")
-                .use {
-                    it.setBoolean(1, aktiv)
-                    it.executeQuery().list {
-                        toOppgave()
-                    }
-                }
-
-fun Connection.getOppgaveByFodselsnummer(fodselsnummer: String): List<Oppgave> =
-        prepareStatement("""SELECT * FROM oppgave WHERE fodselsnummer = ?""")
-                .use {
-                    it.setString(1, fodselsnummer)
-                    it.executeQuery().list {
-                        toOppgave()
-                    }
-                }
-
-fun Connection.getOppgaveById(id: Int): Oppgave =
-        prepareStatement("""SELECT * FROM oppgave WHERE id = ?""")
-                .use {
-                    it.setInt(1, id)
-                    it.executeQuery().singleResult {
-                        toOppgave()
-                    }
-                }
-
-fun Connection.getOppgaveByEventId(eventId: String): Oppgave =
-        prepareStatement("""SELECT * FROM oppgave WHERE eventId = ?""")
-                .use {
-                    it.setString(1, eventId)
-                    it.executeQuery().singleResult {
-                        toOppgave()
-                    }
-                }
-
-private fun ResultSet.toOppgave(): Oppgave {
+fun ResultSet.toOppgave(): Oppgave {
     return Oppgave(
             id = getInt("id"),
             systembruker = getString("systembruker"),

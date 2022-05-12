@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
-class innboksQueriesTest {
+class InnboksQueriesTest {
     private val database = LocalPostgresDatabase.migratedDb()
 
     private val fodselsnummer1 = "12345"

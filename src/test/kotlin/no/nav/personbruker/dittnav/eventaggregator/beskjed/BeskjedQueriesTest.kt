@@ -18,7 +18,7 @@ import java.sql.SQLException
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
-class beskjedQueriesTest {
+class BeskjedQueriesTest {
 
     private val database = LocalPostgresDatabase.migratedDb()
 
@@ -79,15 +79,6 @@ class beskjedQueriesTest {
                     beskjed.copy(id = it)
                 }
             }
-        }
-    }
-
-    @Test
-    fun `Finner alle cachede Beskjed-eventer`() {
-        runBlocking {
-            val result = database.dbQuery { getAllBeskjed() }
-            result.size shouldBe allEvents.size
-            result.toSet() shouldBe allEvents.toSet()
         }
     }
 

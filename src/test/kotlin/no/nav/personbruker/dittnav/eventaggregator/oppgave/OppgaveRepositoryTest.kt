@@ -8,9 +8,9 @@ import org.junit.jupiter.api.Test
 
 class OppgaveRepositoryTest {
 
-    val database = LocalPostgresDatabase.migratedDb()
+    private val database = LocalPostgresDatabase.migratedDb()
 
-    val oppgaveRepository = OppgaveRepository(database)
+    private val oppgaveRepository = OppgaveRepository(database)
 
     private val oppgave1 = OppgaveObjectMother.giveMeAktivOppgave("11", "12345")
     private val oppgave2 = OppgaveObjectMother.giveMeAktivOppgave("12", "12345")

@@ -44,8 +44,8 @@ class InnboksIT {
             innboksConsumer.stopPolling()
 
             database.dbQuery {
-                getAllInnboks().size
-            } shouldBe innboksEventer.size
+                getAllInnboks().size shouldBe innboksEventer.size
+            }
         }
     }
 }

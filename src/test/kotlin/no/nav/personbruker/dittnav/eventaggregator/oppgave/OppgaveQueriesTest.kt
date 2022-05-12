@@ -15,7 +15,7 @@ import java.sql.SQLException
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
-class oppgaveQueriesTest {
+class OppgaveQueriesTest {
 
     private val database = LocalPostgresDatabase.migratedDb()
 
