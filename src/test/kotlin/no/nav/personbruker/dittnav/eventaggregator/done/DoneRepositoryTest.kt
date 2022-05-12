@@ -1,5 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
@@ -14,9 +16,6 @@ import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.getOppgaveByEventId
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should contain same`
-import org.amshove.kluent.`should not be equal to`
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
@@ -51,7 +50,7 @@ class DoneRepositoryTest {
         runBlocking {
             val toCreate = listOf(done1, done2, done3)
             val result = doneRepository.createInOneBatch(toCreate)
-            result.getPersistedEntitites() `should contain same` toCreate
+            result.getPersistedEntitites() shouldBe toCreate
         }
     }
 
@@ -60,7 +59,7 @@ class DoneRepositoryTest {
         runBlocking {
             val toCreate = listOf(done1, done2, done3)
             val result = doneRepository.createOneByOneToFilterOutTheProblematicEvents(toCreate)
-            result.getPersistedEntitites() `should contain same` toCreate
+            result.getPersistedEntitites() shouldBe toCreate
         }
     }
 
@@ -72,8 +71,8 @@ class DoneRepositoryTest {
             val expected = toCreate - alreadyPersisted
             doneRepository.createInOneBatch(alreadyPersisted)
             val result = doneRepository.createInOneBatch(toCreate)
-            result.getPersistedEntitites() `should contain same` expected
-            result.getConflictingEntities() `should contain same` alreadyPersisted
+            result.getPersistedEntitites() shouldBe expected
+            result.getConflictingEntities() shouldBe alreadyPersisted
         }
     }
 
@@ -85,8 +84,8 @@ class DoneRepositoryTest {
             val expected = toCreate - alreadyPersisted
             doneRepository.createInOneBatch(alreadyPersisted)
             val result = doneRepository.createOneByOneToFilterOutTheProblematicEvents(toCreate)
-            result.getPersistedEntitites() `should contain same` expected
-            result.getConflictingEntities() `should contain same` alreadyPersisted
+            result.getPersistedEntitites() shouldBe expected
+            result.getConflictingEntities() shouldBe alreadyPersisted
         }
     }
 
@@ -103,8 +102,8 @@ class DoneRepositoryTest {
             getBeskjedByEventId(done1.eventId)
         }
 
-        result.aktiv `should be equal to` false
-        result.systembruker `should not be equal to` done1.systembruker
+        result.aktiv shouldBe false
+        result.systembruker shouldNotBe done1.systembruker
     }
 
     @Test
@@ -120,8 +119,8 @@ class DoneRepositoryTest {
             getOppgaveByEventId(done1.eventId)
         }
 
-        result.aktiv `should be equal to` false
-        result.systembruker `should not be equal to` done1.systembruker
+        result.aktiv shouldBe false
+        result.systembruker shouldNotBe done1.systembruker
     }
 
     @Test
@@ -137,7 +136,7 @@ class DoneRepositoryTest {
             getInnboksByEventId(done1.eventId)
         }
 
-        result.aktiv `should be equal to` false
-        result.systembruker `should not be equal to` done1.systembruker
+        result.aktiv shouldBe false
+        result.systembruker shouldNotBe done1.systembruker
     }
 }

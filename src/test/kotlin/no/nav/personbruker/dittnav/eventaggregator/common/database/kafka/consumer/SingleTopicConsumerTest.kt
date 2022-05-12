@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.consumer
 
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.internal.BeskjedIntern
 import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
@@ -8,7 +9,6 @@ import no.nav.personbruker.dittnav.eventaggregator.common.SimpleEventCounterServ
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.createEventRecords
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.delayUntilDone
-import org.amshove.kluent.`should be equal to`
 import org.apache.kafka.clients.consumer.MockConsumer
 import org.apache.kafka.clients.consumer.OffsetResetStrategy
 import org.apache.kafka.common.TopicPartition
@@ -39,6 +39,6 @@ class SingleTopicConsumerTest {
             consumer.stopPolling()
 
             eventProcessor.eventCounter
-        } `should be equal to` events.size
+        } shouldBe events.size
     }
 }

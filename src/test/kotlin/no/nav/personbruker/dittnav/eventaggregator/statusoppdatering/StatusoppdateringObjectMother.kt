@@ -6,17 +6,17 @@ import java.time.temporal.ChronoUnit
 
 object StatusoppdateringObjectMother {
 
-    const val defaultSystembruker = "systembruker"
-    const val defaultNamespace = "namespace"
-    const val defaultAppnavn = "appnavn"
-    const val defaultFodselsnummer = "123"
-    const val defaultEventId = "12345"
-    const val defaultGrupperingsId = "grupperingsId"
-    const val defaultLink = "http://link"
-    const val defaultSikkerhetsnivaa = 4
-    const val defaultStatusGlobal = "SENDT"
-    const val defaultStatusIntern = "dummyStatusIntern"
-    const val defaultSakstema = "dummySakstema"
+    private const val defaultSystembruker = "systembruker"
+    private const val defaultNamespace = "namespace"
+    private const val defaultAppnavn = "appnavn"
+    private const val defaultFodselsnummer = "123"
+    private const val defaultEventId = "12345"
+    private const val defaultGrupperingsId = "grupperingsId"
+    private const val defaultLink = "http://link"
+    private const val defaultSikkerhetsnivaa = 4
+    private const val defaultStatusGlobal = "SENDT"
+    private const val defaultStatusIntern = "dummyStatusIntern"
+    private const val defaultSakstema = "dummySakstema"
 
     fun giveMeStatusoppdatering(eventId: String, fodselsnummer: String): Statusoppdatering {
         return giveMeStatusoppdatering(eventId = eventId, fodselsnummer = fodselsnummer, systembruker = "dummySystembruker", link = "https://nav.no/systemX/$eventId")

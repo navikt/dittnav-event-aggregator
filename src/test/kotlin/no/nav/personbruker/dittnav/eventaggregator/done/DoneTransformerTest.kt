@@ -1,9 +1,9 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
+import io.kotest.matchers.shouldBe
 import no.nav.personbruker.dittnav.eventaggregator.common.toEpochMilli
 import no.nav.personbruker.dittnav.eventaggregator.done.schema.AvroDoneObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
-import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -21,15 +21,15 @@ class DoneTransformerTest {
         val original = AvroDoneObjectMother.createDone()
         val transformed = DoneTransformer.toInternal(dummyNokkel, original)
 
-        transformed.systembruker `should be equal to` dummyNokkel.getSystembruker()
-        transformed.fodselsnummer `should be equal to` dummyNokkel.getFodselsnummer()
-        transformed.grupperingsId `should be equal to` dummyNokkel.getGrupperingsId()
-        transformed.eventId `should be equal to` dummyNokkel.getEventId()
-        transformed.namespace `should be equal to` dummyNokkel.getNamespace()
-        transformed.appnavn `should be equal to` dummyNokkel.getAppnavn()
+        transformed.systembruker shouldBe dummyNokkel.getSystembruker()
+        transformed.fodselsnummer shouldBe dummyNokkel.getFodselsnummer()
+        transformed.grupperingsId shouldBe dummyNokkel.getGrupperingsId()
+        transformed.eventId shouldBe dummyNokkel.getEventId()
+        transformed.namespace shouldBe dummyNokkel.getNamespace()
+        transformed.appnavn shouldBe dummyNokkel.getAppnavn()
 
         val transformedEventTidspunktAsLong = transformed.eventTidspunkt.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
-        transformedEventTidspunktAsLong `should be equal to` original.getTidspunkt()
+        transformedEventTidspunktAsLong shouldBe original.getTidspunkt()
     }
 
     @Test
@@ -41,8 +41,8 @@ class DoneTransformerTest {
 
         val transformed = DoneTransformer.toInternal(dummyNokkel, done)
 
-        transformed.eventTidspunkt.truncatedTo(ChronoUnit.MILLIS) `should be equal to` tidspunkt.truncatedTo(ChronoUnit.MILLIS)
-        transformed.forstBehandlet.truncatedTo(ChronoUnit.MILLIS) `should be equal to` behandlet.truncatedTo(ChronoUnit.MILLIS)
+        transformed.eventTidspunkt.truncatedTo(ChronoUnit.MILLIS) shouldBe tidspunkt.truncatedTo(ChronoUnit.MILLIS)
+        transformed.forstBehandlet.truncatedTo(ChronoUnit.MILLIS) shouldBe behandlet.truncatedTo(ChronoUnit.MILLIS)
     }
 
     @Test
@@ -54,8 +54,8 @@ class DoneTransformerTest {
 
         val transformed = DoneTransformer.toInternal(dummyNokkel, done)
 
-        transformed.eventTidspunkt.truncatedTo(ChronoUnit.MILLIS)  `should be equal to` tidspunkt.truncatedTo(ChronoUnit.MILLIS)
-        transformed.forstBehandlet.truncatedTo(ChronoUnit.MILLIS)  `should be equal to` tidspunkt.truncatedTo(ChronoUnit.MILLIS)
+        transformed.eventTidspunkt.truncatedTo(ChronoUnit.MILLIS)  shouldBe tidspunkt.truncatedTo(ChronoUnit.MILLIS)
+        transformed.forstBehandlet.truncatedTo(ChronoUnit.MILLIS)  shouldBe tidspunkt.truncatedTo(ChronoUnit.MILLIS)
     }
 
     @Test
@@ -69,8 +69,8 @@ class DoneTransformerTest {
 
         val transformed = DoneTransformer.toInternal(dummyNokkel, done)
 
-        transformed.eventTidspunkt.toEpochMilli() `should be equal to` truncatedTidspunkt
-        transformed.forstBehandlet.truncatedTo(ChronoUnit.SECONDS) `should be equal to` tidspunkt.truncatedTo(ChronoUnit.SECONDS)
+        transformed.eventTidspunkt.toEpochMilli() shouldBe truncatedTidspunkt
+        transformed.forstBehandlet.truncatedTo(ChronoUnit.SECONDS) shouldBe tidspunkt.truncatedTo(ChronoUnit.SECONDS)
     }
 
 }

@@ -1,5 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.database.entity
 
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
@@ -9,8 +11,6 @@ import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should contain all`
 import org.junit.jupiter.api.Test
 
 class BrukernotifikasjonQueriesTest {
@@ -46,8 +46,8 @@ class BrukernotifikasjonQueriesTest {
         val eventIds = aktiveBrukernotifikasjonEventer.map { it.eventId }
         runBlocking {
             val result = database.dbQuery { getBrukernotifikasjonFromViewForEventIds(eventIds) }
-            result.size `should be equal to` 3
-            result `should contain all` aktiveBrukernotifikasjonEventer
+            result.size shouldBe 3
+            result shouldContainAll aktiveBrukernotifikasjonEventer
         }
     }
 

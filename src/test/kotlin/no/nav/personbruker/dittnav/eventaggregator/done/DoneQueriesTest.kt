@@ -1,9 +1,9 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should contain all`
 import org.junit.jupiter.api.Test
 
 class DoneQueriesTest {
@@ -26,8 +26,8 @@ class DoneQueriesTest {
     fun `Finner alle cachede Done-eventer`() {
         runBlocking {
             val result = database.dbQuery { getAllDoneEvent() }
-            result.size `should be equal to` 3
-            result `should contain all` allEvents
+            result.size shouldBe 3
+            result shouldContainAll allEvents
         }
     }
 
@@ -45,7 +45,7 @@ class DoneQueriesTest {
             database.dbQuery { deleteDoneEvents(doneEventsToInsertAndThenDelete) }
 
             val antallDoneEventerEtterSletting = database.dbQuery { getAllDoneEvent() }
-            antallDoneEventerEtterSletting.size `should be equal to` expectedAntallDoneEventerEtterSletting
+            antallDoneEventerEtterSletting.size shouldBe expectedAntallDoneEventerEtterSletting
         }
     }
 

@@ -1,9 +1,8 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.shouldBe
 import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.BrukernotifikasjonObjectMother
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should contain all`
 import org.junit.jupiter.api.Test
 
 internal class DoneBatchProcessorTest {
@@ -18,13 +17,13 @@ internal class DoneBatchProcessorTest {
         val processor = DoneBatchProcessor(existingEntitiesInDatabase)
         processor.process(doneEventsToProcess)
 
-        processor.foundBeskjed.size `should be` 1
-        processor.foundInnboks.size `should be` 1
-        processor.foundOppgave.size `should be` 1
-        processor.notFoundEvents.size `should be` 1
+        processor.foundBeskjed.size shouldBe 1
+        processor.foundInnboks.size shouldBe 1
+        processor.foundOppgave.size shouldBe 1
+        processor.notFoundEvents.size shouldBe 1
 
         val totalNumberOfGroupedEvents = processor.allFoundEvents.size + processor.notFoundEvents.size
-        totalNumberOfGroupedEvents `should be equal to` doneEventsToProcess.size
+        totalNumberOfGroupedEvents shouldBe doneEventsToProcess.size
     }
 
     @Test
@@ -33,10 +32,10 @@ internal class DoneBatchProcessorTest {
 
         processor.process(emptyList())
 
-        processor.foundBeskjed.size `should be` 0
-        processor.foundInnboks.size `should be` 0
-        processor.foundOppgave.size `should be` 0
-        processor.notFoundEvents.size `should be` 0
+        processor.foundBeskjed.size shouldBe 0
+        processor.foundInnboks.size shouldBe 0
+        processor.foundOppgave.size shouldBe 0
+        processor.notFoundEvents.size shouldBe 0
     }
 
     @Test
@@ -46,11 +45,11 @@ internal class DoneBatchProcessorTest {
 
         processor.process(emptyList())
 
-        processor.foundBeskjed.size `should be` 0
-        processor.foundInnboks.size `should be` 0
-        processor.foundOppgave.size `should be` 0
-        processor.notFoundEvents.size `should be` 0
-        processor.isMoreEventsToProcess() `should be equal to` false
+        processor.foundBeskjed.size shouldBe 0
+        processor.foundInnboks.size shouldBe 0
+        processor.foundOppgave.size shouldBe 0
+        processor.notFoundEvents.size shouldBe 0
+        processor.isMoreEventsToProcess() shouldBe false
     }
 
     @Test
@@ -60,11 +59,11 @@ internal class DoneBatchProcessorTest {
 
         processor.process(batchOfEntities)
 
-        processor.foundBeskjed.size `should be` 0
-        processor.foundInnboks.size `should be` 0
-        processor.foundOppgave.size `should be` 0
-        processor.notFoundEvents.size `should be` 2
-        processor.isMoreEventsToProcess() `should be equal to` true
+        processor.foundBeskjed.size shouldBe 0
+        processor.foundInnboks.size shouldBe 0
+        processor.foundOppgave.size shouldBe 0
+        processor.notFoundEvents.size shouldBe 2
+        processor.isMoreEventsToProcess() shouldBe true
     }
 
     @Test
@@ -75,7 +74,7 @@ internal class DoneBatchProcessorTest {
         val processor = DoneBatchProcessor(existingEntitiesInDatabase)
         processor.process(doneEventsToProcess)
 
-        processor.allFoundEvents `should contain all` doneEventsToProcess
+        processor.allFoundEvents shouldContainAll doneEventsToProcess
     }
 
 }

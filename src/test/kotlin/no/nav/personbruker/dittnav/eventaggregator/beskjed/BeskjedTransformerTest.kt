@@ -1,12 +1,11 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import no.nav.personbruker.dittnav.eventaggregator.common.toEpochMilli
-import org.amshove.kluent.`should be empty`
-
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be null`
-import org.amshove.kluent.`should not be null`
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -26,24 +25,24 @@ class BeskjedTransformerTest {
 
         val transformed = BeskjedTransformer.toInternal(nokkel, original)
 
-        transformed.fodselsnummer `should be equal to` nokkel.getFodselsnummer()
-        transformed.grupperingsId `should be equal to` nokkel.getGrupperingsId()
-        transformed.eventId `should be equal to` nokkel.getEventId()
-        transformed.link `should be equal to` original.getLink()
-        transformed.tekst `should be equal to` original.getTekst()
-        transformed.systembruker `should be equal to` nokkel.getSystembruker()
-        transformed.sikkerhetsnivaa `should be equal to` original.getSikkerhetsnivaa()
-        transformed.appnavn `should be equal to` nokkel.getAppnavn()
-        transformed.namespace `should be equal to` nokkel.getNamespace()
+        transformed.fodselsnummer shouldBe nokkel.getFodselsnummer()
+        transformed.grupperingsId shouldBe nokkel.getGrupperingsId()
+        transformed.eventId shouldBe nokkel.getEventId()
+        transformed.link shouldBe original.getLink()
+        transformed.tekst shouldBe original.getTekst()
+        transformed.systembruker shouldBe nokkel.getSystembruker()
+        transformed.sikkerhetsnivaa shouldBe original.getSikkerhetsnivaa()
+        transformed.appnavn shouldBe nokkel.getAppnavn()
+        transformed.namespace shouldBe nokkel.getNamespace()
 
         val transformedEventTidspunktAsLong = transformed.eventTidspunkt.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
-        transformedEventTidspunktAsLong `should be equal to` original.getTidspunkt()
+        transformedEventTidspunktAsLong shouldBe original.getTidspunkt()
 
-        transformed.aktiv `should be equal to` true
-        transformed.eksternVarsling `should be equal to` true
-        transformed.prefererteKanaler `should be equal to` original.getPrefererteKanaler()
-        transformed.sistOppdatert.`should not be null`()
-        transformed.id.`should be null`()
+        transformed.aktiv shouldBe true
+        transformed.eksternVarsling shouldBe true
+        transformed.prefererteKanaler shouldBe original.getPrefererteKanaler()
+        transformed.sistOppdatert.shouldNotBeNull()
+        transformed.id.shouldBeNull()
     }
 
     @Test
@@ -52,14 +51,14 @@ class BeskjedTransformerTest {
 
         val transformed = BeskjedTransformer.toInternal(dummyNokkel, beskjedUtenSynligTilSatt)
 
-        transformed.synligFremTil.`should be null`()
+        transformed.synligFremTil.shouldBeNull()
     }
 
     @Test
     fun `should allow prefererteKanaler to be empty`() {
         val beskjedUtenPrefererteKanaler = AvroBeskjedObjectMother.createBeskjedWithEksternVarslingAndPrefererteKanaler(true, emptyList())
         val transformed = BeskjedTransformer.toInternal(dummyNokkel, beskjedUtenPrefererteKanaler)
-        transformed.prefererteKanaler.`should be empty`()
+        transformed.prefererteKanaler.shouldBeEmpty()
     }
 
     @Test
@@ -71,8 +70,8 @@ class BeskjedTransformerTest {
 
         val transformed = BeskjedTransformer.toInternal(dummyNokkel, beskjed)
 
-        transformed.eventTidspunkt.truncatedTo(MILLIS) `should be equal to` tidspunkt.truncatedTo(MILLIS)
-        transformed.forstBehandlet.truncatedTo(MILLIS) `should be equal to` behandlet.truncatedTo(MILLIS)
+        transformed.eventTidspunkt.truncatedTo(MILLIS) shouldBe tidspunkt.truncatedTo(MILLIS)
+        transformed.forstBehandlet.truncatedTo(MILLIS) shouldBe behandlet.truncatedTo(MILLIS)
     }
 
     @Test
@@ -84,8 +83,8 @@ class BeskjedTransformerTest {
 
         val transformed = BeskjedTransformer.toInternal(dummyNokkel, beskjed)
 
-        transformed.eventTidspunkt.truncatedTo(MILLIS)  `should be equal to` tidspunkt.truncatedTo(MILLIS)
-        transformed.forstBehandlet.truncatedTo(MILLIS)  `should be equal to` tidspunkt.truncatedTo(MILLIS)
+        transformed.eventTidspunkt.truncatedTo(MILLIS)  shouldBe tidspunkt.truncatedTo(MILLIS)
+        transformed.forstBehandlet.truncatedTo(MILLIS)  shouldBe tidspunkt.truncatedTo(MILLIS)
     }
 
     @Test
@@ -99,7 +98,7 @@ class BeskjedTransformerTest {
 
         val transformed = BeskjedTransformer.toInternal(dummyNokkel, beskjed)
 
-        transformed.eventTidspunkt.toEpochMilli() `should be equal to` truncatedTidspunkt
-        transformed.forstBehandlet.truncatedTo(SECONDS) `should be equal to` tidspunkt.truncatedTo(SECONDS)
+        transformed.eventTidspunkt.toEpochMilli() shouldBe truncatedTidspunkt
+        transformed.forstBehandlet.truncatedTo(SECONDS) shouldBe tidspunkt.truncatedTo(SECONDS)
     }
 }

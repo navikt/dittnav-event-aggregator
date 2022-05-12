@@ -1,5 +1,8 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
+import io.kotest.assertions.throwables.shouldNotThrow
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -17,11 +20,6 @@ import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsSession
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.getOppgaveByEventId
-import org.amshove.kluent.AnyException
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should not throw`
-import org.amshove.kluent.invoking
-import org.amshove.kluent.shouldBeFalse
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 
@@ -102,18 +100,18 @@ class PeriodicDoneEventWaitingTableProcessorTest {
             eventConsumer.processDoneEvents()
 
             val elementsInDoneTableAfterProcessing = database.dbQuery { getAllDoneEvent() }
-            elementsInDoneTableAfterProcessing.size `should be equal to` expectedNumberOfEventsAfterProcessing
+            elementsInDoneTableAfterProcessing.size shouldBe expectedNumberOfEventsAfterProcessing
         }
     }
 
     @Test
     fun `feiler ikke hvis event med samme eventId som Done-event ikke er mottatt`() {
-        invoking {
+        shouldNotThrow<Exception> {
             runBlocking {
                 database.dbQuery { createDoneEvents(listOf(DoneObjectMother.giveMeDone("-1"))) }
                 eventConsumer.processDoneEvents()
             }
-        } `should not throw` AnyException
+        }
     }
 
     @Test

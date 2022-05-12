@@ -1,6 +1,17 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
-import io.mockk.*
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import io.mockk.clearMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.confirmVerified
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.slot
+import io.mockk.unmockkAll
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.emptyPersistResult
@@ -9,9 +20,6 @@ import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.ConsumerR
 import no.nav.personbruker.dittnav.eventaggregator.common.successfulEvents
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsSession
-import org.amshove.kluent.`should be`
-import org.amshove.kluent.`should throw`
-import org.amshove.kluent.invoking
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -55,7 +63,7 @@ class BeskjedEventServiceTest {
 
         verify(exactly = records.count()) { BeskjedTransformer.toInternal(any(), any()) }
         coVerify(exactly = 1) { persistingService.writeEventsToCache(allAny()) }
-        capturedListOfEntities.captured.size `should be` records.count()
+        capturedListOfEntities.captured.size shouldBe records.count()
 
         confirmVerified(BeskjedTransformer)
         confirmVerified(persistingService)
@@ -84,16 +92,16 @@ class BeskjedEventServiceTest {
             slot.captured.invoke(metricsSession)
         }
 
-        invoking {
+        shouldThrow<UntransformableRecordException> {
             runBlocking {
                 eventService.processEvents(records)
             }
-        } `should throw` UntransformableRecordException::class
+        }
 
         coVerify(exactly = totalNumberOfRecords) { BeskjedTransformer.toInternal(any(), any()) }
         coVerify(exactly = 1) { persistingService.writeEventsToCache(allAny()) }
         coVerify(exactly = numberOfFailedTransformations) { metricsSession.countFailedEventForProducer(any()) }
-        capturedListOfEntities.captured.size `should be` numberOfSuccessfulTransformations
+        capturedListOfEntities.captured.size shouldBe numberOfSuccessfulTransformations
 
         confirmVerified(BeskjedTransformer)
         confirmVerified(persistingService)

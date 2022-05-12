@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.internal.BeskjedIntern
 import no.nav.brukernotifikasjon.schemas.internal.DoneIntern
@@ -16,7 +17,6 @@ import no.nav.personbruker.dittnav.eventaggregator.common.kafka.createEventRecor
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.delayUntilCommittedOffset
 import no.nav.personbruker.dittnav.eventaggregator.done.schema.AvroDoneObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
-import org.amshove.kluent.`should be equal to`
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.MockConsumer
 import org.apache.kafka.clients.consumer.OffsetResetStrategy
@@ -63,7 +63,7 @@ class DoneIT {
 
             database.dbQuery {
                 getAllBeskjedByAktiv(true).size
-            } `should be equal to` beskjeder.size
+            } shouldBe beskjeder.size
         }
 
         beskjeder.forEach {
@@ -84,7 +84,7 @@ class DoneIT {
 
             database.dbQuery {
                 getAllBeskjedByAktiv(true).size
-            } `should be equal to` 0
+            } shouldBe 0
         }
     }
 }

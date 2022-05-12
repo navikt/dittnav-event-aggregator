@@ -1,8 +1,8 @@
 package no.nav.personbruker.dittnav.eventaggregator.statusoppdatering
 
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
-import org.amshove.kluent.`should contain same`
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
@@ -32,7 +32,7 @@ class StatusoppdateringRepositoryTest {
 
             val result = statusoppdateringRepository.createInOneBatch(toCreate)
 
-            result.getPersistedEntitites() `should contain same` toCreate
+            result.getPersistedEntitites() shouldBe toCreate
         }
     }
 
@@ -43,7 +43,7 @@ class StatusoppdateringRepositoryTest {
 
             val result = statusoppdateringRepository.createOneByOneToFilterOutTheProblematicEvents(toCreate)
 
-            result.getPersistedEntitites() `should contain same` toCreate
+            result.getPersistedEntitites() shouldBe toCreate
         }
     }
 
@@ -58,8 +58,8 @@ class StatusoppdateringRepositoryTest {
 
             val result = statusoppdateringRepository.createInOneBatch(toCreate)
 
-            result.getPersistedEntitites() `should contain same` expected
-            result.getConflictingEntities() `should contain same` alreadyPersisted
+            result.getPersistedEntitites() shouldBe expected
+            result.getConflictingEntities() shouldBe alreadyPersisted
         }
     }
 
@@ -74,8 +74,8 @@ class StatusoppdateringRepositoryTest {
 
             val result = statusoppdateringRepository.createOneByOneToFilterOutTheProblematicEvents(toCreate)
 
-            result.getPersistedEntitites() `should contain same` expected
-            result.getConflictingEntities() `should contain same` alreadyPersisted
+            result.getPersistedEntitites() shouldBe expected
+            result.getConflictingEntities() shouldBe alreadyPersisted
         }
     }
 }

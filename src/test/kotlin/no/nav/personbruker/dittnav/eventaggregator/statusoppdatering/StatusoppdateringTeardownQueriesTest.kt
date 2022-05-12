@@ -1,9 +1,9 @@
 package no.nav.personbruker.dittnav.eventaggregator.statusoppdatering
 
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
-import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 
 class StatusoppdateringTeardownQueriesTest {
@@ -20,11 +20,11 @@ class StatusoppdateringTeardownQueriesTest {
             `Opprett tre elementer i databasen`()
             delay(100)
             val skalHaElementerIDatabasen = database.dbQuery { getAllStatusoppdatering() }
-            skalHaElementerIDatabasen.size `should be equal to` 3
+            skalHaElementerIDatabasen.size shouldBe 3
 
             `Slett alle statusoppdateringelementer fra databasen`()
             val skalIkkeHaElementerIDatabasen = database.dbQuery { getAllStatusoppdatering() }
-            skalIkkeHaElementerIDatabasen.isEmpty() `should be equal to` true
+            skalIkkeHaElementerIDatabasen.isEmpty() shouldBe true
         }
     }
 

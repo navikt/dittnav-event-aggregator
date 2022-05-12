@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.expired
 
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.input.DoneInput
 import no.nav.brukernotifikasjon.schemas.input.NokkelInput
@@ -23,8 +24,11 @@ import no.nav.personbruker.dittnav.eventaggregator.done.DonePersistingService
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
 import no.nav.personbruker.dittnav.eventaggregator.done.deleteAllDone
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.*
-import org.amshove.kluent.`should be equal to`
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.AvroOppgaveObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveEventService
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.getAllOppgaveByAktiv
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.MockConsumer
 import org.apache.kafka.clients.consumer.OffsetResetStrategy
@@ -123,18 +127,18 @@ class ExpiredTest {
 
             database.dbQuery {
                 getAllBeskjedByAktiv(true).size
-            } `should be equal to` expiredBeskjeder.size
+            } shouldBe expiredBeskjeder.size
 
             periodicExpiredProcessor.sendDoneEventsForExpiredBeskjeder()
             mapAndForwardDoneRecords(doneInputProducerMock, doneInternProducerMock)
-            doneInternProducerMock.history().size `should be equal to` expiredBeskjeder.size
+            doneInternProducerMock.history().size shouldBe expiredBeskjeder.size
 
             loopbackRecords(doneInternProducerMock, doneInternConsumerMock)
             delayUntilCommittedOffset(doneInternConsumerMock, donePartition, expiredBeskjeder.size.toLong())
 
             database.dbQuery {
                 getAllBeskjedByAktiv(true).size
-            } `should be equal to` 0
+            } shouldBe 0
             beskjedConsumer.stopPolling()
             doneConsumer.stopPolling()
         }
@@ -152,18 +156,18 @@ class ExpiredTest {
 
             database.dbQuery {
                 getAllOppgaveByAktiv(true).size
-            } `should be equal to` expiredOppgaver.size
+            } shouldBe expiredOppgaver.size
 
             periodicExpiredProcessor.sendDoneEventsForExpiredOppgaver()
             mapAndForwardDoneRecords(doneInputProducerMock, doneInternProducerMock)
-            doneInternProducerMock.history().size `should be equal to` expiredOppgaver.size
+            doneInternProducerMock.history().size shouldBe expiredOppgaver.size
 
             loopbackRecords(doneInternProducerMock, doneInternConsumerMock)
             delayUntilCommittedOffset(doneInternConsumerMock, donePartition, expiredOppgaver.size.toLong())
 
             database.dbQuery {
                 getAllOppgaveByAktiv(true).size
-            } `should be equal to` 0
+            } shouldBe 0
             oppgaveConsumer.stopPolling()
             doneConsumer.stopPolling()
         }

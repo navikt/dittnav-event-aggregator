@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.database.kafka.consumer
 
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import no.nav.brukernotifikasjon.schemas.internal.BeskjedIntern
 import no.nav.brukernotifikasjon.schemas.internal.InnboksIntern
@@ -12,7 +13,6 @@ import no.nav.personbruker.dittnav.eventaggregator.common.kafka.createEventRecor
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.delayUntilDone
 import no.nav.personbruker.dittnav.eventaggregator.innboks.AvroInnboksObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.AvroOppgaveObjectMother
-import org.amshove.kluent.`should be equal to`
 import org.apache.kafka.clients.consumer.MockConsumer
 import org.apache.kafka.clients.consumer.OffsetResetStrategy
 import org.apache.kafka.common.TopicPartition
@@ -73,9 +73,9 @@ class MultipleTopicsConsumerTest {
             oppgaveConsumer.stopPolling()
             innboksConsumer.stopPolling()
 
-            beskjeder.size `should be equal to` beskjedProcessor.eventCounter
-            oppgaver.size `should be equal to` oppgaveProcessor.eventCounter
-            innbokser.size `should be equal to` innboksProcessor.eventCounter
+            beskjeder.size shouldBe beskjedProcessor.eventCounter
+            oppgaver.size shouldBe oppgaveProcessor.eventCounter
+            innbokser.size shouldBe innboksProcessor.eventCounter
         }
     }
 }

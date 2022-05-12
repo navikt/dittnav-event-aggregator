@@ -1,6 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
-import org.amshove.kluent.`should contain`
+import io.kotest.matchers.string.shouldContain
 import org.junit.jupiter.api.Test
 
 class InnboksTest {
@@ -9,9 +9,9 @@ class InnboksTest {
     fun `skal returnere maskerte data fra toString-metoden`() {
         val innboks = InnboksObjectMother.giveMeAktivInnboks("dummyEventId", "123")
         val innboksAsString = innboks.toString()
-        innboksAsString `should contain` "fodselsnummer=***"
-        innboksAsString `should contain` "tekst=***"
-        innboksAsString `should contain` "link=***"
+        innboksAsString shouldContain "fodselsnummer=***"
+        innboksAsString shouldContain "tekst=***"
+        innboksAsString shouldContain "link=***"
     }
 
 }

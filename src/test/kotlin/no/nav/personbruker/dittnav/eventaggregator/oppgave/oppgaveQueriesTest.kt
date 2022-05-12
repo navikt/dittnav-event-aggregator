@@ -1,9 +1,15 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldNotContain
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneObjectMother
-import org.amshove.kluent.*
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
 import java.time.LocalDateTime
@@ -78,8 +84,8 @@ class oppgaveQueriesTest {
     fun `Finner alle cachede Oppgave-eventer`() {
         runBlocking {
             val result = database.dbQuery { getAllOppgave() }
-            result.size `should be equal to` allEvents.size
-            result `should contain all` allEvents
+            result.size shouldBe allEvents.size
+            result.toSet() shouldBe allEvents.toSet()
         }
     }
 
@@ -89,8 +95,8 @@ class oppgaveQueriesTest {
         runBlocking {
             database.dbQuery { setOppgaverAktivFlag(listOf(doneEvent), false) }
             val result = database.dbQuery { getAllOppgaveByAktiv(true) }
-            result `should contain all` listOf(oppgave1, oppgave3)
-            result `should not contain` oppgave2
+            result shouldContainAll listOf(oppgave1, oppgave3)
+            result shouldNotContain oppgave2
             database.dbQuery { setOppgaverAktivFlag(listOf(doneEvent), true) }
         }
     }
@@ -99,8 +105,8 @@ class oppgaveQueriesTest {
     fun `Finner alle cachede Oppgave-event for fodselsnummer`() {
         runBlocking {
             val result = database.dbQuery { getOppgaveByFodselsnummer(fodselsnummer1) }
-            result.size `should be equal to` allEventsForSingleUser.size
-            result `should contain all` allEventsForSingleUser
+            result.size shouldBe allEventsForSingleUser.size
+            result shouldContainAll allEventsForSingleUser
         }
     }
 
@@ -108,7 +114,7 @@ class oppgaveQueriesTest {
     fun `Gir tom liste dersom Oppgave-event med gitt fodselsnummer ikke finnes`() {
         runBlocking {
             val result = database.dbQuery { getOppgaveByFodselsnummer("-1") }
-            result.isEmpty() `should be` true
+            result.isEmpty() shouldBe true
         }
     }
 
@@ -116,34 +122,34 @@ class oppgaveQueriesTest {
     fun `Finner cachet Oppgave-event for Id`() {
         runBlocking {
             val result = database.dbQuery { oppgave2.id?.let { getOppgaveById(it) } }
-            result `should be equal to` oppgave2
+            result shouldBe oppgave2
         }
     }
 
     @Test
     fun `Kaster exception dersom Oppgave-event med Id ikke finnes`() {
-        invoking {
+        shouldThrow<SQLException> {
             runBlocking {
                 database.dbQuery { getOppgaveById(-1) }
             }
-        } shouldThrow SQLException::class `with message` "Found no rows"
+        }.message shouldBe "Found no rows"
     }
 
     @Test
     fun `Finner cachet Oppgave-event med eventId`() {
         runBlocking {
             val result = database.dbQuery { getOppgaveByEventId(eventId) }
-            result `should be equal to` oppgave2
+            result shouldBe oppgave2
         }
     }
 
     @Test
     fun `Kaster exception dersom Oppgave-event med eventId ikke finnes`() {
-        invoking {
+        shouldThrow<SQLException> {
             runBlocking {
                 database.dbQuery { getOppgaveByEventId("-1") }
             }
-        } shouldThrow SQLException::class `with message` "Found no rows"
+        }.message shouldBe "Found no rows"
     }
 
     @Test
@@ -153,7 +159,7 @@ class oppgaveQueriesTest {
                 createOppgave(oppgave1)
                 val numberOfEvents = getAllOppgave().size
                 createOppgave(oppgave1)
-                getAllOppgave().size `should be equal to` numberOfEvents
+                getAllOppgave().size shouldBe numberOfEvents
             }
         }
     }
@@ -161,12 +167,11 @@ class oppgaveQueriesTest {
     @Test
     fun `Skal haandtere at prefererteKanaler er tom`() {
         val oppgave = OppgaveObjectMother.giveMeAktivOppgaveWithEksternVarslingAndPrefererteKanaler(true, emptyList())
-        invoking {
-            runBlocking {
-                database.dbQuery { createOppgave(oppgave) }
-                val result = database.dbQuery { getOppgaveByEventId(oppgave.eventId) }
-                result.prefererteKanaler.`should be empty`()
-            }
+        runBlocking {
+            database.dbQuery { createOppgave(oppgave) }
+            val result = database.dbQuery { getOppgaveByEventId(oppgave.eventId) }
+            result.prefererteKanaler.shouldBeEmpty()
+            database.dbQuery { deleteOppgaveWithEventId(oppgave.eventId) }
         }
     }
 
@@ -183,8 +188,8 @@ class oppgaveQueriesTest {
             val oppgave1FraDb = database.dbQuery { getOppgaveByEventId(oppgave1.eventId) }
             val oppgave2FraDb = database.dbQuery { getOppgaveByEventId(oppgave2.eventId) }
 
-            oppgave1FraDb.eventId `should be equal to` oppgave1.eventId
-            oppgave2FraDb.eventId `should be equal to` oppgave2.eventId
+            oppgave1FraDb.eventId shouldBe oppgave1.eventId
+            oppgave2FraDb.eventId shouldBe oppgave2.eventId
 
             database.dbQuery { deleteOppgaveWithEventId(oppgave1.eventId) }
             database.dbQuery { deleteOppgaveWithEventId(oppgave2.eventId) }
@@ -199,7 +204,7 @@ class oppgaveQueriesTest {
             }
 
             result shouldHaveSize 1
-            result `should contain` expiredOppgave
+            result shouldContain expiredOppgave
         }
     }
 

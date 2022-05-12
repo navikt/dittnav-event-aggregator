@@ -1,11 +1,11 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldNotContain
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneObjectMother
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should contain all`
-import org.amshove.kluent.`should not contain`
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
@@ -67,8 +67,8 @@ class innboksQueriesTest {
         runBlocking {
             database.dbQuery {
                 val result = getAllInnboks()
-                result.size `should be equal to` allInnboks.size
-                result `should contain all` allInnboks
+                result.size shouldBe allInnboks.size
+                result shouldContainAll allInnboks
             }
         }
     }
@@ -78,7 +78,7 @@ class innboksQueriesTest {
         runBlocking {
             database.dbQuery {
                 val result = getInnboksById(innboks1.id!!)
-                result `should be equal to` innboks1
+                result shouldBe innboks1
             }
         }
     }
@@ -90,11 +90,11 @@ class innboksQueriesTest {
             database.dbQuery {
                 setInnboksEventerAktivFlag(listOf(doneEvent), false)
                 var innboks = getInnboksByEventId(eventId)
-                innboks.aktiv `should be equal to` false
+                innboks.aktiv shouldBe false
 
                 setInnboksEventerAktivFlag(listOf(doneEvent), true)
                 innboks = getInnboksByEventId(eventId)
-                innboks.aktiv `should be equal to` true
+                innboks.aktiv shouldBe true
             }
         }
     }
@@ -109,9 +109,9 @@ class innboksQueriesTest {
                 val inaktivInnboks = getAllInnboksByAktiv(false)
 
                 aktiveInnboks.none { it.id == innboks1.id }
-                aktiveInnboks.size `should be equal to` allInnboks.size - 1
+                aktiveInnboks.size shouldBe allInnboks.size - 1
                 inaktivInnboks.single { it.id == innboks1.id }
-                inaktivInnboks.size `should be equal to` 1
+                inaktivInnboks.size shouldBe 1
 
                 setInnboksEventerAktivFlag(listOf(doneEvent), true)
             }
@@ -123,9 +123,9 @@ class innboksQueriesTest {
         runBlocking {
             database.dbQuery {
                 val result = getInnboksByFodselsnummer(fodselsnummer1)
-                result.size `should be equal to` allInnboksForAktor1.size
-                result `should contain all` allInnboksForAktor1
-                result `should not contain` innboks2
+                result.size shouldBe allInnboksForAktor1.size
+                result shouldContainAll allInnboksForAktor1
+                result shouldNotContain innboks2
             }
         }
     }
@@ -135,7 +135,7 @@ class innboksQueriesTest {
         runBlocking {
             database.dbQuery {
                 val result = getInnboksByEventId(innboks1.eventId)
-                result `should be equal to` innboks1
+                result shouldBe innboks1
             }
         }
     }
@@ -147,7 +147,7 @@ class innboksQueriesTest {
                 createInnboks(innboks1)
                 val numberOfEvents = getAllInnboks().size
                 createInnboks(innboks1)
-                getAllInnboks().size `should be equal to` numberOfEvents
+                getAllInnboks().size shouldBe numberOfEvents
             }
         }
     }
@@ -165,8 +165,8 @@ class innboksQueriesTest {
             val innboks1FraDb = database.dbQuery { getInnboksByEventId(innboks1.eventId) }
             val innboks2FraDb = database.dbQuery { getInnboksByEventId(innboks2.eventId) }
 
-            innboks1FraDb.eventId `should be equal to` innboks1.eventId
-            innboks2FraDb.eventId `should be equal to` innboks2.eventId
+            innboks1FraDb.eventId shouldBe innboks1.eventId
+            innboks2FraDb.eventId shouldBe innboks2.eventId
 
             database.dbQuery { deleteInnboksWithEventId(innboks1.eventId) }
             database.dbQuery { deleteInnboksWithEventId(innboks2.eventId) }

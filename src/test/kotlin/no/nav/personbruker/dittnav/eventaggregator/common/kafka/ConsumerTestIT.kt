@@ -1,5 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.kafka
 
+import io.kotest.assertions.throwables.shouldNotThrow
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -10,10 +12,6 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMoth
 import no.nav.personbruker.dittnav.eventaggregator.common.ThrowingEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should contain same`
-import org.amshove.kluent.invoking
-import org.amshove.kluent.shouldNotThrow
 import org.apache.kafka.clients.consumer.MockConsumer
 import org.apache.kafka.clients.consumer.OffsetAndMetadata
 import org.apache.kafka.clients.consumer.OffsetResetStrategy
@@ -46,9 +44,9 @@ class ConsumerTestIT {
             beskjedConsumer.stopPolling()
         }
 
-        eventProcessor.successfulEventsCounter `should be equal to` beskjeder.size
-        eventProcessor.invocationCounter `should be equal to` beskjeder.size
-        eventProcessor.successfulEvents `should contain same` beskjeder.map { it.value() }
+        eventProcessor.successfulEventsCounter shouldBe beskjeder.size
+        eventProcessor.invocationCounter shouldBe beskjeder.size
+        eventProcessor.successfulEvents shouldBe beskjeder.map { it.value() }
     }
 
     @Test
@@ -64,7 +62,7 @@ class ConsumerTestIT {
         val eventProcessor = ThrowingEventCounterService<BeskjedIntern>(RetriableDatabaseException("Transient error"), 2)
         val beskjedConsumer = Consumer(topicPartition.topic(), consumerMock, eventProcessor)
 
-        invoking {
+        shouldNotThrow<TimeoutCancellationException> {
             runBlocking {
                 beskjedConsumer.startPolling()
 
@@ -79,7 +77,7 @@ class ConsumerTestIT {
                 }
                 beskjedConsumer.stopPolling()
             }
-        } shouldNotThrow TimeoutCancellationException::class
+        }
     }
 
     @Test
@@ -96,8 +94,8 @@ class ConsumerTestIT {
             beskjedConsumer.stopPolling()
         }
 
-        eventProcessor.successfulEventsCounter `should be equal to` 2
-        eventProcessor.invocationCounter `should be equal to` 3
+        eventProcessor.successfulEventsCounter shouldBe 2
+        eventProcessor.invocationCounter shouldBe 3
     }
 
     private class MockConsumerWithRollbackCheck(var dummyResetOffsetValue: Long) :

@@ -1,12 +1,18 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldNotContain
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.countTotalNumberOfEvents
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.countTotalNumberOfEventsByActiveStatus
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneObjectMother
-import org.amshove.kluent.*
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
 import java.time.LocalDateTime
@@ -80,8 +86,8 @@ class beskjedQueriesTest {
     fun `Finner alle cachede Beskjed-eventer`() {
         runBlocking {
             val result = database.dbQuery { getAllBeskjed() }
-            result.size `should be equal to` allEvents.size
-            result `should contain all` allEvents
+            result.size shouldBe allEvents.size
+            result.toSet() shouldBe allEvents.toSet()
         }
     }
 
@@ -91,8 +97,8 @@ class beskjedQueriesTest {
         runBlocking {
             database.dbQuery { setBeskjederAktivflagg(listOf(doneEvent), false) }
             val result = database.dbQuery { getAllBeskjedByAktiv(true) }
-            result `should contain all` listOf(beskjed1, beskjed3, beskjed4)
-            result `should not contain` beskjed2
+            result shouldContainAll listOf(beskjed1, beskjed3, beskjed4)
+            result shouldNotContain beskjed2
             database.dbQuery { setBeskjederAktivflagg(listOf(doneEvent), true) }
         }
     }
@@ -101,25 +107,25 @@ class beskjedQueriesTest {
     fun `Finner cachet Beskjed-event med Id`() {
         runBlocking {
             val result = database.dbQuery { beskjed2.id?.let { getBeskjedById(it) } }
-            result `should be equal to` beskjed2
+            result shouldBe beskjed2
         }
     }
 
     @Test
     fun `Kaster Exception hvis Beskjed-event med Id ikke finnes`() {
-        invoking {
+        shouldThrow<SQLException> {
             runBlocking {
                 database.dbQuery { getBeskjedById(999) }
             }
-        } shouldThrow SQLException::class `with message` "Found no rows"
+        }.message shouldBe "Found no rows"
     }
 
     @Test
     fun `Finner cachede Beskjeds-eventer for fodselsnummer`() {
         runBlocking {
             val result = database.dbQuery { getBeskjedByFodselsnummer(fodselsnummer) }
-            result.size `should be equal to` 4
-            result `should contain all` allEventsForSingleUser
+            result.size shouldBe 4
+            result shouldContainAll allEventsForSingleUser
         }
     }
 
@@ -127,7 +133,7 @@ class beskjedQueriesTest {
     fun `Returnerer tom liste hvis Beskjeds-eventer for fodselsnummer ikke finnes`() {
         runBlocking {
             val result = database.dbQuery { getBeskjedByFodselsnummer("-1") }
-            result.isEmpty() `should be equal to` true
+            result.isEmpty() shouldBe true
         }
     }
 
@@ -135,29 +141,29 @@ class beskjedQueriesTest {
     fun `Finner cachet Beskjed-event med eventId`() {
         runBlocking {
             val result = database.dbQuery { getBeskjedByEventId(eventId) }
-            result `should be equal to` beskjed2
+            result shouldBe beskjed2
         }
     }
 
     @Test
     fun `Kaster Exception hvis Beskjed-event med eventId ikke finnes`() {
-        invoking {
+        shouldThrow<SQLException> {
             runBlocking {
                 database.dbQuery { getBeskjedByEventId("-1") }
             }
-        } shouldThrow SQLException::class `with message` "Found no rows"
+        }.message shouldBe "Found no rows"
     }
 
     @Test
     fun `Skal haandtere at prefererteKanaler er tom`() {
         val beskjed = BeskjedObjectMother.giveMeAktivBeskjedWithEksternVarslingAndPrefererteKanaler(true, emptyList())
-        invoking {
-            runBlocking {
-                database.dbQuery { createBeskjed(beskjed) }
-                val result = database.dbQuery { getBeskjedByEventId(beskjed.eventId) }
-                result.prefererteKanaler.`should be empty`()
-            }
+        runBlocking {
+            database.dbQuery { createBeskjed(beskjed) }
+            val result = database.dbQuery { getBeskjedByEventId(beskjed.eventId) }
+            result.prefererteKanaler.shouldBeEmpty()
+            database.dbQuery { deleteBeskjedWithEventId(beskjed.eventId) }
         }
+
     }
 
     @Test
@@ -173,8 +179,8 @@ class beskjedQueriesTest {
             val beskjed1FraDb = database.dbQuery { getBeskjedByEventId(beskjed1.eventId) }
             val beskjed2FraDb = database.dbQuery { getBeskjedByEventId(beskjed2.eventId) }
 
-            beskjed1FraDb.eventId `should be equal to` beskjed1.eventId
-            beskjed2FraDb.eventId `should be equal to` beskjed2.eventId
+            beskjed1FraDb.eventId shouldBe beskjed1.eventId
+            beskjed2FraDb.eventId shouldBe beskjed2.eventId
 
             database.dbQuery { deleteBeskjedWithEventId(beskjed1.eventId) }
             database.dbQuery { deleteBeskjedWithEventId(beskjed2.eventId) }
@@ -187,7 +193,7 @@ class beskjedQueriesTest {
             database.dbQuery {
                 countTotalNumberOfEvents(EventType.BESKJED_INTERN)
             }
-        } `should be equal to` allEvents.size.toLong()
+        } shouldBe allEvents.size.toLong()
     }
 
     @Test
@@ -196,7 +202,7 @@ class beskjedQueriesTest {
             database.dbQuery {
                 countTotalNumberOfEventsByActiveStatus(EventType.BESKJED_INTERN, true)
             }
-        } `should be equal to` allEvents.size.toLong()
+        } shouldBe allEvents.size.toLong()
     }
 
     @Test
@@ -205,7 +211,7 @@ class beskjedQueriesTest {
             database.dbQuery {
                 countTotalNumberOfEventsByActiveStatus(EventType.BESKJED_INTERN, false)
             }
-        } `should be equal to` 0
+        } shouldBe 0
     }
 
     @Test
@@ -216,7 +222,7 @@ class beskjedQueriesTest {
             }
 
             result shouldHaveSize 1
-            result `should contain` expiredBeskjed
+            result shouldContain expiredBeskjed
         }
     }
 }

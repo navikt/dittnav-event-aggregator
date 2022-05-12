@@ -1,5 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.common.metrics.StubMetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
@@ -20,9 +22,6 @@ import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.getAllOppgave
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be false`
-import org.amshove.kluent.shouldBeEmpty
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -73,7 +72,7 @@ class DoneEventServiceTest {
             doneEventService.processEvents(records)
             val allBeskjed = database.dbQuery { getAllBeskjed() }
             val foundBeskjed = allBeskjed.first { it.eventId == "1" }
-            foundBeskjed.aktiv.`should be false`()
+            foundBeskjed.aktiv shouldBe false
         }
     }
 
@@ -85,7 +84,7 @@ class DoneEventServiceTest {
             doneEventService.processEvents(records)
             val allOppgave = database.dbQuery { getAllOppgave() }
             val foundOppgave = allOppgave.first { it.eventId == "2" }
-            foundOppgave.aktiv.`should be false`()
+            foundOppgave.aktiv shouldBe false
         }
     }
 
@@ -97,7 +96,7 @@ class DoneEventServiceTest {
             doneEventService.processEvents(records)
             val allInnboks = database.dbQuery { getAllInnboks() }
             val foundInnboks = allInnboks.first { it.eventId == "3" }
-            foundInnboks.aktiv.`should be false`()
+            foundInnboks.aktiv shouldBe false
         }
     }
 
@@ -119,8 +118,8 @@ class DoneEventServiceTest {
         runBlocking {
             doneEventService.processEvents(records)
             val allDone = database.dbQuery { getAllDoneEvent() }
-            allDone.size `should be equal to` 1
-            allDone.first().eventId `should be equal to` "5"
+            allDone.size shouldBe 1
+            allDone.first().eventId shouldBe "5"
         }
     }
 
@@ -132,8 +131,8 @@ class DoneEventServiceTest {
         runBlocking {
             doneEventService.processEvents(records)
             val allDone = database.dbQuery { getAllDoneEvent() }
-            allDone.size `should be equal to` 1
-            allDone.first().eventId `should be equal to` "5"
+            allDone.size shouldBe 1
+            allDone.first().eventId shouldBe "5"
         }
     }
 }

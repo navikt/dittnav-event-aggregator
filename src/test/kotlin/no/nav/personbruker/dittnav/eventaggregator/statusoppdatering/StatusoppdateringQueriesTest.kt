@@ -1,14 +1,12 @@
 package no.nav.personbruker.dittnav.eventaggregator.statusoppdatering
 
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.countTotalNumberOfEvents
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should contain all`
-import org.amshove.kluent.`with message`
-import org.amshove.kluent.invoking
-import org.amshove.kluent.shouldThrow
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
@@ -78,8 +76,8 @@ class StatusoppdateringQueriesTest {
     fun `Finner alle cachede Statusoppdatering-eventer`() {
         runBlocking {
             val result = database.dbQuery { getAllStatusoppdatering() }
-            result.size `should be equal to` allEvents.size
-            result `should contain all` allEvents
+            result.size shouldBe allEvents.size
+            result shouldContainAll allEvents
         }
     }
 
@@ -87,25 +85,25 @@ class StatusoppdateringQueriesTest {
     fun `Finner cachet Statusoppdatering-event med Id`() {
         runBlocking {
             val result = database.dbQuery { statusoppdatering2.id?.let { getStatusoppdateringById(it) } }
-            result `should be equal to` statusoppdatering2
+            result shouldBe statusoppdatering2
         }
     }
 
     @Test
     fun `Kaster Exception hvis Statusoppdatering-event med Id ikke finnes`() {
-        invoking {
+        shouldThrow<SQLException> {
             runBlocking {
                 database.dbQuery { getStatusoppdateringById(999) }
             }
-        } shouldThrow SQLException::class `with message` "Found no rows"
+        }.message shouldBe "Found no rows"
     }
 
     @Test
     fun `Finner cachede Statusoppdaterings-eventer for fodselsnummer`() {
         runBlocking {
             val result = database.dbQuery { getStatusoppdateringByFodselsnummer(fodselsnummer) }
-            result.size `should be equal to` 4
-            result `should contain all` allEventsForSingleUser
+            result.size shouldBe 4
+            result shouldContainAll allEventsForSingleUser
         }
     }
 
@@ -113,7 +111,7 @@ class StatusoppdateringQueriesTest {
     fun `Returnerer tom liste hvis Statusoppdaterings-eventer for fodselsnummer ikke finnes`() {
         runBlocking {
             val result = database.dbQuery { getStatusoppdateringByFodselsnummer("-1") }
-            result.isEmpty() `should be equal to` true
+            result.isEmpty() shouldBe true
         }
     }
 
@@ -121,17 +119,17 @@ class StatusoppdateringQueriesTest {
     fun `Finner cachet Statusoppdatering-event med eventId`() {
         runBlocking {
             val result = database.dbQuery { getStatusoppdateringByEventId(eventId) }
-            result `should be equal to` statusoppdatering2
+            result shouldBe statusoppdatering2
         }
     }
 
     @Test
     fun `Kaster Exception hvis Statusoppdatering-event med eventId ikke finnes`() {
-        invoking {
+        shouldThrow<SQLException> {
             runBlocking {
                 database.dbQuery { getStatusoppdateringByEventId("-1") }
             }
-        } shouldThrow SQLException::class `with message` "Found no rows"
+        }.message shouldBe "Found no rows"
     }
 
     @Test
@@ -147,8 +145,8 @@ class StatusoppdateringQueriesTest {
             val statusoppdatering1FraDb = database.dbQuery { getStatusoppdateringByEventId(statusoppdatering1.eventId) }
             val statusoppdatering2FraDb = database.dbQuery { getStatusoppdateringByEventId(statusoppdatering2.eventId) }
 
-            statusoppdatering1FraDb.eventId `should be equal to` statusoppdatering1.eventId
-            statusoppdatering2FraDb.eventId `should be equal to` statusoppdatering2.eventId
+            statusoppdatering1FraDb.eventId shouldBe statusoppdatering1.eventId
+            statusoppdatering2FraDb.eventId shouldBe statusoppdatering2.eventId
 
             database.dbQuery { deleteStatusoppdateringWithEventId(statusoppdatering1.eventId) }
             database.dbQuery { deleteStatusoppdateringWithEventId(statusoppdatering2.eventId) }
@@ -161,6 +159,6 @@ class StatusoppdateringQueriesTest {
             database.dbQuery {
                 countTotalNumberOfEvents(EventType.STATUSOPPDATERING_INTERN)
             }
-        } `should be equal to` allEvents.size.toLong()
+        } shouldBe allEvents.size.toLong()
     }
 }

@@ -1,11 +1,18 @@
 package no.nav.personbruker.dittnav.eventaggregator.metrics
 
-import io.mockk.*
+import io.kotest.matchers.shouldBe
+import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.slot
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.common.metrics.MetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
-import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -39,7 +46,7 @@ class DBMetricsProbeTest {
         coVerify(exactly = 1) { metricsReporter.registerDataPoint(DB_EVENTS_CACHED, any(), any()) }
         verify(exactly = 1) { PrometheusMetricsCollector.registerEventsCached(any(), any(), any()) }
 
-        producerNameForPrometheus.captured `should be equal to` producerName
+        producerNameForPrometheus.captured shouldBe producerName
     }
 
     @Test
@@ -61,6 +68,6 @@ class DBMetricsProbeTest {
                 listOf("eventType" to EventType.DONE_INTERN.toString(), "producer" to "dummyProducer").toMap()) }
         verify(exactly = 1) { PrometheusMetricsCollector.registerEventsCached(2, EventType.DONE_INTERN, "dummyProducer") }
 
-        capturedFieldsForCachedEvents.captured["counter"] `should be equal to` 2
+        capturedFieldsForCachedEvents.captured["counter"] shouldBe 2
     }
 }
