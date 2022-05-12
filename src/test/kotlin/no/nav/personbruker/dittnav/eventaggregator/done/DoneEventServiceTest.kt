@@ -71,8 +71,8 @@ class DoneEventServiceTest {
         runBlocking {
             doneEventService.processEvents(records)
             val allBeskjed = database.dbQuery { getAllBeskjed() }
-            val foundBeskjed = allBeskjed.first { it.eventId == "1" }
-            foundBeskjed.aktiv shouldBe false
+            allBeskjed.first { it.eventId == "1" }.aktiv shouldBe false
+            allBeskjed.count { !it.aktiv } shouldBe 1
         }
     }
 
@@ -83,8 +83,9 @@ class DoneEventServiceTest {
         runBlocking {
             doneEventService.processEvents(records)
             val allOppgave = database.dbQuery { getAllOppgave() }
-            val foundOppgave = allOppgave.first { it.eventId == "2" }
-            foundOppgave.aktiv shouldBe false
+            allOppgave.first { it.eventId == "2" }.aktiv shouldBe false
+            allOppgave.count { !it.aktiv } shouldBe 1
+
         }
     }
 
@@ -95,8 +96,8 @@ class DoneEventServiceTest {
         runBlocking {
             doneEventService.processEvents(records)
             val allInnboks = database.dbQuery { getAllInnboks() }
-            val foundInnboks = allInnboks.first { it.eventId == "3" }
-            foundInnboks.aktiv shouldBe false
+            allInnboks.first { it.eventId == "3" }.aktiv shouldBe false
+            allInnboks.count { !it.aktiv } shouldBe 1
         }
     }
 
