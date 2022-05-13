@@ -21,6 +21,7 @@ class beskjedQueriesTest {
     private val beskjed3: Beskjed
     private val beskjed4: Beskjed
     private val expiredBeskjed: Beskjed
+    private val beskjedWithOffsetForstBehandlet: Beskjed
 
     private val systembruker = "dummySystembruker"
     private val fodselsnummer = "12345"
@@ -35,8 +36,9 @@ class beskjedQueriesTest {
         beskjed3 = createBeskjed("3", "12345")
         beskjed4 = createBeskjed("4", "6789")
         expiredBeskjed = createExpiredBeskjed("123", "4567")
-        allEvents = listOf(beskjed1, beskjed2, beskjed3, beskjed4, expiredBeskjed)
-        allEventsForSingleUser = listOf(beskjed1, beskjed2, beskjed3)
+        beskjedWithOffsetForstBehandlet = createBeskjedWithOffsetForstBehandlet("5", "12345")
+        allEvents = listOf(beskjed1, beskjed2, beskjed3, beskjed4, expiredBeskjed, beskjedWithOffsetForstBehandlet)
+        allEventsForSingleUser = listOf(beskjed1, beskjed2, beskjed3, beskjedWithOffsetForstBehandlet)
     }
 
     private fun createBeskjed(eventId: String, fodselsnummer: String): Beskjed {
@@ -53,6 +55,18 @@ class beskjedQueriesTest {
     private fun createExpiredBeskjed(eventId: String, fodselsnummer: String): Beskjed {
         val beskjed = BeskjedObjectMother.giveMeAktivBeskjed(eventId, fodselsnummer)
             .copy(synligFremTil = LocalDateTime.now().minusDays(1).truncatedTo(ChronoUnit.MILLIS))
+        return runBlocking {
+            database.dbQuery {
+                createBeskjed(beskjed).entityId.let {
+                    beskjed.copy(id = it)
+                }
+            }
+        }
+    }
+
+    private fun createBeskjedWithOffsetForstBehandlet(eventId: String, fodselsnummer: String): Beskjed {
+        val offsetDate = LocalDateTime.now().minusDays(1).truncatedTo(ChronoUnit.MILLIS)
+        val beskjed = BeskjedObjectMother.giveMeBeskjedWithForstBehandlet(eventId, fodselsnummer, offsetDate)
         return runBlocking {
             database.dbQuery {
                 createBeskjed(beskjed).entityId.let {
@@ -104,7 +118,7 @@ class beskjedQueriesTest {
     fun `Finner cachede Beskjeds-eventer for fodselsnummer`() {
         runBlocking {
             val result = database.dbQuery { getBeskjedByFodselsnummer(fodselsnummer) }
-            result.size `should be equal to` 3
+            result.size `should be equal to` 4
             result `should contain all` allEventsForSingleUser
         }
     }

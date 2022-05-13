@@ -22,12 +22,32 @@ object AvroInnboksObjectMother {
 
     fun createInnboks(lopenummer: Int, text: String): InnboksIntern {
         return InnboksIntern(
-                Instant.now().toEpochMilli(),
-                text,
-                "https://nav.no/systemX/$lopenummer",
-                4,
-                defaultEksternVarsling,
-                defaultPrefererteKanaler)
+            Instant.now().toEpochMilli(),
+            Instant.now().toEpochMilli(),
+            text,
+            "https://nav.no/systemX/$lopenummer",
+            4,
+            defaultEksternVarsling,
+            defaultPrefererteKanaler,
+            null,
+            null,
+            null
+        )
+    }
+
+    fun createInnboksWithTidspunktAndBehandlet(tidspunkt: Long, behandlet: Long?): InnboksIntern {
+        return InnboksIntern(
+            tidspunkt,
+            behandlet,
+            defaultText,
+            "https://nav.no/systemX/$defaultLopenummer",
+            4,
+            defaultEksternVarsling,
+            defaultPrefererteKanaler,
+            null,
+            null,
+            null
+        )
     }
 
 }

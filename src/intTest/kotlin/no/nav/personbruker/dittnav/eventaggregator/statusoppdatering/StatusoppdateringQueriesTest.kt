@@ -4,10 +4,15 @@ import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.countTotalNumberOfEvents
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
+import no.nav.personbruker.dittnav.eventaggregator.statusoppdatering.Statusoppdatering
+import no.nav.personbruker.dittnav.eventaggregator.statusoppdatering.StatusoppdateringObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.statusoppdatering.createStatusoppdatering
 import org.amshove.kluent.*
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 class StatusoppdateringQueriesTest {
 
@@ -17,6 +22,8 @@ class StatusoppdateringQueriesTest {
     private val statusoppdatering2: Statusoppdatering
     private val statusoppdatering3: Statusoppdatering
     private val statusoppdatering4: Statusoppdatering
+
+    private val statusoppdateringWithOffsetForstBehandlet: Statusoppdatering
 
     private val systembruker = "dummySystembruker"
     private val fodselsnummer = "12345"
@@ -30,8 +37,11 @@ class StatusoppdateringQueriesTest {
         statusoppdatering2 = createStatusoppdatering("2", "12345")
         statusoppdatering3 = createStatusoppdatering("3", "12345")
         statusoppdatering4 = createStatusoppdatering("4", "6789")
-        allEvents = listOf(statusoppdatering1, statusoppdatering2, statusoppdatering3, statusoppdatering4)
-        allEventsForSingleUser = listOf(statusoppdatering1, statusoppdatering2, statusoppdatering3)
+
+        statusoppdateringWithOffsetForstBehandlet = createStatusoppdateringWithOffsetForstBehandlet("5", "12345")
+
+        allEvents = listOf(statusoppdatering1, statusoppdatering2, statusoppdatering3, statusoppdatering4, statusoppdateringWithOffsetForstBehandlet)
+        allEventsForSingleUser = listOf(statusoppdatering1, statusoppdatering2, statusoppdatering3, statusoppdateringWithOffsetForstBehandlet)
     }
 
     private fun createStatusoppdatering(eventId: String, fodselsnummer: String): Statusoppdatering {
@@ -43,6 +53,18 @@ class StatusoppdateringQueriesTest {
                 }
             }
         }
+    }
+
+    private fun createStatusoppdateringWithOffsetForstBehandlet(eventId: String, fodselsnummer: String): Statusoppdatering {
+        val offsetDate = LocalDateTime.now().minusDays(1).truncatedTo(ChronoUnit.MILLIS)
+        var statusoppdatering = StatusoppdateringObjectMother.giveMeStatusoppdateringWithForstBehandlet(eventId, fodselsnummer, offsetDate)
+        runBlocking {
+            database.dbQuery {
+                val generatedId = createStatusoppdatering(statusoppdatering).entityId
+                statusoppdatering = statusoppdatering.copy(id = generatedId)
+            }
+        }
+        return statusoppdatering
     }
 
     @AfterAll
@@ -82,7 +104,7 @@ class StatusoppdateringQueriesTest {
     fun `Finner cachede Statusoppdaterings-eventer for fodselsnummer`() {
         runBlocking {
             val result = database.dbQuery { getStatusoppdateringByFodselsnummer(fodselsnummer) }
-            result.size `should be equal to` 3
+            result.size `should be equal to` 4
             result `should contain all` allEventsForSingleUser
         }
     }
