@@ -8,14 +8,6 @@ import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
 
-fun Connection.getAllStatusoppdatering(): List<Statusoppdatering> =
-        prepareStatement("""SELECT * FROM statusoppdatering""")
-                .use {
-                    it.executeQuery().list {
-                        toStatusoppdatering()
-                    }
-                }
-
 private val createQuery = """INSERT INTO statusoppdatering (systembruker, eventId, eventTidspunkt, forstBehandlet, fodselsnummer, grupperingsId, link, sikkerhetsnivaa, sistOppdatert, statusGlobal, statusIntern, sakstema, namespace, appnavn)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
@@ -49,34 +41,7 @@ private fun PreparedStatement.buildStatementForSingleRow(statusoppdatering: Stat
     setString(14, statusoppdatering.appnavn)
 }
 
-fun Connection.getStatusoppdateringByFodselsnummer(fodselsnummer: String): List<Statusoppdatering> =
-        prepareStatement("""SELECT * FROM statusoppdatering WHERE fodselsnummer = ?""")
-                .use {
-                    it.setString(1, fodselsnummer)
-                    it.executeQuery().list {
-                        toStatusoppdatering()
-                    }
-                }
-
-fun Connection.getStatusoppdateringById(id: Int): Statusoppdatering =
-        prepareStatement("""SELECT * FROM statusoppdatering WHERE id = ?""")
-                .use {
-                    it.setInt(1, id)
-                    it.executeQuery().singleResult() {
-                        toStatusoppdatering()
-                    }
-                }
-
-fun Connection.getStatusoppdateringByEventId(eventId: String): Statusoppdatering =
-        prepareStatement("""SELECT * FROM statusoppdatering WHERE eventId = ?""")
-                .use {
-                    it.setString(1, eventId)
-                    it.executeQuery().singleResult() {
-                        toStatusoppdatering()
-                    }
-                }
-
-private fun ResultSet.toStatusoppdatering(): Statusoppdatering {
+fun ResultSet.toStatusoppdatering(): Statusoppdatering {
     return Statusoppdatering(
             id = getInt("id"),
             systembruker = getString("systembruker"),

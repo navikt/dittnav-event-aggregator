@@ -9,9 +9,8 @@ import java.time.temporal.ChronoUnit
 
 object AvroOppgaveObjectMother {
 
-    private val defaultLopenummer = 1
-    private val defaultTekst = "Dette er oppgave til brukeren"
-    private val defaultEksternVarsling = true
+    private const val defaultTekst = "Dette er oppgave til brukeren"
+    private const val defaultEksternVarsling = true
     private val defaultPrefererteKanaler = listOf(PreferertKanal.EPOST.toString(), PreferertKanal.SMS.toString())
 
     fun createOppgave(lopenummer: Int): OppgaveIntern {

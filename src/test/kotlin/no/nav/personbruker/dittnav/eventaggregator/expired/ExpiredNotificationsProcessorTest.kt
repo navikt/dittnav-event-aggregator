@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.expired
 
+import io.kotest.matchers.shouldBe
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -9,7 +10,6 @@ import no.nav.brukernotifikasjon.schemas.input.NokkelInput
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.KafkaProducerWrapper
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveObjectMother
-import org.amshove.kluent.shouldBe
 import org.apache.kafka.clients.producer.MockProducer
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

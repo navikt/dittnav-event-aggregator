@@ -6,18 +6,18 @@ import java.time.temporal.ChronoUnit
 
 object OppgaveObjectMother {
 
-    const val defaultSystembruker = "systembruker"
-    const val defaultNamespace = "namespace"
-    const val defaultAppnavn = "appnavn"
-    const val defaultFodselsnummer = "123"
-    const val defaultEventId = "o-123"
-    const val defaultGrupperingsId = "Dok12345"
-    const val defaultTekst = "tekst"
-    const val defaultLink = "http://link"
-    const val defaultSikkerhetsnivaa = 4
-    const val defaultAktiv = true
-    const val defaultEksternVarsling = false
-    val defaultPrefererteKanaler = listOf<String>()
+    private const val defaultSystembruker = "systembruker"
+    private const val defaultNamespace = "namespace"
+    private const val defaultAppnavn = "appnavn"
+    private const val defaultFodselsnummer = "123"
+    private const val defaultEventId = "o-123"
+    private const val defaultGrupperingsId = "Dok12345"
+    private const val defaultTekst = "tekst"
+    private const val defaultLink = "https://link"
+    private const val defaultSikkerhetsnivaa = 4
+    private const val defaultAktiv = true
+    private const val defaultEksternVarsling = false
+    private val defaultPrefererteKanaler = listOf<String>()
 
     fun giveMeAktivOppgave(): Oppgave {
         return giveMeAktivOppgave("o-1", "123")

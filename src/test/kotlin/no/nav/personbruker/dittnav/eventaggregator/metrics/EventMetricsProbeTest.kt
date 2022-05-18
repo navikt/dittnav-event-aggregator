@@ -1,10 +1,17 @@
 package no.nav.personbruker.dittnav.eventaggregator.metrics
 
-import io.mockk.*
+import io.kotest.matchers.shouldBe
+import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.slot
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.common.metrics.MetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -41,9 +48,9 @@ internal class EventMetricsProbeTest {
         verify(exactly = 1) { PrometheusMetricsCollector.registerEventsSeen(any(), any(), any()) }
         verify(exactly = 1) { PrometheusMetricsCollector.registerEventsProcessed(any(), any(), any()) }
 
-        producerNameForPrometheus.captured `should be equal to` producer.appnavn
-        capturedTags.captured["producer"] `should be equal to` producer.appnavn
-        capturedTags.captured["producerNamespace"] `should be equal to` producer.namespace
+        producerNameForPrometheus.captured shouldBe producer.appnavn
+        capturedTags.captured["producer"] shouldBe producer.appnavn
+        capturedTags.captured["producerNamespace"] shouldBe producer.namespace
     }
 
     @Test
@@ -68,9 +75,9 @@ internal class EventMetricsProbeTest {
         verify(exactly = 1) { PrometheusMetricsCollector.registerEventsSeen(any(), any(), any()) }
         verify(exactly = 1) { PrometheusMetricsCollector.registerEventsFailed(any(), any(), any()) }
 
-        producerNameForPrometheus.captured `should be equal to` producer.appnavn
-        capturedTags.captured["producer"] `should be equal to` producer.appnavn
-        capturedTags.captured["producerNamespace"] `should be equal to` producer.namespace
+        producerNameForPrometheus.captured shouldBe producer.appnavn
+        capturedTags.captured["producer"] shouldBe producer.appnavn
+        capturedTags.captured["producerNamespace"] shouldBe producer.namespace
     }
 
     @Test
@@ -99,8 +106,8 @@ internal class EventMetricsProbeTest {
         verify(exactly = 1) { PrometheusMetricsCollector.registerEventsProcessed(2, any(), any()) }
         verify(exactly = 1) { PrometheusMetricsCollector.registerEventsFailed(1, any(), any()) }
 
-        capturedFieldsForSeen.captured["counter"] `should be equal to` 3
-        capturedFieldsForProcessed.captured["counter"] `should be equal to` 2
-        capturedFieldsForFailed.captured["counter"] `should be equal to` 1
+        capturedFieldsForSeen.captured["counter"] shouldBe 3
+        capturedFieldsForProcessed.captured["counter"] shouldBe 2
+        capturedFieldsForFailed.captured["counter"] shouldBe 1
     }
 }

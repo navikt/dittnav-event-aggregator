@@ -1,6 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
-import org.amshove.kluent.`should contain`
+import io.kotest.matchers.string.shouldContain
 import org.junit.jupiter.api.Test
 
 internal class DoneTest {
@@ -9,7 +9,7 @@ internal class DoneTest {
     fun `skal returnere maskerte data fra toString-metoden`() {
         val done = DoneObjectMother.giveMeDone("dummyEventId", "dummProdusent", "123")
         val doneAsString = done.toString()
-        doneAsString `should contain` "fodselsnummer=***"
+        doneAsString shouldContain "fodselsnummer=***"
     }
 
 }

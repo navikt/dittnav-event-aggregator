@@ -1,8 +1,8 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.database.entity
 
+import io.kotest.matchers.shouldBe
 import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.BrukernotifikasjonObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneObjectMother
-import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 
 class BrukernotifikasjonTest{
@@ -12,7 +12,7 @@ class BrukernotifikasjonTest{
         val beskjed = BrukernotifikasjonObjectMother.giveMeBeskjed()
         val matchendeDoneEvent = DoneObjectMother.giveMeMatchingDoneEvent(beskjed)
 
-        beskjed.isRepresentsSameEventAs(matchendeDoneEvent) `should be equal to` true
+        beskjed.isRepresentsSameEventAs(matchendeDoneEvent) shouldBe true
     }
 
     @Test
@@ -20,7 +20,7 @@ class BrukernotifikasjonTest{
         val beskjed = BrukernotifikasjonObjectMother.giveMeBeskjed()
         val ikkeMatchendeDoneEvent = DoneObjectMother.giveMeDone(beskjed.eventId, beskjed.systembruker, "7654")
 
-        beskjed.isRepresentsSameEventAs(ikkeMatchendeDoneEvent) `should be equal to` false
+        beskjed.isRepresentsSameEventAs(ikkeMatchendeDoneEvent) shouldBe false
     }
 
 }

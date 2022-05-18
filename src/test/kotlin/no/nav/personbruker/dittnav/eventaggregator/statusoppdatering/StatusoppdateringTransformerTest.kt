@@ -1,10 +1,10 @@
 package no.nav.personbruker.dittnav.eventaggregator.statusoppdatering
 
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import no.nav.personbruker.dittnav.eventaggregator.common.toEpochMilli
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be null`
-import org.amshove.kluent.`should not be null`
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -13,8 +13,8 @@ import java.time.temporal.ChronoUnit
 
 class StatusoppdateringTransformerTest {
 
-    val eventId = 1
-    val dummyNokkel = createNokkel(eventId)
+    private val eventId = 1
+    private val dummyNokkel = createNokkel(eventId)
 
     @Test
     fun `should transform form external to internal`() {
@@ -22,23 +22,23 @@ class StatusoppdateringTransformerTest {
 
         val transformed = StatusoppdateringTransformer.toInternal(dummyNokkel, original)
 
-        transformed.fodselsnummer `should be equal to` dummyNokkel.getFodselsnummer()
-        transformed.grupperingsId `should be equal to` dummyNokkel.getGrupperingsId()
-        transformed.eventId `should be equal to` dummyNokkel.getEventId()
-        transformed.link `should be equal to` original.getLink()
-        transformed.systembruker `should be equal to` dummyNokkel.getSystembruker()
-        transformed.sikkerhetsnivaa `should be equal to` original.getSikkerhetsnivaa()
-        transformed.statusGlobal `should be equal to` original.getStatusGlobal()
-        transformed.statusIntern?.`should be equal to`(original.getStatusIntern())
-        transformed.sakstema `should be equal to` original.getSakstema()
-        transformed.namespace `should be equal to` dummyNokkel.getNamespace()
-        transformed.appnavn `should be equal to` dummyNokkel.getAppnavn()
+        transformed.fodselsnummer shouldBe dummyNokkel.getFodselsnummer()
+        transformed.grupperingsId shouldBe dummyNokkel.getGrupperingsId()
+        transformed.eventId shouldBe dummyNokkel.getEventId()
+        transformed.link shouldBe original.getLink()
+        transformed.systembruker shouldBe dummyNokkel.getSystembruker()
+        transformed.sikkerhetsnivaa shouldBe original.getSikkerhetsnivaa()
+        transformed.statusGlobal shouldBe original.getStatusGlobal()
+        transformed.statusIntern?.shouldBe(original.getStatusIntern())
+        transformed.sakstema shouldBe original.getSakstema()
+        transformed.namespace shouldBe dummyNokkel.getNamespace()
+        transformed.appnavn shouldBe dummyNokkel.getAppnavn()
 
         val transformedEventTidspunktAsLong = transformed.eventTidspunkt.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
-        transformedEventTidspunktAsLong `should be equal to` original.getTidspunkt()
+        transformedEventTidspunktAsLong shouldBe original.getTidspunkt()
 
-        transformed.sistOppdatert.`should not be null`()
-        transformed.id.`should be null`()
+        transformed.sistOppdatert.shouldNotBeNull()
+        transformed.id.shouldBeNull()
     }
 
     @Test
@@ -50,8 +50,8 @@ class StatusoppdateringTransformerTest {
 
         val transformed = StatusoppdateringTransformer.toInternal(dummyNokkel, statusoppdatering)
 
-        transformed.eventTidspunkt.truncatedTo(ChronoUnit.MILLIS) `should be equal to` tidspunkt.truncatedTo(ChronoUnit.MILLIS)
-        transformed.forstBehandlet.truncatedTo(ChronoUnit.MILLIS) `should be equal to` behandlet.truncatedTo(ChronoUnit.MILLIS)
+        transformed.eventTidspunkt.truncatedTo(ChronoUnit.MILLIS) shouldBe tidspunkt.truncatedTo(ChronoUnit.MILLIS)
+        transformed.forstBehandlet.truncatedTo(ChronoUnit.MILLIS) shouldBe behandlet.truncatedTo(ChronoUnit.MILLIS)
     }
 
     @Test
@@ -63,8 +63,8 @@ class StatusoppdateringTransformerTest {
 
         val transformed = StatusoppdateringTransformer.toInternal(dummyNokkel, statusoppdatering)
 
-        transformed.eventTidspunkt.truncatedTo(ChronoUnit.MILLIS)  `should be equal to` tidspunkt.truncatedTo(ChronoUnit.MILLIS)
-        transformed.forstBehandlet.truncatedTo(ChronoUnit.MILLIS)  `should be equal to` tidspunkt.truncatedTo(ChronoUnit.MILLIS)
+        transformed.eventTidspunkt.truncatedTo(ChronoUnit.MILLIS)  shouldBe tidspunkt.truncatedTo(ChronoUnit.MILLIS)
+        transformed.forstBehandlet.truncatedTo(ChronoUnit.MILLIS)  shouldBe tidspunkt.truncatedTo(ChronoUnit.MILLIS)
     }
 
     @Test
@@ -78,7 +78,7 @@ class StatusoppdateringTransformerTest {
 
         val transformed = StatusoppdateringTransformer.toInternal(dummyNokkel, statusoppdatering)
 
-        transformed.eventTidspunkt.toEpochMilli() `should be equal to` truncatedTidspunkt
-        transformed.forstBehandlet.truncatedTo(ChronoUnit.SECONDS) `should be equal to` tidspunkt.truncatedTo(ChronoUnit.SECONDS)
+        transformed.eventTidspunkt.toEpochMilli() shouldBe truncatedTidspunkt
+        transformed.forstBehandlet.truncatedTo(ChronoUnit.SECONDS) shouldBe tidspunkt.truncatedTo(ChronoUnit.SECONDS)
     }
 }

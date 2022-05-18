@@ -1,6 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
-import org.amshove.kluent.`should contain`
+import io.kotest.matchers.string.shouldContain
 import org.junit.jupiter.api.Test
 
 class BeskjedTest {
@@ -9,8 +9,8 @@ class BeskjedTest {
     fun `skal returnere maskerte data fra toString-metoden`() {
         val beskjed = BeskjedObjectMother.giveMeAktivBeskjed("dummyEventId", "123")
         val beskjedAsString = beskjed.toString()
-        beskjedAsString `should contain` "fodselsnummer=***"
-        beskjedAsString `should contain` "tekst=***"
-        beskjedAsString `should contain` "link=***"
+        beskjedAsString shouldContain "fodselsnummer=***"
+        beskjedAsString shouldContain "tekst=***"
+        beskjedAsString shouldContain "link=***"
     }
 }

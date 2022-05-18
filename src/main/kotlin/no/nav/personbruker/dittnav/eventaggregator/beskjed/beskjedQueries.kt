@@ -11,14 +11,6 @@ import java.sql.Types
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-fun Connection.getAllBeskjed(): List<Beskjed> =
-        prepareStatement("""SELECT * FROM beskjed""")
-                .use {
-                    it.executeQuery().list {
-                        toBeskjed()
-                    }
-                }
-
 private val createQuery = """INSERT INTO beskjed (systembruker, eventTidspunkt, forstBehandlet, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
@@ -74,43 +66,7 @@ fun Connection.getExpiredBeskjedFromCursor(): List<Beskjed> {
             }
 }
 
-fun Connection.getAllBeskjedByAktiv(aktiv: Boolean): List<Beskjed> =
-        prepareStatement("""SELECT * FROM beskjed WHERE aktiv = ?""")
-                .use {
-                    it.setBoolean(1, aktiv)
-                    it.executeQuery().list {
-                        toBeskjed()
-                    }
-                }
-
-fun Connection.getBeskjedByFodselsnummer(fodselsnummer: String): List<Beskjed> =
-        prepareStatement("""SELECT * FROM beskjed WHERE fodselsnummer = ?""")
-                .use {
-                    it.setString(1, fodselsnummer)
-                    it.executeQuery().list {
-                        toBeskjed()
-                    }
-                }
-
-fun Connection.getBeskjedById(id: Int): Beskjed =
-        prepareStatement("""SELECT * FROM beskjed WHERE id = ?""")
-                .use {
-                    it.setInt(1, id)
-                    it.executeQuery().singleResult() {
-                        toBeskjed()
-                    }
-                }
-
-fun Connection.getBeskjedByEventId(eventId: String): Beskjed =
-        prepareStatement("""SELECT * FROM beskjed WHERE eventId = ?""")
-                .use {
-                    it.setString(1, eventId)
-                    it.executeQuery().singleResult() {
-                        toBeskjed()
-                    }
-                }
-
-private fun ResultSet.toBeskjed(): Beskjed {
+fun ResultSet.toBeskjed(): Beskjed {
     return Beskjed(
             id = getInt("id"),
             systembruker = getString("systembruker"),

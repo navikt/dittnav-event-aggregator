@@ -1,14 +1,18 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.database
 
-import io.mockk.*
+import io.kotest.assertions.throwables.shouldThrow
+import io.mockk.clearMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.confirmVerified
+import io.mockk.mockk
+import io.mockk.unmockkAll
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.common.emptyPersistResult
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.AggregatorBatchUpdateException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
-import org.amshove.kluent.`should throw`
-import org.amshove.kluent.invoking
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -72,11 +76,11 @@ internal class BrukernotifikasjonPersistingServiceTest {
             repository.createInOneBatch(any())
         } throws RetriableDatabaseException("Simulert feil i en test")
 
-        invoking {
+        shouldThrow<RetriableDatabaseException> {
             runBlocking {
                 service.writeEventsToCache(entities)
             }
-        } `should throw` RetriableDatabaseException::class
+        }
 
         coVerify(exactly = 1) { repository.createInOneBatch(any()) }
         coVerify(exactly = 0) { repository.createOneByOneToFilterOutTheProblematicEvents(any()) }

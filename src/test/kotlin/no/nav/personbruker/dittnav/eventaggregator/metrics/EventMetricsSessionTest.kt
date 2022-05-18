@@ -1,7 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.metrics
 
+import io.kotest.matchers.shouldBe
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import org.amshove.kluent.`should be`
 import org.junit.jupiter.api.Test
 
 internal class EventMetricsSessionTest {
@@ -11,7 +11,7 @@ internal class EventMetricsSessionTest {
         val session = EventMetricsSession(EventType.BESKJED_INTERN)
         session.countDuplicateEventKeysByProducer(Produsent("blalbafpinfo-historikk", "dummyNamespace"))
 
-        session.isDuplicatesFromFpinfoHistorikkOnly() `should be` true
+        session.isDuplicatesFromFpinfoHistorikkOnly() shouldBe true
     }
 
     @Test
@@ -20,7 +20,7 @@ internal class EventMetricsSessionTest {
         session.countDuplicateEventKeysByProducer(Produsent("blablafpinfo-historikk", "dummyNamespace"))
         session.countDuplicateEventKeysByProducer(Produsent("enAnnenProdusent", "dummyNamespace"))
 
-        session.isDuplicatesFromFpinfoHistorikkOnly() `should be` false
+        session.isDuplicatesFromFpinfoHistorikkOnly() shouldBe false
     }
 
     @Test
@@ -28,7 +28,7 @@ internal class EventMetricsSessionTest {
         val session = EventMetricsSession(EventType.BESKJED_INTERN)
         session.countDuplicateEventKeysByProducer(Produsent("enAnnenProdusent", "dummyNamespace"))
 
-        session.isDuplicatesFromFpinfoHistorikkOnly() `should be` false
+        session.isDuplicatesFromFpinfoHistorikkOnly() shouldBe false
     }
 
 }
