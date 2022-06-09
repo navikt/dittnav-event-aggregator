@@ -5,7 +5,7 @@ import kotlinx.coroutines.withTimeout
 import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 import no.nav.personbruker.dittnav.eventaggregator.common.SimpleEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.common.ThrowingEventCounterService
-import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
+import no.nav.personbruker.dittnav.eventaggregator.nokkel.AvroNokkelInternObjectMother
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.MockConsumer
 import org.apache.kafka.common.TopicPartition
@@ -50,7 +50,7 @@ internal fun <V> createEventRecords(
             partition.topic(),
             partition.partition(),
             offset.toLong(),
-            createNokkel(offset),
+            AvroNokkelInternObjectMother.createNokkelWithEventId(offset),
             eventCreator(offset)
         )
     }
@@ -66,7 +66,7 @@ internal fun <V> createEventRecords(
             partition.topic(),
             partition.partition(),
             offset.toLong(),
-            createNokkel(offset),
+            AvroNokkelInternObjectMother.createNokkelWithEventId(offset),
             eventCreator()
         )
     }

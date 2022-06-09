@@ -3,7 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 import io.kotest.matchers.shouldBe
 import no.nav.personbruker.dittnav.eventaggregator.common.toEpochMilli
 import no.nav.personbruker.dittnav.eventaggregator.done.schema.AvroDoneObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
+import no.nav.personbruker.dittnav.eventaggregator.nokkel.AvroNokkelInternObjectMother
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -13,7 +13,7 @@ import java.time.temporal.ChronoUnit
 class DoneTransformerTest {
 
     private val eventId = 123
-    private val dummyNokkel = createNokkel(eventId)
+    private val dummyNokkel = AvroNokkelInternObjectMother.createNokkelWithEventId(eventId)
 
     @Test
     fun `should transform form external to internal`() {

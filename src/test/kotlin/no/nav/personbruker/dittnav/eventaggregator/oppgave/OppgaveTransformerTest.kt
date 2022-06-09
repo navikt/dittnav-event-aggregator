@@ -5,7 +5,7 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.personbruker.dittnav.eventaggregator.common.toEpochMilli
-import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
+import no.nav.personbruker.dittnav.eventaggregator.nokkel.AvroNokkelInternObjectMother
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -15,7 +15,7 @@ import java.time.temporal.ChronoUnit
 class OppgaveTransformerTest {
 
     private val eventId = 1
-    private val dummyNokkel = createNokkel(eventId)
+    private val dummyNokkel = AvroNokkelInternObjectMother.createNokkelWithEventId(eventId)
 
     @Test
     fun `should transform external to internal`() {
@@ -47,7 +47,7 @@ class OppgaveTransformerTest {
     @Test
     fun `should allow prefererteKanaler to be empty`() {
         val eventId = 1
-        val nokkel = createNokkel(eventId)
+        val nokkel = AvroNokkelInternObjectMother.createNokkelWithEventId(eventId)
         val eventUtenPrefererteKanaler = AvroOppgaveObjectMother.createOppgaveWithEksternVarslingAndPrefererteKanaler(true, emptyList())
         val internal = OppgaveTransformer.toInternal(nokkel, eventUtenPrefererteKanaler)
         internal.prefererteKanaler.shouldBeEmpty()

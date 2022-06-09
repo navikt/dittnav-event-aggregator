@@ -5,7 +5,8 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.personbruker.dittnav.eventaggregator.common.toEpochMilli
-import no.nav.personbruker.dittnav.eventaggregator.nokkel.createNokkel
+import no.nav.personbruker.dittnav.eventaggregator.nokkel.AvroNokkelInternObjectMother.createNokkel
+import no.nav.personbruker.dittnav.eventaggregator.nokkel.AvroNokkelInternObjectMother.createNokkelWithEventId
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -15,13 +16,13 @@ import java.time.temporal.ChronoUnit.SECONDS
 
 class BeskjedTransformerTest {
 
-    private val dummyNokkel = createNokkel(1)
+    private val dummyNokkel = createNokkelWithEventId(1)
 
     @Test
     fun `should transform form external to internal`() {
         val eventId = 1
         val original = AvroBeskjedObjectMother.createBeskjed(eventId)
-        val nokkel = createNokkel(eventId)
+        val nokkel = createNokkelWithEventId(eventId)
 
         val transformed = BeskjedTransformer.toInternal(nokkel, original)
 
@@ -100,5 +101,25 @@ class BeskjedTransformerTest {
 
         transformed.eventTidspunkt.toEpochMilli() shouldBe truncatedTidspunkt
         transformed.forstBehandlet.truncatedTo(SECONDS) shouldBe tidspunkt.truncatedTo(SECONDS)
+    }
+
+    @Test
+    fun `should set aktiv as false if producer is varselinnboks and grupperingsId is lest`() {
+        val nokkel = createNokkel(grupperingsid = "lest", fodselsnummer = "12345678901", namespace = "min-side", appnavn = "varselinnboks")
+        val beskjed = AvroBeskjedObjectMother.createBeskjed(1)
+
+        val transformed = BeskjedTransformer.toInternal(nokkel, beskjed)
+
+        transformed.aktiv shouldBe false
+    }
+
+    @Test
+    fun `should set aktiv as true if producer is varselinnboks and grupperingsId is ulest`() {
+        val nokkel = createNokkel(grupperingsid = "ulest", fodselsnummer = "12345678901", namespace = "min-side", appnavn = "varselinnboks")
+        val beskjed = AvroBeskjedObjectMother.createBeskjed(1)
+
+        val transformed = BeskjedTransformer.toInternal(nokkel, beskjed)
+
+        transformed.aktiv shouldBe true
     }
 }
