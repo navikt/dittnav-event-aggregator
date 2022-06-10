@@ -5,7 +5,6 @@ import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 import no.nav.personbruker.dittnav.eventaggregator.common.epochMillisToLocalDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.timestampToUTCDateOrNull
 import no.nav.personbruker.dittnav.eventaggregator.common.epochToLocalDateTimeFixIfTruncated
-import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 
@@ -13,24 +12,24 @@ object BeskjedTransformer {
 
     private const val newRecordsAreActiveByDefault = true
 
-    fun toInternal(externalNokkel: NokkelIntern, externalValue: BeskjedIntern): Beskjed {
+    fun toInternal(nokkelIntern: NokkelIntern, beskjedIntern: BeskjedIntern): Beskjed {
         return Beskjed(
-                systembruker = externalNokkel.getSystembruker(),
-                namespace = externalNokkel.getNamespace(),
-                appnavn = externalNokkel.getAppnavn(),
-                eventId = externalNokkel.getEventId(),
-                eventTidspunkt = epochMillisToLocalDateTime(externalValue.getTidspunkt()),
-                forstBehandlet = determineForstBehandlet(externalValue),
-                fodselsnummer = externalNokkel.getFodselsnummer(),
-                grupperingsId = externalNokkel.getGrupperingsId(),
-                tekst = externalValue.getTekst(),
-                link = externalValue.getLink(),
-                sikkerhetsnivaa = externalValue.getSikkerhetsnivaa(),
+                systembruker = nokkelIntern.getSystembruker(),
+                namespace = nokkelIntern.getNamespace(),
+                appnavn = nokkelIntern.getAppnavn(),
+                eventId = nokkelIntern.getEventId(),
+                eventTidspunkt = epochMillisToLocalDateTime(beskjedIntern.getTidspunkt()),
+                forstBehandlet = determineForstBehandlet(beskjedIntern),
+                fodselsnummer = nokkelIntern.getFodselsnummer(),
+                grupperingsId = nokkelIntern.getGrupperingsId(),
+                tekst = beskjedIntern.getTekst(),
+                link = beskjedIntern.getLink(),
+                sikkerhetsnivaa = beskjedIntern.getSikkerhetsnivaa(),
                 sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
-                synligFremTil = externalValue.synligFremTilAsUTCDateTime(),
-                aktiv = newRecordsAreActiveByDefault,
-                eksternVarsling = externalValue.getEksternVarsling(),
-                prefererteKanaler = externalValue.getPrefererteKanaler()
+                synligFremTil = beskjedIntern.synligFremTilAsUTCDateTime(),
+                aktiv = determineAktiv(nokkelIntern),
+                eksternVarsling = beskjedIntern.getEksternVarsling(),
+                prefererteKanaler = beskjedIntern.getPrefererteKanaler()
         )
     }
 
@@ -43,6 +42,14 @@ object BeskjedTransformer {
             epochMillisToLocalDateTime(beskjed.getBehandlet())
         } else {
             epochToLocalDateTimeFixIfTruncated(beskjed.getTidspunkt())
+        }
+    }
+
+    private fun determineAktiv(nokkelIntern: NokkelIntern): Boolean {
+        return if(nokkelIntern.getAppnavn() == "varselinnboks" && nokkelIntern.getGrupperingsId() == "lest") {
+            false
+        } else {
+            newRecordsAreActiveByDefault
         }
     }
 }
