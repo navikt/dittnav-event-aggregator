@@ -9,6 +9,9 @@ import java.sql.ResultSet
 import java.sql.Types
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZoneOffset
+
+private val EPOCH_START = LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC)
 
 private val createQuery = """INSERT INTO oppgave (systembruker, eventTidspunkt, forstBehandlet, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn, synligFremTil) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?)"""
 
@@ -58,9 +61,10 @@ fun Connection.setOppgaverAktivFlag(doneEvents: List<Done>, aktiv: Boolean) {
 
 fun Connection.getExpiredOppgave(): List<Oppgave> {
     val now = LocalDateTime.now(ZoneId.of("UTC"))
-    return prepareStatement("""SELECT * FROM oppgave WHERE aktiv = true AND synligFremTil <= ? LIMIT 10000""")
+    return prepareStatement("""SELECT * FROM oppgave WHERE aktiv = true AND synligFremTil between ? and ? LIMIT 10000""")
         .use {
-            it.setObject(1, now, Types.TIMESTAMP)
+            it.setObject(1, EPOCH_START, Types.TIMESTAMP)
+            it.setObject(2, now, Types.TIMESTAMP)
             it.executeQuery().list { toOppgave() }
         }
 }
