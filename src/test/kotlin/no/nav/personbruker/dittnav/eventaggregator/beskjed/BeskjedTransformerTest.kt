@@ -104,6 +104,19 @@ class BeskjedTransformerTest {
     }
 
     @Test
+    fun `should set tidspunkt as forstBehandlet if producer is varselinnboks`() {
+        val tidspunkt = LocalDateTime.now()
+        val behandlet = LocalDateTime.now().plusHours(1)
+
+        val nokkel = createNokkel(grupperingsid = "ulest", fodselsnummer = "12345678901", namespace = "min-side", appnavn = "varselinnboks")
+        val beskjed = AvroBeskjedObjectMother.createBeskjedWithTidspunktAndBehandlet(tidspunkt.toEpochMilli(), behandlet.toEpochMilli())
+
+        val transformed = BeskjedTransformer.toInternal(nokkel, beskjed)
+
+        transformed.forstBehandlet.truncatedTo(MILLIS) shouldBe tidspunkt.truncatedTo(MILLIS)
+    }
+
+    @Test
     fun `should set aktiv as false if producer is varselinnboks and grupperingsId is lest`() {
         val nokkel = createNokkel(grupperingsid = "lest", fodselsnummer = "12345678901", namespace = "min-side", appnavn = "varselinnboks")
         val beskjed = AvroBeskjedObjectMother.createBeskjed(1)

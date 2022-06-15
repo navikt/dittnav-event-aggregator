@@ -12,24 +12,24 @@ object BeskjedTransformer {
 
     private const val newRecordsAreActiveByDefault = true
 
-    fun toInternal(nokkelIntern: NokkelIntern, beskjedIntern: BeskjedIntern): Beskjed {
+    fun toInternal(nokkel: NokkelIntern, beskjed: BeskjedIntern): Beskjed {
         return Beskjed(
-                systembruker = nokkelIntern.getSystembruker(),
-                namespace = nokkelIntern.getNamespace(),
-                appnavn = nokkelIntern.getAppnavn(),
-                eventId = nokkelIntern.getEventId(),
-                eventTidspunkt = epochMillisToLocalDateTime(beskjedIntern.getTidspunkt()),
-                forstBehandlet = determineForstBehandlet(beskjedIntern),
-                fodselsnummer = nokkelIntern.getFodselsnummer(),
-                grupperingsId = nokkelIntern.getGrupperingsId(),
-                tekst = beskjedIntern.getTekst(),
-                link = beskjedIntern.getLink(),
-                sikkerhetsnivaa = beskjedIntern.getSikkerhetsnivaa(),
+                systembruker = nokkel.getSystembruker(),
+                namespace = nokkel.getNamespace(),
+                appnavn = nokkel.getAppnavn(),
+                eventId = nokkel.getEventId(),
+                eventTidspunkt = epochMillisToLocalDateTime(beskjed.getTidspunkt()),
+                forstBehandlet = determineForstBehandlet(nokkel, beskjed),
+                fodselsnummer = nokkel.getFodselsnummer(),
+                grupperingsId = nokkel.getGrupperingsId(),
+                tekst = beskjed.getTekst(),
+                link = beskjed.getLink(),
+                sikkerhetsnivaa = beskjed.getSikkerhetsnivaa(),
                 sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
-                synligFremTil = beskjedIntern.synligFremTilAsUTCDateTime(),
-                aktiv = determineAktiv(nokkelIntern),
-                eksternVarsling = beskjedIntern.getEksternVarsling(),
-                prefererteKanaler = beskjedIntern.getPrefererteKanaler()
+                synligFremTil = beskjed.synligFremTilAsUTCDateTime(),
+                aktiv = determineAktiv(nokkel),
+                eksternVarsling = beskjed.getEksternVarsling(),
+                prefererteKanaler = beskjed.getPrefererteKanaler()
         )
     }
 
@@ -37,16 +37,18 @@ object BeskjedTransformer {
         return timestampToUTCDateOrNull(getSynligFremTil())
     }
 
-    private fun determineForstBehandlet(beskjed: BeskjedIntern): LocalDateTime {
-        return if (beskjed.getBehandlet() != null) {
+    private fun determineForstBehandlet(nokkel: NokkelIntern, beskjed: BeskjedIntern): LocalDateTime {
+        return if(nokkel.getAppnavn() == "varselinnboks") {
+            epochMillisToLocalDateTime(beskjed.getTidspunkt())
+        } else if (beskjed.getBehandlet() != null) {
             epochMillisToLocalDateTime(beskjed.getBehandlet())
         } else {
             epochToLocalDateTimeFixIfTruncated(beskjed.getTidspunkt())
         }
     }
 
-    private fun determineAktiv(nokkelIntern: NokkelIntern): Boolean {
-        return if(nokkelIntern.getAppnavn() == "varselinnboks" && nokkelIntern.getGrupperingsId() == "lest") {
+    private fun determineAktiv(nokkel: NokkelIntern): Boolean {
+        return if(nokkel.getAppnavn() == "varselinnboks" && nokkel.getGrupperingsId() == "lest") {
             false
         } else {
             newRecordsAreActiveByDefault
