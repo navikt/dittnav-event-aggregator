@@ -1,0 +1,3 @@
+DROP INDEX IF EXISTS beskjed_index_for_fields_used_in_view;
+DROP INDEX IF EXISTS oppgave_index_for_fields_used_in_view;
+DROP INDEX IF EXISTS innboks_index_for_fields_used_in_view;
