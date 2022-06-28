@@ -1,7 +1,7 @@
 CREATE TABLE doknotifikasjon_status_beskjed (
     eventId VARCHAR(50) UNIQUE,
-    status VARCHAR(25),
-    melding VARCHAR(120),
+    status TEXT,
+    melding TEXT,
     distribusjonsId BIGINT,
     tidspunkt TIMESTAMP WITHOUT TIME ZONE,
     antall_oppdateringer SMALLINT,
@@ -10,8 +10,8 @@ CREATE TABLE doknotifikasjon_status_beskjed (
 
 CREATE TABLE doknotifikasjon_status_oppgave (
     eventId VARCHAR(50) UNIQUE,
-    status VARCHAR(25),
-    melding VARCHAR(120),
+    status TEXT,
+    melding TEXT,
     distribusjonsId BIGINT,
     tidspunkt TIMESTAMP WITHOUT TIME ZONE,
     antall_oppdateringer SMALLINT,
