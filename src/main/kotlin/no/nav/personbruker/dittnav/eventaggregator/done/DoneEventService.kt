@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory
 class DoneEventService(
         private val donePersistingService: DonePersistingService,
         private val eventMetricsProbe: EventMetricsProbe
-) : EventBatchProcessorService<DoneIntern> {
+) : EventBatchProcessorService<NokkelIntern, DoneIntern> {
 
     private val log: Logger = LoggerFactory.getLogger(DoneEventService::class.java)
 
@@ -58,12 +58,12 @@ class DoneEventService(
     }
 
     private fun EventMetricsSession.countDuplicateKeyEvents(result: ListPersistActionResult<Done>) {
-        if (result.foundConflictingKeys()) {
+        if (result.foundUnalteredEntitites()) {
 
-            val constraintErrors = result.getConflictingEntities().size
+            val constraintErrors = result.getUnalteredEntities().size
             val totalEntities = result.getAllEntities().size
 
-            result.getConflictingEntities()
+            result.getUnalteredEntities()
                     .groupingBy { done -> Produsent(done.appnavn, done.namespace) }
                     .eachCount()
                     .forEach { (produsent, duplicates) ->

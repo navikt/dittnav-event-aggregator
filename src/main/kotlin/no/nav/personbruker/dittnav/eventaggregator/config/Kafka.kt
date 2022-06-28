@@ -46,8 +46,12 @@ object Kafka {
         }
     }
 
-    fun consumerProps(env: Environment, eventtypeToConsume: EventType): Properties {
-        val groupIdAndEventType = buildGroupIdIncludingEventType(env, eventtypeToConsume)
+    fun consumerPropsForEventType(env: Environment, eventtypeToConsume: EventType): Properties {
+        return consumerProps(env, eventtypeToConsume.eventType)
+    }
+
+    fun consumerProps(env: Environment, groupIdSuffix: String): Properties {
+        val groupIdAndEventType = buildGroupIdIncludingEventType(env, groupIdSuffix)
         return Properties().apply {
             put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, env.aivenBrokers)
             put(KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG, env.aivenSchemaRegistry)
@@ -82,7 +86,7 @@ object Kafka {
         }
     }
 
-    private fun buildGroupIdIncludingEventType(env: Environment, eventTypeToConsume: EventType) =
-            env.groupId + eventTypeToConsume.eventType
+    private fun buildGroupIdIncludingEventType(env: Environment, eventTypeToConsume: String) =
+            env.groupId + eventTypeToConsume
 
 }

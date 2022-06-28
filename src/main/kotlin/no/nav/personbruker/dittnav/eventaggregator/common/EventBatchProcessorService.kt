@@ -4,9 +4,9 @@ import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 
-interface EventBatchProcessorService<T> {
+interface EventBatchProcessorService<N, T> {
 
-    suspend fun processEvents(events: ConsumerRecords<NokkelIntern, T>)
+    suspend fun processEvents(events: ConsumerRecords<N, T>)
 
     val ConsumerRecord<NokkelIntern, T>.namespace: String get() = key().getNamespace()
 

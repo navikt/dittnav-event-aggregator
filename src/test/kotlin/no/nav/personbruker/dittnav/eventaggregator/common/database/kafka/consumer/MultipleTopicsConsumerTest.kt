@@ -8,8 +8,10 @@ import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 import no.nav.brukernotifikasjon.schemas.internal.OppgaveIntern
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.common.SimpleEventCounterService
-import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.*
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.createBeskjedRecords
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.createEventRecords
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.createOppgaveRecords
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.delayUntilDone
 import no.nav.personbruker.dittnav.eventaggregator.innboks.AvroInnboksObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.AvroOppgaveObjectMother
@@ -20,9 +22,9 @@ import org.junit.jupiter.api.Test
 
 class MultipleTopicsConsumerTest {
 
-    private val beskjedProcessor = SimpleEventCounterService<BeskjedIntern>()
-    private val oppgaveProcessor = SimpleEventCounterService<OppgaveIntern>()
-    private val innboksProcessor = SimpleEventCounterService<InnboksIntern>()
+    private val beskjedProcessor = SimpleEventCounterService<NokkelIntern, BeskjedIntern>()
+    private val oppgaveProcessor = SimpleEventCounterService<NokkelIntern, OppgaveIntern>()
+    private val innboksProcessor = SimpleEventCounterService<NokkelIntern, InnboksIntern>()
 
     private val beskjedTopicPartition = TopicPartition("beskjed", 0)
     private val oppgaveTopicPartition = TopicPartition("oppgave", 0)
@@ -52,9 +54,9 @@ class MultipleTopicsConsumerTest {
 
     @Test
     fun `Skal kunne konsumere fra flere topics i parallell 2`() {
-        val beskjeder = createEventRecords(4, beskjedTopicPartition, AvroBeskjedObjectMother::createBeskjed)
-        val oppgaver = createEventRecords(5, oppgaveTopicPartition, AvroOppgaveObjectMother::createOppgave)
-        val innbokser = createEventRecords(6, innboksTopicPartition, AvroInnboksObjectMother::createInnboks)
+        val beskjeder = createBeskjedRecords(4, beskjedTopicPartition)
+        val oppgaver = createOppgaveRecords(5, oppgaveTopicPartition)
+        val innbokser = createInnboksRecords(6, innboksTopicPartition)
 
         runBlocking {
             beskjedConsumer.startPolling()

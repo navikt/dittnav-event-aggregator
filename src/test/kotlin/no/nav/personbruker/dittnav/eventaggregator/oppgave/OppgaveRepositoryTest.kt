@@ -59,7 +59,7 @@ class OppgaveRepositoryTest {
             val result = oppgaveRepository.createInOneBatch(toCreate)
 
             result.getPersistedEntitites() shouldBe expected
-            result.getConflictingEntities() shouldBe alreadyPersisted
+            result.getUnalteredEntities() shouldBe alreadyPersisted
         }
     }
 
@@ -75,7 +75,7 @@ class OppgaveRepositoryTest {
             val result = oppgaveRepository.createOneByOneToFilterOutTheProblematicEvents(toCreate)
 
             result.getPersistedEntitites() shouldBe expected
-            result.getConflictingEntities() shouldBe alreadyPersisted
+            result.getUnalteredEntities() shouldBe alreadyPersisted
         }
     }
 }

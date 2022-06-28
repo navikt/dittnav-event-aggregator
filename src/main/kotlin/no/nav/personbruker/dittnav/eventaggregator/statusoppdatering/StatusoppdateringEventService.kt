@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory
 class StatusoppdateringEventService(
         private val persistingService: BrukernotifikasjonPersistingService<Statusoppdatering>,
         private val metricsProbe: EventMetricsProbe
-) : EventBatchProcessorService<StatusoppdateringIntern> {
+) : EventBatchProcessorService<NokkelIntern, StatusoppdateringIntern> {
 
     private val log: Logger = LoggerFactory.getLogger(StatusoppdateringEventService::class.java)
 
@@ -48,12 +48,12 @@ class StatusoppdateringEventService(
     }
 
     private fun EventMetricsSession.countDuplicateKeyEvents(result: ListPersistActionResult<Statusoppdatering>) {
-        if (result.foundConflictingKeys()) {
+        if (result.foundUnalteredEntitites()) {
 
-            val constraintErrors = result.getConflictingEntities().size
+            val constraintErrors = result.getUnalteredEntities().size
             val totalEntities = result.getAllEntities().size
 
-            result.getConflictingEntities()
+            result.getUnalteredEntities()
                     .groupingBy { statusoppdatering -> Produsent(statusoppdatering.appnavn, statusoppdatering.namespace)}
                     .eachCount()
                     .forEach { (produsent, duplicates) ->

@@ -7,6 +7,7 @@ import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.common.SimpleEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.createBeskjedRecords
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.createEventRecords
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.delayUntilDone
 import org.apache.kafka.clients.consumer.MockConsumer
@@ -19,7 +20,7 @@ class SingleTopicConsumerTest {
     @Test
     fun `Lese inn alle testeventene fra Kafka`() {
 
-        val eventProcessor = SimpleEventCounterService<BeskjedIntern>()
+        val eventProcessor = SimpleEventCounterService<NokkelIntern, BeskjedIntern>()
         val topicPartition = TopicPartition("topic", 0)
         val consumerMock = MockConsumer<NokkelIntern, BeskjedIntern>(OffsetResetStrategy.EARLIEST).also {
             it.subscribe(listOf(topicPartition.topic()))
@@ -28,7 +29,7 @@ class SingleTopicConsumerTest {
         }
         val consumer = Consumer(topicPartition.topic(), consumerMock, eventProcessor)
 
-        val events = createEventRecords(10, topicPartition, AvroBeskjedObjectMother::createBeskjed)
+        val events = createBeskjedRecords(10, topicPartition)
 
         runBlocking {
             consumer.startPolling()

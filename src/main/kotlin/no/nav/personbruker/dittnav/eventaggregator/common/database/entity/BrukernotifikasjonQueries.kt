@@ -1,8 +1,8 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.database.entity
 
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.toVarcharArray
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import java.sql.Array
 import java.sql.Connection
 import java.sql.ResultSet
 
@@ -25,6 +25,3 @@ private fun ResultSet.toBrukernotifikasjon(): Brukernotifikasjon {
 }
 
 
-private fun Connection.toVarcharArray(stringList: List<String>): Array {
-    return createArrayOf("VARCHAR", stringList.toTypedArray())
-}

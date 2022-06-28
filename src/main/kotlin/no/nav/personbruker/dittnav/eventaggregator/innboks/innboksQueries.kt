@@ -21,7 +21,7 @@ private val createQuery = """INSERT INTO innboks(systembruker, eventTidspunkt, f
             VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
 fun Connection.createInnboksEventer(innboksEventer: List<Innboks>) =
-        executeBatchPersistQuery(createQuery) {
+        executeBatchPersistQueryIgnoreConflict(createQuery) {
             innboksEventer.forEach { innboks ->
                 buildStatementForSingleRow(innboks)
                 addBatch()

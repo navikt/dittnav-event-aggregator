@@ -18,10 +18,10 @@ import java.time.Duration
 import java.time.temporal.ChronoUnit
 import kotlin.coroutines.CoroutineContext
 
-class Consumer<T>(
+class Consumer<K, V>(
     val topic: String,
-    private val kafkaConsumer: org.apache.kafka.clients.consumer.Consumer<NokkelIntern, T>,
-    val eventBatchProcessorService: EventBatchProcessorService<T>,
+    private val kafkaConsumer: org.apache.kafka.clients.consumer.Consumer<K, V>,
+    val eventBatchProcessorService: EventBatchProcessorService<K, V>,
     val job: Job = Job(),
     val maxPollTimeout: Long = 100L
 ) : CoroutineScope, HealthCheck {
@@ -107,7 +107,7 @@ class Consumer<T>(
         }
     }
 
-    fun ConsumerRecords<NokkelIntern, T>.containsEvents() = count() > 0
+    fun ConsumerRecords<K, V>.containsEvents() = count() > 0
 
     private suspend fun rollbackOffset() {
         withContext(Dispatchers.IO) {

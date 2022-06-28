@@ -9,6 +9,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.Brukernotifik
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.createEventRecords
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.createStatusoppdateringRecords
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.delayUntilCommittedOffset
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import org.apache.kafka.clients.consumer.MockConsumer
@@ -47,11 +48,11 @@ class StatusoppdateringIT {
 
     @Test
     fun `Skal lese inn Statusoppdatering-eventer og skrive de til databasen`() {
-        val statusoppdateringer = createEventRecords(
+        val statusoppdateringer = createStatusoppdateringRecords(
             10,
-            statusoppdateringTopicPartition,
-            AvroStatusoppdateringObjectMother::createStatusoppdatering
+            statusoppdateringTopicPartition
         )
+
         statusoppdateringer.forEach { statusoppdateringConsumerMock.addRecord(it) }
 
         runBlocking {

@@ -2,9 +2,10 @@ package no.nav.personbruker.dittnav.eventaggregator.common.database.util
 
 import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
-import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistFailureReason
+import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistOutcome
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import java.sql.*
+import java.sql.Array
 import java.time.LocalDateTime
 
 const val countResultColumnIndex = 1
@@ -38,9 +39,19 @@ fun Connection.executeBatchUpdateQuery(sql: String, paramInit: PreparedStatement
     commit()
 }
 
-fun Connection.executeBatchPersistQuery(sql: String, paramInit: PreparedStatement.() -> Unit): IntArray {
+fun Connection.executeBatchPersistQueryIgnoreConflict(sql: String, paramInit: PreparedStatement.() -> Unit): IntArray {
     autoCommit = false
     val result = prepareStatement("""$sql ON CONFLICT DO NOTHING""").use { statement ->
+        statement.paramInit()
+        statement.executeBatch()
+    }
+    commit()
+    return result
+}
+
+fun Connection.executeBatchPersistQuery(sql: String, paramInit: PreparedStatement.() -> Unit): IntArray {
+    autoCommit = false
+    val result = prepareStatement(sql).use { statement ->
         statement.paramInit()
         statement.executeBatch()
     }
@@ -58,6 +69,10 @@ inline fun <T> List<T>.persistEachIndividuallyAndAggregateResults(persistAction:
     }
 }
 
+fun Connection.toVarcharArray(stringList: List<String>): Array {
+    return createArrayOf("VARCHAR", stringList.toTypedArray())
+}
+
 fun Connection.executePersistQuery(sql: String, paramInit: PreparedStatement.() -> Unit): PersistActionResult =
         prepareStatement("""$sql ON CONFLICT DO NOTHING""", Statement.RETURN_GENERATED_KEYS).use {
 
@@ -67,13 +82,9 @@ fun Connection.executePersistQuery(sql: String, paramInit: PreparedStatement.() 
             if (it.generatedKeys.next()) {
                 PersistActionResult.success(it.generatedKeys.getInt("id"))
             } else {
-                PersistActionResult.failure(PersistFailureReason.CONFLICTING_KEYS)
+                PersistActionResult.failure(PersistOutcome.NO_INSERT_OR_UPDATE)
             }
         }
-
-fun ResultSet.getEpochTimeInSeconds(label: String): Long {
-    return getTimestamp(label).toInstant().epochSecond
-}
 
 fun Connection.countTotalNumberOfEvents(eventType: EventType): Long {
     val numberOfEvents = prepareStatement("SELECT count(*) from ${eventType.eventType}",

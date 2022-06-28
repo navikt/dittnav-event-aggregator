@@ -8,6 +8,9 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.Brukernotifik
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.KafkaProducerWrapper
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.polling.PeriodicConsumerPollingCheck
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusRepository
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusService
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusUpdater
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneEventService
 import no.nav.personbruker.dittnav.eventaggregator.done.DonePersistingService
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
@@ -19,6 +22,7 @@ import no.nav.personbruker.dittnav.eventaggregator.health.HealthService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksEventService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildDBMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.metrics.buildDoknotifikasjonStatusMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildEventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveEventService
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
@@ -40,31 +44,31 @@ class ApplicationContext {
     val beskjedRepository = BeskjedRepository(database)
     val beskjedPersistingService = BrukernotifikasjonPersistingService(beskjedRepository)
     val beskjedEventProcessor = BeskjedEventService(beskjedPersistingService, eventMetricsProbe)
-    val beskjedKafkaProps = Kafka.consumerProps(environment, EventType.BESKJED_INTERN)
+    val beskjedKafkaProps = Kafka.consumerPropsForEventType(environment, EventType.BESKJED_INTERN)
     var beskjedConsumer = initializeBeskjedConsumer()
 
     val oppgaveRepository = OppgaveRepository(database)
     val oppgavePersistingService = BrukernotifikasjonPersistingService(oppgaveRepository)
     val oppgaveEventProcessor = OppgaveEventService(oppgavePersistingService, eventMetricsProbe)
-    val oppgaveKafkaProps = Kafka.consumerProps(environment, EventType.OPPGAVE_INTERN)
+    val oppgaveKafkaProps = Kafka.consumerPropsForEventType(environment, EventType.OPPGAVE_INTERN)
     var oppgaveConsumer = initializeOppgaveConsumer()
 
     val innboksRepository = InnboksRepository(database)
     val innboksPersistingService = BrukernotifikasjonPersistingService(innboksRepository)
     val innboksEventProcessor = InnboksEventService(innboksPersistingService, eventMetricsProbe)
-    val innboksKafkaProps = Kafka.consumerProps(environment, EventType.INNBOKS_INTERN)
+    val innboksKafkaProps = Kafka.consumerPropsForEventType(environment, EventType.INNBOKS_INTERN)
     var innboksConsumer = initializeInnboksConsumer()
 
     val doneRepository = DoneRepository(database)
     val donePersistingService = DonePersistingService(doneRepository)
     val doneEventService = DoneEventService(donePersistingService, eventMetricsProbe)
-    val doneKafkaProps = Kafka.consumerProps(environment, EventType.DONE_INTERN)
+    val doneKafkaProps = Kafka.consumerPropsForEventType(environment, EventType.DONE_INTERN)
     var doneConsumer = initializeDoneConsumer()
 
     val statusoppdateringRepository = StatusoppdateringRepository(database)
     val statusoppdateringPersistingService = BrukernotifikasjonPersistingService(statusoppdateringRepository)
     val statusoppdateringEventProcessor = StatusoppdateringEventService(statusoppdateringPersistingService, eventMetricsProbe)
-    val statusoppdateringKafkaProps = Kafka.consumerProps(environment, EventType.STATUSOPPDATERING_INTERN)
+    val statusoppdateringKafkaProps = Kafka.consumerPropsForEventType(environment, EventType.STATUSOPPDATERING_INTERN)
     var statusoppdateringConsumer = initializeStatusoppdateringConsumer()
 
     var periodicDoneEventWaitingTableProcessor = initializeDoneWaitingTableProcessor()
@@ -73,7 +77,14 @@ class ApplicationContext {
     val expiredPersistingService = ExpiredPersistingService(database)
     val kafkaProducerDone = KafkaProducerWrapper(environment.doneInputTopicName, KafkaProducer<NokkelInput, DoneInput>(Kafka.producerProps(environment)))
     val doneEventEmitter = DoneEventEmitter(kafkaProducerDone)
-    var periodicExpiredBeskjedProcessor = initializeExpiredBeskjedProcessor()
+    val periodicExpiredBeskjedProcessor = initializeExpiredBeskjedProcessor()
+
+    val doknotifikasjonRepository = DoknotifikasjonStatusRepository(database)
+    val doknotifkiasjonStatusUpdater = DoknotifikasjonStatusUpdater(beskjedRepository, oppgaveRepository, doknotifikasjonRepository)
+    val doknotifikasjonStatusMetricsProbe = buildDoknotifikasjonStatusMetricsProbe(environment)
+    val doknotifikasjonStatusService = DoknotifikasjonStatusService(doknotifkiasjonStatusUpdater, doknotifikasjonStatusMetricsProbe)
+    val doknotifikasjonStatusKafkaProps = Kafka.consumerProps(environment, "doknot-status")
+    var doknotifikasjonStatusConsumer = initializeDoknotifikasjonStatusConsumer()
 
     val healthService = HealthService(this)
 
@@ -98,6 +109,9 @@ class ApplicationContext {
 
     private fun initializeExpiredBeskjedProcessor() =
         PeriodicExpiredNotificationProcessor(expiredPersistingService, doneEventEmitter)
+
+    private fun initializeDoknotifikasjonStatusConsumer() =
+        KafkaConsumerSetup.setupConsumerForTheDoknotifikasjonStatusTopic(doknotifikasjonStatusKafkaProps, doknotifikasjonStatusService, environment.doknotifikasjonStatusTopicName)
 
     fun reinitializeConsumers() {
         if (beskjedConsumer.isCompleted()) {
@@ -133,6 +147,13 @@ class ApplicationContext {
             log.info("statusoppdateringConsumer har blitt reinstansiert.")
         } else {
             log.warn("statusoppdateringConsumer kunne ikke bli reinstansiert fordi den fortsatt er aktiv.")
+        }
+
+        if (doknotifikasjonStatusConsumer.isCompleted()) {
+            doknotifikasjonStatusConsumer = initializeDoknotifikasjonStatusConsumer()
+            log.info("doknotifikasjonStatusConsumer har blitt reinstansiert.")
+        } else {
+            log.warn("doknotifikasjonStatusConsumer kunne ikke bli reinstansiert fordi den fortsatt er aktiv.")
         }
     }
 

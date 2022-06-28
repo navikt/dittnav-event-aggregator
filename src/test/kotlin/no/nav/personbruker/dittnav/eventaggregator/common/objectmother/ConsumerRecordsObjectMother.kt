@@ -1,6 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.objectmother
 
 import no.nav.brukernotifikasjon.schemas.internal.*
+import no.nav.doknotifikasjon.schemas.DoknotifikasjonStatus
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.innboks.AvroInnboksObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.AvroNokkelInternObjectMother
@@ -81,13 +82,21 @@ object ConsumerRecordsObjectMother {
         return allRecords
     }
 
-    fun wrapInConsumerRecords(recordsForSingleTopic: List<ConsumerRecord<NokkelIntern, DoneIntern>>, topicName: String = "dummyTopic"): ConsumerRecords<NokkelIntern, DoneIntern> {
-        val records = mutableMapOf<TopicPartition, List<ConsumerRecord<NokkelIntern, DoneIntern>>>()
+    fun <K, V> wrapInConsumerRecords(recordsForSingleTopic: List<ConsumerRecord<K, V>>, topicName: String): ConsumerRecords<K, V> {
+        val records = mutableMapOf<TopicPartition, List<ConsumerRecord<K, V>>>()
         records[TopicPartition(topicName, 1)] = recordsForSingleTopic
         return ConsumerRecords(records)
     }
 
     fun wrapInConsumerRecords(singleRecord: ConsumerRecord<NokkelIntern, DoneIntern>): ConsumerRecords<NokkelIntern, DoneIntern> {
-        return wrapInConsumerRecords(listOf(singleRecord))
+        return wrapInConsumerRecords(listOf(singleRecord), singleRecord.topic())
+    }
+
+    fun doknotStatusesAsConsumerRecords(doknotStatuses: List<DoknotifikasjonStatus>, topicName: String): ConsumerRecords<String, DoknotifikasjonStatus> {
+        return doknotStatuses.mapIndexed { index, status ->
+            ConsumerRecord(topicName, 1, index.toLong(), status.getBestillingsId(), status)
+        }.let {
+            wrapInConsumerRecords(it, topicName)
+        }
     }
 }

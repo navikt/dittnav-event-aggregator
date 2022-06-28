@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory
 class InnboksEventService(
         private val persistingService: BrukernotifikasjonPersistingService<Innboks>,
         private val metricsProbe: EventMetricsProbe
-) : EventBatchProcessorService<InnboksIntern> {
+) : EventBatchProcessorService<NokkelIntern, InnboksIntern> {
 
     private val log = LoggerFactory.getLogger(InnboksEventService::class.java)
 
@@ -47,12 +47,12 @@ class InnboksEventService(
     }
 
     private fun EventMetricsSession.countDuplicateKeyEvents(result: ListPersistActionResult<Innboks>) {
-        if (result.foundConflictingKeys()) {
+        if (result.foundUnalteredEntitites()) {
 
-            val constraintErrors = result.getConflictingEntities().size
+            val constraintErrors = result.getUnalteredEntities().size
             val totalEntities = result.getAllEntities().size
 
-            result.getConflictingEntities()
+            result.getUnalteredEntities()
                     .groupingBy { innboks -> Produsent(innboks.appnavn, innboks.namespace) }
                     .eachCount()
                     .forEach { (produsent, duplicates) ->

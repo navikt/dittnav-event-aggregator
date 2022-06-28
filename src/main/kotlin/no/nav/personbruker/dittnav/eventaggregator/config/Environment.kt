@@ -30,7 +30,8 @@ data class Environment(val username: String = getEnvVar("SERVICEUSER_USERNAME"),
                        val innboksInternTopicName: String = getEnvVar("INTERN_INNBOKS_TOPIC"),
                        val statusoppdateringInternTopicName: String = getEnvVar("INTERN_STATUSOPPDATERING_TOPIC"),
                        val doneInternTopicName: String = getEnvVar("INTERN_DONE_TOPIC"),
-                       val doneInputTopicName: String = getEnvVar("INPUT_DONE_TOPIC")
+                       val doneInputTopicName: String = getEnvVar("INPUT_DONE_TOPIC"),
+                       val doknotifikasjonStatusTopicName: String = getEnvVar("DOKNOTIFIKASJON_STATUS_TOPIC")
 
 )
 
@@ -65,6 +66,8 @@ fun shouldPollInnboks() = StringEnvVar.getOptionalEnvVar("POLL_INNBOKS", "false"
 fun shouldPollStatusoppdatering() = StringEnvVar.getOptionalEnvVar("POLL_STATUSOPPDATERING", "false").toBoolean()
 
 fun shouldPollDone() = StringEnvVar.getOptionalEnvVar("POLL_DONE", "false").toBoolean()
+
+fun shouldPollDoknotifikasjonStatus() = StringEnvVar.getOptionalEnvVar("POLL_DOKNOTIFIKASJON_STATUS", "false").toBoolean()
 
 fun getDbUrl(host: String, port: String, name: String): String {
     return if (host.endsWith(":$port")) {

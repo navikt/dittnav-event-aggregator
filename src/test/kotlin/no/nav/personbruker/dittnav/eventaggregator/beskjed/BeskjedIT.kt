@@ -8,6 +8,7 @@ import no.nav.personbruker.dittnav.common.metrics.StubMetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.createBeskjedRecords
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.createEventRecords
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.delayUntilCommittedOffset
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
@@ -35,7 +36,7 @@ class BeskjedIT {
 
     @Test
     fun `Skal lese inn Beskjed-eventer og skrive de til databasen`() {
-        val beskjeder = createEventRecords(10, beskjedTopicPartition, AvroBeskjedObjectMother::createBeskjed)
+        val beskjeder = createBeskjedRecords(10, beskjedTopicPartition)
         beskjeder.forEach { beskjedConsumerMock.addRecord(it) }
 
         runBlocking {

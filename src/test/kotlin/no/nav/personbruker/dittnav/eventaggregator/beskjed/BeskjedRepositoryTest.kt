@@ -59,7 +59,7 @@ class BeskjedRepositoryTest {
             val result = beskjedRepository.createInOneBatch(toCreate)
 
             result.getPersistedEntitites() shouldBe expected
-            result.getConflictingEntities() shouldBe alreadyPersisted
+            result.getUnalteredEntities() shouldBe alreadyPersisted
         }
     }
 
@@ -75,7 +75,7 @@ class BeskjedRepositoryTest {
             val result = beskjedRepository.createOneByOneToFilterOutTheProblematicEvents(toCreate)
 
             result.getPersistedEntitites() shouldBe expected
-            result.getConflictingEntities() shouldBe alreadyPersisted
+            result.getUnalteredEntities() shouldBe alreadyPersisted
         }
     }
 }

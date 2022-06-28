@@ -72,7 +72,7 @@ class DoneRepositoryTest {
             doneRepository.createInOneBatch(alreadyPersisted)
             val result = doneRepository.createInOneBatch(toCreate)
             result.getPersistedEntitites() shouldBe expected
-            result.getConflictingEntities() shouldBe alreadyPersisted
+            result.getUnalteredEntities() shouldBe alreadyPersisted
         }
     }
 
@@ -85,7 +85,7 @@ class DoneRepositoryTest {
             doneRepository.createInOneBatch(alreadyPersisted)
             val result = doneRepository.createOneByOneToFilterOutTheProblematicEvents(toCreate)
             result.getPersistedEntitites() shouldBe expected
-            result.getConflictingEntities() shouldBe alreadyPersisted
+            result.getUnalteredEntities() shouldBe alreadyPersisted
         }
     }
 
