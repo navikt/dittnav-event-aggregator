@@ -83,7 +83,7 @@ class ApplicationContext {
     val doknotifkiasjonStatusUpdater = DoknotifikasjonStatusUpdater(beskjedRepository, oppgaveRepository, doknotifikasjonRepository)
     val doknotifikasjonStatusMetricsProbe = buildDoknotifikasjonStatusMetricsProbe(environment)
     val doknotifikasjonStatusService = DoknotifikasjonStatusService(doknotifkiasjonStatusUpdater, doknotifikasjonStatusMetricsProbe)
-    val doknotifikasjonStatusKafkaProps = Kafka.consumerProps(environment, "doknot-status")
+    val doknotifikasjonStatusKafkaProps = Kafka.consumerPropsForDoknotStatus(environment, environment.doknotifikasjonStatusGroupId)
     var doknotifikasjonStatusConsumer = initializeDoknotifikasjonStatusConsumer()
 
     val healthService = HealthService(this)

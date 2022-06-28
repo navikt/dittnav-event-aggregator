@@ -31,6 +31,7 @@ data class Environment(val username: String = getEnvVar("SERVICEUSER_USERNAME"),
                        val statusoppdateringInternTopicName: String = getEnvVar("INTERN_STATUSOPPDATERING_TOPIC"),
                        val doneInternTopicName: String = getEnvVar("INTERN_DONE_TOPIC"),
                        val doneInputTopicName: String = getEnvVar("INPUT_DONE_TOPIC"),
+                       val doknotifikasjonStatusGroupId: String = getEnvVar("GROUP_ID_DOKNOTIFIKASJON_STATUS"),
                        val doknotifikasjonStatusTopicName: String = getEnvVar("DOKNOTIFIKASJON_STATUS_TOPIC")
 
 )

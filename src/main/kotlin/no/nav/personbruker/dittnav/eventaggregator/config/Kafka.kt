@@ -10,6 +10,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.config.SaslConfigs
 import org.apache.kafka.common.config.SslConfigs
+import org.apache.kafka.common.serialization.StringDeserializer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.InetSocketAddress
@@ -47,11 +48,7 @@ object Kafka {
     }
 
     fun consumerPropsForEventType(env: Environment, eventtypeToConsume: EventType): Properties {
-        return consumerProps(env, eventtypeToConsume.eventType)
-    }
-
-    fun consumerProps(env: Environment, groupIdSuffix: String): Properties {
-        val groupIdAndEventType = buildGroupIdIncludingEventType(env, groupIdSuffix)
+        val groupIdAndEventType = buildGroupIdIncludingEventType(env, eventtypeToConsume.eventType)
         return Properties().apply {
             put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, env.aivenBrokers)
             put(KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG, env.aivenSchemaRegistry)
@@ -60,6 +57,23 @@ object Kafka {
             put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
             put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false)
             put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, SwallowSerializationErrorsAvroDeserializer::class.java)
+            put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, SwallowSerializationErrorsAvroDeserializer::class.java)
+            put(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, true)
+            if (env.securityConfig.enabled) {
+                putAll(credentialPropsAiven(env.securityConfig.variables!!))
+            }
+        }
+    }
+
+    fun consumerPropsForDoknotStatus(env: Environment, groupId: String): Properties {
+        return Properties().apply {
+            put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, env.aivenBrokers)
+            put(KafkaAvroDeserializerConfig.SCHEMA_REGISTRY_URL_CONFIG, env.aivenSchemaRegistry)
+            put(ConsumerConfig.GROUP_ID_CONFIG, groupId)
+            put(ConsumerConfig.CLIENT_ID_CONFIG, groupId + getHostname(InetSocketAddress(0)))
+            put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
+            put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false)
+            put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer::class.java)
             put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, SwallowSerializationErrorsAvroDeserializer::class.java)
             put(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, true)
             if (env.securityConfig.enabled) {
