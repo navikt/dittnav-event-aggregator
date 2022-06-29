@@ -35,7 +35,7 @@ class ConsumerTestIT {
         val eventProcessor = ThrowingEventCounterService<BeskjedIntern>()
         val beskjedConsumer = Consumer(topicPartition.topic(), consumerMock, eventProcessor)
 
-        val beskjeder = createEventRecords(10, topicPartition, AvroBeskjedObjectMother::createBeskjed)
+        val beskjeder = createBeskjedRecords(10, topicPartition)
 
         runBlocking {
             beskjedConsumer.startPolling()
@@ -57,7 +57,7 @@ class ConsumerTestIT {
             it.updateBeginningOffsets(mapOf(topicPartition to 0))
         }
 
-        val beskjeder = createEventRecords(3, topicPartition, AvroBeskjedObjectMother::createBeskjed)
+        val beskjeder = createBeskjedRecords(3, topicPartition)
 
         val eventProcessor = ThrowingEventCounterService<BeskjedIntern>(RetriableDatabaseException("Transient error"), 2)
         val beskjedConsumer = Consumer(topicPartition.topic(), consumerMock, eventProcessor)
@@ -86,7 +86,7 @@ class ConsumerTestIT {
         val eventProcessor = ThrowingEventCounterService<BeskjedIntern>(UnretriableDatabaseException("Fatal error"), 3)
         val beskjedConsumer = Consumer(topicPartition.topic(), consumerMock, eventProcessor)
 
-        val beskjeder = createEventRecords(5, topicPartition, AvroBeskjedObjectMother::createBeskjed)
+        val beskjeder = createBeskjedRecords(5, topicPartition)
         runBlocking {
             beskjedConsumer.startPolling()
             beskjeder.forEach { consumerMock.addRecord(it) }

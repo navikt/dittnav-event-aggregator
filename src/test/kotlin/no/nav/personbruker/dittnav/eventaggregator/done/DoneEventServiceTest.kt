@@ -128,7 +128,7 @@ class DoneEventServiceTest {
     fun `Skal ikke lagre Done-event i cache paa nytt hvis Done-event med samme id allerede er mottatt`() {
         val record1 = ConsumerRecord(KafkaTestTopics.beskjedInternTopicName, 1, 1, AvroNokkelInternObjectMother.createNokkelWithEventId(eventId = 5), AvroDoneObjectMother.createDone())
         val record2 = ConsumerRecord(KafkaTestTopics.beskjedInternTopicName, 1, 1, AvroNokkelInternObjectMother.createNokkelWithEventId(eventId = 5), AvroDoneObjectMother.createDone())
-        val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(listOf(record1, record2))
+        val records = ConsumerRecordsObjectMother.wrapInConsumerRecords(listOf(record1, record2), "doneTopic")
         runBlocking {
             doneEventService.processEvents(records)
             val allDone = database.dbQuery { getAllDoneEvent() }

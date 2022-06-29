@@ -1,27 +1,27 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.database
 
-import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistFailureReason.CONFLICTING_KEYS
-import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistFailureReason.NO_ERROR
+import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistOutcome.NO_INSERT_OR_UPDATE
+import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistOutcome.SUCCESS
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.AggregatorBatchUpdateException
 
 class ListPersistActionResult<T> private constructor(private val resultList: List<RowResult<T>>) {
 
     fun allEntitiesPersisted() = resultList.all { result ->
-        result.status == NO_ERROR
+        result.status == SUCCESS
     }
 
-    fun foundConflictingKeys() = resultList.any { result ->
-        result.status == CONFLICTING_KEYS
+    fun foundUnalteredEntitites() = resultList.any { result ->
+        result.status == NO_INSERT_OR_UPDATE
     }
 
     fun getPersistedEntitites() = resultList.filter { result ->
-        result.status == NO_ERROR
+        result.status == SUCCESS
     }.map { result ->
         result.entity
     }
 
-    fun getConflictingEntities() = resultList.filter { result ->
-        result.status == CONFLICTING_KEYS
+    fun getUnalteredEntities() = resultList.filter { result ->
+        result.status == NO_INSERT_OR_UPDATE
     }.map { result ->
         result.entity
     }
@@ -38,8 +38,8 @@ class ListPersistActionResult<T> private constructor(private val resultList: Lis
 
             return paramEntities.mapIndexed { index, entity ->
                 when (resultArray[index]) {
-                    1 -> RowResult(entity, NO_ERROR)
-                    0 -> RowResult(entity, CONFLICTING_KEYS)
+                    1 -> RowResult(entity, SUCCESS)
+                    0 -> RowResult(entity, NO_INSERT_OR_UPDATE)
                     else -> throw AggregatorBatchUpdateException("Udefinert resultat etter batch update.")
                 }
             }.let { resultList ->
@@ -47,7 +47,7 @@ class ListPersistActionResult<T> private constructor(private val resultList: Lis
             }
         }
 
-        fun <T> mapListOfIndividualResults(paramResultPairs: List<Pair<T, PersistFailureReason>>): ListPersistActionResult<T> {
+        fun <T> mapListOfIndividualResults(paramResultPairs: List<Pair<T, PersistOutcome>>): ListPersistActionResult<T> {
             return paramResultPairs.map { pair ->
                 RowResult(pair.first, pair.second)
             }.let { rowResults ->
@@ -63,7 +63,7 @@ class ListPersistActionResult<T> private constructor(private val resultList: Lis
 
 
 
-private data class RowResult<T>( val entity: T, val status: PersistFailureReason)
+private data class RowResult<T>( val entity: T, val status: PersistOutcome)
 
 
 

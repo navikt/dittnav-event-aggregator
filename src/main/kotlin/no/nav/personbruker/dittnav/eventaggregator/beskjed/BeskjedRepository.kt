@@ -25,4 +25,9 @@ class BeskjedRepository(private val database: Database) : BrukernotifikasjonRepo
         }
     }
 
+    suspend fun getBeskjedWithEksternVarslingForEventIds(eventIds: List<String>): List<Beskjed> {
+        return database.queryWithExceptionTranslation {
+            getBeskjedWithEksternVarslingForEventIds(eventIds)
+        }
+    }
 }

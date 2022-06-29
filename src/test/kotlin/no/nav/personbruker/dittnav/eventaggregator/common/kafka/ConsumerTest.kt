@@ -28,7 +28,7 @@ import java.time.Duration
 class ConsumerTest {
 
     private val kafkaConsumer = mockk<KafkaConsumer<NokkelIntern, BeskjedIntern>>(relaxUnitFun = true)
-    private val eventBatchProcessorService = mockk<EventBatchProcessorService<BeskjedIntern>>(relaxed = true)
+    private val eventBatchProcessorService = mockk<EventBatchProcessorService<NokkelIntern, BeskjedIntern>>(relaxed = true)
 
     companion object {
         private const val defaultMaxPollTimeout: Long = 5000
@@ -53,7 +53,7 @@ class ConsumerTest {
         val topic = "dummyTopicNoErrors"
         every { kafkaConsumer.poll(any<Duration>()) } returns ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(1, topic)
 
-        val consumer: Consumer<BeskjedIntern> = Consumer(topic, kafkaConsumer, eventBatchProcessorService, maxPollTimeout = defaultMaxPollTimeout)
+        val consumer: Consumer<NokkelIntern, BeskjedIntern> = Consumer(topic, kafkaConsumer, eventBatchProcessorService, maxPollTimeout = defaultMaxPollTimeout)
 
         runBlocking {
             consumer.startPolling()
@@ -71,7 +71,7 @@ class ConsumerTest {
         every { kafkaConsumer.poll(any<Duration>()) } returns ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(1, topic)
         coEvery { eventBatchProcessorService.processEvents(any()) } throws Exception("Simulert feil i en test")
 
-        val consumer: Consumer<BeskjedIntern> = Consumer(topic, kafkaConsumer, eventBatchProcessorService, maxPollTimeout = defaultMaxPollTimeout)
+        val consumer: Consumer<NokkelIntern, BeskjedIntern> = Consumer(topic, kafkaConsumer, eventBatchProcessorService, maxPollTimeout = defaultMaxPollTimeout)
 
         runBlocking {
             consumer.startPolling()
@@ -87,7 +87,7 @@ class ConsumerTest {
         every { kafkaConsumer.poll(any<Duration>()) } returns ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(1, topic)
         coEvery { eventBatchProcessorService.processEvents(any()) } throws UnretriableDatabaseException("Simulert feil i en test")
 
-        val consumer: Consumer<BeskjedIntern> = Consumer(topic, kafkaConsumer, eventBatchProcessorService, maxPollTimeout = defaultMaxPollTimeout)
+        val consumer: Consumer<NokkelIntern, BeskjedIntern> = Consumer(topic, kafkaConsumer, eventBatchProcessorService, maxPollTimeout = defaultMaxPollTimeout)
 
         runBlocking {
             consumer.startPolling()
@@ -103,7 +103,7 @@ class ConsumerTest {
         every { kafkaConsumer.poll(any<Duration>()) } returns ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(1, topic)
         coEvery { eventBatchProcessorService.processEvents(any()) } throws UntransformableRecordException("Simulert feil i en test")
 
-        val consumer: Consumer<BeskjedIntern> = Consumer(topic, kafkaConsumer, eventBatchProcessorService, maxPollTimeout = defaultMaxPollTimeout)
+        val consumer: Consumer<NokkelIntern, BeskjedIntern> = Consumer(topic, kafkaConsumer, eventBatchProcessorService, maxPollTimeout = defaultMaxPollTimeout)
 
         runBlocking {
             consumer.startPolling()
@@ -118,7 +118,7 @@ class ConsumerTest {
         val topic = "dummyTopicKafkaRetriable"
         val retriableKafkaException = DisconnectException("Simulert feil i en test")
         every { kafkaConsumer.poll(any<Duration>()) } throws retriableKafkaException
-        val consumer: Consumer<BeskjedIntern> = Consumer(topic, kafkaConsumer, eventBatchProcessorService, maxPollTimeout = defaultMaxPollTimeout)
+        val consumer: Consumer<NokkelIntern, BeskjedIntern> = Consumer(topic, kafkaConsumer, eventBatchProcessorService, maxPollTimeout = defaultMaxPollTimeout)
         every { kafkaConsumer.rollbackToLastCommitted() } returns Unit
 
         runBlocking {
@@ -138,7 +138,7 @@ class ConsumerTest {
         every { kafkaConsumer.poll(any<Duration>()) } returns ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(1, topic)
         val retriableDbExption = RetriableDatabaseException("Simulert feil i en test")
         coEvery { eventBatchProcessorService.processEvents(any()) } throws retriableDbExption
-        val consumer: Consumer<BeskjedIntern> = Consumer(topic, kafkaConsumer, eventBatchProcessorService, maxPollTimeout = defaultMaxPollTimeout)
+        val consumer: Consumer<NokkelIntern, BeskjedIntern> = Consumer(topic, kafkaConsumer, eventBatchProcessorService, maxPollTimeout = defaultMaxPollTimeout)
         every { kafkaConsumer.rollbackToLastCommitted() } returns Unit
 
 
@@ -158,7 +158,7 @@ class ConsumerTest {
         val topic = "dummyTopicNoRecordsFound"
         every { kafkaConsumer.poll(any<Duration>()) } returns ConsumerRecordsObjectMother.giveMeANumberOfBeskjedRecords(0, topic)
 
-        val consumer: Consumer<BeskjedIntern> = Consumer(topic, kafkaConsumer, eventBatchProcessorService, maxPollTimeout = defaultMaxPollTimeout)
+        val consumer: Consumer<NokkelIntern, BeskjedIntern> = Consumer(topic, kafkaConsumer, eventBatchProcessorService, maxPollTimeout = defaultMaxPollTimeout)
 
         runBlocking {
             consumer.startPolling()
@@ -174,7 +174,7 @@ class ConsumerTest {
         val topic = "dummyTopicCancellationException"
         val cancellationException = CancellationException("Simulert feil i en test")
         every { kafkaConsumer.poll(any<Duration>()) } throws cancellationException
-        val consumer: Consumer<BeskjedIntern> = Consumer(topic, kafkaConsumer, eventBatchProcessorService, maxPollTimeout = defaultMaxPollTimeout)
+        val consumer: Consumer<NokkelIntern, BeskjedIntern> = Consumer(topic, kafkaConsumer, eventBatchProcessorService, maxPollTimeout = defaultMaxPollTimeout)
 
         runBlocking {
             consumer.startPolling()
@@ -187,7 +187,7 @@ class ConsumerTest {
         val topic = "dummyTopicTopicAuthorizationException"
         val topicAuthorizationException = TopicAuthorizationException("Simulert feil i en test")
         every { kafkaConsumer.poll(any<Duration>()) } throws topicAuthorizationException
-        val consumer: Consumer<BeskjedIntern> = Consumer(topic, kafkaConsumer, eventBatchProcessorService, maxPollTimeout = defaultMaxPollTimeout)
+        val consumer: Consumer<NokkelIntern, BeskjedIntern> = Consumer(topic, kafkaConsumer, eventBatchProcessorService, maxPollTimeout = defaultMaxPollTimeout)
 
         runBlocking {
             consumer.startPolling()

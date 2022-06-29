@@ -1,6 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
 import no.nav.brukernotifikasjon.schemas.internal.*
+import no.nav.doknotifikasjon.schemas.DoknotifikasjonStatus
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -29,6 +30,12 @@ object KafkaConsumerSetup {
             appContext.doneConsumer.startPolling()
         } else {
             log.info("Unnlater å starte polling av done")
+        }
+
+        if (shouldPollDoknotifikasjonStatus()) {
+            appContext.doknotifikasjonStatusConsumer.startPolling()
+        } else {
+            log.info("Unnlater å starte polling av doknotifikasjon status")
         }
 
         if (isOtherEnvironmentThanProd()) {
@@ -67,6 +74,10 @@ object KafkaConsumerSetup {
             appContext.doneConsumer.stopPolling()
         }
 
+        if (!appContext.doknotifikasjonStatusConsumer.isCompleted()) {
+            appContext.doknotifikasjonStatusConsumer.stopPolling()
+        }
+
         if (isOtherEnvironmentThanProd()) {
             if (!appContext.innboksConsumer.isCompleted()) {
                 appContext.innboksConsumer.stopPolling()
@@ -85,28 +96,33 @@ object KafkaConsumerSetup {
         startAllKafkaPollers(appContext)
     }
 
-    fun setupConsumerForTheBeskjedTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<BeskjedIntern>, topic: String): Consumer<BeskjedIntern> {
+    fun setupConsumerForTheBeskjedTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<NokkelIntern, BeskjedIntern>, topic: String): Consumer<NokkelIntern, BeskjedIntern> {
         val kafkaConsumer = KafkaConsumer<NokkelIntern, BeskjedIntern>(kafkaProps)
         return Consumer(topic, kafkaConsumer, eventProcessor)
     }
 
-    fun setupConsumerForTheOppgaveTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<OppgaveIntern>, topic: String): Consumer<OppgaveIntern> {
+    fun setupConsumerForTheOppgaveTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<NokkelIntern, OppgaveIntern>, topic: String): Consumer<NokkelIntern, OppgaveIntern> {
         val kafkaConsumer = KafkaConsumer<NokkelIntern, OppgaveIntern>(kafkaProps)
         return Consumer(topic, kafkaConsumer, eventProcessor)
     }
 
-    fun setupConsumerForTheInnboksTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<InnboksIntern>, topic: String): Consumer<InnboksIntern> {
+    fun setupConsumerForTheInnboksTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<NokkelIntern, InnboksIntern>, topic: String): Consumer<NokkelIntern, InnboksIntern> {
         val kafkaConsumer = KafkaConsumer<NokkelIntern, InnboksIntern>(kafkaProps)
         return Consumer(topic, kafkaConsumer, eventProcessor)
     }
 
-    fun setupConsumerForTheDoneTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<DoneIntern>, topic: String): Consumer<DoneIntern> {
+    fun setupConsumerForTheDoneTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<NokkelIntern, DoneIntern>, topic: String): Consumer<NokkelIntern, DoneIntern> {
         val kafkaConsumer = KafkaConsumer<NokkelIntern, DoneIntern>(kafkaProps)
         return Consumer(topic, kafkaConsumer, eventProcessor)
     }
 
-    fun setupConsumerForTheStatusoppdateringTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<StatusoppdateringIntern>, topic: String): Consumer<StatusoppdateringIntern> {
+    fun setupConsumerForTheStatusoppdateringTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<NokkelIntern, StatusoppdateringIntern>, topic: String): Consumer<NokkelIntern, StatusoppdateringIntern> {
         val kafkaConsumer = KafkaConsumer<NokkelIntern, StatusoppdateringIntern>(kafkaProps)
+        return Consumer(topic, kafkaConsumer, eventProcessor)
+    }
+
+    fun setupConsumerForTheDoknotifikasjonStatusTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<String, DoknotifikasjonStatus>, topic: String): Consumer<String, DoknotifikasjonStatus> {
+        val kafkaConsumer = KafkaConsumer<String, DoknotifikasjonStatus>(kafkaProps)
         return Consumer(topic, kafkaConsumer, eventProcessor)
     }
 }

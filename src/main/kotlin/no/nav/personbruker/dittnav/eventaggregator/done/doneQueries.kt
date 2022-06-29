@@ -32,7 +32,7 @@ private const val createQuery = """INSERT INTO done(systembruker, eventTidspunkt
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
 fun Connection.createDoneEvents(doneEvents: List<Done>): ListPersistActionResult<Done> =
-    executeBatchPersistQuery(createQuery) {
+    executeBatchPersistQueryIgnoreConflict(createQuery) {
         doneEvents.forEach { done ->
             buildStatementForSingleRow(done)
             addBatch()

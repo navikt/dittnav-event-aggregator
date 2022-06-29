@@ -59,7 +59,7 @@ class StatusoppdateringRepositoryTest {
             val result = statusoppdateringRepository.createInOneBatch(toCreate)
 
             result.getPersistedEntitites() shouldBe expected
-            result.getConflictingEntities() shouldBe alreadyPersisted
+            result.getUnalteredEntities() shouldBe alreadyPersisted
         }
     }
 
@@ -75,7 +75,7 @@ class StatusoppdateringRepositoryTest {
             val result = statusoppdateringRepository.createOneByOneToFilterOutTheProblematicEvents(toCreate)
 
             result.getPersistedEntitites() shouldBe expected
-            result.getConflictingEntities() shouldBe alreadyPersisted
+            result.getUnalteredEntities() shouldBe alreadyPersisted
         }
     }
 }

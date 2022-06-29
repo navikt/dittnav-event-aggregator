@@ -16,3 +16,9 @@ const val KAFKA_TOTAL_EVENTS_ON_TOPIC_BY_PRODUCER = "$METRIC_NAMESPACE.topic.pro
 const val KAFKA_UNIQUE_EVENTS_ON_TOPIC = "$METRIC_NAMESPACE.topic.aggregated.unique"
 const val KAFKA_UNIQUE_EVENTS_ON_TOPIC_BY_PRODUCER = "$METRIC_NAMESPACE.topic.producer.unique"
 const val KAFKA_DUPLICATE_EVENTS_ON_TOPIC = "$METRIC_NAMESPACE.topic.duplicates"
+
+const val KAFKA_DOKNOT_STATUS_TOTAL_PROCESSED = "$METRIC_NAMESPACE.doknot.status.total.processed"
+const val KAFKA_DOKNOT_STATUS_UPDATED = "$METRIC_NAMESPACE.doknot.status.updated"
+const val KAFKA_DOKNOT_STATUS_UNCHANGED = "$METRIC_NAMESPACE.doknot.status.unchanged"
+const val KAFKA_DOKNOT_STATUS_IGNORED = "$METRIC_NAMESPACE.doknot.status.ignored"
+const val KAFKA_DOKNOT_STATUS_BATCH = "$METRIC_NAMESPACE.doknot.status.batch"

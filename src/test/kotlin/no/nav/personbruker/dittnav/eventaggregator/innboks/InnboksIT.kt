@@ -9,6 +9,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.Brukernotifik
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.createEventRecords
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.createInnboksRecords
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.delayUntilCommittedOffset
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import org.apache.kafka.clients.consumer.MockConsumer
@@ -35,7 +36,7 @@ class InnboksIT {
 
     @Test
     fun `Skal lese inn Innboks-eventer og skrive de til databasen`() {
-        val innboksEventer = createEventRecords(10, innboksTopicPartition, AvroInnboksObjectMother::createInnboks)
+        val innboksEventer = createInnboksRecords(10, innboksTopicPartition)
         innboksEventer.forEach { innboksConsumerMock.addRecord(it) }
 
         runBlocking {

@@ -17,7 +17,7 @@ fun Connection.createStatusoppdatering(statusoppdatering: Statusoppdatering): Pe
         }
 
 fun Connection.createStatusoppdateringer(statusoppdateringer: List<Statusoppdatering>): ListPersistActionResult<Statusoppdatering> =
-        executeBatchPersistQuery(createQuery) {
+        executeBatchPersistQueryIgnoreConflict(createQuery) {
             statusoppdateringer.forEach { statusoppdatering ->
                 buildStatementForSingleRow(statusoppdatering)
                 addBatch()

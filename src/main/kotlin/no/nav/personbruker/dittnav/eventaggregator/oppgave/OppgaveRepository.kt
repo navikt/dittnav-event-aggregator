@@ -24,4 +24,9 @@ class OppgaveRepository(private val database: Database) : BrukernotifikasjonRepo
         }
     }
 
+    suspend fun getOppgaveWithEksternVarslingForEventIds(eventIds: List<String>): List<Oppgave> {
+        return database.queryWithExceptionTranslation {
+            getOppgaveWithEksternVarslingForEventIds(eventIds)
+        }
+    }
 }

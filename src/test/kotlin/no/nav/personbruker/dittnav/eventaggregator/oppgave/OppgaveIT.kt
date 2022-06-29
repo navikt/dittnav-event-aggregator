@@ -9,6 +9,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.Brukernotifik
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.createEventRecords
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.createOppgaveRecords
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.delayUntilCommittedOffset
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
 import org.apache.kafka.clients.consumer.MockConsumer
@@ -35,7 +36,7 @@ class OppgaveIT {
 
     @Test
     fun `Skal lese inn Oppgave-eventer og skrive de til databasen`() {
-        val oppgaver = createEventRecords(10, oppgaveTopicPartition, AvroOppgaveObjectMother::createOppgave)
+        val oppgaver = createOppgaveRecords(10, oppgaveTopicPartition)
         oppgaver.forEach { oppgaveConsumerMock.addRecord(it) }
 
         runBlocking {

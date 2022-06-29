@@ -13,6 +13,7 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.getAllBeskjedByAktiv
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
+import no.nav.personbruker.dittnav.eventaggregator.common.kafka.createBeskjedRecords
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.createEventRecords
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.delayUntilCommittedOffset
 import no.nav.personbruker.dittnav.eventaggregator.done.schema.AvroDoneObjectMother
@@ -53,7 +54,7 @@ class DoneIT {
 
     @Test
     fun `Skal lese done-eventer og sette relaterte eventer til inaktive`() {
-        val beskjeder = createEventRecords(10, beskjedTopicPartition, AvroBeskjedObjectMother::createBeskjed)
+        val beskjeder = createBeskjedRecords(10, beskjedTopicPartition)
         beskjeder.forEach { beskjedConsumerMock.addRecord(it) }
 
         runBlocking {

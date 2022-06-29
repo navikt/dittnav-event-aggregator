@@ -50,6 +50,13 @@ object BeskjedObjectMother {
         return beskjed.copy(eksternVarsling = eksternVarsling, prefererteKanaler = prefererteKanaler)
     }
 
+    fun giveMeBeskjedWithEventIdAndAppnavn(eventId: String, appnavn: String): Beskjed {
+        return giveMeBeskjed(
+            eventId = eventId,
+            appnavn = appnavn
+        )
+    }
+
     private fun giveMeBeskjed(
             systembruker: String = defaultSystembruker,
             namespace: String = defaultNamespace,

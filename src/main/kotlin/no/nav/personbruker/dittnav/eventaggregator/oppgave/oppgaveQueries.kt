@@ -16,7 +16,7 @@ private val EPOCH_START = LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC)
 private val createQuery = """INSERT INTO oppgave (systembruker, eventTidspunkt, forstBehandlet, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn, synligFremTil) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?)"""
 
 fun Connection.createOppgaver(oppgaver: List<Oppgave>) =
-        executeBatchPersistQuery(createQuery) {
+        executeBatchPersistQueryIgnoreConflict(createQuery) {
             oppgaver.forEach { oppgave ->
                 buildStatementForSingleRow(oppgave)
                 addBatch()
@@ -27,6 +27,15 @@ fun Connection.createOppgave(oppgave: Oppgave): PersistActionResult =
         executePersistQuery(createQuery) {
             buildStatementForSingleRow(oppgave)
             addBatch()
+        }
+
+fun Connection.getOppgaveWithEksternVarslingForEventIds(eventIds: List<String>): List<Oppgave> =
+    prepareStatement("""SELECT * FROM oppgave WHERE eksternvarsling = true AND eventid = ANY(?)""")
+        .use {
+            it.setArray(1, toVarcharArray(eventIds))
+            it.executeQuery().list {
+                toOppgave()
+            }
         }
 
 private fun PreparedStatement.buildStatementForSingleRow(oppgave: Oppgave) {
