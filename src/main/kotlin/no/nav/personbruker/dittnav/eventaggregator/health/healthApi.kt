@@ -13,7 +13,11 @@ import io.prometheus.client.exporter.common.TextFormat
 fun Routing.healthApi(healthService: HealthService) {
 
     get("/internal/isAlive") {
-        call.respondText(text = "ALIVE", contentType = ContentType.Text.Plain)
+        if(isAlive(healthService)) {
+            call.respondText(text = "ALIVE", contentType = ContentType.Text.Plain)
+        } else {
+            call.respondText(text = "NOTALIVE", contentType = ContentType.Text.Plain, HttpStatusCode.ServiceUnavailable)
+        }
     }
 
     get("/internal/isReady") {
@@ -35,6 +39,10 @@ fun Routing.healthApi(healthService: HealthService) {
         call.buildSelftestPage(healthService)
     }
 }
+
+private suspend fun isAlive(healthService: HealthService) =
+    healthService.getHealthChecks()
+        .all { healthStatus -> Status.OK == healthStatus.status }
 
 private suspend fun isReady(healthService: HealthService): Boolean {
     val healthChecks = healthService.getHealthChecks()

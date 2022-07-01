@@ -51,7 +51,7 @@ interface Database: HealthCheck {
         val serviceName = "Database"
         return withContext(Dispatchers.IO) {
             try {
-                dbQuery { prepareStatement("""SELECT 1""").execute() }
+                dbQuery { prepareStatement("""SELECT * FROM beskjed LIMIT 1""").execute() }
                 HealthStatus(serviceName, Status.OK, "200 OK")
             } catch (e: Exception) {
                 log.error("Selftest mot databasen feilet", e)
