@@ -36,6 +36,8 @@ class InnboksTransformerTest {
         transformedEventTidspunktAsLong shouldBe external.getTidspunkt()
 
         internal.aktiv shouldBe true
+        internal.eksternVarsling shouldBe true
+        internal.prefererteKanaler shouldBe external.getPrefererteKanaler()
         internal.sistOppdatert.shouldNotBeNull()
         internal.id.shouldBeNull()
     }

@@ -17,8 +17,8 @@ fun Connection.getInnboksById(entityId: Int): Innboks =
                     }
                 }
 
-private val createQuery = """INSERT INTO innboks(systembruker, eventTidspunkt, forstBehandlet, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv, namespace, appnavn)
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+private val createQuery = """INSERT INTO innboks(systembruker, eventTidspunkt, forstBehandlet, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
 fun Connection.createInnboksEventer(innboksEventer: List<Innboks>) =
         executeBatchPersistQueryIgnoreConflict(createQuery) {
@@ -33,6 +33,15 @@ fun Connection.createInnboks(innboks: Innboks): PersistActionResult =
             buildStatementForSingleRow(innboks)
         }
 
+fun Connection.getInnboksWithEksternVarslingForEventIds(eventIds: List<String>): List<Innboks> =
+    prepareStatement("""SELECT * FROM innboks WHERE eksternvarsling = true AND eventid = ANY(?)""")
+        .use {
+            it.setArray(1, toVarcharArray(eventIds))
+            it.executeQuery().list {
+                toInnboks()
+            }
+        }
+
 private fun PreparedStatement.buildStatementForSingleRow(innboks: Innboks) {
     setString(1, innboks.systembruker)
     setObject(2, innboks.eventTidspunkt, Types.TIMESTAMP)
@@ -45,8 +54,10 @@ private fun PreparedStatement.buildStatementForSingleRow(innboks: Innboks) {
     setInt(9, innboks.sikkerhetsnivaa)
     setObject(10, innboks.sistOppdatert, Types.TIMESTAMP)
     setBoolean(11, innboks.aktiv)
-    setString(12, innboks.namespace)
-    setString(13, innboks.appnavn)
+    setBoolean(12, innboks.eksternVarsling)
+    setObject(13, innboks.prefererteKanaler.joinToString(","))
+    setString(14, innboks.namespace)
+    setString(15, innboks.appnavn)
 }
 
 fun Connection.setInnboksEventerAktivFlag(doneEvents: List<Done>, aktiv: Boolean) {
@@ -62,19 +73,21 @@ fun Connection.setInnboksEventerAktivFlag(doneEvents: List<Done>, aktiv: Boolean
 
 fun ResultSet.toInnboks(): Innboks {
     return Innboks(
-            id = getInt("id"),
-            systembruker = getString("systembruker"),
-            namespace =  getString("namespace"),
-            appnavn =  getString("appnavn"),
-            eventTidspunkt = getUtcDateTime("eventTidspunkt"),
-            forstBehandlet = getUtcDateTime("forstBehandlet"),
-            fodselsnummer = getString("fodselsnummer"),
-            eventId = getString("eventId"),
-            grupperingsId = getString("grupperingsId"),
-            tekst = getString("tekst"),
-            link = getString("link"),
-            sikkerhetsnivaa = getInt("sikkerhetsnivaa"),
-            sistOppdatert = getUtcDateTime("sistOppdatert"),
-            aktiv = getBoolean("aktiv")
+        id = getInt("id"),
+        systembruker = getString("systembruker"),
+        namespace =  getString("namespace"),
+        appnavn =  getString("appnavn"),
+        eventTidspunkt = getUtcDateTime("eventTidspunkt"),
+        forstBehandlet = getUtcDateTime("forstBehandlet"),
+        fodselsnummer = getString("fodselsnummer"),
+        eventId = getString("eventId"),
+        grupperingsId = getString("grupperingsId"),
+        tekst = getString("tekst"),
+        link = getString("link"),
+        sikkerhetsnivaa = getInt("sikkerhetsnivaa"),
+        sistOppdatert = getUtcDateTime("sistOppdatert"),
+        aktiv = getBoolean("aktiv"),
+        eksternVarsling = getBoolean("eksternVarsling"),
+        prefererteKanaler = getListFromSeparatedString("prefererteKanaler", ",")
     )
 }

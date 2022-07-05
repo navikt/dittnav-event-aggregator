@@ -80,7 +80,7 @@ class ApplicationContext {
     val periodicExpiredBeskjedProcessor = initializeExpiredBeskjedProcessor()
 
     val doknotifikasjonRepository = DoknotifikasjonStatusRepository(database)
-    val doknotifkiasjonStatusUpdater = DoknotifikasjonStatusUpdater(beskjedRepository, oppgaveRepository, doknotifikasjonRepository)
+    val doknotifkiasjonStatusUpdater = DoknotifikasjonStatusUpdater(beskjedRepository, oppgaveRepository, innboksRepository, doknotifikasjonRepository)
     val doknotifikasjonStatusMetricsProbe = buildDoknotifikasjonStatusMetricsProbe(environment)
     val doknotifikasjonStatusService = DoknotifikasjonStatusService(doknotifkiasjonStatusUpdater, doknotifikasjonStatusMetricsProbe)
     val doknotifikasjonStatusKafkaProps = Kafka.consumerPropsForDoknotStatus(environment, environment.doknotifikasjonStatusGroupId)

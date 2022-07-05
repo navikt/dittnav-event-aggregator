@@ -12,6 +12,8 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother.g
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.common.createPersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusObjectMother.createDoknotifikasjonStatus
+import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother.giveMeInnboksWithEventIdAndAppnavn
+import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveObjectMother.giveMeOppgaveWithEventIdAndAppnavn
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
 import org.junit.jupiter.api.AfterEach
@@ -21,9 +23,10 @@ internal class DoknotifikasjonStatusUpdaterTest {
 
     private val beskjedRepository: BeskjedRepository = mockk()
     private val oppgaveRepository: OppgaveRepository = mockk()
+    private val innboksRepository: InnboksRepository = mockk()
     private val doknotStatusRepository: DoknotifikasjonStatusRepository = mockk()
 
-    private val statusUpdater = DoknotifikasjonStatusUpdater(beskjedRepository, oppgaveRepository, doknotStatusRepository)
+    private val statusUpdater = DoknotifikasjonStatusUpdater(beskjedRepository, oppgaveRepository, innboksRepository, doknotStatusRepository)
 
     private val status1 = createDoknotifikasjonStatus("status-1")
     private val status2 = createDoknotifikasjonStatus("status-2")
@@ -33,7 +36,7 @@ internal class DoknotifikasjonStatusUpdaterTest {
 
     @AfterEach
     fun cleanUp() {
-        clearMocks(beskjedRepository, oppgaveRepository, doknotStatusRepository)
+        clearMocks(beskjedRepository, oppgaveRepository, innboksRepository, doknotStatusRepository)
     }
 
     @Test
@@ -158,6 +161,68 @@ internal class DoknotifikasjonStatusUpdaterTest {
 
         coVerify(exactly = 1) { oppgaveRepository.getOppgaveWithEksternVarslingForEventIds(any()) }
         coVerify(exactly = 1) { doknotStatusRepository.updateStatusesForOppgave(any()) }
+        coVerify(exactly = 0) { beskjedRepository.getBeskjedWithEksternVarslingForEventIds(any()) }
+    }
+
+    @Test
+    fun `should attempt to match statuses with existing innboks events and update`() {
+        val innboks1 = giveMeInnboksWithEventIdAndAppnavn(status1.getBestillingsId(), status1.getBestillerId())
+        val innboks2 = giveMeInnboksWithEventIdAndAppnavn(status2.getBestillingsId(), status2.getBestillerId())
+
+        coEvery {
+            innboksRepository.getInnboksWithEksternVarslingForEventIds(any())
+        } returns listOf(innboks1, innboks2)
+
+        val persistResult = createPersistActionResult(
+            successful = listOf(status1),
+            unchanged = listOf(status2)
+        )
+
+        coEvery {
+            doknotStatusRepository.updateStatusesForInnboks(listOf(status1, status2))
+        } returns persistResult
+
+        val result = runBlocking {
+            statusUpdater.updateStatusForInnboks(statuses)
+        }
+
+        result.updatedStatuses shouldContain status1
+        result.unchangedStatuses shouldContain status2
+        result.unmatchedStatuses shouldContain status3
+
+        coVerify(exactly = 1) { innboksRepository.getInnboksWithEksternVarslingForEventIds(any()) }
+        coVerify(exactly = 1) { doknotStatusRepository.updateStatusesForInnboks(any()) }
+        coVerify(exactly = 0) { beskjedRepository.getBeskjedWithEksternVarslingForEventIds(any()) }
+    }
+
+    @Test
+    fun `should not consider status to match innboks if appnavn differs from bestillingsId`() {
+        val innboks1 = giveMeInnboksWithEventIdAndAppnavn(status1.getBestillingsId(), status1.getBestillerId())
+        val innboks2 = giveMeInnboksWithEventIdAndAppnavn(status2.getBestillingsId(), "other")
+
+        coEvery {
+            innboksRepository.getInnboksWithEksternVarslingForEventIds(any())
+        } returns listOf(innboks1, innboks2)
+
+        val persistResult = createPersistActionResult(
+            successful = listOf(status1),
+            unchanged = emptyList()
+        )
+
+        coEvery {
+            doknotStatusRepository.updateStatusesForInnboks(listOf(status1))
+        } returns persistResult
+
+        val result = runBlocking {
+            statusUpdater.updateStatusForInnboks(statuses)
+        }
+
+        result.updatedStatuses shouldContain status1
+        result.unchangedStatuses.isEmpty() shouldBe true
+        result.unmatchedStatuses shouldContainAll listOf(status2, status3)
+
+        coVerify(exactly = 1) { innboksRepository.getInnboksWithEksternVarslingForEventIds(any()) }
+        coVerify(exactly = 1) { doknotStatusRepository.updateStatusesForInnboks(any()) }
         coVerify(exactly = 0) { beskjedRepository.getBeskjedWithEksternVarslingForEventIds(any()) }
     }
 

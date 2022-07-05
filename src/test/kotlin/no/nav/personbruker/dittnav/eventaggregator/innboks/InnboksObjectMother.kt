@@ -1,5 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
 import java.time.LocalDateTime
@@ -18,6 +20,7 @@ object InnboksObjectMother {
     const val defaultLink = "http://link"
     const val defaultSikkerhetsnivaa = 4
     const val defaultAktiv = true
+    const val defaultEksternVarsling = false
 
     fun giveMeAktivInnboks(): Innboks {
         return giveMeAktivInnboks("i-1", "123")
@@ -53,6 +56,19 @@ object InnboksObjectMother {
         return giveMeInnboks(eventId = eventId, fodselsnummer = fodselsnummer, forstBehandlet = forstBehandlet)
     }
 
+    fun giveMeAktivInnboksWithEksternVarslingAndPrefererteKanaler(eksternVarsling: Boolean, prefererteKanaler: List<String>): Innboks {
+        val innboks = giveMeInnboks(
+            eventId = "B-3",
+            fodselsnummer = "1234",
+            systembruker = "dummySystembruker",
+            link = "https://nav.no/systemX/"
+        )
+        return innboks.copy(eksternVarsling = eksternVarsling, prefererteKanaler = prefererteKanaler)
+    }
+
+    fun giveMeInnboksWithEventIdAndAppnavn(eventId: String, appnavn: String): Innboks {
+        return giveMeInnboks(eventId = eventId, appnavn = appnavn)
+    }
 
     private fun giveMeInnboks(
         systembruker: String = defaultSystembruker,
@@ -68,6 +84,7 @@ object InnboksObjectMother {
         sistOppdatert: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
         sikkerhetsnivaa: Int = defaultSikkerhetsnivaa,
         aktiv: Boolean = defaultAktiv,
+        eksternVarsling: Boolean = defaultEksternVarsling
     ) = Innboks(
         systembruker = systembruker,
         namespace = namespace,
@@ -82,6 +99,7 @@ object InnboksObjectMother {
         sikkerhetsnivaa = sikkerhetsnivaa,
         sistOppdatert = sistOppdatert,
         aktiv = aktiv,
+        eksternVarsling = eksternVarsling
     )
 
 }

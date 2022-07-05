@@ -16,7 +16,9 @@ data class Innboks(
         val link: String,
         val sikkerhetsnivaa: Int,
         val sistOppdatert: LocalDateTime,
-        val aktiv: Boolean
+        val aktiv: Boolean,
+        val eksternVarsling: Boolean,
+        val prefererteKanaler: List<String> = emptyList()
 ) {
     constructor(
             systembruker: String,
@@ -31,7 +33,9 @@ data class Innboks(
             link: String,
             sikkerhetsnivaa: Int,
             sistOppdatert: LocalDateTime,
-            aktiv: Boolean
+            aktiv: Boolean,
+            eksternVarsling: Boolean,
+            prefererteKanaler: List<String> = emptyList()
     ) : this(
             null,
             systembruker,
@@ -46,7 +50,9 @@ data class Innboks(
             link,
             sikkerhetsnivaa,
             sistOppdatert,
-            aktiv
+            aktiv,
+            eksternVarsling,
+            prefererteKanaler
     )
 
     override fun toString(): String {
@@ -64,7 +70,9 @@ data class Innboks(
                 "link=***, " +
                 "sikkerhetsnivaa=$sikkerhetsnivaa, " +
                 "sistOppdatert=$sistOppdatert, " +
-                "aktiv=$aktiv"
+                "aktiv=$aktiv" +
+                "eksternVarsling=$eksternVarsling, " +
+                "prefererteKanaler=$prefererteKanaler"
     }
 
 }
