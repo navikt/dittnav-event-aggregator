@@ -22,8 +22,11 @@ class DoknotifikasjonStatusService(
 
             val updateResultForOppgave = doknotifikasjonStatusUpdater.updateStatusForOppgave(allStatuses)
 
+            val updateResultForInnboks = doknotifikasjonStatusUpdater.updateStatusForInnboks(allStatuses)
+
             recordUpdateResult(EventType.BESKJED_INTERN, updateResultForBeskjed)
             recordUpdateResult(EventType.OPPGAVE_INTERN, updateResultForOppgave)
+            recordUpdateResult(EventType.INNBOKS_INTERN, updateResultForInnboks)
         }
     }
 }

@@ -1,9 +1,14 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteBeskjedWithEventId
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.getBeskjedByEventId
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneObjectMother
 import org.junit.jupiter.api.Test
@@ -171,5 +176,17 @@ class InnboksQueriesTest {
             database.dbQuery { deleteInnboksWithEventId(innboks1.eventId) }
             database.dbQuery { deleteInnboksWithEventId(innboks2.eventId) }
         }
+    }
+
+    @Test
+    fun `Skal haandtere at prefererteKanaler er tom`() {
+        val innboks = InnboksObjectMother.giveMeAktivInnboksWithEksternVarslingAndPrefererteKanaler(true, emptyList())
+        runBlocking {
+            database.dbQuery { createInnboks(innboks) }
+            val result = database.dbQuery { getInnboksByEventId(innboks.eventId) }
+            result.prefererteKanaler.shouldBeEmpty()
+            database.dbQuery { deleteInnboksWithEventId(innboks.eventId) }
+        }
+
     }
 }

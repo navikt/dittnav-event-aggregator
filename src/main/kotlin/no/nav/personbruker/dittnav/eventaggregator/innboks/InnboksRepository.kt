@@ -25,4 +25,9 @@ class InnboksRepository(private val database: Database) : BrukernotifikasjonRepo
 
     }
 
+    suspend fun getInnboksWithEksternVarslingForEventIds(eventIds: List<String>): List<Innboks> {
+        return database.queryWithExceptionTranslation {
+            getInnboksWithEksternVarslingForEventIds(eventIds)
+        }
+    }
 }

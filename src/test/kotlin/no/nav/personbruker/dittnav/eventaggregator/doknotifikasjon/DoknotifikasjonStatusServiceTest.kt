@@ -20,9 +20,10 @@ internal class DoknotifikasjonStatusServiceTest {
 
     private val statusMatchingBeskjed = createDoknotifikasjonStatus("beskjed")
     private val statusMatchingOppgave = createDoknotifikasjonStatus("oppgave")
+    private val statusMatchingInnboks = createDoknotifikasjonStatus("innboks")
     private val statusMatchingNone = createDoknotifikasjonStatus("none")
 
-    private val allStatuses = listOf(statusMatchingBeskjed, statusMatchingOppgave, statusMatchingNone)
+    private val allStatuses = listOf(statusMatchingBeskjed, statusMatchingOppgave, statusMatchingInnboks, statusMatchingNone)
     private val statusEvents = ConsumerRecordsObjectMother.doknotStatusesAsConsumerRecords(allStatuses, "doknot")
 
     @BeforeEach
@@ -49,6 +50,7 @@ internal class DoknotifikasjonStatusServiceTest {
 
         val updateResultBeskjed: UpdateStatusResult = mockk()
         val updateResultOppgave: UpdateStatusResult = mockk()
+        val updateResultInnboks: UpdateStatusResult = mockk()
 
         coEvery {
             statusUpdater.updateStatusForBeskjed(allStatuses)
@@ -58,6 +60,10 @@ internal class DoknotifikasjonStatusServiceTest {
             statusUpdater.updateStatusForOppgave(allStatuses)
         } returns updateResultOppgave
 
+        coEvery {
+            statusUpdater.updateStatusForInnboks(allStatuses)
+        } returns updateResultInnboks
+
         runBlocking {
             doknotifikasjonStatusService.processEvents(statusEvents)
         }
@@ -65,5 +71,6 @@ internal class DoknotifikasjonStatusServiceTest {
         verify(exactly = 1) { metricsSession.countStatuses(allStatuses) }
         verify(exactly = 1) { metricsSession.recordUpdateResult(EventType.BESKJED_INTERN, updateResultBeskjed) }
         verify(exactly = 1) { metricsSession.recordUpdateResult(EventType.OPPGAVE_INTERN, updateResultOppgave) }
+        verify(exactly = 1) { metricsSession.recordUpdateResult(EventType.INNBOKS_INTERN, updateResultInnboks) }
     }
 }

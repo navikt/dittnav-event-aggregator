@@ -37,6 +37,20 @@ private const val upsertQueryOppgave = """
            OR excluded.distribusjonsId != doknotifikasjon_status_oppgave.distribusjonsId
 """
 
+private const val upsertQueryInnboks = """
+    INSERT INTO doknotifikasjon_status_innboks(eventId, status, melding, distribusjonsId, tidspunkt, antall_oppdateringer) VALUES(?, ?, ?, ?, ?, 1)
+    ON CONFLICT (eventId) DO 
+        UPDATE SET 
+            status = excluded.status,
+            melding = excluded.melding,
+            distribusjonsId = excluded.distribusjonsId,
+            tidspunkt = excluded.tidspunkt,
+            antall_oppdateringer = doknotifikasjon_status_innboks.antall_oppdateringer + 1
+        WHERE excluded.status != doknotifikasjon_status_innboks.status 
+           OR excluded.melding != doknotifikasjon_status_innboks.melding
+           OR excluded.distribusjonsId != doknotifikasjon_status_innboks.distribusjonsId
+"""
+
 fun Connection.upsertDoknotifikasjonStatusForBeskjed(statuses: List<DoknotifikasjonStatus>) =
     executeBatchPersistQuery(upsertQueryBeskjed) {
         statuses.forEach { dokStatus ->
@@ -47,6 +61,14 @@ fun Connection.upsertDoknotifikasjonStatusForBeskjed(statuses: List<Doknotifikas
 
 fun Connection.upsertDoknotifikasjonStatusForOppgave(statuses: List<DoknotifikasjonStatus>) =
     executeBatchPersistQuery(upsertQueryOppgave) {
+        statuses.forEach { dokStatus ->
+            buildStatementForSingleRow(dokStatus)
+            addBatch()
+        }
+    }.toBatchPersistResult(statuses)
+
+fun Connection.upsertDoknotifikasjonStatusForInnboks(statuses: List<DoknotifikasjonStatus>) =
+    executeBatchPersistQuery(upsertQueryInnboks) {
         statuses.forEach { dokStatus ->
             buildStatementForSingleRow(dokStatus)
             addBatch()

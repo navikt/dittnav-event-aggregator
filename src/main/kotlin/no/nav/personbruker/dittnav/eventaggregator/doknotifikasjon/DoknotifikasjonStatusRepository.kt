@@ -16,4 +16,10 @@ class DoknotifikasjonStatusRepository(private val database: Database) {
             upsertDoknotifikasjonStatusForOppgave(dokStatuses)
         }
     }
+
+    suspend fun updateStatusesForInnboks(dokStatuses: List<DoknotifikasjonStatus>): ListPersistActionResult<DoknotifikasjonStatus>  {
+        return database.queryWithExceptionTranslation {
+            upsertDoknotifikasjonStatusForInnboks(dokStatuses)
+        }
+    }
 }
