@@ -1,7 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon
 
-import no.nav.doknotifikasjon.schemas.DoknotifikasjonStatus
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.toBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.*
 import java.sql.Connection
 import java.sql.PreparedStatement
@@ -11,7 +9,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 
 private fun getQuery(eventType: String) = """
-    SELECT * FROM doknotifikasjon_status_{$eventType} WHERE eventId = ANY(?)
+    SELECT * FROM doknotifikasjon_status_${eventType} WHERE eventId = ANY(?)
 """
 
 private fun upsertQuery(eventType: String) = """

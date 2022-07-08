@@ -108,6 +108,27 @@ internal class DoknotifikasjonStatusQueryTest {
     }
 
     @Test
+    fun `should get status for beskjed from database`() = runBlocking {
+        val statusUpdate = DoknotifikasjonStatusDtoObjectMother.createDoknotifikasjonStatusDto(bestillingsIdBeskjed)
+
+        database.dbQuery {
+            upsertDoknotifikasjonStatusForBeskjed(listOf(statusUpdate))
+        }
+
+        val statuses = database.dbQuery {
+            getDoknotifikasjonStatusesForBeskjed(listOf(statusUpdate.eventId))
+        }
+
+        statuses.size shouldBe 1
+
+        statuses[0].eventId shouldBe statusUpdate.eventId
+        statuses[0].status shouldBe statusUpdate.status
+        statuses[0].melding shouldBe statusUpdate.melding
+        statuses[0].distribusjonsId shouldBe statusUpdate.distribusjonsId
+        statuses[0].antallOppdateringer shouldBe 1
+    }
+
+    @Test
     fun `should create insert new status for oppgave when none exists for eventId`() = runBlocking {
         val statusUpdate = DoknotifikasjonStatusDtoObjectMother.createDoknotifikasjonStatusDto(bestillingsIdOppgave)
 
@@ -165,6 +186,27 @@ internal class DoknotifikasjonStatusQueryTest {
     }
 
     @Test
+    fun `should get status for oppgave from database`() = runBlocking {
+        val statusUpdate = DoknotifikasjonStatusDtoObjectMother.createDoknotifikasjonStatusDto(bestillingsIdOppgave)
+
+        database.dbQuery {
+            upsertDoknotifikasjonStatusForOppgave(listOf(statusUpdate))
+        }
+
+        val statuses = database.dbQuery {
+            getDoknotifikasjonStatusesForOppgave(listOf(statusUpdate.eventId))
+        }
+
+        statuses.size shouldBe 1
+
+        statuses[0].eventId shouldBe statusUpdate.eventId
+        statuses[0].status shouldBe statusUpdate.status
+        statuses[0].melding shouldBe statusUpdate.melding
+        statuses[0].distribusjonsId shouldBe statusUpdate.distribusjonsId
+        statuses[0].antallOppdateringer shouldBe 1
+    }
+
+    @Test
     fun `should create insert new status for innboks when none exists for eventId`() = runBlocking {
         val statusUpdate = DoknotifikasjonStatusDtoObjectMother.createDoknotifikasjonStatusDto(bestillingsIdInnboks)
 
@@ -219,6 +261,27 @@ internal class DoknotifikasjonStatusQueryTest {
         persistResult.allEntitiesPersisted() shouldBe true
         persistResult.getPersistedEntitites() shouldContain statusUpdate1
         persistResult.getPersistedEntitites() shouldContain statusUpdate2
+    }
+
+    @Test
+    fun `should get status for innboks from database`() = runBlocking {
+        val statusUpdate = DoknotifikasjonStatusDtoObjectMother.createDoknotifikasjonStatusDto(bestillingsIdInnboks)
+
+        database.dbQuery {
+            upsertDoknotifikasjonStatusForInnboks(listOf(statusUpdate))
+        }
+
+        val statuses = database.dbQuery {
+            getDoknotifikasjonStatusesForInnboks(listOf(statusUpdate.eventId))
+        }
+
+        statuses.size shouldBe 1
+
+        statuses[0].eventId shouldBe statusUpdate.eventId
+        statuses[0].status shouldBe statusUpdate.status
+        statuses[0].melding shouldBe statusUpdate.melding
+        statuses[0].distribusjonsId shouldBe statusUpdate.distribusjonsId
+        statuses[0].antallOppdateringer shouldBe 1
     }
 
     private fun createBeskjedInDb(): Beskjed {
