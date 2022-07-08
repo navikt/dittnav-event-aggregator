@@ -12,7 +12,6 @@ class DoknotifikasjonStatusMetricsProbe(private val metricsReporter: MetricsRepo
         if (session.getTotalEventsProcessed() > 0) {
             handleStatusesProcessed(session)
             handleStatusesUpdated(session)
-            handleStatusesUnchanged(session)
             handleStatusesUnmatched(session)
             handleBatchInfo(session, processingTime)
         }
@@ -27,10 +26,6 @@ class DoknotifikasjonStatusMetricsProbe(private val metricsReporter: MetricsRepo
 
     private suspend fun handleStatusesUpdated(session: DoknotifikasjonStatusMetricsSession) {
         reportForEachCount(KAFKA_DOKNOT_STATUS_UPDATED, session.getCountOfStatuesSuccessfullyUpdated())
-    }
-
-    private suspend fun handleStatusesUnchanged(session: DoknotifikasjonStatusMetricsSession) {
-        reportForEachCount(KAFKA_DOKNOT_STATUS_UNCHANGED, session.getCountOfStatuesWithNoChange())
     }
 
     private suspend fun handleStatusesUnmatched(session: DoknotifikasjonStatusMetricsSession) {

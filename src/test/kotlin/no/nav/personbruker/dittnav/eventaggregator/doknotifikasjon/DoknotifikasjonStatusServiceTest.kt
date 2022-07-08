@@ -53,22 +53,22 @@ internal class DoknotifikasjonStatusServiceTest {
         val updateResultInnboks: UpdateStatusResult = mockk()
 
         coEvery {
-            statusUpdater.updateStatusForBeskjed(allStatuses)
+            statusUpdater.updateStatusForBeskjed(any())
         } returns updateResultBeskjed
 
         coEvery {
-            statusUpdater.updateStatusForOppgave(allStatuses)
+            statusUpdater.updateStatusForOppgave(any())
         } returns updateResultOppgave
 
         coEvery {
-            statusUpdater.updateStatusForInnboks(allStatuses)
+            statusUpdater.updateStatusForInnboks(any())
         } returns updateResultInnboks
 
         runBlocking {
             doknotifikasjonStatusService.processEvents(statusEvents)
         }
 
-        verify(exactly = 1) { metricsSession.countStatuses(allStatuses) }
+        verify(exactly = 1) { metricsSession.countStatuses(any()) }
         verify(exactly = 1) { metricsSession.recordUpdateResult(EventType.BESKJED_INTERN, updateResultBeskjed) }
         verify(exactly = 1) { metricsSession.recordUpdateResult(EventType.OPPGAVE_INTERN, updateResultOppgave) }
         verify(exactly = 1) { metricsSession.recordUpdateResult(EventType.INNBOKS_INTERN, updateResultInnboks) }
