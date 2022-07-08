@@ -14,7 +14,9 @@ class DoknotifikasjonStatusService(
     override suspend fun processEvents(events: ConsumerRecords<String, DoknotifikasjonStatus>) {
         metricsProbe.runWithMetrics {
 
-            val allStatuses = events.map { it.value() }
+            val allStatuses = events
+                .map { it.value() }
+                .map { DoknotofikasjonStatusTransformer.toInternal(it) }
 
             countStatuses(allStatuses)
 

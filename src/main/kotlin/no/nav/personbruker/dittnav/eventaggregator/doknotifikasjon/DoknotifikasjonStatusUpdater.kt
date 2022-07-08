@@ -1,6 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon
 
-import no.nav.doknotifikasjon.schemas.DoknotifikasjonStatus
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks
@@ -14,81 +13,104 @@ class DoknotifikasjonStatusUpdater(
     private val innboksRepository: InnboksRepository,
     private val doknotifikasjonRepository: DoknotifikasjonStatusRepository) {
 
-    suspend fun updateStatusForBeskjed(dokStatus: List<DoknotifikasjonStatus>): UpdateStatusResult {
-        val eventIdRef = dokStatus.map { it.getBestillingsId() }
 
-        val beskjedCandidates = beskjedRepository.getBeskjedWithEksternVarslingForEventIds(eventIdRef)
+    suspend fun updateStatusForBeskjed(dokStatus: List<DoknotifikasjonStatusDto>): UpdateStatusResult {
+        val eventIds = dokStatus.map { it.eventId }.distinct()
 
+        val beskjedCandidates = beskjedRepository.getBeskjedWithEksternVarslingForEventIds(eventIds)
         val matchingStatuses = matchBeskjedWithDokStatus(beskjedCandidates, dokStatus)
 
-        val persistResult = doknotifikasjonRepository.updateStatusesForBeskjed(matchingStatuses)
+        val existingStatuses = doknotifikasjonRepository.getStatusesForBeskjed(eventIds)
+        val applyStatusResult = applyUpdatesInMemory(existingStatuses, matchingStatuses)
+
+        val persistResult = doknotifikasjonRepository.updateStatusesForBeskjed(applyStatusResult)
 
         val unmatchedStatuses = dokStatus - matchingStatuses
 
         return UpdateStatusResult(
             updatedStatuses = persistResult.getPersistedEntitites(),
-            unchangedStatuses = persistResult.getUnalteredEntities(),
             unmatchedStatuses = unmatchedStatuses
         )
     }
 
-    suspend fun updateStatusForOppgave(dokStatus: List<DoknotifikasjonStatus>): UpdateStatusResult {
-        val bestillingsIdsToMatch = dokStatus.map { it.getBestillingsId() }
+    suspend fun updateStatusForOppgave(dokStatus: List<DoknotifikasjonStatusDto>): UpdateStatusResult {
+        val eventIds = dokStatus.map { it.eventId }.distinct()
 
-        val oppgaveCandidates = oppgaveRepository.getOppgaveWithEksternVarslingForEventIds(bestillingsIdsToMatch)
-
+        val oppgaveCandidates = oppgaveRepository.getOppgaveWithEksternVarslingForEventIds(eventIds)
         val matchingStatuses = matchOppgaveWithDokStatus(oppgaveCandidates, dokStatus)
 
-        val persistResult = doknotifikasjonRepository.updateStatusesForOppgave(matchingStatuses)
+        val existingStatuses = doknotifikasjonRepository.getStatusesForOppgave(eventIds)
+        val applyStatusResult = applyUpdatesInMemory(existingStatuses, matchingStatuses)
+
+        val persistResult = doknotifikasjonRepository.updateStatusesForOppgave(applyStatusResult)
 
         val unmatchedStatuses = dokStatus - matchingStatuses
 
         return UpdateStatusResult(
             updatedStatuses = persistResult.getPersistedEntitites(),
-            unchangedStatuses = persistResult.getUnalteredEntities(),
             unmatchedStatuses = unmatchedStatuses
         )
     }
 
-    suspend fun updateStatusForInnboks(dokStatus: List<DoknotifikasjonStatus>): UpdateStatusResult {
-        val bestillingsIdsToMatch = dokStatus.map { it.getBestillingsId() }
+    suspend fun updateStatusForInnboks(dokStatus: List<DoknotifikasjonStatusDto>): UpdateStatusResult {
+        val eventIds = dokStatus.map { it.eventId }.distinct()
 
-        val innboksCandidates = innboksRepository.getInnboksWithEksternVarslingForEventIds(bestillingsIdsToMatch)
-
+        val innboksCandidates = innboksRepository.getInnboksWithEksternVarslingForEventIds(eventIds)
         val matchingStatuses = matchInnboksWithDokStatus(innboksCandidates, dokStatus)
 
-        val persistResult = doknotifikasjonRepository.updateStatusesForInnboks(matchingStatuses)
+        val existingStatuses = doknotifikasjonRepository.getStatusesForInnboks(eventIds)
+        val applyStatusResult = applyUpdatesInMemory(existingStatuses, matchingStatuses)
+
+        val persistResult = doknotifikasjonRepository.updateStatusesForInnboks(applyStatusResult)
 
         val unmatchedStatuses = dokStatus - matchingStatuses
 
         return UpdateStatusResult(
             updatedStatuses = persistResult.getPersistedEntitites(),
-            unchangedStatuses = persistResult.getUnalteredEntities(),
             unmatchedStatuses = unmatchedStatuses
         )
     }
 
     private fun matchBeskjedWithDokStatus(beskjedCandidates: List<Beskjed>,
-                                          dokStatus: List<DoknotifikasjonStatus>): List<DoknotifikasjonStatus> {
+                                          dokStatus: List<DoknotifikasjonStatusDto>): List<DoknotifikasjonStatusDto> {
 
         val appnavnEventIds = beskjedCandidates.map { it.appnavn to it.eventId }
 
-        return dokStatus.filter { appnavnEventIds.contains(it.getBestillerId() to it.getBestillingsId()) }
+        return dokStatus.filter { appnavnEventIds.contains(it.bestillerAppnavn to it.eventId) }
     }
 
     private fun matchOppgaveWithDokStatus(oppgaveCandidates: List<Oppgave>,
-                                          dokStatus: List<DoknotifikasjonStatus>): List<DoknotifikasjonStatus> {
+                                          dokStatus: List<DoknotifikasjonStatusDto>): List<DoknotifikasjonStatusDto> {
 
         val appnavnEventIds = oppgaveCandidates.map { it.appnavn to it.eventId }
 
-        return dokStatus.filter { appnavnEventIds.contains(it.getBestillerId() to it.getBestillingsId()) }
+        return dokStatus.filter { appnavnEventIds.contains(it.bestillerAppnavn to it.eventId) }
     }
 
     private fun matchInnboksWithDokStatus(innboksCandidates: List<Innboks>,
-                                          dokStatus: List<DoknotifikasjonStatus>): List<DoknotifikasjonStatus> {
+                                          dokStatus: List<DoknotifikasjonStatusDto>): List<DoknotifikasjonStatusDto> {
 
         val appnavnEventIds = innboksCandidates.map { it.appnavn to it.eventId }
 
-        return dokStatus.filter { appnavnEventIds.contains(it.getBestillerId() to it.getBestillingsId()) }
+        return dokStatus.filter { appnavnEventIds.contains(it.bestillerAppnavn to it.eventId) }
+    }
+
+    private fun applyUpdatesInMemory(existingStatuses: List<DoknotifikasjonStatusDto>, toApply: List<DoknotifikasjonStatusDto>): List<DoknotifikasjonStatusDto> {
+        val statusesByEventId = existingStatuses.associateBy { it.eventId }.toMutableMap()
+
+        for (status in toApply) {
+            statusesByEventId.merge(status.eventId, status, this::mergeStatuses)
+        }
+
+        return statusesByEventId.values.toList()
+    }
+
+    private fun mergeStatuses(oldStatus: DoknotifikasjonStatusDto, newStatus: DoknotifikasjonStatusDto): DoknotifikasjonStatusDto {
+        val kanaler = (oldStatus.kanaler + newStatus.kanaler).distinct()
+
+        return newStatus.copy(
+            kanaler = kanaler,
+            antallOppdateringer = oldStatus.antallOppdateringer + 1
+        )
     }
 }

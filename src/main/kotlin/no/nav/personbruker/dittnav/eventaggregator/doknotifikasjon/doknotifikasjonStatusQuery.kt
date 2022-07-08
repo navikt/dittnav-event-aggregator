@@ -1,57 +1,67 @@
 package no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon
 
 import no.nav.doknotifikasjon.schemas.DoknotifikasjonStatus
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executeBatchPersistQuery
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.toBatchPersistResult
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.toBeskjed
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.*
 import java.sql.Connection
 import java.sql.PreparedStatement
+import java.sql.ResultSet
 import java.sql.Types
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-private const val upsertQueryBeskjed = """
-    INSERT INTO doknotifikasjon_status_beskjed(eventId, status, melding, distribusjonsId, tidspunkt, antall_oppdateringer) VALUES(?, ?, ?, ?, ?, 1)
+private fun getQuery(eventType: String) = """
+    SELECT * FROM doknotifikasjon_status_{$eventType} WHERE eventId = ANY(?)
+"""
+
+private fun upsertQuery(eventType: String) = """
+    INSERT INTO doknotifikasjon_status_${eventType}(eventId, status, melding, distribusjonsId, kanaler, tidspunkt, antall_oppdateringer) VALUES(?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT (eventId) DO 
         UPDATE SET 
             status = excluded.status,
             melding = excluded.melding,
             distribusjonsId = excluded.distribusjonsId,
+            kanaler = excluded.kanaler,
             tidspunkt = excluded.tidspunkt,
-            antall_oppdateringer = doknotifikasjon_status_beskjed.antall_oppdateringer + 1
-        WHERE excluded.status != doknotifikasjon_status_beskjed.status 
-           OR excluded.melding != doknotifikasjon_status_beskjed.melding
-           OR excluded.distribusjonsId != doknotifikasjon_status_beskjed.distribusjonsId
+            antall_oppdateringer = excluded.antall_oppdateringer
 """
 
-private const val upsertQueryOppgave = """
-    INSERT INTO doknotifikasjon_status_oppgave(eventId, status, melding, distribusjonsId, tidspunkt, antall_oppdateringer) VALUES(?, ?, ?, ?, ?, 1)
-    ON CONFLICT (eventId) DO 
-        UPDATE SET 
-            status = excluded.status,
-            melding = excluded.melding,
-            distribusjonsId = excluded.distribusjonsId,
-            tidspunkt = excluded.tidspunkt,
-            antall_oppdateringer = doknotifikasjon_status_oppgave.antall_oppdateringer + 1
-        WHERE excluded.status != doknotifikasjon_status_oppgave.status 
-           OR excluded.melding != doknotifikasjon_status_oppgave.melding
-           OR excluded.distribusjonsId != doknotifikasjon_status_oppgave.distribusjonsId
-"""
+private val getQueryBeskjed = getQuery("beskjed")
+private val getQueryOppgave = getQuery("oppgave")
+private val getQueryInnboks = getQuery("innboks")
 
-private const val upsertQueryInnboks = """
-    INSERT INTO doknotifikasjon_status_innboks(eventId, status, melding, distribusjonsId, tidspunkt, antall_oppdateringer) VALUES(?, ?, ?, ?, ?, 1)
-    ON CONFLICT (eventId) DO 
-        UPDATE SET 
-            status = excluded.status,
-            melding = excluded.melding,
-            distribusjonsId = excluded.distribusjonsId,
-            tidspunkt = excluded.tidspunkt,
-            antall_oppdateringer = doknotifikasjon_status_innboks.antall_oppdateringer + 1
-        WHERE excluded.status != doknotifikasjon_status_innboks.status 
-           OR excluded.melding != doknotifikasjon_status_innboks.melding
-           OR excluded.distribusjonsId != doknotifikasjon_status_innboks.distribusjonsId
-"""
+private val upsertQueryBeskjed = upsertQuery("beskjed")
+private val upsertQueryOppgave = upsertQuery("oppgave")
+private val upsertQueryInnboks = upsertQuery("innboks")
 
-fun Connection.upsertDoknotifikasjonStatusForBeskjed(statuses: List<DoknotifikasjonStatus>) =
+fun Connection.getDoknotifikasjonStatusesForBeskjed(eventIds: List<String>): List<DoknotifikasjonStatusDto> =
+    prepareStatement(getQueryBeskjed)
+        .use {
+            it.setArray(1, toVarcharArray(eventIds))
+            it.executeQuery().list {
+                toDoknotifikasjonStatusDto()
+            }
+        }
+
+fun Connection.getDoknotifikasjonStatusesForOppgave(eventIds: List<String>): List<DoknotifikasjonStatusDto> =
+    prepareStatement(getQueryOppgave)
+        .use {
+            it.setArray(1, toVarcharArray(eventIds))
+            it.executeQuery().list {
+                toDoknotifikasjonStatusDto()
+            }
+        }
+
+fun Connection.getDoknotifikasjonStatusesForInnboks(eventIds: List<String>): List<DoknotifikasjonStatusDto> =
+    prepareStatement(getQueryInnboks)
+        .use {
+            it.setArray(1, toVarcharArray(eventIds))
+            it.executeQuery().list {
+                toDoknotifikasjonStatusDto()
+            }
+        }
+
+fun Connection.upsertDoknotifikasjonStatusForBeskjed(statuses: List<DoknotifikasjonStatusDto>) =
     executeBatchPersistQuery(upsertQueryBeskjed) {
         statuses.forEach { dokStatus ->
             buildStatementForSingleRow(dokStatus)
@@ -59,7 +69,7 @@ fun Connection.upsertDoknotifikasjonStatusForBeskjed(statuses: List<Doknotifikas
         }
     }.toBatchPersistResult(statuses)
 
-fun Connection.upsertDoknotifikasjonStatusForOppgave(statuses: List<DoknotifikasjonStatus>) =
+fun Connection.upsertDoknotifikasjonStatusForOppgave(statuses: List<DoknotifikasjonStatusDto>) =
     executeBatchPersistQuery(upsertQueryOppgave) {
         statuses.forEach { dokStatus ->
             buildStatementForSingleRow(dokStatus)
@@ -67,7 +77,7 @@ fun Connection.upsertDoknotifikasjonStatusForOppgave(statuses: List<Doknotifikas
         }
     }.toBatchPersistResult(statuses)
 
-fun Connection.upsertDoknotifikasjonStatusForInnboks(statuses: List<DoknotifikasjonStatus>) =
+fun Connection.upsertDoknotifikasjonStatusForInnboks(statuses: List<DoknotifikasjonStatusDto>) =
     executeBatchPersistQuery(upsertQueryInnboks) {
         statuses.forEach { dokStatus ->
             buildStatementForSingleRow(dokStatus)
@@ -75,10 +85,23 @@ fun Connection.upsertDoknotifikasjonStatusForInnboks(statuses: List<Doknotifikas
         }
     }.toBatchPersistResult(statuses)
 
-private fun PreparedStatement.buildStatementForSingleRow(dokStatus: DoknotifikasjonStatus) {
-    setString(1, dokStatus.getBestillingsId())
-    setString(2, dokStatus.getStatus())
-    setString(3, dokStatus.getMelding())
-    setObject(4, dokStatus.getDistribusjonId(), Types.BIGINT)
-    setObject(5, LocalDateTime.now(ZoneId.of("UTC")), Types.TIMESTAMP)
+private fun PreparedStatement.buildStatementForSingleRow(dokStatus: DoknotifikasjonStatusDto) {
+    setString(1, dokStatus.eventId)
+    setString(2, dokStatus.status)
+    setString(3, dokStatus.melding)
+    setObject(4, dokStatus.distribusjonsId, Types.BIGINT)
+    setString(5, dokStatus.kanaler.joinToString(","))
+    setObject(6, LocalDateTime.now(ZoneId.of("UTC")), Types.TIMESTAMP)
+    setInt(7, dokStatus.antallOppdateringer)
 }
+
+private fun ResultSet.toDoknotifikasjonStatusDto() =
+    DoknotifikasjonStatusDto(
+        eventId = getString("eventId"),
+        status = getString("status"),
+        melding = getString("melding"),
+        distribusjonsId = getLong("distribusjonsId"),
+        kanaler = getListFromSeparatedString("kanaler", ","),
+        antallOppdateringer = getInt("antall_oppdateringer"),
+        bestillerAppnavn = ""
+    )

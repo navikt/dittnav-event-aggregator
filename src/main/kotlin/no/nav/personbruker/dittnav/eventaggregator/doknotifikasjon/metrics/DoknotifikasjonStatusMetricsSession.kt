@@ -1,30 +1,28 @@
 package no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.metrics
 
-import no.nav.doknotifikasjon.schemas.DoknotifikasjonStatus
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusDto
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.UpdateStatusResult
 
 class DoknotifikasjonStatusMetricsSession {
 
     private var allStatusesByProducer = emptyMap<String, Int>()
-    private val statusesSuccessfullyUpdatedByType = HashMap<EventType, List<DoknotifikasjonStatus>>()
-    private val statusesWithNoChange = HashMap<EventType, List<DoknotifikasjonStatus>>()
-    private val statusesWithoutMatch = HashMap<EventType, List<DoknotifikasjonStatus>>()
+    private val statusesSuccessfullyUpdatedByType = HashMap<EventType, List<DoknotifikasjonStatusDto>>()
+    private val statusesWithoutMatch = HashMap<EventType, List<DoknotifikasjonStatusDto>>()
 
     private val startTime = System.nanoTime()
 
-    fun countStatuses(dokStatus: List<DoknotifikasjonStatus>) {
+    fun countStatuses(dokStatus: List<DoknotifikasjonStatusDto>) {
         allStatusesByProducer = countStatusesPerProducer(dokStatus)
     }
 
     fun recordUpdateResult(eventType: EventType, dokStatus: UpdateStatusResult) {
         statusesSuccessfullyUpdatedByType[eventType] = dokStatus.updatedStatuses
-        statusesWithNoChange[eventType] = dokStatus.unchangedStatuses
         statusesWithoutMatch[eventType] = dokStatus.unmatchedStatuses
     }
 
-    private fun countStatusesPerProducer(dokStatus: List<DoknotifikasjonStatus>): Map<String, Int> {
-        return dokStatus.groupingBy { it.getBestillerId() }.eachCount()
+    private fun countStatusesPerProducer(dokStatus: List<DoknotifikasjonStatusDto>): Map<String, Int> {
+        return dokStatus.groupingBy { it.bestillerAppnavn }.eachCount()
     }
 
     fun timeElapsedSinceSessionStartNanos(): Long {
@@ -41,12 +39,6 @@ class DoknotifikasjonStatusMetricsSession {
         }.flatten()
     }
 
-    fun getCountOfStatuesWithNoChange(): List<TagPermutationWithCount> {
-        return statusesWithNoChange.map { (eventType, statuses) ->
-            countForEachTagPermutation(eventType.name, statuses)
-        }.flatten()
-    }
-
     fun getCountOfStatuesWithNoMatch(): List<TagPermutationWithCount> {
         return statusesWithoutMatch.map { (_, statuses) ->
             statuses
@@ -57,9 +49,9 @@ class DoknotifikasjonStatusMetricsSession {
         }
     }
 
-    private fun countForEachTagPermutation(eventType: String, statuses: List<DoknotifikasjonStatus>): List<TagPermutationWithCount> {
+    private fun countForEachTagPermutation(eventType: String, statuses: List<DoknotifikasjonStatusDto>): List<TagPermutationWithCount> {
         return statuses.groupingBy { doknotStatus ->
-            doknotStatus.getBestillerId() to doknotStatus.getStatus()
+            doknotStatus.bestillerAppnavn to doknotStatus.status
         }.eachCount().map { (bestillerStatus, count) ->
             val (bestiller, status) = bestillerStatus
 
