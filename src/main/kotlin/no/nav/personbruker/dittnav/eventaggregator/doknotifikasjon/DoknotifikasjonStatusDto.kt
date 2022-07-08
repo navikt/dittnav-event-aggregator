@@ -5,7 +5,7 @@ data class DoknotifikasjonStatusDto(
     val bestillerAppnavn: String,
     val status: String,
     val melding: String,
-    val distribusjonsId: Long,
+    val distribusjonsId: Long?,
     val kanaler: List<String>,
     val antallOppdateringer: Int = 1
 )
