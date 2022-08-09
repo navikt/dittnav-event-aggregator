@@ -2,16 +2,18 @@ package no.nav.personbruker.dittnav.eventaggregator.common.kafka
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
-import no.nav.brukernotifikasjon.schemas.internal.*
+import no.nav.brukernotifikasjon.schemas.internal.BeskjedIntern
+import no.nav.brukernotifikasjon.schemas.internal.DoneIntern
+import no.nav.brukernotifikasjon.schemas.internal.InnboksIntern
+import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
+import no.nav.brukernotifikasjon.schemas.internal.OppgaveIntern
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.AvroBeskjedObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.common.SimpleEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.common.ThrowingEventCounterService
 import no.nav.personbruker.dittnav.eventaggregator.done.schema.AvroDoneObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.innboks.AvroInnboksObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.AvroNokkelInternObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.AvroOppgaveObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.statusoppdatering.AvroStatusoppdateringObjectMother
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.MockConsumer
 import org.apache.kafka.common.TopicPartition
@@ -54,9 +56,6 @@ internal fun createOppgaveRecords(number: Int, partition: TopicPartition): List<
 
 internal fun createInnboksRecords(number: Int, partition: TopicPartition): List<ConsumerRecord<NokkelIntern, InnboksIntern>> =
     createEventRecords(number, partition, AvroNokkelInternObjectMother::createNokkelWithEventId, AvroInnboksObjectMother::createInnboks)
-
-internal fun createStatusoppdateringRecords(number: Int, partition: TopicPartition): List<ConsumerRecord<NokkelIntern, StatusoppdateringIntern>> =
-    createEventRecords(number, partition, AvroNokkelInternObjectMother::createNokkelWithEventId, AvroStatusoppdateringObjectMother::createStatusoppdatering)
 
 internal fun createDoneRecords(number: Int, partition: TopicPartition): List<ConsumerRecord<NokkelIntern, DoneIntern>> =
     createEventRecords(number, partition, AvroNokkelInternObjectMother::createNokkelWithEventId, AvroDoneObjectMother::createDone)
