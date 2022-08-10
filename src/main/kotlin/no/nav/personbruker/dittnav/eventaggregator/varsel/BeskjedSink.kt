@@ -12,6 +12,7 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 
 internal class BeskjedSink(rapidsConnection: RapidsConnection, private val beskjedRepository: BeskjedRepository) :
     River.PacketListener {
@@ -22,7 +23,6 @@ internal class BeskjedSink(rapidsConnection: RapidsConnection, private val beskj
         River(rapidsConnection).apply {
             validate { it.demandValue("@event_name", "beskjed") }
             validate { it.requireKey(
-                "id",
                 "systembruker",
                 "namespace",
                 "appnavn",
@@ -34,7 +34,6 @@ internal class BeskjedSink(rapidsConnection: RapidsConnection, private val beskj
                 "tekst",
                 "link",
                 "sikkerhetsnivaa",
-                "sistOppdatert",
                 "aktiv",
                 "eksternVarsling"
             ) }
@@ -44,7 +43,7 @@ internal class BeskjedSink(rapidsConnection: RapidsConnection, private val beskj
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val beskjed = Beskjed(
-            id = packet["id"].intValue(),
+            id = null,
             systembruker = packet["systembruker"].textValue(),
             namespace = packet["namespace"].textValue(),
             appnavn = packet["appnavn"].textValue(),
@@ -56,7 +55,7 @@ internal class BeskjedSink(rapidsConnection: RapidsConnection, private val beskj
             tekst = packet["tekst"].textValue(),
             link = packet["link"].textValue(),
             sikkerhetsnivaa = packet["sikkerhetsnivaa"].intValue(),
-            sistOppdatert = packet["sistOppdatert"].asLocalDateTime(),
+            sistOppdatert = LocalDateTime.now(),
             synligFremTil = packet["synligFremTil"].asOptionalLocalDateTime(),
             aktiv = packet["aktiv"].booleanValue(),
             eksternVarsling = packet["eksternVarsling"].booleanValue(),

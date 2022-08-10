@@ -5,9 +5,11 @@ import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.toBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class BeskjedSinkTest {
@@ -15,8 +17,15 @@ class BeskjedSinkTest {
     private val database = LocalPostgresDatabase.migratedDb()
     private val beskjedRepository = BeskjedRepository(database)
 
+    @BeforeEach
+    fun resetDb() {
+        runBlocking {
+            database.dbQuery { deleteAllBeskjed() }
+        }
+    }
+
     @Test
-    fun `lagre beskjed`() = runBlocking {
+    fun `Lagrer beskjed`() = runBlocking {
         val testRapid = TestRapid()
         BeskjedSink(testRapid, beskjedRepository)
 
@@ -26,13 +35,25 @@ class BeskjedSinkTest {
         beskjeder.size shouldBe 1
     }
 
+    @Test
+    fun `Ingorerer duplikat beskjed`() = runBlocking {
+        val testRapid = TestRapid()
+        BeskjedSink(testRapid, beskjedRepository)
+
+        testRapid.sendTestMessage(beskjedJson)
+        testRapid.sendTestMessage(beskjedJson)
+
+        val beskjeder = getBeskjeder()
+        beskjeder.size shouldBe 1
+    }
+
+
     private suspend fun getBeskjeder(): List<Beskjed> {
         return database.dbQuery { this.prepareStatement("select * from beskjed").executeQuery().list { toBeskjed() } }
     }
 
     private val beskjedJson = """{
         "@event_name": "beskjed",
-        "id": "123456",
         "systembruker": "sb",
         "namespace": "ns",
         "appnavn": "app",
@@ -44,7 +65,6 @@ class BeskjedSinkTest {
         "tekst": "Tekst",
         "link": "url",
         "sikkerhetsnivaa": 4,
-        "sistOppdatert": "2022-03-01T00:00:00",
         "synligFremTil": "2022-04-01T00:00:00",
         "aktiv": true,
         "eksternVarsling": false,
