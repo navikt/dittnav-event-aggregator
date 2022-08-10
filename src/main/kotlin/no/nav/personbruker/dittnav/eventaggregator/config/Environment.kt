@@ -28,7 +28,6 @@ data class Environment(val username: String = getEnvVar("SERVICEUSER_USERNAME"),
                        val beskjedInternTopicName: String = getEnvVar("INTERN_BESKJED_TOPIC"),
                        val oppgaveInternTopicName: String = getEnvVar("INTERN_OPPGAVE_TOPIC"),
                        val innboksInternTopicName: String = getEnvVar("INTERN_INNBOKS_TOPIC"),
-                       val statusoppdateringInternTopicName: String = getEnvVar("INTERN_STATUSOPPDATERING_TOPIC"),
                        val doneInternTopicName: String = getEnvVar("INTERN_DONE_TOPIC"),
                        val doneInputTopicName: String = getEnvVar("INPUT_DONE_TOPIC"),
                        val doknotifikasjonStatusGroupId: String = getEnvVar("GROUP_ID_DOKNOTIFIKASJON_STATUS"),
@@ -63,8 +62,6 @@ fun shouldPollBeskjed() = StringEnvVar.getOptionalEnvVar("POLL_BESKJED", "false"
 fun shouldPollOppgave() = StringEnvVar.getOptionalEnvVar("POLL_OPPGAVE", "false").toBoolean()
 
 fun shouldPollInnboks() = StringEnvVar.getOptionalEnvVar("POLL_INNBOKS", "false").toBoolean()
-
-fun shouldPollStatusoppdatering() = StringEnvVar.getOptionalEnvVar("POLL_STATUSOPPDATERING", "false").toBoolean()
 
 fun shouldPollDone() = StringEnvVar.getOptionalEnvVar("POLL_DONE", "false").toBoolean()
 

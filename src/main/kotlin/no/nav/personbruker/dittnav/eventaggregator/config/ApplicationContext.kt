@@ -16,8 +16,8 @@ import no.nav.personbruker.dittnav.eventaggregator.done.DonePersistingService
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
 import no.nav.personbruker.dittnav.eventaggregator.done.PeriodicDoneEventWaitingTableProcessor
 import no.nav.personbruker.dittnav.eventaggregator.expired.DoneEventEmitter
-import no.nav.personbruker.dittnav.eventaggregator.expired.PeriodicExpiredNotificationProcessor
 import no.nav.personbruker.dittnav.eventaggregator.expired.ExpiredPersistingService
+import no.nav.personbruker.dittnav.eventaggregator.expired.PeriodicExpiredNotificationProcessor
 import no.nav.personbruker.dittnav.eventaggregator.health.HealthService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksEventService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
@@ -26,8 +26,6 @@ import no.nav.personbruker.dittnav.eventaggregator.metrics.buildDoknotifikasjonS
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildEventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveEventService
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
-import no.nav.personbruker.dittnav.eventaggregator.statusoppdatering.StatusoppdateringEventService
-import no.nav.personbruker.dittnav.eventaggregator.statusoppdatering.StatusoppdateringRepository
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.slf4j.LoggerFactory
 
@@ -65,12 +63,6 @@ class ApplicationContext {
     val doneKafkaProps = Kafka.consumerPropsForEventType(environment, EventType.DONE_INTERN)
     var doneConsumer = initializeDoneConsumer()
 
-    val statusoppdateringRepository = StatusoppdateringRepository(database)
-    val statusoppdateringPersistingService = BrukernotifikasjonPersistingService(statusoppdateringRepository)
-    val statusoppdateringEventProcessor = StatusoppdateringEventService(statusoppdateringPersistingService, eventMetricsProbe)
-    val statusoppdateringKafkaProps = Kafka.consumerPropsForEventType(environment, EventType.STATUSOPPDATERING_INTERN)
-    var statusoppdateringConsumer = initializeStatusoppdateringConsumer()
-
     var periodicDoneEventWaitingTableProcessor = initializeDoneWaitingTableProcessor()
     var periodicConsumerPollingCheck = initializePeriodicConsumerPollingCheck()
 
@@ -99,9 +91,6 @@ class ApplicationContext {
 
     private fun initializeDoneConsumer() =
             KafkaConsumerSetup.setupConsumerForTheDoneTopic(doneKafkaProps, doneEventService, environment.doneInternTopicName)
-
-    private fun initializeStatusoppdateringConsumer() =
-            KafkaConsumerSetup.setupConsumerForTheStatusoppdateringTopic(statusoppdateringKafkaProps, statusoppdateringEventProcessor, environment.statusoppdateringInternTopicName)
 
     private fun initializeDoneWaitingTableProcessor() = PeriodicDoneEventWaitingTableProcessor(donePersistingService, dbMetricsProbe)
 
@@ -140,13 +129,6 @@ class ApplicationContext {
             log.info("doneConsumer har blitt reinstansiert.")
         } else {
             log.warn("doneConsumer kunne ikke bli reinstansiert fordi den fortsatt er aktiv.")
-        }
-
-        if (statusoppdateringConsumer.isCompleted()) {
-            statusoppdateringConsumer = initializeStatusoppdateringConsumer()
-            log.info("statusoppdateringConsumer har blitt reinstansiert.")
-        } else {
-            log.warn("statusoppdateringConsumer kunne ikke bli reinstansiert fordi den fortsatt er aktiv.")
         }
 
         if (doknotifikasjonStatusConsumer.isCompleted()) {

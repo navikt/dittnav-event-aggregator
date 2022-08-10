@@ -6,7 +6,6 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.done.deleteAllDone
 import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
-import no.nav.personbruker.dittnav.eventaggregator.statusoppdatering.deleteAllStatusoppdatering
 import org.flywaydb.core.Flyway
 
 class LocalPostgresDatabase private constructor() : Database {
@@ -25,7 +24,6 @@ class LocalPostgresDatabase private constructor() : Database {
             runBlocking {
                 //En del raskere å slette alle radene enn å kjøre clean/migrate hver gang
                 instance.dbQuery {
-                    deleteAllStatusoppdatering()
                     deleteAllDone()
                     deleteAllBeskjed()
                     deleteAllOppgave()
