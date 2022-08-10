@@ -60,6 +60,7 @@ internal class BeskjedSink(rapidsConnection: RapidsConnection, private val beskj
             synligFremTil = packet["synligFremTil"].asOptionalLocalDateTime(),
             aktiv = packet["aktiv"].booleanValue(),
             eksternVarsling = packet["eksternVarsling"].booleanValue(),
+            prefererteKanaler = packet["prefererteKanaler"].map { it.textValue() }
         )
 
         runBlocking {
