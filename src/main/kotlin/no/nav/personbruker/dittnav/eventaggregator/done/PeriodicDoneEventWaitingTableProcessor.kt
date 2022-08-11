@@ -22,8 +22,7 @@ class PeriodicDoneEventWaitingTableProcessor(
     private val log: Logger = LoggerFactory.getLogger(PeriodicDoneEventWaitingTableProcessor::class.java)
     private val timeToWait = Duration.ofSeconds(30)
 
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Default + job
+    override val coroutineContext = job
 
     fun status(): HealthStatus {
         return when (job.isActive) {

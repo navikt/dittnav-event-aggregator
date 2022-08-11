@@ -1,12 +1,11 @@
 package no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon
 
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.*
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
-import java.time.LocalDateTime
-import java.time.ZoneId
 
 private fun getQuery(eventType: String) = """
     SELECT * FROM doknotifikasjon_status_${eventType} WHERE eventId = ANY(?)
@@ -89,7 +88,7 @@ private fun PreparedStatement.buildStatementForSingleRow(dokStatus: Doknotifikas
     setString(3, dokStatus.melding)
     setObject(4, dokStatus.distribusjonsId, Types.BIGINT)
     setString(5, dokStatus.kanaler.joinToString(","))
-    setObject(6, LocalDateTime.now(ZoneId.of("UTC")), Types.TIMESTAMP)
+    setObject(6, nowAtUtc(), Types.TIMESTAMP)
     setInt(7, dokStatus.antallOppdateringer)
 }
 

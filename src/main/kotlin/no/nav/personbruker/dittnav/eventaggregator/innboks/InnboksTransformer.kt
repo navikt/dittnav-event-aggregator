@@ -2,10 +2,10 @@ package no.nav.personbruker.dittnav.eventaggregator.innboks
 
 import no.nav.brukernotifikasjon.schemas.internal.InnboksIntern
 import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
-import no.nav.personbruker.dittnav.eventaggregator.common.epochMillisToLocalDateTime
-import no.nav.personbruker.dittnav.eventaggregator.common.epochToLocalDateTimeFixIfTruncated
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.epochMillisToLocalDateTime
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.epochToLocalDateTimeFixIfTruncated
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import java.time.LocalDateTime
-import java.time.ZoneId
 
 object InnboksTransformer {
 
@@ -24,7 +24,7 @@ object InnboksTransformer {
                 tekst = innboks.getTekst(),
                 link = innboks.getLink(),
                 sikkerhetsnivaa = innboks.getSikkerhetsnivaa(),
-                sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
+                sistOppdatert = nowAtUtc(),
                 aktiv = newRecordsAreActiveByDefault,
                 eksternVarsling = innboks.getEksternVarsling(),
                 prefererteKanaler = innboks.getPrefererteKanaler()

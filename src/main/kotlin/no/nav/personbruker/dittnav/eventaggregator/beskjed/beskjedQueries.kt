@@ -1,5 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.*
@@ -21,13 +23,13 @@ private val createQuery = """INSERT INTO beskjed (systembruker, eventTidspunkt, 
 
 fun Connection.createBeskjed(beskjed: Beskjed): PersistActionResult =
         executePersistQuery(createQuery) {
-            buildStatementForSingleRow(beskjed)
+            setParametersForSingleRow(beskjed)
         }
 
 fun Connection.createBeskjeder(beskjeder: List<Beskjed>): ListPersistActionResult<Beskjed> =
         executeBatchPersistQueryIgnoreConflict(createQuery) {
             beskjeder.forEach { beskjed ->
-                buildStatementForSingleRow(beskjed)
+                setParametersForSingleRow(beskjed)
                 addBatch()
             }
         }.toBatchPersistResult(beskjeder)
@@ -41,7 +43,7 @@ fun Connection.getBeskjedWithEksternVarslingForEventIds(eventIds: List<String>):
             }
         }
 
-private fun PreparedStatement.buildStatementForSingleRow(beskjed: Beskjed) {
+private fun PreparedStatement.setParametersForSingleRow(beskjed: Beskjed) {
     setString(1, beskjed.systembruker)
     setObject(2, beskjed.eventTidspunkt, Types.TIMESTAMP)
     setObject(3, beskjed.forstBehandlet, Types.TIMESTAMP)
@@ -72,11 +74,10 @@ fun Connection.setBeskjederAktivflagg(doneEvents: List<Done>, aktiv: Boolean) {
 }
 
 fun Connection.getExpiredBeskjedFromCursor(): List<Beskjed> {
-    val now = LocalDateTime.now(ZoneId.of("UTC"))
     return prepareStatement("""SELECT * FROM beskjed WHERE aktiv = true AND synligFremTil between ? and ? LIMIT 10000""")
             .use {
                 it.setObject(1, EPOCH_START, Types.TIMESTAMP)
-                it.setObject(2, now, Types.TIMESTAMP)
+                it.setObject(2, nowAtUtc(), Types.TIMESTAMP)
                 it.executeQuery().list { toBeskjed() }
             }
 }

@@ -2,10 +2,10 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 
 import no.nav.brukernotifikasjon.schemas.internal.DoneIntern
 import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
-import no.nav.personbruker.dittnav.eventaggregator.common.epochMillisToLocalDateTime
-import no.nav.personbruker.dittnav.eventaggregator.common.epochToLocalDateTimeFixIfTruncated
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.epochMillisToLocalDateTime
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.epochToLocalDateTimeFixIfTruncated
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import java.time.LocalDateTime
-import java.time.ZoneId
 
 object DoneTransformer {
 
@@ -19,7 +19,7 @@ object DoneTransformer {
             forstBehandlet = determineForstBehandlet(external),
             fodselsnummer = nokkel.getFodselsnummer(),
             grupperingsId = nokkel.getGrupperingsId(),
-            sistBehandlet = LocalDateTime.now(ZoneId.of("UTC"))
+            sistBehandlet = nowAtUtc()
         )
     }
 

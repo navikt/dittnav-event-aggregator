@@ -2,8 +2,9 @@ package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
 import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 import no.nav.brukernotifikasjon.schemas.internal.OppgaveIntern
-import no.nav.personbruker.dittnav.eventaggregator.common.epochMillisToLocalDateTime
-import no.nav.personbruker.dittnav.eventaggregator.common.epochToLocalDateTimeFixIfTruncated
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.epochMillisToLocalDateTime
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.epochToLocalDateTimeFixIfTruncated
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -30,7 +31,7 @@ object OppgaveTransformer {
                 tekst = external.getTekst(),
                 link = external.getLink(),
                 sikkerhetsnivaa = external.getSikkerhetsnivaa(),
-                sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
+                sistOppdatert = nowAtUtc(),
                 aktiv = newRecordsAreActiveByDefault,
                 eksternVarsling = external.getEksternVarsling(),
                 prefererteKanaler = external.getPrefererteKanaler(),

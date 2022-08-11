@@ -2,9 +2,11 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import no.nav.brukernotifikasjon.schemas.internal.BeskjedIntern
 import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
-import no.nav.personbruker.dittnav.eventaggregator.common.epochMillisToLocalDateTime
-import no.nav.personbruker.dittnav.eventaggregator.common.timestampToUTCDateOrNull
-import no.nav.personbruker.dittnav.eventaggregator.common.epochToLocalDateTimeFixIfTruncated
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.epochMillisToLocalDateTime
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.timestampToUTCDateOrNull
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.epochToLocalDateTimeFixIfTruncated
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import java.time.LocalDateTime
 import java.time.ZoneId
 
@@ -25,7 +27,7 @@ object BeskjedTransformer {
                 tekst = beskjed.getTekst(),
                 link = beskjed.getLink(),
                 sikkerhetsnivaa = beskjed.getSikkerhetsnivaa(),
-                sistOppdatert = LocalDateTime.now(ZoneId.of("UTC")),
+                sistOppdatert = nowAtUtc(),
                 synligFremTil = beskjed.synligFremTilAsUTCDateTime(),
                 aktiv = determineAktiv(nokkel),
                 eksternVarsling = beskjed.getEksternVarsling(),
