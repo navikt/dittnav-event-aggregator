@@ -22,6 +22,7 @@ internal class BeskjedSink(rapidsConnection: RapidsConnection, private val beskj
     init {
         River(rapidsConnection).apply {
             validate { it.demandValue("@event_name", "beskjed") }
+            validate { it.demandValue("aktiv", true) }
             validate { it.requireKey(
                 "systembruker",
                 "namespace",
@@ -34,7 +35,6 @@ internal class BeskjedSink(rapidsConnection: RapidsConnection, private val beskj
                 "tekst",
                 "link",
                 "sikkerhetsnivaa",
-                "aktiv",
                 "eksternVarsling"
             ) }
             validate { it.interestedIn("synligFremTil", "prefererteKanaler")}
@@ -69,5 +69,10 @@ internal class BeskjedSink(rapidsConnection: RapidsConnection, private val beskj
 
     override fun onError(problems: MessageProblems, context: MessageContext) {
         log.error(problems.toString())
+    }
+
+    //TODO: Fjern, bare for debugging
+    override fun onSevere(error: MessageProblems.MessageException, context: MessageContext) {
+        log.warn(error.toString())
     }
 }
