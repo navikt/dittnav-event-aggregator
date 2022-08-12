@@ -8,9 +8,11 @@ import io.ktor.features.DefaultHeaders
 import io.ktor.routing.routing
 import io.prometheus.client.hotspot.DefaultExports
 import kotlinx.coroutines.runBlocking
+import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.polling.pollingApi
 import no.nav.personbruker.dittnav.eventaggregator.done.waitTableApi
 import no.nav.personbruker.dittnav.eventaggregator.health.healthApi
+import no.nav.personbruker.dittnav.eventaggregator.varsel.BeskjedSink
 
 fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()) {
     DefaultExports.initialize()
@@ -28,6 +30,11 @@ fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()
 private fun Application.configureStartupHook(appContext: ApplicationContext) {
     environment.monitor.subscribe(ApplicationStarted) {
         Flyway.runFlywayMigrations(appContext.environment)
+        if(appContext.environment.rapidEnabled) {
+            RapidApplication.create(appContext.environment.rapidConfig()).apply {
+                BeskjedSink(this, appContext.beskjedRepository)
+            }.start()
+        }
         KafkaConsumerSetup.startAllKafkaPollers(appContext)
         appContext.periodicDoneEventWaitingTableProcessor.start()
         appContext.periodicConsumerPollingCheck.start()

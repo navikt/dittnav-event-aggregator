@@ -31,9 +31,18 @@ data class Environment(val username: String = getEnvVar("SERVICEUSER_USERNAME"),
                        val doneInternTopicName: String = getEnvVar("INTERN_DONE_TOPIC"),
                        val doneInputTopicName: String = getEnvVar("INPUT_DONE_TOPIC"),
                        val doknotifikasjonStatusGroupId: String = getEnvVar("GROUP_ID_DOKNOTIFIKASJON_STATUS"),
-                       val doknotifikasjonStatusTopicName: String = getEnvVar("DOKNOTIFIKASJON_STATUS_TOPIC")
-
-)
+                       val doknotifikasjonStatusTopicName: String = getEnvVar("DOKNOTIFIKASJON_STATUS_TOPIC"),
+                       val rapidTopic: String = getEnvVar("RAPID_TOPIC"),
+                       val rapidEnabled: Boolean = getEnvVar("RAPID_ENABLED", "false").toBoolean()
+) {
+    fun rapidConfig(): Map<String, String> = mapOf(
+        "KAFKA_BOOTSTRAP_SERVERS" to aivenBrokers,
+        "KAFKA_CONSUMER_GROUP_ID" to "dittnav-event-aggregator-v1",
+        "KAFKA_RAPID_TOPIC" to rapidTopic,
+        "KAFKA_KEYSTORE_PATH" to securityConfig.variables!!.aivenKeystorePath,
+        "KAFKA_KEYSTORE_PASSWORD" to securityConfig.variables.aivenCredstorePassword,
+    )
+}
 
 data class SecurityConfig(
         val enabled: Boolean,
