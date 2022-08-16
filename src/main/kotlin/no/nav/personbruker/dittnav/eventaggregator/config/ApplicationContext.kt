@@ -4,6 +4,8 @@ import no.nav.brukernotifikasjon.schemas.input.DoneInput
 import no.nav.brukernotifikasjon.schemas.input.NokkelInput
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedEventService
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.archive.BeskjedArchivingRepository
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.archive.PeriodicBeskjedArchiver
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.KafkaProducerWrapper
@@ -21,6 +23,7 @@ import no.nav.personbruker.dittnav.eventaggregator.expired.PeriodicExpiredNotifi
 import no.nav.personbruker.dittnav.eventaggregator.health.HealthService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksEventService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
+import no.nav.personbruker.dittnav.eventaggregator.metrics.buildArchivingMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildDBMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildDoknotifikasjonStatusMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildEventMetricsProbe
@@ -38,12 +41,16 @@ class ApplicationContext {
 
     val eventMetricsProbe = buildEventMetricsProbe(environment)
     val dbMetricsProbe = buildDBMetricsProbe(environment)
+    val archivingMetricsProbe = buildArchivingMetricsProbe(environment)
 
     val beskjedRepository = BeskjedRepository(database)
     val beskjedPersistingService = BrukernotifikasjonPersistingService(beskjedRepository)
     val beskjedEventProcessor = BeskjedEventService(beskjedPersistingService, eventMetricsProbe)
     val beskjedKafkaProps = Kafka.consumerPropsForEventType(environment, EventType.BESKJED_INTERN)
     var beskjedConsumer = initializeBeskjedConsumer()
+
+    val beskjedArchivingRepository = BeskjedArchivingRepository(database)
+    var beskjedArchiver = PeriodicBeskjedArchiver(beskjedArchivingRepository, archivingMetricsProbe, environment.archivingThresholdDays)
 
     val oppgaveRepository = OppgaveRepository(database)
     val oppgavePersistingService = BrukernotifikasjonPersistingService(oppgaveRepository)
@@ -157,4 +164,15 @@ class ApplicationContext {
         }
     }
 
+    fun startAllArchivers() {
+        if (environment.archivingEnabled) {
+            beskjedArchiver.start()
+        }
+    }
+
+    suspend fun stopAllArchivers() {
+        if (environment.archivingEnabled) {
+            beskjedArchiver.stop()
+        }
+    }
 }

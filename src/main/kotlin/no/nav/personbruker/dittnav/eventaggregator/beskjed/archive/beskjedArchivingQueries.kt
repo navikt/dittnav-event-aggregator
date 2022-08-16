@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed.archive
 
+import no.nav.personbruker.dittnav.eventaggregator.archive.BrukernotifikasjonArchiveDTO
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.*
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusEnum.FERDIGSTILT
 import java.sql.Connection
@@ -17,6 +18,7 @@ private const val getBeskjedToArchiveQuery = """
       b.link,
       b.sikkerhetsnivaa,
       b.aktiv,
+      b.appnavn,
       b.forstBehandlet,
       dns.status as dns_status,
       dns.kanaler as dns_kanaler
@@ -29,9 +31,8 @@ private const val getBeskjedToArchiveQuery = """
 """
 
 private const val insertBeskjedArchiveQuery = """
-    INSERT INTO beskjed_archive (fodselsnummer, eventid, tekst, link, sikkerhetsnivaa, aktiv, eksternVarslingSendt, eksternVarslingKanaler, forstbehandlet, arkivert)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ON CONFLICT DO NOTHING 
+    INSERT INTO beskjed_arkiv (fodselsnummer, eventid, tekst, link, sikkerhetsnivaa, aktiv, produsentApp, eksternVarslingSendt, eksternVarslingKanaler, forstbehandlet, arkivert)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 """
 
 private const val deleteDoknotifikasjonStatusBeskjedQuery = """
@@ -42,67 +43,73 @@ private const val deleteBeskjedQuery = """
     DELETE FROM beskjed WHERE eventId = ANY(?)
 """
 
-fun Connection.getBeskjedArchiveDtoOlderThan(dateThreshold: LocalDateTime): List<BeskjedArchiveDTO> {
+fun Connection.getBeskjedArchiveDtoOlderThan(dateThreshold: LocalDateTime): List<BrukernotifikasjonArchiveDTO> {
     return prepareStatement(getBeskjedToArchiveQuery)
         .use {
             it.setObject(1, dateThreshold, Types.TIMESTAMP)
             it.executeQuery().list {
-                toBeskjedArchiveDTO()
+                toBrukernotifikasjonArchiveDTO()
             }
         }
 }
 
-fun Connection.createBeskjedInArchive(toArchive: List<BeskjedArchiveDTO>) {
+fun Connection.createBeskjedInArchive(toArchive: List<BrukernotifikasjonArchiveDTO>) {
     prepareStatement(insertBeskjedArchiveQuery).use { statement ->
         toArchive.forEach { beskjedToArchive ->
             statement.setParametersForSingleRow(beskjedToArchive)
             statement.addBatch()
         }
-        statement.executeQuery()
+        statement.executeBatch()
     }
 }
 
 fun Connection.deleteDoknotifikasjonStatusBeskjedWithEventIds(eventIds: List<String>) {
     prepareStatement(deleteDoknotifikasjonStatusBeskjedQuery).use {
         it.setArray(1, toVarcharArray(eventIds))
-        it.executeQuery()
+        it.executeUpdate()
     }
 }
 
 fun Connection.deleteBeskjedWithEventIds(eventIds: List<String>) {
     prepareStatement(deleteBeskjedQuery).use {
         it.setArray(1, toVarcharArray(eventIds))
-        it.executeQuery()
+        it.executeUpdate()
     }
 }
 
-private fun PreparedStatement.setParametersForSingleRow(beskjedArchiveDTO: BeskjedArchiveDTO) {
+private fun PreparedStatement.setParametersForSingleRow(beskjedArchiveDTO: BrukernotifikasjonArchiveDTO) {
     setString(1, beskjedArchiveDTO.fodselsnummer)
     setString(2, beskjedArchiveDTO.eventId)
     setString(3, beskjedArchiveDTO.tekst)
     setString(4, beskjedArchiveDTO.link)
     setInt(5, beskjedArchiveDTO.sikkerhetsnivaa)
     setBoolean(6, beskjedArchiveDTO.aktiv)
-    setBoolean(7, beskjedArchiveDTO.eksternVarslingSendt)
-    setString(8, beskjedArchiveDTO.eksternVarslingKanaler)
-    setObject(9, beskjedArchiveDTO.forstBehandlet, Types.TIMESTAMP)
-    setObject(10, LocalDateTime.now(ZoneId.of("UTC")), Types.TIMESTAMP)
+    setString(7, beskjedArchiveDTO.produsentApp)
+    setBoolean(8, beskjedArchiveDTO.eksternVarslingSendt)
+    setString(9, beskjedArchiveDTO.eksternVarslingKanaler)
+    setObject(10, beskjedArchiveDTO.forstBehandlet, Types.TIMESTAMP)
+    setObject(11, LocalDateTime.now(ZoneId.of("UTC")), Types.TIMESTAMP)
 }
 
-private fun ResultSet.toBeskjedArchiveDTO(): BeskjedArchiveDTO {
-    return BeskjedArchiveDTO(
+private fun ResultSet.toBrukernotifikasjonArchiveDTO(): BrukernotifikasjonArchiveDTO {
+    return BrukernotifikasjonArchiveDTO(
         fodselsnummer = getString("fodselsnummer"),
         eventId = getString("eventId"),
         tekst = getString("tekst"),
         link = getString("link"),
         sikkerhetsnivaa = getInt("sikkerhetsnivaa"),
         aktiv = getBoolean("aktiv"),
+        produsentApp = getString("appnavn"),
         forstBehandlet = getUtcDateTime("forstBehandlet"),
         eksternVarslingSendt = getEksternVarslingSendt(),
-        eksternVarslingKanaler = getString("dns_kanaler")
+        eksternVarslingKanaler = getEksternVarslingKanaler()
     )
 }
 
 private fun ResultSet.getEksternVarslingSendt(): Boolean {
     return FERDIGSTILT.name == getString("dns_status")
+}
+
+private fun ResultSet.getEksternVarslingKanaler(): String {
+    return getString("dns_kanaler") ?: ""
 }

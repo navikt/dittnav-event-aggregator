@@ -8,14 +8,14 @@ import java.time.Duration
 
 abstract class PeriodicJob(private val interval: Duration) {
 
+    private val scope = CoroutineScope(Dispatchers.Default + Job())
+
     abstract val job: Job
 
-    fun initializeJob(periodicProcess: suspend () -> Unit) = runBlocking {
-        launch(start = LAZY) {
-            while (isActive) {
-                periodicProcess()
-                delay(interval.toMillis())
-            }
+    fun initializeJob(periodicProcess: suspend () -> Unit) = scope.launch(start = LAZY) {
+        while (job.isActive) {
+            periodicProcess()
+            delay(interval.toMillis())
         }
     }
 
@@ -37,6 +37,6 @@ abstract class PeriodicJob(private val interval: Duration) {
     }
 
     suspend fun stop() {
-        job.cancelAndJoin()
+        job.cancel()
     }
 }

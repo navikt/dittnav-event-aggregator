@@ -43,6 +43,7 @@ private fun Application.configureStartupHook(appContext: ApplicationContext) {
         appContext.periodicDoneEventWaitingTableProcessor.start()
         appContext.periodicConsumerPollingCheck.start()
         appContext.periodicExpiredBeskjedProcessor.start()
+        //appContext.startAllArchivers()
     }
 }
 
@@ -54,6 +55,7 @@ private fun Application.configureShutdownHook(appContext: ApplicationContext) {
             appContext.periodicConsumerPollingCheck.stop()
             appContext.periodicExpiredBeskjedProcessor.stop()
             appContext.kafkaProducerDone.flushAndClose()
+            appContext.stopAllArchivers()
         }
         appContext.database.dataSource.close()
     }

@@ -4,6 +4,7 @@ import no.nav.personbruker.dittnav.common.metrics.MetricsReporter
 import no.nav.personbruker.dittnav.common.metrics.StubMetricsReporter
 import no.nav.personbruker.dittnav.common.metrics.influxdb.InfluxConfig
 import no.nav.personbruker.dittnav.common.metrics.influxdb.InfluxMetricsReporter
+import no.nav.personbruker.dittnav.eventaggregator.archive.ArchiveMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.config.Environment
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.metrics.DoknotifikasjonStatusMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
@@ -21,6 +22,12 @@ fun buildDoknotifikasjonStatusMetricsProbe(environment: Environment): Doknotifik
 fun buildDBMetricsProbe(environment: Environment): DBMetricsProbe {
     val metricsReporter = resolveMetricsReporter(environment)
     return DBMetricsProbe(metricsReporter)
+}
+
+fun buildArchivingMetricsProbe(environment: Environment): ArchiveMetricsProbe {
+    val metricsReporter = resolveMetricsReporter(environment)
+
+    return ArchiveMetricsProbe(metricsReporter)
 }
 
 private fun resolveMetricsReporter(environment: Environment): MetricsReporter {

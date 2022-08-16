@@ -1,7 +1,9 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed.archive
 
+import no.nav.personbruker.dittnav.eventaggregator.archive.ArchiveMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.common.PeriodicJob
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
+import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.done.PeriodicDoneEventWaitingTableProcessor
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -10,6 +12,7 @@ import java.time.LocalDateTime
 
 class PeriodicBeskjedArchiver(
     private val beskjedArchiveRepository: BeskjedArchivingRepository,
+    private val archiveMetricsProbe: ArchiveMetricsProbe,
     private val ageThresholdDays: Int
 ): PeriodicJob(interval = Duration.ofSeconds(5)) {
 
@@ -23,13 +26,18 @@ class PeriodicBeskjedArchiver(
         val thresholdDate = LocalDateTime.now().minusDays(ageThresholdDays.toLong())
 
         try {
-            val toArchive = beskjedArchiveRepository.getBeskjedOlderThan(thresholdDate)
+            val toArchive = beskjedArchiveRepository.getOldBeskjedAsArchiveDto(thresholdDate)
 
-            beskjedArchiveRepository.moveToArchive(toArchive)
+            if (toArchive.isNotEmpty()) {
+                beskjedArchiveRepository.moveToBeskjedArchive(toArchive)
+
+                archiveMetricsProbe.countEntitiesArchived(EventType.BESKJED_INTERN, toArchive)
+            }
+
         } catch (rt: RetriableDatabaseException) {
-            log.warn("Fikk en periodisk feil mot databasen ved arkivering av Beskjed. Forsøker igjen senere.")
+            log.warn("Fikk en periodisk feil mot databasen ved arkivering av Beskjed. Forsøker igjen senere.", rt)
         } catch (e: Exception) {
-            log.error("Fikk feil mot databasen ved arkivering av beskjed. Stopper prosessering.")
+            log.error("Fikk feil mot databasen ved arkivering av beskjed. Stopper prosessering.", e)
             stop()
         }
     }
