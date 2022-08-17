@@ -41,6 +41,7 @@ data class Environment(val username: String = getEnvVar("SERVICEUSER_USERNAME"),
         "KAFKA_RAPID_TOPIC" to rapidTopic,
         "KAFKA_KEYSTORE_PATH" to securityConfig.variables!!.aivenKeystorePath,
         "KAFKA_CREDSTORE_PASSWORD" to securityConfig.variables.aivenCredstorePassword,
+        "KAFKA_TRUSTSTORE_PATH" to securityConfig.variables.aivenTruststorePath,
         "HTTP_PORT" to "8090"
     )
 }
