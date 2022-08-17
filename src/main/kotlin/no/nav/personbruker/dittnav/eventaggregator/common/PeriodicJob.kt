@@ -12,7 +12,7 @@ abstract class PeriodicJob(private val interval: Duration) {
 
     abstract val job: Job
 
-    fun initializeJob(periodicProcess: suspend () -> Unit) = scope.launch(start = LAZY) {
+    protected fun initializeJob(periodicProcess: suspend () -> Unit) = scope.launch(start = LAZY) {
         while (job.isActive) {
             periodicProcess()
             delay(interval.toMillis())
@@ -37,6 +37,6 @@ abstract class PeriodicJob(private val interval: Duration) {
     }
 
     suspend fun stop() {
-        job.cancel()
+        job.cancelAndJoin()
     }
 }

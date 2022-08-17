@@ -13,8 +13,9 @@ import java.time.LocalDateTime
 class PeriodicBeskjedArchiver(
     private val beskjedArchiveRepository: BeskjedArchivingRepository,
     private val archiveMetricsProbe: ArchiveMetricsProbe,
-    private val ageThresholdDays: Int
-): PeriodicJob(interval = Duration.ofSeconds(5)) {
+    private val ageThresholdDays: Int,
+    interval: Duration = Duration.ofSeconds(5)
+): PeriodicJob(interval) {
 
     private val log: Logger = LoggerFactory.getLogger(PeriodicDoneEventWaitingTableProcessor::class.java)
 
