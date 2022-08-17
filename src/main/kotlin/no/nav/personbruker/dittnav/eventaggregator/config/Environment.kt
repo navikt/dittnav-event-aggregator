@@ -36,11 +36,11 @@ data class Environment(val username: String = getEnvVar("SERVICEUSER_USERNAME"),
                        val rapidEnabled: Boolean = getEnvVar("RAPID_ENABLED", "false").toBoolean()
 ) {
     fun rapidConfig(): Map<String, String> = mapOf(
-        "KAFKA_BOOTSTRAP_SERVERS" to aivenBrokers,
+        "KAFKA_BROKERS" to aivenBrokers,
         "KAFKA_CONSUMER_GROUP_ID" to "dittnav-event-aggregator-v1",
         "KAFKA_RAPID_TOPIC" to rapidTopic,
         "KAFKA_KEYSTORE_PATH" to securityConfig.variables!!.aivenKeystorePath,
-        "KAFKA_KEYSTORE_PASSWORD" to securityConfig.variables.aivenCredstorePassword,
+        "KAFKA_CREDSTORE_PASSWORD" to securityConfig.variables.aivenCredstorePassword,
         "HTTP_PORT" to "8090"
     )
 }
