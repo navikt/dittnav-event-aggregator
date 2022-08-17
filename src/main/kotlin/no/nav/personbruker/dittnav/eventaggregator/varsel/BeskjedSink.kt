@@ -64,6 +64,7 @@ internal class BeskjedSink(rapidsConnection: RapidsConnection, private val beskj
 
         runBlocking {
             beskjedRepository.createInOneBatch(listOf(beskjed))
+            log.info("Behandlet beskjed fra rapid med eventid ${beskjed.eventId}")
         }
     }
 
