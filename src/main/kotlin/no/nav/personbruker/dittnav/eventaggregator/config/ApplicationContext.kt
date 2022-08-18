@@ -23,12 +23,16 @@ import no.nav.personbruker.dittnav.eventaggregator.expired.PeriodicExpiredNotifi
 import no.nav.personbruker.dittnav.eventaggregator.health.HealthService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksEventService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
+import no.nav.personbruker.dittnav.eventaggregator.innboks.archive.InnboksArchivingRepository
+import no.nav.personbruker.dittnav.eventaggregator.innboks.archive.PeriodicInnboksArchiver
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildArchivingMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildDBMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildDoknotifikasjonStatusMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildEventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveEventService
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.archive.OppgaveArchivingRepository
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.archive.PeriodicOppgaveArchiver
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.slf4j.LoggerFactory
 
@@ -58,11 +62,17 @@ class ApplicationContext {
     val oppgaveKafkaProps = Kafka.consumerPropsForEventType(environment, EventType.OPPGAVE_INTERN)
     var oppgaveConsumer = initializeOppgaveConsumer()
 
+    val oppgaveArchivingRepository = OppgaveArchivingRepository(database)
+    var oppgaveArchiver = PeriodicOppgaveArchiver(oppgaveArchivingRepository, archivingMetricsProbe, environment.archivingThresholdDays)
+
     val innboksRepository = InnboksRepository(database)
     val innboksPersistingService = BrukernotifikasjonPersistingService(innboksRepository)
     val innboksEventProcessor = InnboksEventService(innboksPersistingService, eventMetricsProbe)
     val innboksKafkaProps = Kafka.consumerPropsForEventType(environment, EventType.INNBOKS_INTERN)
     var innboksConsumer = initializeInnboksConsumer()
+
+    val innboksArchivingRepository = InnboksArchivingRepository(database)
+    var innboksArchiver = PeriodicInnboksArchiver(innboksArchivingRepository, archivingMetricsProbe, environment.archivingThresholdDays)
 
     val doneRepository = DoneRepository(database)
     val donePersistingService = DonePersistingService(doneRepository)
@@ -167,12 +177,16 @@ class ApplicationContext {
     fun startAllArchivers() {
         if (environment.archivingEnabled) {
             beskjedArchiver.start()
+            oppgaveArchiver.start()
+            innboksArchiver.start()
         }
     }
 
     suspend fun stopAllArchivers() {
         if (environment.archivingEnabled) {
             beskjedArchiver.stop()
+            oppgaveArchiver.stop()
+            innboksArchiver.stop()
         }
     }
 }

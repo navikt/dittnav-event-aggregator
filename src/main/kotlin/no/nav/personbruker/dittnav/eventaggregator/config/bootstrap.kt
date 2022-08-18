@@ -43,7 +43,7 @@ private fun Application.configureStartupHook(appContext: ApplicationContext) {
         appContext.periodicDoneEventWaitingTableProcessor.start()
         appContext.periodicConsumerPollingCheck.start()
         appContext.periodicExpiredBeskjedProcessor.start()
-        //appContext.startAllArchivers()
+        appContext.startAllArchivers()
     }
 }
 

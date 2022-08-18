@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 class BeskjedArchivingRepository(private val database: Database) {
     suspend fun getOldBeskjedAsArchiveDto(dateThreshold: LocalDateTime): List<BrukernotifikasjonArchiveDTO> {
         return database.queryWithExceptionTranslation {
-            getBeskjedArchiveDtoOlderThan(dateThreshold)
+            getBeskjedAsArchiveDtoOlderThan(dateThreshold)
         }
     }
 

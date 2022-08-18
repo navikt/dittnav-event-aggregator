@@ -41,6 +41,10 @@ object BeskjedObjectMother {
         return giveMeBeskjed(eventId = eventId, fodselsnummer = fodselsnummer, systembruker =  systembruker, link = "https://nav.no/systemX/$eventId")
     }
 
+    fun giveMeBeskjedWithForstBehandlet(forstBehandlet: LocalDateTime): Beskjed {
+        return giveMeBeskjed(forstBehandlet = forstBehandlet)
+    }
+
     fun giveMeBeskjedWithForstBehandlet(eventId: String, fodselsnummer: String, forstBehandlet: LocalDateTime): Beskjed {
         return giveMeBeskjed(eventId = eventId, fodselsnummer = fodselsnummer, forstBehandlet = forstBehandlet)
     }

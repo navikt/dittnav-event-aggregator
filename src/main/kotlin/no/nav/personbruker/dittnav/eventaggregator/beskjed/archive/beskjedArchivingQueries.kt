@@ -12,21 +12,21 @@ import java.time.ZoneId
 
 private const val getBeskjedToArchiveQuery = """
     SELECT 
-      b.fodselsnummer,
-      b.eventId,
-      b.tekst,
-      b.link,
-      b.sikkerhetsnivaa,
-      b.aktiv,
-      b.appnavn,
-      b.forstBehandlet,
+      beskjed.fodselsnummer,
+      beskjed.eventId,
+      beskjed.tekst,
+      beskjed.link,
+      beskjed.sikkerhetsnivaa,
+      beskjed.aktiv,
+      beskjed.appnavn,
+      beskjed.forstBehandlet,
       dns.status as dns_status,
       dns.kanaler as dns_kanaler
     FROM
-      beskjed as b
-        LEFT JOIN doknotifikasjon_status_beskjed as dns ON b.eventId = dns.eventId
+      beskjed
+        LEFT JOIN doknotifikasjon_status_beskjed as dns ON beskjed.eventId = dns.eventId
     WHERE
-      b.forstBehandlet < ?
+      beskjed.forstBehandlet < ?
     LIMIT 500
 """
 
@@ -43,7 +43,7 @@ private const val deleteBeskjedQuery = """
     DELETE FROM beskjed WHERE eventId = ANY(?)
 """
 
-fun Connection.getBeskjedArchiveDtoOlderThan(dateThreshold: LocalDateTime): List<BrukernotifikasjonArchiveDTO> {
+fun Connection.getBeskjedAsArchiveDtoOlderThan(dateThreshold: LocalDateTime): List<BrukernotifikasjonArchiveDTO> {
     return prepareStatement(getBeskjedToArchiveQuery)
         .use {
             it.setObject(1, dateThreshold, Types.TIMESTAMP)
