@@ -1,5 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.*
 import no.nav.personbruker.dittnav.eventaggregator.done.Done
@@ -69,7 +71,7 @@ fun Connection.setOppgaverAktivFlag(doneEvents: List<Done>, aktiv: Boolean) {
 }
 
 fun Connection.getExpiredOppgave(): List<Oppgave> {
-    val now = LocalDateTime.now(ZoneId.of("UTC"))
+    val now = nowAtUtc()
     return prepareStatement("""SELECT * FROM oppgave WHERE aktiv = true AND synligFremTil between ? and ? LIMIT 10000""")
         .use {
             it.setObject(1, EPOCH_START, Types.TIMESTAMP)

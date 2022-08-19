@@ -51,6 +51,9 @@ object OppgaveObjectMother {
         return giveMeOppgave(aktiv = false, eventId = "o-2")
     }
 
+    fun giveMeOppgaveWithForstBehandlet(forstBehandlet: LocalDateTime): Oppgave {
+        return giveMeOppgave(forstBehandlet = forstBehandlet)
+    }
 
     fun giveMeOppgaveWithForstBehandlet(eventId: String, fodselsnummer: String, forstBehandlet: LocalDateTime): Oppgave {
         return giveMeOppgave(eventId = eventId, fodselsnummer = fodselsnummer, forstBehandlet = forstBehandlet)

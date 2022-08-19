@@ -1,54 +1,25 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
-import kotlinx.coroutines.*
-import kotlinx.coroutines.time.delay
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import no.nav.personbruker.dittnav.eventaggregator.common.PeriodicJob
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import no.nav.personbruker.dittnav.eventaggregator.health.HealthStatus
-import no.nav.personbruker.dittnav.eventaggregator.health.Status
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
-import kotlin.coroutines.CoroutineContext
 
 class PeriodicDoneEventWaitingTableProcessor(
         private val donePersistingService: DonePersistingService,
         private val dbMetricsProbe: DBMetricsProbe,
-        private val job: Job = Job()
-) : CoroutineScope {
+) : PeriodicJob(interval = Duration.ofSeconds(30)) {
 
     private val log: Logger = LoggerFactory.getLogger(PeriodicDoneEventWaitingTableProcessor::class.java)
-    private val timeToWait = Duration.ofSeconds(30)
 
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Default + job
-
-    fun status(): HealthStatus {
-        return when (job.isActive) {
-            true -> HealthStatus("PeriodicDoneEventWaitingTableProcessor", Status.OK, "Processor is running", false)
-            false -> HealthStatus("PeriodicDoneEventWaitingTableProcessor", Status.ERROR, "Processor is not running", false)
-        }
-    }
-
-    suspend fun stop() {
-        log.info("Stopper periodisk prosessering av ventetabellen for done-eventer")
-        job.cancelAndJoin()
-    }
-
-    fun isCompleted(): Boolean {
-        return job.isCompleted
-    }
-
-    fun start() {
-        log.info("Periodisk prosessering av ventetabellen har blitt aktivert, første prosessering skjer om $timeToWait minutter.")
-        launch {
-            while (job.isActive) {
-                delay(timeToWait)
-                processDoneEvents()
-            }
-        }
+    override val job = initializeJob {
+        processDoneEvents()
     }
 
     suspend fun processDoneEvents() {

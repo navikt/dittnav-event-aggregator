@@ -52,6 +52,10 @@ object InnboksObjectMother {
         return giveMeInnboks(aktiv = false)
     }
 
+    fun giveMeInnboksWithForstBehandlet(forstBehandlet: LocalDateTime): Innboks {
+        return giveMeInnboks(forstBehandlet = forstBehandlet)
+    }
+
     fun giveMeInnboksWithForstBehandlet(eventId: String, fodselsnummer: String, forstBehandlet: LocalDateTime): Innboks {
         return giveMeInnboks(eventId = eventId, fodselsnummer = fodselsnummer, forstBehandlet = forstBehandlet)
     }

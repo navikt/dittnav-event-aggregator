@@ -4,6 +4,8 @@ import no.nav.brukernotifikasjon.schemas.input.DoneInput
 import no.nav.brukernotifikasjon.schemas.input.NokkelInput
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedEventService
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.archive.BeskjedArchivingRepository
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.archive.PeriodicBeskjedArchiver
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.KafkaProducerWrapper
@@ -21,11 +23,16 @@ import no.nav.personbruker.dittnav.eventaggregator.expired.PeriodicExpiredNotifi
 import no.nav.personbruker.dittnav.eventaggregator.health.HealthService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksEventService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
+import no.nav.personbruker.dittnav.eventaggregator.innboks.archive.InnboksArchivingRepository
+import no.nav.personbruker.dittnav.eventaggregator.innboks.archive.PeriodicInnboksArchiver
+import no.nav.personbruker.dittnav.eventaggregator.metrics.buildArchivingMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildDBMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildDoknotifikasjonStatusMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildEventMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveEventService
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.archive.OppgaveArchivingRepository
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.archive.PeriodicOppgaveArchiver
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.slf4j.LoggerFactory
 
@@ -38,6 +45,7 @@ class ApplicationContext {
 
     val eventMetricsProbe = buildEventMetricsProbe(environment)
     val dbMetricsProbe = buildDBMetricsProbe(environment)
+    val archivingMetricsProbe = buildArchivingMetricsProbe(environment)
 
     val beskjedRepository = BeskjedRepository(database)
     val beskjedPersistingService = BrukernotifikasjonPersistingService(beskjedRepository)
@@ -45,17 +53,26 @@ class ApplicationContext {
     val beskjedKafkaProps = Kafka.consumerPropsForEventType(environment, EventType.BESKJED_INTERN)
     var beskjedConsumer = initializeBeskjedConsumer()
 
+    val beskjedArchivingRepository = BeskjedArchivingRepository(database)
+    var beskjedArchiver = PeriodicBeskjedArchiver(beskjedArchivingRepository, archivingMetricsProbe, environment.archivingThresholdDays)
+
     val oppgaveRepository = OppgaveRepository(database)
     val oppgavePersistingService = BrukernotifikasjonPersistingService(oppgaveRepository)
     val oppgaveEventProcessor = OppgaveEventService(oppgavePersistingService, eventMetricsProbe)
     val oppgaveKafkaProps = Kafka.consumerPropsForEventType(environment, EventType.OPPGAVE_INTERN)
     var oppgaveConsumer = initializeOppgaveConsumer()
 
+    val oppgaveArchivingRepository = OppgaveArchivingRepository(database)
+    var oppgaveArchiver = PeriodicOppgaveArchiver(oppgaveArchivingRepository, archivingMetricsProbe, environment.archivingThresholdDays)
+
     val innboksRepository = InnboksRepository(database)
     val innboksPersistingService = BrukernotifikasjonPersistingService(innboksRepository)
     val innboksEventProcessor = InnboksEventService(innboksPersistingService, eventMetricsProbe)
     val innboksKafkaProps = Kafka.consumerPropsForEventType(environment, EventType.INNBOKS_INTERN)
     var innboksConsumer = initializeInnboksConsumer()
+
+    val innboksArchivingRepository = InnboksArchivingRepository(database)
+    var innboksArchiver = PeriodicInnboksArchiver(innboksArchivingRepository, archivingMetricsProbe, environment.archivingThresholdDays)
 
     val doneRepository = DoneRepository(database)
     val donePersistingService = DonePersistingService(doneRepository)
@@ -157,4 +174,19 @@ class ApplicationContext {
         }
     }
 
+    fun startAllArchivers() {
+        if (environment.archivingEnabled) {
+            beskjedArchiver.start()
+            oppgaveArchiver.start()
+            innboksArchiver.start()
+        }
+    }
+
+    suspend fun stopAllArchivers() {
+        if (environment.archivingEnabled) {
+            beskjedArchiver.stop()
+            oppgaveArchiver.stop()
+            innboksArchiver.stop()
+        }
+    }
 }

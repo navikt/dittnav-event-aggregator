@@ -2,6 +2,8 @@ package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
 import no.nav.brukernotifikasjon.schemas.internal.domain.PreferertKanal
 import no.nav.brukernotifikasjon.schemas.internal.OppgaveIntern
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -36,7 +38,7 @@ object AvroOppgaveObjectMother {
     fun createOppgave(
         lopenummer: Int,
         tekst: String,
-        synligFremTil: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC"))
+        synligFremTil: LocalDateTime = nowAtUtc()
     ): OppgaveIntern {
         return OppgaveIntern(
             Instant.now().toEpochMilli(),

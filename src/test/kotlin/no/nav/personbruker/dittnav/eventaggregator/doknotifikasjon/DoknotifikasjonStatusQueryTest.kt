@@ -58,7 +58,7 @@ internal class DoknotifikasjonStatusQueryTest {
         }
 
         val allStatuses = database.dbQuery {
-            getAllDoknotifikasjonBeskjed()
+            getAllDoknotifikasjonStatusBeskjed()
         }
 
         allStatuses.size shouldBe 1
@@ -90,7 +90,7 @@ internal class DoknotifikasjonStatusQueryTest {
         }
 
         val allStatuses = database.dbQuery {
-            getAllDoknotifikasjonBeskjed()
+            getAllDoknotifikasjonStatusBeskjed()
         }
 
         allStatuses.size shouldBe 1
@@ -137,7 +137,7 @@ internal class DoknotifikasjonStatusQueryTest {
         }
 
         val allStatuses = database.dbQuery {
-            getAllDoknotifikasjonOppgave()
+            getAllDoknotifikasjonStatusOppgave()
         }
 
         allStatuses.size shouldBe 1
@@ -169,7 +169,7 @@ internal class DoknotifikasjonStatusQueryTest {
         }
 
         val allStatuses = database.dbQuery {
-            getAllDoknotifikasjonOppgave()
+            getAllDoknotifikasjonStatusOppgave()
         }
 
         allStatuses.size shouldBe 1
@@ -215,7 +215,7 @@ internal class DoknotifikasjonStatusQueryTest {
         }
 
         val allStatuses = database.dbQuery {
-            getAllDoknotifikasjonInnboks()
+            getAllDoknotifikasjonStatusInnboks()
         }
 
         allStatuses.size shouldBe 1
@@ -247,7 +247,7 @@ internal class DoknotifikasjonStatusQueryTest {
         }
 
         val allStatuses = database.dbQuery {
-            getAllDoknotifikasjonInnboks()
+            getAllDoknotifikasjonStatusInnboks()
         }
 
         allStatuses.size shouldBe 1

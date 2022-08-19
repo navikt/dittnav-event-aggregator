@@ -21,7 +21,7 @@ fun Connection.deleteAllDoknotifikasjonStatusInnboks() {
         .use {it.execute()}
 }
 
-fun Connection.getAllDoknotifikasjonBeskjed(): List<DoknotStatusDTO> {
+fun Connection.getAllDoknotifikasjonStatusBeskjed(): List<DoknotStatusDTO> {
     return prepareStatement("""SELECT * FROM doknotifikasjon_status_beskjed""")
         .use {
             it.executeQuery().list {
@@ -30,7 +30,7 @@ fun Connection.getAllDoknotifikasjonBeskjed(): List<DoknotStatusDTO> {
         }
 }
 
-fun Connection.getAllDoknotifikasjonOppgave(): List<DoknotStatusDTO> {
+fun Connection.getAllDoknotifikasjonStatusOppgave(): List<DoknotStatusDTO> {
     return prepareStatement("""SELECT * FROM doknotifikasjon_status_oppgave""")
         .use {
             it.executeQuery().list {
@@ -39,7 +39,7 @@ fun Connection.getAllDoknotifikasjonOppgave(): List<DoknotStatusDTO> {
         }
 }
 
-fun Connection.getAllDoknotifikasjonInnboks(): List<DoknotStatusDTO> {
+fun Connection.getAllDoknotifikasjonStatusInnboks(): List<DoknotStatusDTO> {
     return prepareStatement("""SELECT * FROM doknotifikasjon_status_innboks""")
         .use {
             it.executeQuery().list {

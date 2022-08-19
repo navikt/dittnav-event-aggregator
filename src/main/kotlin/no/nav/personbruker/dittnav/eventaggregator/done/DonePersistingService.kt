@@ -1,5 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon
 import java.time.LocalDateTime
@@ -32,6 +34,6 @@ class DonePersistingService(private val doneRepository: DoneRepository) : Bruker
     }
 
     suspend fun updateDoneSistBehandetForUnmatchedEvents(doneEvents: List<Done>) {
-        doneRepository.updateDoneEventsSistBehandlet(doneEvents, LocalDateTime.now(ZoneId.of("UTC")))
+        doneRepository.updateDoneEventsSistBehandlet(doneEvents, nowAtUtc())
     }
 }

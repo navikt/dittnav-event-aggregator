@@ -1,13 +1,13 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
+import no.nav.personbruker.dittnav.common.util.config.BooleanEnvVar
+import no.nav.personbruker.dittnav.common.util.config.BooleanEnvVar.getEnvVarAsBoolean
 import no.nav.personbruker.dittnav.common.util.config.IntEnvVar.getEnvVarAsInt
 import no.nav.personbruker.dittnav.common.util.config.StringEnvVar
 import no.nav.personbruker.dittnav.common.util.config.StringEnvVar.getEnvVar
 import no.nav.personbruker.dittnav.eventaggregator.config.ConfigUtil.isCurrentlyRunningOnNais
 
-data class Environment(val username: String = getEnvVar("SERVICEUSER_USERNAME"),
-                       val password: String = getEnvVar("SERVICEUSER_PASSWORD"),
-                       val groupId: String = getEnvVar("GROUP_ID"),
+data class Environment(val groupId: String = getEnvVar("GROUP_ID"),
                        val clusterName: String = getEnvVar("NAIS_CLUSTER_NAME"),
                        val namespace: String = getEnvVar("NAIS_NAMESPACE"),
                        val influxdbHost: String = getEnvVar("INFLUXDB_HOST"),
@@ -33,7 +33,9 @@ data class Environment(val username: String = getEnvVar("SERVICEUSER_USERNAME"),
                        val doknotifikasjonStatusGroupId: String = getEnvVar("GROUP_ID_DOKNOTIFIKASJON_STATUS"),
                        val doknotifikasjonStatusTopicName: String = getEnvVar("DOKNOTIFIKASJON_STATUS_TOPIC"),
                        val rapidTopic: String = getEnvVar("RAPID_TOPIC"),
-                       val rapidEnabled: Boolean = getEnvVar("RAPID_ENABLED", "false").toBoolean()
+                       val rapidEnabled: Boolean = getEnvVar("RAPID_ENABLED", "false").toBoolean(),
+                       val archivingEnabled: Boolean = getEnvVarAsBoolean("ARCHIVING_ENABLED"),
+                       val archivingThresholdDays: Int = getEnvVarAsInt("ARCHIVING_THRESHOLD")
 ) {
     fun rapidConfig(): Map<String, String> = mapOf(
         "KAFKA_BROKERS" to aivenBrokers,
