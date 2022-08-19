@@ -45,6 +45,7 @@ dependencies {
     implementation(Prometheus.common)
     implementation(Prometheus.hotspot)
     implementation(Prometheus.logback)
+    implementation("com.github.navikt:rapids-and-rivers:20210617121814-3e67e4d")
 
     testImplementation(Junit.api)
     testImplementation(Junit.engine)
