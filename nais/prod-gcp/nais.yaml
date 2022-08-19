@@ -25,7 +25,7 @@ spec:
     max: 1
     cpuThresholdPercentage: 50
   ingresses:
-    - "https://dittnav-event-aggregator-gcp.nais.oera.no"
+    - "https://dittnav-event-aggregator.nav.no"
   webproxy: true
   resources:
     limits:
