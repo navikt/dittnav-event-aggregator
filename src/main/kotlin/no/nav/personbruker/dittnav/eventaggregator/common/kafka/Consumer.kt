@@ -32,7 +32,7 @@ class Consumer<K, V>(
         private const val ONE_MINUTE_IN_MS = 60000L
     }
 
-    override val coroutineContext = job
+    override val coroutineContext = Dispatchers.Default + job
 
     suspend fun stopPolling() {
         job.cancelAndJoin()
