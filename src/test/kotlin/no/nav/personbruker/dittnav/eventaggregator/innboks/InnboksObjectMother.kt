@@ -1,12 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks
-import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
 import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.temporal.ChronoUnit
 
 object InnboksObjectMother {
 
@@ -78,14 +73,14 @@ object InnboksObjectMother {
         systembruker: String = defaultSystembruker,
         namespace: String = defaultNamespace,
         appnavn: String = defaultAppnavn,
-        eventTidspunkt: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
-        forstBehandlet: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
+        eventTidspunkt: LocalDateTime = nowTruncatedToMillis(),
+        forstBehandlet: LocalDateTime = nowTruncatedToMillis(),
         fodselsnummer: String = defaultFodselsnummer,
         eventId: String = defaultEventId,
         grupperingsId: String = defaultGrupperingsId,
         tekst: String = defaultTekst,
         link: String = defaultLink,
-        sistOppdatert: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
+        sistOppdatert: LocalDateTime = nowTruncatedToMillis(),
         sikkerhetsnivaa: Int = defaultSikkerhetsnivaa,
         aktiv: Boolean = defaultAktiv,
         eksternVarsling: Boolean = defaultEksternVarsling

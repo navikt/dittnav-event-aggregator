@@ -3,6 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed.archive
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.*
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.*
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusDtoObjectMother.createDoknotifikasjonStatusDto
@@ -10,7 +11,6 @@ import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.Doknotifikasj
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
-import java.time.LocalDateTime.now
 
 internal class BeskjedArchivingQueriesTest {
 
@@ -27,9 +27,9 @@ internal class BeskjedArchivingQueriesTest {
 
     @Test
     fun `should not fetch beskjed where forstBehandlet is after threshold date`() = runBlocking {
-        val threshold = now().minusDays(10)
+        val threshold = nowTruncatedToMillis().minusDays(10)
 
-        createBeskjedInDb(forstBehandlet = now().minusDays(5))
+        createBeskjedInDb(forstBehandlet = nowTruncatedToMillis().minusDays(5))
 
         val result = database.dbQuery {
             getBeskjedAsArchiveDtoOlderThan(threshold)
@@ -40,9 +40,9 @@ internal class BeskjedArchivingQueriesTest {
 
     @Test
     fun `should fetch beskjed where forstBehandlet is before threshold date`() = runBlocking {
-        val threshold = now().minusDays(10)
+        val threshold = nowTruncatedToMillis().minusDays(10)
 
-        val beskjed = createBeskjedInDb(forstBehandlet = now().minusDays(15))
+        val beskjed = createBeskjedInDb(forstBehandlet = nowTruncatedToMillis().minusDays(15))
 
         val result = database.dbQuery {
             getBeskjedAsArchiveDtoOlderThan(threshold)
@@ -65,12 +65,12 @@ internal class BeskjedArchivingQueriesTest {
 
     @Test
     fun `should parse eksternvarsling info from doknotifikasjon_status_beskjed if exists`() = runBlocking {
-        val threshold = now().minusDays(10)
+        val threshold = nowTruncatedToMillis().minusDays(10)
 
         val kanaler = "SMS"
         val eksternVarselSendtStatus = FERDIGSTILT
 
-        val beskjed = createBeskjedInDb(forstBehandlet = now().minusDays(15))
+        val beskjed = createBeskjedInDb(forstBehandlet = nowTruncatedToMillis().minusDays(15))
 
         createDoknotStatusInDb(beskjed.eventId, eksternVarselSendtStatus, kanaler)
 
@@ -95,7 +95,7 @@ internal class BeskjedArchivingQueriesTest {
 
     @Test
     fun `should delete corresponding beskjed`() = runBlocking {
-        val beskjed = createBeskjedInDb(now())
+        val beskjed = createBeskjedInDb(nowTruncatedToMillis())
 
         database.dbQuery {
             deleteBeskjedWithEventIds(listOf(beskjed.eventId))
@@ -110,7 +110,7 @@ internal class BeskjedArchivingQueriesTest {
 
     @Test
     fun `should delete corresponding doknotifikasjon_status_beskjed`() = runBlocking {
-        val beskjed = createBeskjedInDb(now())
+        val beskjed = createBeskjedInDb(nowTruncatedToMillis())
         createDoknotStatusInDb(beskjed.eventId, FERDIGSTILT, "")
 
         database.dbQuery {

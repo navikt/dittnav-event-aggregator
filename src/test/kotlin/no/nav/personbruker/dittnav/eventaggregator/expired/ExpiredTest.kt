@@ -14,6 +14,7 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedEventService
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.getAllBeskjedByAktiv
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.kafka.Consumer
@@ -38,7 +39,6 @@ import org.apache.kafka.common.TopicPartition
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Instant
-import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
 class ExpiredTest {
@@ -195,7 +195,7 @@ class ExpiredTest {
         val oppgave = AvroOppgaveObjectMother.createOppgave(
             10101,
             "beskjed",
-            synligFremTil = LocalDateTime.now().minusDays(30)
+            synligFremTil = nowTruncatedToMillis().minusDays(30)
         )
 
         return (0..9).map {

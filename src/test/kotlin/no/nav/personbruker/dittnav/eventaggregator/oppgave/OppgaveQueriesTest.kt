@@ -8,6 +8,8 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneObjectMother
 import org.junit.jupiter.api.Test
@@ -58,7 +60,7 @@ class OppgaveQueriesTest {
 
     private fun createExpiredOppgave(eventId: String, fodselsnummer: String): Oppgave {
         var oppgave = OppgaveObjectMother.giveMeAktivOppgave(eventId, fodselsnummer)
-            .copy(synligFremTil = LocalDateTime.now().minusDays(1).truncatedTo(ChronoUnit.MILLIS))
+            .copy(synligFremTil = nowTruncatedToMillis().minusDays(1))
         runBlocking {
             database.dbQuery {
                 val generatedId = createOppgave(oppgave).entityId
@@ -69,7 +71,7 @@ class OppgaveQueriesTest {
     }
 
     private fun createOppgaveWithOffsetForstBehandlet(eventId: String, fodselsnummer: String): Oppgave {
-        val offsetDate = LocalDateTime.now().minusDays(1).truncatedTo(ChronoUnit.MILLIS)
+        val offsetDate = nowTruncatedToMillis().minusDays(1)
         var oppgave = OppgaveObjectMother.giveMeOppgaveWithForstBehandlet(eventId, fodselsnummer, offsetDate)
         runBlocking {
             database.dbQuery {

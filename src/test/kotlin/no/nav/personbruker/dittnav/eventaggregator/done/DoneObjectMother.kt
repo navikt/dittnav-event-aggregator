@@ -1,6 +1,8 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
 import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon
 import java.time.temporal.ChronoUnit
 
@@ -23,11 +25,11 @@ object DoneObjectMother {
                 namespace = "dummyNamespace",
                 appnavn = "dummyAppnavn",
                 eventId = eventId,
-                eventTidspunkt = nowAtUtc().truncatedTo(ChronoUnit.MILLIS),
-                forstBehandlet = nowAtUtc().truncatedTo(ChronoUnit.MILLIS),
+                eventTidspunkt = nowTruncatedToMillis(),
+                forstBehandlet = nowTruncatedToMillis(),
                 fodselsnummer = fodselsnummer,
                 grupperingsId = "100${eventId}",
-                sistBehandlet = nowAtUtc().truncatedTo(ChronoUnit.MILLIS)
+                sistBehandlet = nowTruncatedToMillis()
         )
     }
 

@@ -3,10 +3,10 @@ package no.nav.personbruker.dittnav.eventaggregator.innboks
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import no.nav.personbruker.dittnav.eventaggregator.common.toEpochMilli
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.toEpochMilli
 import no.nav.personbruker.dittnav.eventaggregator.nokkel.AvroNokkelInternObjectMother
 import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
@@ -44,33 +44,33 @@ class InnboksTransformerTest {
 
     @Test
     fun `should set forstBehandlet to behandlet if not null`() {
-        val tidspunkt = LocalDateTime.now()
+        val tidspunkt = nowTruncatedToMillis()
         val behandlet = tidspunkt.minusSeconds(10)
 
         val innboks = AvroInnboksObjectMother.createInnboksWithTidspunktAndBehandlet(tidspunkt.toEpochMilli(), behandlet.toEpochMilli())
 
         val transformed = InnboksTransformer.toInternal(dummyNokkel, innboks)
 
-        transformed.eventTidspunkt.truncatedTo(ChronoUnit.MILLIS) shouldBe tidspunkt.truncatedTo(ChronoUnit.MILLIS)
-        transformed.forstBehandlet.truncatedTo(ChronoUnit.MILLIS) shouldBe behandlet.truncatedTo(ChronoUnit.MILLIS)
+        transformed.eventTidspunkt shouldBe tidspunkt
+        transformed.forstBehandlet shouldBe behandlet
     }
 
     @Test
     fun `should set forstBehandlet to tidspunkt if behandlet is null`() {
-        val tidspunkt = LocalDateTime.now()
+        val tidspunkt = nowTruncatedToMillis()
         val behandlet = null
 
         val innboks = AvroInnboksObjectMother.createInnboksWithTidspunktAndBehandlet(tidspunkt.toEpochMilli(), behandlet)
 
         val transformed = InnboksTransformer.toInternal(dummyNokkel, innboks)
 
-        transformed.eventTidspunkt.truncatedTo(ChronoUnit.MILLIS)  shouldBe tidspunkt.truncatedTo(ChronoUnit.MILLIS)
-        transformed.forstBehandlet.truncatedTo(ChronoUnit.MILLIS)  shouldBe tidspunkt.truncatedTo(ChronoUnit.MILLIS)
+        transformed.eventTidspunkt shouldBe tidspunkt
+        transformed.forstBehandlet shouldBe tidspunkt
     }
 
     @Test
     fun `should attempt to fix and set forstBehandlet if behandlet is null and tidspunkt appears truncated`() {
-        val tidspunkt = LocalDateTime.now()
+        val tidspunkt = nowTruncatedToMillis()
         val behandlet = null
 
         val truncatedTidspunkt = tidspunkt.toEpochSecond(ZoneOffset.UTC)

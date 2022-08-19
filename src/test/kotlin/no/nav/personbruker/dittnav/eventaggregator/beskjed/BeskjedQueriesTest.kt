@@ -8,6 +8,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.countTotalNumberOfEvents
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.countTotalNumberOfEventsByActiveStatus
@@ -15,8 +16,6 @@ import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneObjectMother
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
-import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
 
 class BeskjedQueriesTest {
 
@@ -60,7 +59,7 @@ class BeskjedQueriesTest {
 
     private fun createExpiredBeskjed(eventId: String, fodselsnummer: String): Beskjed {
         val beskjed = BeskjedObjectMother.giveMeAktivBeskjed(eventId, fodselsnummer)
-            .copy(synligFremTil = LocalDateTime.now().minusDays(1).truncatedTo(ChronoUnit.MILLIS))
+            .copy(synligFremTil = nowTruncatedToMillis().minusDays(1))
         return runBlocking {
             database.dbQuery {
                 createBeskjed(beskjed).entityId.let {
@@ -71,7 +70,7 @@ class BeskjedQueriesTest {
     }
 
     private fun createBeskjedWithOffsetForstBehandlet(eventId: String, fodselsnummer: String): Beskjed {
-        val offsetDate = LocalDateTime.now().minusDays(1).truncatedTo(ChronoUnit.MILLIS)
+        val offsetDate = nowTruncatedToMillis().minusDays(1)
         val beskjed = BeskjedObjectMother.giveMeBeskjedWithForstBehandlet(eventId, fodselsnummer, offsetDate)
         return runBlocking {
             database.dbQuery {
