@@ -2,11 +2,12 @@ package no.nav.personbruker.dittnav.eventaggregator.common
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.CoroutineStart.LAZY
+import no.nav.personbruker.dittnav.eventaggregator.health.HealthCheck
 import no.nav.personbruker.dittnav.eventaggregator.health.HealthStatus
 import no.nav.personbruker.dittnav.eventaggregator.health.Status
 import java.time.Duration
 
-abstract class PeriodicJob(private val interval: Duration) {
+abstract class PeriodicJob(private val interval: Duration): HealthCheck {
 
     private val scope = CoroutineScope(Dispatchers.Default + Job())
 
@@ -19,7 +20,7 @@ abstract class PeriodicJob(private val interval: Duration) {
         }
     }
 
-    fun status(): HealthStatus {
+    override suspend fun status(): HealthStatus {
         return when (job.isActive) {
             true -> HealthStatus(className(), Status.OK, "${className()} is running", false)
             false -> HealthStatus(className(), Status.ERROR, "${className()} is not running", false)
