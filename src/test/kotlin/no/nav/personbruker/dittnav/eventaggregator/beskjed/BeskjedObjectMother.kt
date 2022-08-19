@@ -1,8 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
 import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.temporal.ChronoUnit
 
 object BeskjedObjectMother {
 
@@ -62,21 +61,21 @@ object BeskjedObjectMother {
     }
 
     private fun giveMeBeskjed(
-            systembruker: String = defaultSystembruker,
-            namespace: String = defaultNamespace,
-            appnavn: String = defaultAppnavn,
-            eventTidspunkt: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
-            forstBehandlet: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
-            synligFremTil: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC")).plusDays(1).truncatedTo(ChronoUnit.MILLIS),
-            fodselsnummer: String = defaultFodselsnummer,
-            eventId: String = defaultEventId,
-            grupperingsId: String = defaultGrupperingsId,
-            tekst: String = defaultTekst,
-            link: String = defaultLink,
-            sistOppdatert: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC")).truncatedTo(ChronoUnit.MILLIS),
-            sikkerhetsnivaa: Int = defaultSikkerhetsnivaa,
-            aktiv: Boolean = defaultAktiv,
-            eksternVarsling: Boolean = defaultEksternVarsling
+        systembruker: String = defaultSystembruker,
+        namespace: String = defaultNamespace,
+        appnavn: String = defaultAppnavn,
+        eventTidspunkt: LocalDateTime = nowTruncatedToMillis(),
+        forstBehandlet: LocalDateTime = nowTruncatedToMillis(),
+        synligFremTil: LocalDateTime = nowTruncatedToMillis().plusDays(1),
+        fodselsnummer: String = defaultFodselsnummer,
+        eventId: String = defaultEventId,
+        grupperingsId: String = defaultGrupperingsId,
+        tekst: String = defaultTekst,
+        link: String = defaultLink,
+        sistOppdatert: LocalDateTime = nowTruncatedToMillis(),
+        sikkerhetsnivaa: Int = defaultSikkerhetsnivaa,
+        aktiv: Boolean = defaultAktiv,
+        eksternVarsling: Boolean = defaultEksternVarsling
         ) = Beskjed(
             systembruker = systembruker,
             namespace = namespace,

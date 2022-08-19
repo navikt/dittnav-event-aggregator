@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.innboks.archive
 
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
 import no.nav.personbruker.dittnav.eventaggregator.innboks.*
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.*
@@ -10,7 +11,6 @@ import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.Doknotifikasj
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
-import java.time.LocalDateTime.now
 
 internal class InnboksArchivingQueriesTest {
 
@@ -27,9 +27,9 @@ internal class InnboksArchivingQueriesTest {
 
     @Test
     fun `should not fetch innboks where forstBehandlet is after threshold date`() = runBlocking {
-        val threshold = now().minusDays(10)
+        val threshold = nowTruncatedToMillis().minusDays(10)
 
-        createInnboksInDb(forstBehandlet = now().minusDays(5))
+        createInnboksInDb(forstBehandlet = nowTruncatedToMillis().minusDays(5))
 
         val result = database.dbQuery {
             getInnboksAsArchiveDtoOlderThan(threshold)
@@ -40,9 +40,9 @@ internal class InnboksArchivingQueriesTest {
 
     @Test
     fun `should fetch innboks where forstBehandlet is before threshold date`() = runBlocking {
-        val threshold = now().minusDays(10)
+        val threshold = nowTruncatedToMillis().minusDays(10)
 
-        val innboks = createInnboksInDb(forstBehandlet = now().minusDays(15))
+        val innboks = createInnboksInDb(forstBehandlet = nowTruncatedToMillis().minusDays(15))
 
         val result = database.dbQuery {
             getInnboksAsArchiveDtoOlderThan(threshold)
@@ -65,12 +65,12 @@ internal class InnboksArchivingQueriesTest {
 
     @Test
     fun `should parse eksternvarsling info from doknotifikasjon_status_innboks if exists`() = runBlocking {
-        val threshold = now().minusDays(10)
+        val threshold = nowTruncatedToMillis().minusDays(10)
 
         val kanaler = "SMS"
         val eksternVarselSendtStatus = FERDIGSTILT
 
-        val innboks = createInnboksInDb(forstBehandlet = now().minusDays(15))
+        val innboks = createInnboksInDb(forstBehandlet = nowTruncatedToMillis().minusDays(15))
 
         createDoknotStatusInDb(innboks.eventId, eksternVarselSendtStatus, kanaler)
 
@@ -95,7 +95,7 @@ internal class InnboksArchivingQueriesTest {
 
     @Test
     fun `should delete corresponding innboks`() = runBlocking {
-        val innboks = createInnboksInDb(now())
+        val innboks = createInnboksInDb(nowTruncatedToMillis())
 
         database.dbQuery {
             deleteInnboksWithEventIds(listOf(innboks.eventId))
@@ -110,7 +110,7 @@ internal class InnboksArchivingQueriesTest {
 
     @Test
     fun `should delete corresponding doknotifikasjon_status_innboks`() = runBlocking {
-        val innboks = createInnboksInDb(now())
+        val innboks = createInnboksInDb(nowTruncatedToMillis())
         createDoknotStatusInDb(innboks.eventId, FERDIGSTILT, "")
 
         database.dbQuery {

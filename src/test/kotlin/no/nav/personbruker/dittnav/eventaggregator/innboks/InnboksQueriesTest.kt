@@ -5,15 +5,10 @@ import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteBeskjedWithEventId
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.getBeskjedByEventId
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneObjectMother
 import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
 
 class InnboksQueriesTest {
     private val database = LocalPostgresDatabase.migratedDb()
@@ -56,7 +51,7 @@ class InnboksQueriesTest {
 
 
     private fun createInnboksWithOffsetForstBehandlet(eventId: String, fodselsnummer: String): Innboks {
-        val offsetDate = LocalDateTime.now().minusDays(1).truncatedTo(ChronoUnit.MILLIS)
+        val offsetDate = nowTruncatedToMillis().minusDays(1)
         val innboks = InnboksObjectMother.giveMeInnboksWithForstBehandlet(eventId, fodselsnummer, offsetDate)
         return runBlocking {
             database.dbQuery {

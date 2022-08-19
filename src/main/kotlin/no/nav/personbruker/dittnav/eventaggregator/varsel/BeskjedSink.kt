@@ -10,6 +10,7 @@ import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.helse.rapids_rivers.asOptionalLocalDateTime
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -55,7 +56,7 @@ internal class BeskjedSink(rapidsConnection: RapidsConnection, private val beskj
             tekst = packet["tekst"].textValue(),
             link = packet["link"].textValue(),
             sikkerhetsnivaa = packet["sikkerhetsnivaa"].intValue(),
-            sistOppdatert = LocalDateTime.now(),
+            sistOppdatert = nowAtUtc(),
             synligFremTil = packet["synligFremTil"].asOptionalLocalDateTime(),
             aktiv = packet["aktiv"].booleanValue(),
             eksternVarsling = packet["eksternVarsling"].booleanValue(),

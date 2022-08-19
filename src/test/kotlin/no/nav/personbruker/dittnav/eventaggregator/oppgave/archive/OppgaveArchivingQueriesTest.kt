@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.oppgave.archive
 
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.*
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.*
@@ -27,9 +28,9 @@ internal class OppgaveArchivingQueriesTest {
 
     @Test
     fun `should not fetch oppgave where forstBehandlet is after threshold date`() = runBlocking {
-        val threshold = now().minusDays(10)
+        val threshold = nowTruncatedToMillis().minusDays(10)
 
-        createOppgaveInDb(forstBehandlet = now().minusDays(5))
+        createOppgaveInDb(forstBehandlet = nowTruncatedToMillis().minusDays(5))
 
         val result = database.dbQuery {
             getOppgaveAsArchiveDtoOlderThan(threshold)
@@ -40,9 +41,9 @@ internal class OppgaveArchivingQueriesTest {
 
     @Test
     fun `should fetch oppgave where forstBehandlet is before threshold date`() = runBlocking {
-        val threshold = now().minusDays(10)
+        val threshold = nowTruncatedToMillis().minusDays(10)
 
-        val oppgave = createOppgaveInDb(forstBehandlet = now().minusDays(15))
+        val oppgave = createOppgaveInDb(forstBehandlet = nowTruncatedToMillis().minusDays(15))
 
         val result = database.dbQuery {
             getOppgaveAsArchiveDtoOlderThan(threshold)
@@ -65,12 +66,12 @@ internal class OppgaveArchivingQueriesTest {
 
     @Test
     fun `should parse eksternvarsling info from doknotifikasjon_status_oppgave if exists`() = runBlocking {
-        val threshold = now().minusDays(10)
+        val threshold = nowTruncatedToMillis().minusDays(10)
 
         val kanaler = "SMS"
         val eksternVarselSendtStatus = FERDIGSTILT
 
-        val oppgave = createOppgaveInDb(forstBehandlet = now().minusDays(15))
+        val oppgave = createOppgaveInDb(forstBehandlet = nowTruncatedToMillis().minusDays(15))
 
         createDoknotStatusInDb(oppgave.eventId, eksternVarselSendtStatus, kanaler)
 
