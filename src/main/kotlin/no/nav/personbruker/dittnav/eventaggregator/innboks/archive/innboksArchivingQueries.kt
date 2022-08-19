@@ -1,6 +1,8 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks.archive
 
 import no.nav.personbruker.dittnav.eventaggregator.archive.BrukernotifikasjonArchiveDTO
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.*
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusEnum.FERDIGSTILT
 import java.sql.Connection
@@ -88,7 +90,7 @@ private fun PreparedStatement.setParametersForSingleRow(innboksArchiveDTO: Bruke
     setBoolean(8, innboksArchiveDTO.eksternVarslingSendt)
     setString(9, innboksArchiveDTO.eksternVarslingKanaler)
     setObject(10, innboksArchiveDTO.forstBehandlet, Types.TIMESTAMP)
-    setObject(11, LocalDateTime.now(ZoneId.of("UTC")), Types.TIMESTAMP)
+    setObject(11, nowAtUtc(), Types.TIMESTAMP)
 }
 
 private fun ResultSet.toBrukernotifikasjonArchiveDTO(): BrukernotifikasjonArchiveDTO {

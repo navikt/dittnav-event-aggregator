@@ -1,6 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed.archive
 
 import no.nav.personbruker.dittnav.eventaggregator.archive.ArchiveMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.common.PeriodicJob
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
@@ -24,7 +25,7 @@ class PeriodicBeskjedArchiver(
     }
 
     private suspend fun archiveOldBeskjed() {
-        val thresholdDate = LocalDateTime.now().minusDays(ageThresholdDays.toLong())
+        val thresholdDate = nowAtUtc().minusDays(ageThresholdDays.toLong())
 
         try {
             val toArchive = beskjedArchiveRepository.getOldBeskjedAsArchiveDto(thresholdDate)

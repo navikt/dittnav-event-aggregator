@@ -27,6 +27,6 @@ object LocalDateTimeHelper {
         return LocalDateTime.ofInstant(Instant.ofEpochMilli(epochMillis), ZoneId.of("UTC"))
     }
 
-    fun nowAtUtc() = LocalDateTime.now(ZoneId.of("UTC"))
+    fun nowAtUtc(): LocalDateTime = LocalDateTime.now(ZoneId.of("UTC"))
 }
 

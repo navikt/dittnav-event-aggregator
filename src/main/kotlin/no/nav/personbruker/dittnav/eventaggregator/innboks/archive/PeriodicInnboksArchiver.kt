@@ -1,6 +1,8 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks.archive
 
 import no.nav.personbruker.dittnav.eventaggregator.archive.ArchiveMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.common.PeriodicJob
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
@@ -24,7 +26,7 @@ class PeriodicInnboksArchiver(
     }
 
     private suspend fun archiveOldInnboks() {
-        val thresholdDate = LocalDateTime.now().minusDays(ageThresholdDays.toLong())
+        val thresholdDate = nowAtUtc().minusDays(ageThresholdDays.toLong())
 
         try {
             val toArchive = innboksArchiveRepository.getOldInnboksAsArchiveDto(thresholdDate)
