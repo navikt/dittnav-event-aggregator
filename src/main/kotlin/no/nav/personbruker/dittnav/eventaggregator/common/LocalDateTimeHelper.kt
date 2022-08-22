@@ -3,8 +3,11 @@ package no.nav.personbruker.dittnav.eventaggregator.common
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 
 object LocalDateTimeHelper {
+    val EPOCH_START = LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC)
+
     fun timestampToUTCDateOrNull(timestamp: Long?): LocalDateTime? {
         return timestamp?.let { datetime ->
             LocalDateTime.ofInstant(Instant.ofEpochMilli(datetime), ZoneId.of("UTC"))

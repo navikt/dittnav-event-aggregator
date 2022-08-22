@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.innboks.archive
 
 import no.nav.personbruker.dittnav.eventaggregator.archive.BrukernotifikasjonArchiveDTO
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.EPOCH_START
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.*
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusEnum.FERDIGSTILT
@@ -28,8 +29,8 @@ private const val getInnboksToArchiveQuery = """
       innboks
         LEFT JOIN doknotifikasjon_status_innboks as dns ON innboks.eventId = dns.eventId
     WHERE
-      innboks.forstBehandlet < ?
-    LIMIT 500
+      innboks.forstBehandlet between ? and ?
+    limit 1000
 """
 
 private const val insertInnboksArchiveQuery = """
@@ -48,7 +49,8 @@ private const val deleteInnboksQuery = """
 fun Connection.getInnboksAsArchiveDtoOlderThan(dateThreshold: LocalDateTime): List<BrukernotifikasjonArchiveDTO> {
     return prepareStatement(getInnboksToArchiveQuery)
         .use {
-            it.setObject(1, dateThreshold, Types.TIMESTAMP)
+            it.setObject(1, EPOCH_START, Types.TIMESTAMP)
+            it.setObject(2, dateThreshold, Types.TIMESTAMP)
             it.executeQuery().list {
                 toBrukernotifikasjonArchiveDTO()
             }

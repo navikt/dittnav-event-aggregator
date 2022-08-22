@@ -1,6 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed.archive
 
 import no.nav.personbruker.dittnav.eventaggregator.archive.BrukernotifikasjonArchiveDTO
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.EPOCH_START
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.*
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusEnum.FERDIGSTILT
@@ -27,8 +28,8 @@ private const val getBeskjedToArchiveQuery = """
       beskjed
         LEFT JOIN doknotifikasjon_status_beskjed as dns ON beskjed.eventId = dns.eventId
     WHERE
-      beskjed.forstBehandlet < ?
-    LIMIT 500
+      beskjed.forstBehandlet between ? and ?
+    limit 1000
 """
 
 private const val insertBeskjedArchiveQuery = """
@@ -47,7 +48,8 @@ private const val deleteBeskjedQuery = """
 fun Connection.getBeskjedAsArchiveDtoOlderThan(dateThreshold: LocalDateTime): List<BrukernotifikasjonArchiveDTO> {
     return prepareStatement(getBeskjedToArchiveQuery)
         .use {
-            it.setObject(1, dateThreshold, Types.TIMESTAMP)
+            it.setObject(1, EPOCH_START, Types.TIMESTAMP)
+            it.setObject(2, dateThreshold, Types.TIMESTAMP)
             it.executeQuery().list {
                 toBrukernotifikasjonArchiveDTO()
             }
