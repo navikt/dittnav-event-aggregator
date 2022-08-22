@@ -1,6 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
-import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.EPOCH_START
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
@@ -10,11 +10,6 @@ import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.ZoneOffset
-
-private val EPOCH_START = LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC)
 
 private val createQuery = """INSERT INTO beskjed (systembruker, eventTidspunkt, forstBehandlet, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
