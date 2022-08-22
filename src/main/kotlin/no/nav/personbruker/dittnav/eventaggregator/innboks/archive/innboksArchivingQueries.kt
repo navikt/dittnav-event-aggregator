@@ -30,7 +30,7 @@ private const val getInnboksToArchiveQuery = """
         LEFT JOIN doknotifikasjon_status_innboks as dns ON innboks.eventId = dns.eventId
     WHERE
       innboks.forstBehandlet between ? and ?
-    LIMIT 500
+    limit 1000
 """
 
 private const val insertInnboksArchiveQuery = """

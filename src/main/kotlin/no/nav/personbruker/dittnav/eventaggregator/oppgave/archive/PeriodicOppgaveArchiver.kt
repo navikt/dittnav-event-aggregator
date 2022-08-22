@@ -16,7 +16,7 @@ class PeriodicOppgaveArchiver(
     private val oppgaveArchiveRepository: OppgaveArchivingRepository,
     private val archiveMetricsProbe: ArchiveMetricsProbe,
     private val ageThresholdDays: Int,
-    interval: Duration = Duration.ofSeconds(5)
+    interval: Duration = Duration.ofSeconds(10)
 ): PeriodicJob(interval) {
 
     private val log: Logger = LoggerFactory.getLogger(PeriodicDoneEventWaitingTableProcessor::class.java)

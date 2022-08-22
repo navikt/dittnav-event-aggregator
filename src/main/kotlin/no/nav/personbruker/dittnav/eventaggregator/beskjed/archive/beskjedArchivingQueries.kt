@@ -29,7 +29,7 @@ private const val getBeskjedToArchiveQuery = """
         LEFT JOIN doknotifikasjon_status_beskjed as dns ON beskjed.eventId = dns.eventId
     WHERE
       beskjed.forstBehandlet between ? and ?
-    LIMIT 500
+    limit 1000
 """
 
 private const val insertBeskjedArchiveQuery = """

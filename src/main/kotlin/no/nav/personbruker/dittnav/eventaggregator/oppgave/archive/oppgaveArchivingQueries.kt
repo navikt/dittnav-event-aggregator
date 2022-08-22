@@ -30,7 +30,7 @@ private const val getOppgaveToArchiveQuery = """
         LEFT JOIN doknotifikasjon_status_oppgave as dns ON oppgave.eventId = dns.eventId
     WHERE
       oppgave.forstBehandlet between ? and ?
-    LIMIT 500
+    limit 1000
 """
 
 private const val insertOppgaveArchiveQuery = """
