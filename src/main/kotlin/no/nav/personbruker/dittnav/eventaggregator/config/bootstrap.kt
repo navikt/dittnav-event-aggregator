@@ -41,7 +41,7 @@ private fun Application.configureStartupHook(appContext: ApplicationContext) {
                     BeskjedSink(this, appContext.beskjedRepository)
                     OppgaveSink(this, appContext.oppgaveRepository)
                     InnboksSink(this, appContext.innboksRepository)
-                    DoneSink(this, appContext.doneRepository, appContext.donePersistingService)
+                    DoneSink(this, appContext.doneRepository)
                 }.start()
             }
         }

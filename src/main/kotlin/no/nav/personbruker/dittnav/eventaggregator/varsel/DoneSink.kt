@@ -9,15 +9,13 @@ import no.nav.helse.rapids_rivers.River
 import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.done.Done
-import no.nav.personbruker.dittnav.eventaggregator.done.DonePersistingService
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 internal class DoneSink(
     rapidsConnection: RapidsConnection,
-    private val doneRepository: DoneRepository,
-    private val donePersistingService: DonePersistingService
+    private val doneRepository: DoneRepository
 ) :
     River.PacketListener {
 
@@ -51,18 +49,16 @@ internal class DoneSink(
 
 
         runBlocking {
-
             //hent varsel-type
             val varsel = doneRepository.fetchBrukernotifikasjonerFromViewForEventIds(listOf(done.eventId))
 
-
             if(varsel.isEmpty()) {
                 // lagre i ventetabell hvis ikke varsel finnes
-                donePersistingService.writeEventsToCache(listOf(done))
+                doneRepository.createInOneBatch(listOf(done))
             }
             else {
                 //oppdater relatert varsel
-                donePersistingService.writeDoneEventsForBeskjedToCache(listOf(done))
+                doneRepository.writeDoneEventsForBeskjedToCache(listOf(done))
             }
 
             log.info("Behandlet done fra rapid med eventid ${done.eventId}")

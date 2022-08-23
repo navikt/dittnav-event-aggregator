@@ -23,7 +23,6 @@ class DoneSinkTest {
     private val innboksRepository = InnboksRepository(database)
 
     private val doneRepository = DoneRepository(database)
-    private val donePersistingService = DonePersistingService(doneRepository)
 
     @BeforeEach
     fun resetDb() {
@@ -36,7 +35,7 @@ class DoneSinkTest {
     fun `Inaktiverer varsel`() = runBlocking {
         val testRapid = TestRapid()
         BeskjedSink(testRapid, beskjedRepository)
-        DoneSink(testRapid, doneRepository, donePersistingService)
+        DoneSink(testRapid, doneRepository)
 
         testRapid.sendTestMessage(varselJson("beskjed", "12345"))
         testRapid.sendTestMessage(doneJson("12345"))
