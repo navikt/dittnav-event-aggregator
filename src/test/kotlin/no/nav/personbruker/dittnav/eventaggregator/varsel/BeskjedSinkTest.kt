@@ -1,7 +1,9 @@
 package no.nav.personbruker.dittnav.eventaggregator.varsel
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
+import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
@@ -13,7 +15,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class BeskjedSinkTest {
-
     private val database = LocalPostgresDatabase.migratedDb()
     private val beskjedRepository = BeskjedRepository(database)
 
@@ -31,8 +32,23 @@ class BeskjedSinkTest {
 
         testRapid.sendTestMessage(beskjedJson)
 
-        val beskjeder = getBeskjeder()
+        val beskjeder = beskjederFromDb()
         beskjeder.size shouldBe 1
+
+        val beskjed = beskjeder.first()
+        val beskjedJsonNode = ObjectMapper().readTree(beskjedJson)
+        beskjed.namespace shouldBe beskjedJsonNode["namespace"].textValue()
+        beskjed.appnavn shouldBe beskjedJsonNode["appnavn"].textValue()
+        beskjed.eventId shouldBe beskjedJsonNode["eventId"].textValue()
+        beskjed.forstBehandlet shouldBe beskjedJsonNode["forstBehandlet"].asLocalDateTime()
+        beskjed.fodselsnummer shouldBe beskjedJsonNode["fodselsnummer"].textValue()
+        beskjed.tekst shouldBe beskjedJsonNode["tekst"].textValue()
+        beskjed.link shouldBe beskjedJsonNode["link"].textValue()
+        beskjed.sikkerhetsnivaa shouldBe beskjedJsonNode["sikkerhetsnivaa"].intValue()
+        beskjed.synligFremTil shouldBe beskjedJsonNode["synligFremTil"].asLocalDateTime()
+        beskjed.aktiv shouldBe beskjedJsonNode["aktiv"].booleanValue()
+        beskjed.eksternVarsling shouldBe beskjedJsonNode["eksternVarsling"].booleanValue()
+        beskjed.prefererteKanaler shouldBe beskjedJsonNode["prefererteKanaler"].map { it.textValue() }
     }
 
     @Test
@@ -43,25 +59,21 @@ class BeskjedSinkTest {
         testRapid.sendTestMessage(beskjedJson)
         testRapid.sendTestMessage(beskjedJson)
 
-        val beskjeder = getBeskjeder()
+        val beskjeder = beskjederFromDb()
         beskjeder.size shouldBe 1
     }
 
-
-    private suspend fun getBeskjeder(): List<Beskjed> {
+    private suspend fun beskjederFromDb(): List<Beskjed> {
         return database.dbQuery { this.prepareStatement("select * from beskjed").executeQuery().list { toBeskjed() } }
     }
 
     private val beskjedJson = """{
         "@event_name": "beskjed",
-        "systembruker": "sb",
         "namespace": "ns",
         "appnavn": "app",
         "eventId": "395737",
-        "eventTidspunkt": "2022-01-01T00:00:00",
         "forstBehandlet": "2022-02-01T00:00:00",
         "fodselsnummer": "12345678910",
-        "grupperingsId": "123",
         "tekst": "Tekst",
         "link": "url",
         "sikkerhetsnivaa": 4,
