@@ -8,20 +8,20 @@ import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
 import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.helse.rapids_rivers.asOptionalLocalDateTime
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-internal class BeskjedSink(rapidsConnection: RapidsConnection, private val beskjedRepository: BeskjedRepository) :
+internal class OppgaveSink(rapidsConnection: RapidsConnection, private val oppgaveRepository: OppgaveRepository) :
     River.PacketListener {
 
-    private val log: Logger = LoggerFactory.getLogger(BeskjedSink::class.java)
+    private val log: Logger = LoggerFactory.getLogger(OppgaveSink::class.java)
 
     init {
         River(rapidsConnection).apply {
-            validate { it.demandValue("@event_name", "beskjed") }
+            validate { it.demandValue("@event_name", "oppgave") }
             validate { it.demandValue("aktiv", true) }
             validate { it.requireKey(
                 "namespace",
@@ -39,7 +39,7 @@ internal class BeskjedSink(rapidsConnection: RapidsConnection, private val beskj
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
-        val beskjed = Beskjed(
+        val oppgave = Oppgave(
             id = null,
             systembruker = "N/A",
             namespace = packet["namespace"].textValue(),
@@ -60,8 +60,8 @@ internal class BeskjedSink(rapidsConnection: RapidsConnection, private val beskj
         )
 
         runBlocking {
-            beskjedRepository.createInOneBatch(listOf(beskjed))
-            log.info("Behandlet beskjed fra rapid med eventid ${beskjed.eventId}")
+            oppgaveRepository.createInOneBatch(listOf(oppgave))
+            log.info("Behandlet oppgave fra rapid med eventid ${oppgave.eventId}")
         }
     }
 
