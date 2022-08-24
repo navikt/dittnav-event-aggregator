@@ -74,6 +74,10 @@ class DoneSinkTest {
 
         aktiveBeskjederFromDb().size shouldBe 0
         doneFromWaitingTable().size shouldBe 0
+
+        testRapid.sendTestMessage(doneJson("645"))
+        testRapid.sendTestMessage(doneJson("645"))
+        doneFromWaitingTable().size shouldBe 1
     }
 
     @Test
