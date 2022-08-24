@@ -9,10 +9,18 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.toBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
-import no.nav.personbruker.dittnav.eventaggregator.done.DonePersistingService
+import no.nav.personbruker.dittnav.eventaggregator.done.Done
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
+import no.nav.personbruker.dittnav.eventaggregator.done.deleteAllDone
+import no.nav.personbruker.dittnav.eventaggregator.done.toDoneEvent
+import no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
+import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
+import no.nav.personbruker.dittnav.eventaggregator.innboks.toInnboks
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.toOppgave
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -28,6 +36,9 @@ class DoneSinkTest {
     fun resetDb() {
         runBlocking {
             database.dbQuery { deleteAllBeskjed() }
+            database.dbQuery { deleteAllOppgave() }
+            database.dbQuery { deleteAllInnboks() }
+            database.dbQuery { deleteAllDone() }
         }
     }
 
@@ -35,17 +46,69 @@ class DoneSinkTest {
     fun `Inaktiverer varsel`() = runBlocking {
         val testRapid = TestRapid()
         BeskjedSink(testRapid, beskjedRepository)
+        OppgaveSink(testRapid, oppgaveRepository)
+        InnboksSink(testRapid, innboksRepository)
         DoneSink(testRapid, doneRepository)
 
-        testRapid.sendTestMessage(varselJson("beskjed", "12345"))
-        testRapid.sendTestMessage(doneJson("12345"))
+        testRapid.sendTestMessage(varselJson("beskjed", "11"))
+        testRapid.sendTestMessage(varselJson("oppgave", "22"))
+        testRapid.sendTestMessage(varselJson("innboks", "33"))
+        testRapid.sendTestMessage(doneJson("11"))
+        testRapid.sendTestMessage(doneJson("22"))
+        testRapid.sendTestMessage(doneJson("33"))
 
         aktiveBeskjederFromDb().size shouldBe 0
+        aktiveOppgaverFromDb().size shouldBe 0
+        aktiveInnboksvarslerFromDb().size shouldBe 0
+    }
+
+    @Test
+    fun `Ignorerer duplikat done`() = runBlocking {
+        val testRapid = TestRapid()
+        BeskjedSink(testRapid, beskjedRepository)
+        DoneSink(testRapid, doneRepository)
+
+        testRapid.sendTestMessage(varselJson("beskjed", "11"))
+        testRapid.sendTestMessage(doneJson("11"))
+        testRapid.sendTestMessage(doneJson("11"))
+
+        aktiveBeskjederFromDb().size shouldBe 0
+        doneFromWaitingTable().size shouldBe 0
+    }
+
+    @Test
+    fun `Legger done-eventet i ventetabell hvis det kommer før varslet`() = runBlocking {
+        val testRapid = TestRapid()
+        BeskjedSink(testRapid, beskjedRepository)
+        DoneSink(testRapid, doneRepository)
+
+        testRapid.sendTestMessage(doneJson("999"))
+        testRapid.sendTestMessage(varselJson("beskjed", "999"))
+
+        doneFromWaitingTable().size shouldBe 1
     }
 
     private suspend fun aktiveBeskjederFromDb(): List<Beskjed> {
         return database.dbQuery {
             this.prepareStatement("select * from beskjed where aktiv = true").executeQuery().list { toBeskjed() }
+        }
+    }
+
+    private suspend fun aktiveOppgaverFromDb(): List<Oppgave> {
+        return database.dbQuery {
+            this.prepareStatement("select * from oppgave where aktiv = true").executeQuery().list { toOppgave() }
+        }
+    }
+
+    private suspend fun aktiveInnboksvarslerFromDb(): List<Innboks> {
+        return database.dbQuery {
+            this.prepareStatement("select * from innboks where aktiv = true").executeQuery().list { toInnboks() }
+        }
+    }
+
+    private suspend fun doneFromWaitingTable(): List<Done> {
+        return database.dbQuery {
+            this.prepareStatement("select * from done").executeQuery().list { toDoneEvent() }
         }
     }
 
