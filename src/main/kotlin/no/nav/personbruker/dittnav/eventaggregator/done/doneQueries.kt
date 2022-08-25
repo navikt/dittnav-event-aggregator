@@ -68,7 +68,7 @@ fun Connection.updateDoneSistbehandlet(doneEvents: List<Done>, sistBehandlet: Lo
     }
 }
 
-private fun ResultSet.toDoneEvent(): Done {
+fun ResultSet.toDoneEvent(): Done {
     return Done(
             eventId = getString("eventId"),
             systembruker = getString("systembruker"),

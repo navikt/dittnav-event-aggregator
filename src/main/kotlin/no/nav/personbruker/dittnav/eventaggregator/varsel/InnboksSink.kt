@@ -7,21 +7,20 @@ import no.nav.helse.rapids_rivers.MessageProblems
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
 import no.nav.helse.rapids_rivers.asLocalDateTime
-import no.nav.helse.rapids_rivers.asOptionalLocalDateTime
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
+import no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks
+import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-internal class BeskjedSink(rapidsConnection: RapidsConnection, private val beskjedRepository: BeskjedRepository) :
+internal class InnboksSink(rapidsConnection: RapidsConnection, private val innboksRepository: InnboksRepository) :
     River.PacketListener {
 
-    private val log: Logger = LoggerFactory.getLogger(BeskjedSink::class.java)
+    private val log: Logger = LoggerFactory.getLogger(InnboksSink::class.java)
 
     init {
         River(rapidsConnection).apply {
-            validate { it.demandValue("@event_name", "beskjed") }
+            validate { it.demandValue("@event_name", "innboks") }
             validate { it.demandValue("aktiv", true) }
             validate { it.requireKey(
                 "namespace",
@@ -34,12 +33,12 @@ internal class BeskjedSink(rapidsConnection: RapidsConnection, private val beskj
                 "sikkerhetsnivaa",
                 "eksternVarsling"
             ) }
-            validate { it.interestedIn("synligFremTil", "prefererteKanaler")}
+            validate { it.interestedIn("prefererteKanaler")}
         }.register(this)
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
-        val beskjed = Beskjed(
+        val innboks = Innboks(
             id = null,
             systembruker = "N/A",
             namespace = packet["namespace"].textValue(),
@@ -53,15 +52,14 @@ internal class BeskjedSink(rapidsConnection: RapidsConnection, private val beskj
             link = packet["link"].textValue(),
             sikkerhetsnivaa = packet["sikkerhetsnivaa"].intValue(),
             sistOppdatert = nowAtUtc(),
-            synligFremTil = packet["synligFremTil"].asOptionalLocalDateTime(),
             aktiv = packet["aktiv"].booleanValue(),
             eksternVarsling = packet["eksternVarsling"].booleanValue(),
             prefererteKanaler = packet["prefererteKanaler"].map { it.textValue() }
         )
 
         runBlocking {
-            beskjedRepository.createInOneBatch(listOf(beskjed))
-            log.info("Behandlet beskjed fra rapid med eventid ${beskjed.eventId}")
+            innboksRepository.createInOneBatch(listOf(innboks))
+            log.info("Behandlet innboks fra rapid med eventid ${innboks.eventId}")
         }
     }
 

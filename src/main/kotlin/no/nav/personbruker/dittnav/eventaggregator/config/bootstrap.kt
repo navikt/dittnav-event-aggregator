@@ -13,6 +13,9 @@ import no.nav.personbruker.dittnav.eventaggregator.common.kafka.polling.pollingA
 import no.nav.personbruker.dittnav.eventaggregator.done.waitTableApi
 import no.nav.personbruker.dittnav.eventaggregator.health.healthApi
 import no.nav.personbruker.dittnav.eventaggregator.varsel.BeskjedSink
+import no.nav.personbruker.dittnav.eventaggregator.varsel.DoneSink
+import no.nav.personbruker.dittnav.eventaggregator.varsel.InnboksSink
+import no.nav.personbruker.dittnav.eventaggregator.varsel.OppgaveSink
 import kotlin.concurrent.thread
 
 fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()) {
@@ -36,6 +39,9 @@ private fun Application.configureStartupHook(appContext: ApplicationContext) {
             thread {
                 RapidApplication.create(appContext.environment.rapidConfig()).apply {
                     BeskjedSink(this, appContext.beskjedRepository)
+                    OppgaveSink(this, appContext.oppgaveRepository)
+                    InnboksSink(this, appContext.innboksRepository)
+                    DoneSink(this, appContext.doneRepository)
                 }.start()
             }
         }

@@ -7,40 +7,36 @@ import no.nav.helse.rapids_rivers.MessageProblems
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
 import no.nav.helse.rapids_rivers.asLocalDateTime
-import no.nav.helse.rapids_rivers.asOptionalLocalDateTime
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
+import no.nav.personbruker.dittnav.eventaggregator.config.EventType
+import no.nav.personbruker.dittnav.eventaggregator.done.Done
+import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-internal class BeskjedSink(rapidsConnection: RapidsConnection, private val beskjedRepository: BeskjedRepository) :
+internal class DoneSink(
+    rapidsConnection: RapidsConnection,
+    private val doneRepository: DoneRepository
+) :
     River.PacketListener {
 
-    private val log: Logger = LoggerFactory.getLogger(BeskjedSink::class.java)
+    private val log: Logger = LoggerFactory.getLogger(DoneSink::class.java)
 
     init {
         River(rapidsConnection).apply {
-            validate { it.demandValue("@event_name", "beskjed") }
-            validate { it.demandValue("aktiv", true) }
+            validate { it.demandValue("@event_name", "done") }
             validate { it.requireKey(
                 "namespace",
                 "appnavn",
                 "eventId",
                 "forstBehandlet",
                 "fodselsnummer",
-                "tekst",
-                "link",
-                "sikkerhetsnivaa",
-                "eksternVarsling"
             ) }
-            validate { it.interestedIn("synligFremTil", "prefererteKanaler")}
         }.register(this)
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
-        val beskjed = Beskjed(
-            id = null,
+        val done = Done(
             systembruker = "N/A",
             namespace = packet["namespace"].textValue(),
             appnavn = packet["appnavn"].textValue(),
@@ -49,19 +45,25 @@ internal class BeskjedSink(rapidsConnection: RapidsConnection, private val beskj
             forstBehandlet = packet["forstBehandlet"].asLocalDateTime(),
             fodselsnummer = packet["fodselsnummer"].textValue(),
             grupperingsId = "N/A",
-            tekst = packet["tekst"].textValue(),
-            link = packet["link"].textValue(),
-            sikkerhetsnivaa = packet["sikkerhetsnivaa"].intValue(),
-            sistOppdatert = nowAtUtc(),
-            synligFremTil = packet["synligFremTil"].asOptionalLocalDateTime(),
-            aktiv = packet["aktiv"].booleanValue(),
-            eksternVarsling = packet["eksternVarsling"].booleanValue(),
-            prefererteKanaler = packet["prefererteKanaler"].map { it.textValue() }
+            sistBehandlet = nowAtUtc()
         )
 
         runBlocking {
-            beskjedRepository.createInOneBatch(listOf(beskjed))
-            log.info("Behandlet beskjed fra rapid med eventid ${beskjed.eventId}")
+            val varsel = doneRepository.fetchBrukernotifikasjonerFromViewForEventIds(listOf(done.eventId))
+            if(varsel.isEmpty()) {
+                // lagre i ventetabell hvis ikke varsel finnes
+                doneRepository.createInOneBatch(listOf(done))
+            }
+            else {
+                when(varsel.first().type) {
+                    EventType.BESKJED_INTERN -> doneRepository.writeDoneEventsForBeskjedToCache(listOf(done))
+                    EventType.OPPGAVE_INTERN -> doneRepository.writeDoneEventsForOppgaveToCache(listOf(done))
+                    EventType.INNBOKS_INTERN -> doneRepository.writeDoneEventsForInnboksToCache(listOf(done))
+                    EventType.DONE_INTERN -> log.error("Prøvde å inaktivere done-event med eventid ${done.eventId}")
+                }
+            }
+
+            log.info("Behandlet done fra rapid med eventid ${done.eventId}")
         }
     }
 
