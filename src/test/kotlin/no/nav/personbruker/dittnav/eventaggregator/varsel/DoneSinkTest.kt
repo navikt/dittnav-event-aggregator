@@ -1,7 +1,9 @@
 package no.nav.personbruker.dittnav.eventaggregator.varsel
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
+import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
@@ -86,10 +88,20 @@ class DoneSinkTest {
         BeskjedSink(testRapid, beskjedRepository)
         DoneSink(testRapid, doneRepository)
 
-        testRapid.sendTestMessage(doneJson("999"))
+        val doneJson = doneJson("999")
+        testRapid.sendTestMessage(doneJson)
         testRapid.sendTestMessage(varselJson("beskjed", "999"))
 
-        doneFromWaitingTable().size shouldBe 1
+        val doneEventer = doneFromWaitingTable()
+        doneEventer.size shouldBe 1
+
+        val done = doneEventer.first()
+        val doneJsonNode = ObjectMapper().readTree(doneJson)
+        done.namespace shouldBe doneJsonNode["namespace"].textValue()
+        done.appnavn shouldBe doneJsonNode["appnavn"].textValue()
+        done.eventId shouldBe doneJsonNode["eventId"].textValue()
+        done.forstBehandlet shouldBe doneJsonNode["forstBehandlet"].asLocalDateTime()
+        done.fodselsnummer shouldBe doneJsonNode["fodselsnummer"].textValue()
     }
 
     private suspend fun aktiveBeskjederFromDb(): List<Beskjed> {
