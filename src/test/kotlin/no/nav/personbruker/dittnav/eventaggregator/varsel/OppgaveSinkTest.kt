@@ -51,7 +51,7 @@ class OppgaveSinkTest {
     }
 
     @Test
-    fun `Ingorerer duplikat oppgave`() = runBlocking {
+    fun `Ignorerer duplikat oppgave`() = runBlocking {
         val testRapid = TestRapid()
         OppgaveSink(testRapid, oppgaveRepository)
         testRapid.sendTestMessage(oppgaveJson)

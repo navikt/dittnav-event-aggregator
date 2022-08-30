@@ -26,11 +26,9 @@ internal class DoneSink(
         River(rapidsConnection).apply {
             validate { it.demandValue("@event_name", "done") }
             validate { it.requireKey(
-                "namespace",
-                "appnavn",
                 "eventId",
                 "forstBehandlet",
-                "fodselsnummer",
+                "fodselsnummer"
             ) }
         }.register(this)
     }
@@ -38,8 +36,8 @@ internal class DoneSink(
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val done = Done(
             systembruker = "N/A",
-            namespace = packet["namespace"].textValue(),
-            appnavn = packet["appnavn"].textValue(),
+            namespace = "N/A",
+            appnavn = "N/A",
             eventId = packet["eventId"].textValue(),
             eventTidspunkt = packet["forstBehandlet"].asLocalDateTime(), //Felt ikke i bruk
             forstBehandlet = packet["forstBehandlet"].asLocalDateTime(),

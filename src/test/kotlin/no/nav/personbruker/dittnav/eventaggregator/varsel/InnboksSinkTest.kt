@@ -50,7 +50,7 @@ class InnboksSinkTest {
     }
 
     @Test
-    fun `Ingorerer duplikat innboks`() = runBlocking {
+    fun `Ignorerer duplikat innboks`() = runBlocking {
         val testRapid = TestRapid()
         InnboksSink(testRapid, innboksRepository)
         testRapid.sendTestMessage(innboksJson)

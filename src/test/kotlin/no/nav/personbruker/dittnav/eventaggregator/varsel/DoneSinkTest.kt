@@ -97,8 +97,8 @@ class DoneSinkTest {
 
         val done = doneEventer.first()
         val doneJsonNode = ObjectMapper().readTree(doneJson)
-        done.namespace shouldBe doneJsonNode["namespace"].textValue()
-        done.appnavn shouldBe doneJsonNode["appnavn"].textValue()
+        done.namespace shouldBe "N/A"
+        done.appnavn shouldBe "N/A"
         done.eventId shouldBe doneJsonNode["eventId"].textValue()
         done.forstBehandlet shouldBe doneJsonNode["forstBehandlet"].asLocalDateTime()
         done.fodselsnummer shouldBe doneJsonNode["fodselsnummer"].textValue()
@@ -130,8 +130,6 @@ class DoneSinkTest {
 
     private fun doneJson(eventId: String) = """{
         "@event_name": "done",
-         "namespace": "ns",
-         "appnavn": "app",
          "eventId": "$eventId",
          "forstBehandlet": "2022-02-01T00:00:00",
          "fodselsnummer": "12345678910"

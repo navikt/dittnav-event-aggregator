@@ -52,7 +52,7 @@ class BeskjedSinkTest {
     }
 
     @Test
-    fun `Ingorerer duplikat beskjed`() = runBlocking {
+    fun `Ignorerer duplikat beskjed`() = runBlocking {
         val testRapid = TestRapid()
         BeskjedSink(testRapid, beskjedRepository)
 
