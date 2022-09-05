@@ -28,7 +28,7 @@ class InnboksSinkTest {
     @Test
     fun `Lagrer innboks`() = runBlocking {
         val testRapid = TestRapid()
-        InnboksSink(testRapid, innboksRepository)
+        InnboksSink(testRapid, innboksRepository, writeToDb = true)
         testRapid.sendTestMessage(innboksJson)
 
         val innboksList = innboksFromDb()
@@ -52,11 +52,20 @@ class InnboksSinkTest {
     @Test
     fun `Ignorerer duplikat innboks`() = runBlocking {
         val testRapid = TestRapid()
-        InnboksSink(testRapid, innboksRepository)
+        InnboksSink(testRapid, innboksRepository, writeToDb = true)
         testRapid.sendTestMessage(innboksJson)
         testRapid.sendTestMessage(innboksJson)
 
         innboksFromDb().size shouldBe 1
+    }
+
+    @Test
+    fun `dryryn-modus når writeToDb er false`() = runBlocking {
+        val testRapid = TestRapid()
+        InnboksSink(testRapid, innboksRepository, writeToDb = false)
+        testRapid.sendTestMessage(innboksJson)
+
+        innboksFromDb().size shouldBe 0
     }
 
     private suspend fun innboksFromDb(): List<Innboks> {

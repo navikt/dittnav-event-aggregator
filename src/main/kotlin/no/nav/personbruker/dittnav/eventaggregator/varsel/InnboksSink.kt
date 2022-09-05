@@ -13,7 +13,11 @@ import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-internal class InnboksSink(rapidsConnection: RapidsConnection, private val innboksRepository: InnboksRepository) :
+internal class InnboksSink(
+    rapidsConnection: RapidsConnection,
+    private val innboksRepository: InnboksRepository,
+    private val writeToDb: Boolean
+) :
     River.PacketListener {
 
     private val log: Logger = LoggerFactory.getLogger(InnboksSink::class.java)
@@ -58,8 +62,12 @@ internal class InnboksSink(rapidsConnection: RapidsConnection, private val innbo
         )
 
         runBlocking {
-            innboksRepository.createInOneBatch(listOf(innboks))
-            log.info("Behandlet innboks fra rapid med eventid ${innboks.eventId}")
+            if(writeToDb) {
+                innboksRepository.createInOneBatch(listOf(innboks))
+                log.info("Behandlet innboks fra rapid med eventid ${innboks.eventId}")
+            } else {
+                log.info("Dryrun: innboks fra rapid med eventid ${innboks.eventId}")
+            }
         }
     }
 

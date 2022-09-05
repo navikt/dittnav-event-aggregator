@@ -28,7 +28,7 @@ class BeskjedSinkTest {
     @Test
     fun `Lagrer beskjed`() = runBlocking {
         val testRapid = TestRapid()
-        BeskjedSink(testRapid, beskjedRepository)
+        BeskjedSink(testRapid, beskjedRepository, writeToDb = true)
 
         testRapid.sendTestMessage(beskjedJson)
 
@@ -54,13 +54,24 @@ class BeskjedSinkTest {
     @Test
     fun `Ignorerer duplikat beskjed`() = runBlocking {
         val testRapid = TestRapid()
-        BeskjedSink(testRapid, beskjedRepository)
+        BeskjedSink(testRapid, beskjedRepository, writeToDb = true)
 
         testRapid.sendTestMessage(beskjedJson)
         testRapid.sendTestMessage(beskjedJson)
 
         val beskjeder = beskjederFromDb()
         beskjeder.size shouldBe 1
+    }
+
+    @Test
+    fun `dryryn-modus når writeToDb er false`() = runBlocking {
+        val testRapid = TestRapid()
+        BeskjedSink(testRapid, beskjedRepository, writeToDb = false)
+
+        testRapid.sendTestMessage(beskjedJson)
+
+        val beskjeder = beskjederFromDb()
+        beskjeder.size shouldBe 0
     }
 
     private suspend fun beskjederFromDb(): List<Beskjed> {

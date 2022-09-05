@@ -1,6 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
-import no.nav.personbruker.dittnav.common.util.config.BooleanEnvVar
 import no.nav.personbruker.dittnav.common.util.config.BooleanEnvVar.getEnvVarAsBoolean
 import no.nav.personbruker.dittnav.common.util.config.IntEnvVar.getEnvVarAsInt
 import no.nav.personbruker.dittnav.common.util.config.StringEnvVar
@@ -34,6 +33,7 @@ data class Environment(val groupId: String = getEnvVar("GROUP_ID"),
                        val doknotifikasjonStatusTopicName: String = getEnvVar("DOKNOTIFIKASJON_STATUS_TOPIC"),
                        val rapidTopic: String = getEnvVar("RAPID_TOPIC"),
                        val rapidEnabled: Boolean = getEnvVar("RAPID_ENABLED", "false").toBoolean(),
+                       val rapidWriteToDb: Boolean = getEnvVar("RAPID_WRITE_TO_DB", "false").toBoolean(),
                        val archivingEnabled: Boolean = getEnvVarAsBoolean("ARCHIVING_ENABLED"),
                        val archivingThresholdDays: Int = getEnvVarAsInt("ARCHIVING_THRESHOLD")
 ) {

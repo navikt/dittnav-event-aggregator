@@ -28,7 +28,7 @@ class OppgaveSinkTest {
     @Test
     fun `Lagrer oppgave`() = runBlocking {
         val testRapid = TestRapid()
-        OppgaveSink(testRapid, oppgaveRepository)
+        OppgaveSink(testRapid, oppgaveRepository, writeToDb = true)
         testRapid.sendTestMessage(oppgaveJson)
 
         val oppgaver = oppgaverFromDb()
@@ -53,11 +53,20 @@ class OppgaveSinkTest {
     @Test
     fun `Ignorerer duplikat oppgave`() = runBlocking {
         val testRapid = TestRapid()
-        OppgaveSink(testRapid, oppgaveRepository)
+        OppgaveSink(testRapid, oppgaveRepository, writeToDb = true)
         testRapid.sendTestMessage(oppgaveJson)
         testRapid.sendTestMessage(oppgaveJson)
 
         oppgaverFromDb().size shouldBe 1
+    }
+
+    @Test
+    fun `dryryn-modus når writeToDb er false`() = runBlocking {
+        val testRapid = TestRapid()
+        OppgaveSink(testRapid, oppgaveRepository, writeToDb = false)
+        testRapid.sendTestMessage(oppgaveJson)
+
+        oppgaverFromDb().size shouldBe 0
     }
 
     private suspend fun oppgaverFromDb(): List<Oppgave> {
