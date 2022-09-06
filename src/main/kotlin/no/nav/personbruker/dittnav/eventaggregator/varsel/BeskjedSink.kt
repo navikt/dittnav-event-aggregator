@@ -14,7 +14,11 @@ import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.no
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-internal class BeskjedSink(rapidsConnection: RapidsConnection, private val beskjedRepository: BeskjedRepository) :
+internal class BeskjedSink(
+    rapidsConnection: RapidsConnection,
+    private val beskjedRepository: BeskjedRepository,
+    private val writeToDb: Boolean
+) :
     River.PacketListener {
 
     private val log: Logger = LoggerFactory.getLogger(BeskjedSink::class.java)
@@ -60,8 +64,13 @@ internal class BeskjedSink(rapidsConnection: RapidsConnection, private val beskj
         )
 
         runBlocking {
-            beskjedRepository.createInOneBatch(listOf(beskjed))
-            log.info("Behandlet beskjed fra rapid med eventid ${beskjed.eventId}")
+            if(writeToDb) {
+                beskjedRepository.createInOneBatch(listOf(beskjed))
+                log.info("Behandlet beskjed fra rapid med eventid ${beskjed.eventId}")
+            }
+            else {
+                log.info("Dryrun: beskjed fra rapid med eventid ${beskjed.eventId}")
+            }
         }
     }
 

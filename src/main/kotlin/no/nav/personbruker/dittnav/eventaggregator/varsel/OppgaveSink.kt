@@ -14,7 +14,11 @@ import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-internal class OppgaveSink(rapidsConnection: RapidsConnection, private val oppgaveRepository: OppgaveRepository) :
+internal class OppgaveSink(
+    rapidsConnection: RapidsConnection,
+    private val oppgaveRepository: OppgaveRepository,
+    private val writeToDb: Boolean
+) :
     River.PacketListener {
 
     private val log: Logger = LoggerFactory.getLogger(OppgaveSink::class.java)
@@ -60,8 +64,12 @@ internal class OppgaveSink(rapidsConnection: RapidsConnection, private val oppga
         )
 
         runBlocking {
-            oppgaveRepository.createInOneBatch(listOf(oppgave))
-            log.info("Behandlet oppgave fra rapid med eventid ${oppgave.eventId}")
+            if(writeToDb) {
+                oppgaveRepository.createInOneBatch(listOf(oppgave))
+                log.info("Behandlet oppgave fra rapid med eventid ${oppgave.eventId}")
+            } else {
+                log.info("Dryrun: oppgave fra rapid med eventid ${oppgave.eventId}")
+            }
         }
     }
 

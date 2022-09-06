@@ -4,11 +4,9 @@ import no.nav.brukernotifikasjon.schemas.internal.BeskjedIntern
 import no.nav.brukernotifikasjon.schemas.internal.NokkelIntern
 import no.nav.personbruker.dittnav.eventaggregator.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
-import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UntransformableRecordException
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType.BESKJED_INTERN
 import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsProbe
-import no.nav.personbruker.dittnav.eventaggregator.metrics.EventMetricsSession
 import no.nav.personbruker.dittnav.eventaggregator.metrics.Produsent
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
@@ -39,31 +37,10 @@ class BeskjedEventService(
                 }
             }
 
-            val result = persistingService.writeEventsToCache(successfullyTransformedEvents)
-
-            countDuplicateKeyEvents(result)
+            persistingService.writeEventsToCache(successfullyTransformedEvents)
         }
 
         kastExceptionHvisMislykkedeTransformasjoner(problematicEvents)
-    }
-
-    private fun EventMetricsSession.countDuplicateKeyEvents(result: ListPersistActionResult<Beskjed>) {
-        if (result.foundUnalteredEntitites()) {
-
-            val constraintErrors = result.getUnalteredEntities().size
-            val totalEntities = result.getAllEntities().size
-
-            result.getUnalteredEntities()
-                    .groupingBy { beskjed -> Produsent(beskjed.appnavn, beskjed.namespace) }
-                    .eachCount()
-                    .forEach { (produsent, duplicates) ->
-                        countDuplicateEventKeysByProducer(produsent, duplicates)
-                    }
-
-            val msg = """Traff $constraintErrors feil på duplikate eventId-er ved behandling av $totalEntities beskjed-eventer.
-                           | Feilene ble produsert av: ${getNumberDuplicateKeysByProducer()}""".trimMargin()
-            logAsWarningForAllProducersExceptForFpinfoHistorikk(msg)
-        }
     }
 
     private fun kastExceptionHvisMislykkedeTransformasjoner(problematicEvents: MutableList<ConsumerRecord<NokkelIntern, BeskjedIntern>>) {

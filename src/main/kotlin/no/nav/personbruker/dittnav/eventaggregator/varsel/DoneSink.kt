@@ -16,7 +16,8 @@ import org.slf4j.LoggerFactory
 
 internal class DoneSink(
     rapidsConnection: RapidsConnection,
-    private val doneRepository: DoneRepository
+    private val doneRepository: DoneRepository,
+    private val writeToDb: Boolean
 ) :
     River.PacketListener {
 
@@ -48,20 +49,24 @@ internal class DoneSink(
 
         runBlocking {
             val varsel = doneRepository.fetchBrukernotifikasjonerFromViewForEventIds(listOf(done.eventId))
-            if(varsel.isEmpty()) {
-                // lagre i ventetabell hvis ikke varsel finnes
-                doneRepository.createInOneBatch(listOf(done))
-            }
-            else {
-                when(varsel.first().type) {
-                    EventType.BESKJED_INTERN -> doneRepository.writeDoneEventsForBeskjedToCache(listOf(done))
-                    EventType.OPPGAVE_INTERN -> doneRepository.writeDoneEventsForOppgaveToCache(listOf(done))
-                    EventType.INNBOKS_INTERN -> doneRepository.writeDoneEventsForInnboksToCache(listOf(done))
-                    EventType.DONE_INTERN -> log.error("Prøvde å inaktivere done-event med eventid ${done.eventId}")
-                }
-            }
 
-            log.info("Behandlet done fra rapid med eventid ${done.eventId}")
+            if (writeToDb) {
+                if (varsel.isEmpty()) {
+                    // lagre i ventetabell hvis ikke varsel finnes
+                    doneRepository.createInOneBatch(listOf(done))
+                } else {
+                    when (varsel.first().type) {
+                        EventType.BESKJED_INTERN -> doneRepository.writeDoneEventsForBeskjedToCache(listOf(done))
+                        EventType.OPPGAVE_INTERN -> doneRepository.writeDoneEventsForOppgaveToCache(listOf(done))
+                        EventType.INNBOKS_INTERN -> doneRepository.writeDoneEventsForInnboksToCache(listOf(done))
+                        EventType.DONE_INTERN -> log.error("Prøvde å inaktivere done-event med eventid ${done.eventId}")
+                    }
+                }
+
+                log.info("Behandlet done fra rapid med eventid ${done.eventId}")
+            } else {
+                log.info("Dryrun: done fra rapid med eventid ${done.eventId}")
+            }
         }
     }
 

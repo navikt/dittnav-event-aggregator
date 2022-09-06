@@ -47,10 +47,10 @@ class DoneSinkTest {
     @Test
     fun `Inaktiverer varsel`() = runBlocking {
         val testRapid = TestRapid()
-        BeskjedSink(testRapid, beskjedRepository)
-        OppgaveSink(testRapid, oppgaveRepository)
-        InnboksSink(testRapid, innboksRepository)
-        DoneSink(testRapid, doneRepository)
+        BeskjedSink(testRapid, beskjedRepository, writeToDb = true)
+        OppgaveSink(testRapid, oppgaveRepository, writeToDb = true)
+        InnboksSink(testRapid, innboksRepository, writeToDb = true)
+        DoneSink(testRapid, doneRepository, writeToDb = true)
 
         testRapid.sendTestMessage(varselJson("beskjed", "11"))
         testRapid.sendTestMessage(varselJson("oppgave", "22"))
@@ -67,8 +67,8 @@ class DoneSinkTest {
     @Test
     fun `Ignorerer duplikat done`() = runBlocking {
         val testRapid = TestRapid()
-        BeskjedSink(testRapid, beskjedRepository)
-        DoneSink(testRapid, doneRepository)
+        BeskjedSink(testRapid, beskjedRepository, writeToDb = true)
+        DoneSink(testRapid, doneRepository, writeToDb = true)
 
         testRapid.sendTestMessage(varselJson("beskjed", "11"))
         testRapid.sendTestMessage(doneJson("11"))
@@ -85,8 +85,8 @@ class DoneSinkTest {
     @Test
     fun `Legger done-eventet i ventetabell hvis det kommer før varslet`() = runBlocking {
         val testRapid = TestRapid()
-        BeskjedSink(testRapid, beskjedRepository)
-        DoneSink(testRapid, doneRepository)
+        BeskjedSink(testRapid, beskjedRepository, writeToDb = true)
+        DoneSink(testRapid, doneRepository, writeToDb = true)
 
         val doneJson = doneJson("999")
         testRapid.sendTestMessage(doneJson)
@@ -102,6 +102,17 @@ class DoneSinkTest {
         done.eventId shouldBe doneJsonNode["eventId"].textValue()
         done.forstBehandlet shouldBe doneJsonNode["forstBehandlet"].asLocalDateTime()
         done.fodselsnummer shouldBe doneJsonNode["fodselsnummer"].textValue()
+    }
+
+    @Test
+    fun `dryryn-modus når writeToDb er false`() = runBlocking {
+        val testRapid = TestRapid()
+        DoneSink(testRapid, doneRepository, writeToDb = false)
+
+        testRapid.sendTestMessage(doneJson("999"))
+
+        val beskjeder = doneFromWaitingTable()
+        beskjeder.size shouldBe 0
     }
 
     private suspend fun aktiveBeskjederFromDb(): List<Beskjed> {

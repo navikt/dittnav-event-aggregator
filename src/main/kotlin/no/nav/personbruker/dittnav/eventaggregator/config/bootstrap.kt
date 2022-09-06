@@ -38,10 +38,10 @@ private fun Application.configureStartupHook(appContext: ApplicationContext) {
         if (appContext.environment.rapidEnabled) {
             thread {
                 RapidApplication.create(appContext.environment.rapidConfig()).apply {
-                    BeskjedSink(this, appContext.beskjedRepository)
-                    OppgaveSink(this, appContext.oppgaveRepository)
-                    InnboksSink(this, appContext.innboksRepository)
-                    DoneSink(this, appContext.doneRepository)
+                    BeskjedSink(this, appContext.beskjedRepository, appContext.environment.rapidWriteToDb)
+                    OppgaveSink(this, appContext.oppgaveRepository, appContext.environment.rapidWriteToDb)
+                    InnboksSink(this, appContext.innboksRepository, appContext.environment.rapidWriteToDb)
+                    DoneSink(this, appContext.doneRepository, appContext.environment.rapidWriteToDb)
                 }.start()
             }
         }
