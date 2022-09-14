@@ -11,12 +11,14 @@ import no.nav.helse.rapids_rivers.asOptionalLocalDateTime
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
+import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 internal class BeskjedSink(
     rapidsConnection: RapidsConnection,
     private val beskjedRepository: BeskjedRepository,
+    private val rapidMetricsProbe: RapidMetricsProbe,
     private val writeToDb: Boolean
 ) :
     River.PacketListener {
@@ -71,6 +73,7 @@ internal class BeskjedSink(
             else {
                 log.info("Dryrun: beskjed fra rapid med eventid ${beskjed.eventId}")
             }
+            rapidMetricsProbe.countProcessed(EventType.BESKJED_INTERN, beskjed.appnavn)
         }
     }
 

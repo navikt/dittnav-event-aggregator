@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.varsel
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.shouldBe
+import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
@@ -28,7 +29,7 @@ class BeskjedSinkTest {
     @Test
     fun `Lagrer beskjed`() = runBlocking {
         val testRapid = TestRapid()
-        BeskjedSink(testRapid, beskjedRepository, writeToDb = true)
+        setupBeskjedSink(testRapid)
 
         testRapid.sendTestMessage(beskjedJson)
 
@@ -54,7 +55,7 @@ class BeskjedSinkTest {
     @Test
     fun `Ignorerer duplikat beskjed`() = runBlocking {
         val testRapid = TestRapid()
-        BeskjedSink(testRapid, beskjedRepository, writeToDb = true)
+        setupBeskjedSink(testRapid)
 
         testRapid.sendTestMessage(beskjedJson)
         testRapid.sendTestMessage(beskjedJson)
@@ -66,13 +67,20 @@ class BeskjedSinkTest {
     @Test
     fun `dryryn-modus når writeToDb er false`() = runBlocking {
         val testRapid = TestRapid()
-        BeskjedSink(testRapid, beskjedRepository, writeToDb = false)
+        setupBeskjedSink(testRapid, writeToDb = false)
 
         testRapid.sendTestMessage(beskjedJson)
 
         val beskjeder = beskjederFromDb()
         beskjeder.size shouldBe 0
     }
+
+    private fun setupBeskjedSink(testRapid: TestRapid, writeToDb: Boolean = true) = BeskjedSink(
+        rapidsConnection = testRapid,
+        beskjedRepository = beskjedRepository,
+        rapidMetricsProbe = mockk(relaxed = true),
+        writeToDb = writeToDb
+    )
 
     private suspend fun beskjederFromDb(): List<Beskjed> {
         return database.dbQuery { this.prepareStatement("select * from beskjed").executeQuery().list { toBeskjed() } }

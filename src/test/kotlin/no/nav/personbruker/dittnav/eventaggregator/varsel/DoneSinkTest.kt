@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.varsel
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.shouldBe
+import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
@@ -47,7 +48,7 @@ class DoneSinkTest {
     @Test
     fun `Inaktiverer varsel`() = runBlocking {
         val testRapid = TestRapid()
-        BeskjedSink(testRapid, beskjedRepository, writeToDb = true)
+        setupBeskjedSink(testRapid)
         OppgaveSink(testRapid, oppgaveRepository, writeToDb = true)
         InnboksSink(testRapid, innboksRepository, writeToDb = true)
         DoneSink(testRapid, doneRepository, writeToDb = true)
@@ -67,7 +68,7 @@ class DoneSinkTest {
     @Test
     fun `Ignorerer duplikat done`() = runBlocking {
         val testRapid = TestRapid()
-        BeskjedSink(testRapid, beskjedRepository, writeToDb = true)
+        setupBeskjedSink(testRapid)
         DoneSink(testRapid, doneRepository, writeToDb = true)
 
         testRapid.sendTestMessage(varselJson("beskjed", "11"))
@@ -85,7 +86,7 @@ class DoneSinkTest {
     @Test
     fun `Legger done-eventet i ventetabell hvis det kommer før varslet`() = runBlocking {
         val testRapid = TestRapid()
-        BeskjedSink(testRapid, beskjedRepository, writeToDb = true)
+        setupBeskjedSink(testRapid)
         DoneSink(testRapid, doneRepository, writeToDb = true)
 
         val doneJson = doneJson("999")
@@ -114,6 +115,13 @@ class DoneSinkTest {
         val beskjeder = doneFromWaitingTable()
         beskjeder.size shouldBe 0
     }
+
+    private fun setupBeskjedSink(testRapid: TestRapid) = BeskjedSink(
+        rapidsConnection = testRapid,
+        beskjedRepository = beskjedRepository,
+        rapidMetricsProbe = mockk(relaxed = true),
+        writeToDb = true
+    )
 
     private suspend fun aktiveBeskjederFromDb(): List<Beskjed> {
         return database.dbQuery {

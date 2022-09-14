@@ -8,6 +8,7 @@ import no.nav.personbruker.dittnav.eventaggregator.archive.ArchiveMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.config.Environment
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.metrics.DoknotifikasjonStatusMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.varsel.RapidMetricsProbe
 
 fun buildEventMetricsProbe(environment: Environment): EventMetricsProbe {
     val metricsReporter = resolveMetricsReporter(environment)
@@ -29,6 +30,8 @@ fun buildArchivingMetricsProbe(environment: Environment): ArchiveMetricsProbe {
 
     return ArchiveMetricsProbe(metricsReporter)
 }
+
+fun buildRapidMetricsProbe(environment: Environment) = RapidMetricsProbe(resolveMetricsReporter(environment))
 
 private fun resolveMetricsReporter(environment: Environment): MetricsReporter {
     return if (environment.influxdbHost == "" || environment.influxdbHost == "stub") {
