@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.varsel
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.shouldBe
+import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
@@ -28,7 +29,7 @@ class InnboksSinkTest {
     @Test
     fun `Lagrer innboks`() = runBlocking {
         val testRapid = TestRapid()
-        InnboksSink(testRapid, innboksRepository, writeToDb = true)
+        setupInnboksSink(testRapid)
         testRapid.sendTestMessage(innboksJson)
 
         val innboksList = innboksFromDb()
@@ -52,7 +53,7 @@ class InnboksSinkTest {
     @Test
     fun `Ignorerer duplikat innboks`() = runBlocking {
         val testRapid = TestRapid()
-        InnboksSink(testRapid, innboksRepository, writeToDb = true)
+        setupInnboksSink(testRapid)
         testRapid.sendTestMessage(innboksJson)
         testRapid.sendTestMessage(innboksJson)
 
@@ -62,11 +63,19 @@ class InnboksSinkTest {
     @Test
     fun `dryryn-modus når writeToDb er false`() = runBlocking {
         val testRapid = TestRapid()
-        InnboksSink(testRapid, innboksRepository, writeToDb = false)
+        setupInnboksSink(testRapid, writeToDb = false)
         testRapid.sendTestMessage(innboksJson)
 
         innboksFromDb().size shouldBe 0
     }
+
+    private fun setupInnboksSink(testRapid: TestRapid, writeToDb: Boolean = true) = InnboksSink(
+        rapidsConnection = testRapid,
+        innboksRepository = innboksRepository,
+        rapidMetricsProbe = mockk(relaxed = true),
+        writeToDb = writeToDb
+    )
+
 
     private suspend fun innboksFromDb(): List<Innboks> {
         return database.dbQuery { this.prepareStatement("select * from innboks").executeQuery().list { toInnboks() } }

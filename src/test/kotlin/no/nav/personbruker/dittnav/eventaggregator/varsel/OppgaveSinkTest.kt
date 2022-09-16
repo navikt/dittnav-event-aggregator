@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.varsel
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.shouldBe
+import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
@@ -28,7 +29,7 @@ class OppgaveSinkTest {
     @Test
     fun `Lagrer oppgave`() = runBlocking {
         val testRapid = TestRapid()
-        OppgaveSink(testRapid, oppgaveRepository, writeToDb = true)
+        setupOppgaveSink(testRapid)
         testRapid.sendTestMessage(oppgaveJson)
 
         val oppgaver = oppgaverFromDb()
@@ -53,7 +54,7 @@ class OppgaveSinkTest {
     @Test
     fun `Ignorerer duplikat oppgave`() = runBlocking {
         val testRapid = TestRapid()
-        OppgaveSink(testRapid, oppgaveRepository, writeToDb = true)
+        setupOppgaveSink(testRapid)
         testRapid.sendTestMessage(oppgaveJson)
         testRapid.sendTestMessage(oppgaveJson)
 
@@ -63,11 +64,19 @@ class OppgaveSinkTest {
     @Test
     fun `dryryn-modus når writeToDb er false`() = runBlocking {
         val testRapid = TestRapid()
-        OppgaveSink(testRapid, oppgaveRepository, writeToDb = false)
+        setupOppgaveSink(testRapid, writeToDb = false)
         testRapid.sendTestMessage(oppgaveJson)
 
         oppgaverFromDb().size shouldBe 0
     }
+
+    private fun setupOppgaveSink(testRapid: TestRapid, writeToDb: Boolean = true) = OppgaveSink(
+        rapidsConnection = testRapid,
+        oppgaveRepository = oppgaveRepository,
+        rapidMetricsProbe = mockk(relaxed = true),
+        writeToDb = writeToDb
+    )
+
 
     private suspend fun oppgaverFromDb(): List<Oppgave> {
         return database.dbQuery { this.prepareStatement("select * from oppgave").executeQuery().list { toOppgave() } }

@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory
 internal class DoneSink(
     rapidsConnection: RapidsConnection,
     private val doneRepository: DoneRepository,
+    private val rapidMetricsProbe: RapidMetricsProbe,
     private val writeToDb: Boolean
 ) :
     River.PacketListener {
@@ -67,6 +68,7 @@ internal class DoneSink(
             } else {
                 log.info("Dryrun: done fra rapid med eventid ${done.eventId}")
             }
+            rapidMetricsProbe.countProcessed(EventType.DONE_INTERN, done.appnavn)
         }
     }
 

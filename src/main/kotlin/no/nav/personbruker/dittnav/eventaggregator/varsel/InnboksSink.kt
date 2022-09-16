@@ -8,6 +8,7 @@ import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
 import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
+import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
 import org.slf4j.Logger
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory
 internal class InnboksSink(
     rapidsConnection: RapidsConnection,
     private val innboksRepository: InnboksRepository,
+    private val rapidMetricsProbe: RapidMetricsProbe,
     private val writeToDb: Boolean
 ) :
     River.PacketListener {
@@ -68,6 +70,7 @@ internal class InnboksSink(
             } else {
                 log.info("Dryrun: innboks fra rapid med eventid ${innboks.eventId}")
             }
+            rapidMetricsProbe.countProcessed(EventType.INNBOKS_INTERN, innboks.appnavn)
         }
     }
 

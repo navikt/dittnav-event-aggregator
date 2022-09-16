@@ -49,9 +49,9 @@ class DoneSinkTest {
     fun `Inaktiverer varsel`() = runBlocking {
         val testRapid = TestRapid()
         setupBeskjedSink(testRapid)
-        OppgaveSink(testRapid, oppgaveRepository, writeToDb = true)
-        InnboksSink(testRapid, innboksRepository, writeToDb = true)
-        DoneSink(testRapid, doneRepository, writeToDb = true)
+        OppgaveSink(testRapid, oppgaveRepository, mockk(relaxed = true), writeToDb = true)
+        InnboksSink(testRapid, innboksRepository, mockk(relaxed = true), writeToDb = true)
+        setupDoneSink(testRapid)
 
         testRapid.sendTestMessage(varselJson("beskjed", "11"))
         testRapid.sendTestMessage(varselJson("oppgave", "22"))
@@ -69,7 +69,7 @@ class DoneSinkTest {
     fun `Ignorerer duplikat done`() = runBlocking {
         val testRapid = TestRapid()
         setupBeskjedSink(testRapid)
-        DoneSink(testRapid, doneRepository, writeToDb = true)
+        setupDoneSink(testRapid)
 
         testRapid.sendTestMessage(varselJson("beskjed", "11"))
         testRapid.sendTestMessage(doneJson("11"))
@@ -87,7 +87,7 @@ class DoneSinkTest {
     fun `Legger done-eventet i ventetabell hvis det kommer før varslet`() = runBlocking {
         val testRapid = TestRapid()
         setupBeskjedSink(testRapid)
-        DoneSink(testRapid, doneRepository, writeToDb = true)
+        setupDoneSink(testRapid)
 
         val doneJson = doneJson("999")
         testRapid.sendTestMessage(doneJson)
@@ -108,7 +108,7 @@ class DoneSinkTest {
     @Test
     fun `dryryn-modus når writeToDb er false`() = runBlocking {
         val testRapid = TestRapid()
-        DoneSink(testRapid, doneRepository, writeToDb = false)
+        setupDoneSink(testRapid, writeToDb = false)
 
         testRapid.sendTestMessage(doneJson("999"))
 
@@ -122,6 +122,14 @@ class DoneSinkTest {
         rapidMetricsProbe = mockk(relaxed = true),
         writeToDb = true
     )
+
+    private fun setupDoneSink(testRapid: TestRapid, writeToDb: Boolean = true) = DoneSink(
+        rapidsConnection = testRapid,
+        doneRepository = doneRepository,
+        rapidMetricsProbe = mockk(relaxed = true),
+        writeToDb = writeToDb
+    )
+
 
     private suspend fun aktiveBeskjederFromDb(): List<Beskjed> {
         return database.dbQuery {

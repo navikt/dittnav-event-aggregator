@@ -9,6 +9,7 @@ import no.nav.helse.rapids_rivers.River
 import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.helse.rapids_rivers.asOptionalLocalDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
+import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
 import org.slf4j.Logger
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory
 internal class OppgaveSink(
     rapidsConnection: RapidsConnection,
     private val oppgaveRepository: OppgaveRepository,
+    private val rapidMetricsProbe: RapidMetricsProbe,
     private val writeToDb: Boolean
 ) :
     River.PacketListener {
@@ -70,6 +72,7 @@ internal class OppgaveSink(
             } else {
                 log.info("Dryrun: oppgave fra rapid med eventid ${oppgave.eventId}")
             }
+            rapidMetricsProbe.countProcessed(EventType.OPPGAVE_INTERN, oppgave.appnavn)
         }
     }
 

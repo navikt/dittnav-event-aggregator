@@ -58,9 +58,24 @@ private fun startRapid(appContext: ApplicationContext) {
             rapidMetricsProbe = rapidMetricsProbe,
             writeToDb = appContext.environment.rapidWriteToDb
         )
-        OppgaveSink(this, appContext.oppgaveRepository, appContext.environment.rapidWriteToDb)
-        InnboksSink(this, appContext.innboksRepository, appContext.environment.rapidWriteToDb)
-        DoneSink(this, appContext.doneRepository, appContext.environment.rapidWriteToDb)
+        OppgaveSink(
+            rapidsConnection = this,
+            oppgaveRepository = appContext.oppgaveRepository,
+            rapidMetricsProbe = rapidMetricsProbe,
+            writeToDb = appContext.environment.rapidWriteToDb
+        )
+        InnboksSink(
+            rapidsConnection = this,
+            innboksRepository = appContext.innboksRepository,
+            rapidMetricsProbe = rapidMetricsProbe,
+            writeToDb = appContext.environment.rapidWriteToDb
+        )
+        DoneSink(
+            rapidsConnection = this,
+            doneRepository = appContext.doneRepository,
+            rapidMetricsProbe = rapidMetricsProbe,
+            writeToDb = appContext.environment.rapidWriteToDb
+        )
     }.start()
 }
 
