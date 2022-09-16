@@ -19,7 +19,9 @@ import no.nav.personbruker.dittnav.eventaggregator.varsel.InnboksSink
 import no.nav.personbruker.dittnav.eventaggregator.varsel.OppgaveSink
 import kotlin.concurrent.thread
 
-fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()) {
+
+
+fun Application.eventAggregatorApi(appContext: ApplicationContext) {
     DefaultExports.initialize()
     install(DefaultHeaders)
     routing {
