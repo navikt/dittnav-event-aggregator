@@ -60,7 +60,7 @@ dependencies {
 }
 
 application {
-    mainClass.set("no.nav.personbruker.dittnav.eventaggregator.config.applicationKt")
+    mainClass.set("no.nav.personbruker.dittnav.eventaggregator.config.ApplicationKt")
 
 }
 
