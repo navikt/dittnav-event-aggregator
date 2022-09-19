@@ -59,11 +59,10 @@ private fun PreparedStatement.buildStatementForSingleRow(oppgave: Oppgave) {
 }
 
 fun Connection.setOppgaverAktivFlag(doneEvents: List<Done>, aktiv: Boolean) {
-    executeBatchUpdateQuery("""UPDATE oppgave SET aktiv = ? WHERE eventId = ? AND fodselsnummer = ?""") {
+    executeBatchUpdateQuery("""UPDATE oppgave SET aktiv = ? WHERE eventId = ?""") {
         doneEvents.forEach { done ->
             setBoolean(1, aktiv)
             setString(2, done.eventId)
-            setString(3, done.fodselsnummer)
             addBatch()
         }
     }

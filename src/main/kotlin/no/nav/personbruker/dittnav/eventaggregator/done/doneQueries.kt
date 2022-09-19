@@ -46,23 +46,19 @@ fun Connection.createDoneEvent(doneEvent: Done) : PersistActionResult =
 
 
 fun Connection.deleteDoneEvents(doneEvents: List<Done>) {
-    executeBatchUpdateQuery("""DELETE FROM done WHERE eventId = ? AND systembruker = ? AND fodselsnummer = ?""") {
+    executeBatchUpdateQuery("""DELETE FROM done WHERE eventId = ?""") {
         doneEvents.forEach { done ->
             setString(1, done.eventId)
-            setString(2, done.systembruker)
-            setString(3, done.fodselsnummer)
             addBatch()
         }
     }
 }
 
 fun Connection.updateDoneSistbehandlet(doneEvents: List<Done>, sistBehandlet: LocalDateTime) {
-    executeBatchUpdateQuery("""UPDATE done SET sistBehandlet = ? WHERE eventId = ? AND systembruker = ? AND fodselsnummer = ?""") {
+    executeBatchUpdateQuery("""UPDATE done SET sistBehandlet = ? WHERE eventId = ?""") {
         doneEvents.forEach { done ->
             setObject(1, sistBehandlet, Types.TIMESTAMP)
             setString(2, done.eventId)
-            setString(3, done.systembruker)
-            setString(4, done.fodselsnummer)
             addBatch()
         }
     }

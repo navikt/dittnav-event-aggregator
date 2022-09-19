@@ -61,11 +61,10 @@ private fun PreparedStatement.buildStatementForSingleRow(innboks: Innboks) {
 }
 
 fun Connection.setInnboksEventerAktivFlag(doneEvents: List<Done>, aktiv: Boolean) {
-    executeBatchUpdateQuery("""UPDATE innboks SET aktiv = ? WHERE eventId = ? AND fodselsnummer = ?""") {
+    executeBatchUpdateQuery("""UPDATE innboks SET aktiv = ? WHERE eventId = ?""") {
         doneEvents.forEach { done ->
             setBoolean(1, aktiv)
             setString(2, done.eventId)
-            setString(3, done.fodselsnummer)
             addBatch()
         }
     }
