@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.config
 
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
@@ -16,7 +17,7 @@ fun main() {
     val appContext = ApplicationContext()
 
     if(appContext.environment.rapidOnly) {
-        startRapid(appContext.environment, appContext.database)
+        startRapid(appContext.environment, appContext.database, appContext)
     }
     else {
         embeddedServer(Netty, port = 8080) {
@@ -27,7 +28,7 @@ fun main() {
     }
 }
 
-private fun startRapid(environment: Environment, database: Database) {
+private fun startRapid(environment: Environment, database: Database, appContext: ApplicationContext) {
     val rapidMetricsProbe = buildRapidMetricsProbe(environment)
     val varselRepository = VarselRepository(database)
     RapidApplication.create(environment.rapidConfig() + mapOf("HTTP_PORT" to "8080")).apply {
@@ -59,6 +60,19 @@ private fun startRapid(environment: Environment, database: Database) {
         register(object : RapidsConnection.StatusListener {
             override fun onStartup(rapidsConnection: RapidsConnection) {
                 Flyway.runFlywayMigrations(environment)
+
+                appContext.periodicDoneEventWaitingTableProcessor.start()
+                appContext.periodicExpiredBeskjedProcessor.start()
+                appContext.startAllArchivers()
+            }
+
+            override fun onShutdown(rapidsConnection: RapidsConnection) {
+                runBlocking {
+                    appContext.periodicDoneEventWaitingTableProcessor.stop()
+                    appContext.periodicExpiredBeskjedProcessor.stop()
+                    appContext.kafkaProducerDone.flushAndClose()
+                    appContext.stopAllArchivers()
+                }
             }
         })
     }.start()
