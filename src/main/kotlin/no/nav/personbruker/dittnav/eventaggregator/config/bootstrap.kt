@@ -74,7 +74,7 @@ private fun startRapid(appContext: ApplicationContext) {
         )
         DoneSink(
             rapidsConnection = this,
-            doneRepository = appContext.doneRepository,
+            varselRepository = varselRepository,
             rapidMetricsProbe = rapidMetricsProbe,
             writeToDb = appContext.environment.rapidWriteToDb
         )

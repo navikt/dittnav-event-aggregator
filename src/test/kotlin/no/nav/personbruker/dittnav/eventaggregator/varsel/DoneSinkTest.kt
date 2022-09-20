@@ -12,7 +12,6 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.toBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
 import no.nav.personbruker.dittnav.eventaggregator.done.Done
-import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
 import no.nav.personbruker.dittnav.eventaggregator.done.deleteAllDone
 import no.nav.personbruker.dittnav.eventaggregator.done.toDoneEvent
 import no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks
@@ -27,8 +26,6 @@ import org.junit.jupiter.api.Test
 class DoneSinkTest {
     private val database = LocalPostgresDatabase.migratedDb()
     private val varselRepository = VarselRepository(database)
-
-    private val doneRepository = DoneRepository(database)
 
     @BeforeEach
     fun resetDb() {
@@ -120,7 +117,7 @@ class DoneSinkTest {
 
     private fun setupDoneSink(testRapid: TestRapid, writeToDb: Boolean = true) = DoneSink(
         rapidsConnection = testRapid,
-        doneRepository = doneRepository,
+        varselRepository = varselRepository,
         rapidMetricsProbe = mockk(relaxed = true),
         writeToDb = writeToDb
     )

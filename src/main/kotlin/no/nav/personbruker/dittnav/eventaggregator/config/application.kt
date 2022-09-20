@@ -5,7 +5,6 @@ import io.ktor.server.netty.Netty
 import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
-import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildRapidMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.varsel.BeskjedSink
 import no.nav.personbruker.dittnav.eventaggregator.varsel.DoneSink
@@ -17,7 +16,7 @@ fun main() {
     val appContext = ApplicationContext()
 
     if(appContext.environment.rapidOnly) {
-        startRapid(appContext.environment, appContext.doneRepository, appContext.database)
+        startRapid(appContext.environment, appContext.database)
     }
     else {
         embeddedServer(Netty, port = 8080) {
@@ -28,7 +27,7 @@ fun main() {
     }
 }
 
-private fun startRapid(environment: Environment, doneRepository: DoneRepository, database: Database) {
+private fun startRapid(environment: Environment, database: Database) {
     val rapidMetricsProbe = buildRapidMetricsProbe(environment)
     val varselRepository = VarselRepository(database)
     RapidApplication.create(environment.rapidConfig() + mapOf("HTTP_PORT" to "8080")).apply {
@@ -52,7 +51,7 @@ private fun startRapid(environment: Environment, doneRepository: DoneRepository,
         )
         DoneSink(
             rapidsConnection = this,
-            doneRepository = doneRepository,
+            varselRepository = varselRepository,
             rapidMetricsProbe = rapidMetricsProbe,
             writeToDb = environment.rapidWriteToDb
         )
