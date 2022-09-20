@@ -17,6 +17,7 @@ import no.nav.personbruker.dittnav.eventaggregator.varsel.BeskjedSink
 import no.nav.personbruker.dittnav.eventaggregator.varsel.DoneSink
 import no.nav.personbruker.dittnav.eventaggregator.varsel.InnboksSink
 import no.nav.personbruker.dittnav.eventaggregator.varsel.OppgaveSink
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
 import kotlin.concurrent.thread
 
 fun Application.eventAggregatorApi(appContext: ApplicationContext) {
@@ -51,22 +52,23 @@ private fun Application.configureStartupHook(appContext: ApplicationContext) {
 
 private fun startRapid(appContext: ApplicationContext) {
     val rapidMetricsProbe = buildRapidMetricsProbe(appContext.environment)
+    val varselRepository = VarselRepository(appContext.database)
     RapidApplication.create(appContext.environment.rapidConfig()).apply {
         BeskjedSink(
             rapidsConnection = this,
-            beskjedRepository = appContext.beskjedRepository,
+            varselRepository = varselRepository,
             rapidMetricsProbe = rapidMetricsProbe,
             writeToDb = appContext.environment.rapidWriteToDb
         )
         OppgaveSink(
             rapidsConnection = this,
-            oppgaveRepository = appContext.oppgaveRepository,
+            varselRepository = varselRepository,
             rapidMetricsProbe = rapidMetricsProbe,
             writeToDb = appContext.environment.rapidWriteToDb
         )
         InnboksSink(
             rapidsConnection = this,
-            innboksRepository = appContext.innboksRepository,
+            varselRepository = varselRepository,
             rapidMetricsProbe = rapidMetricsProbe,
             writeToDb = appContext.environment.rapidWriteToDb
         )

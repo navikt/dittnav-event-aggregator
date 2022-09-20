@@ -8,16 +8,16 @@ import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
-import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
-import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks
+import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.toInnboks
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class InnboksSinkTest {
     private val database = LocalPostgresDatabase.migratedDb()
-    private val innboksRepository = InnboksRepository(database)
+    private val varselRepository = VarselRepository(database)
+
 
     @BeforeEach
     fun resetDb() {
@@ -71,7 +71,7 @@ class InnboksSinkTest {
 
     private fun setupInnboksSink(testRapid: TestRapid, writeToDb: Boolean = true) = InnboksSink(
         rapidsConnection = testRapid,
-        innboksRepository = innboksRepository,
+        varselRepository = varselRepository,
         rapidMetricsProbe = mockk(relaxed = true),
         writeToDb = writeToDb
     )
