@@ -53,7 +53,7 @@ private fun Application.configureStartupHook(appContext: ApplicationContext) {
 private fun startRapid(appContext: ApplicationContext) {
     val rapidMetricsProbe = buildRapidMetricsProbe(appContext.environment)
     val varselRepository = VarselRepository(appContext.database)
-    RapidApplication.create(appContext.environment.rapidConfig()).apply {
+    RapidApplication.create(appContext.environment.rapidConfig() + mapOf("HTTP_PORT" to "8090")).apply {
         BeskjedSink(
             rapidsConnection = this,
             varselRepository = varselRepository,
