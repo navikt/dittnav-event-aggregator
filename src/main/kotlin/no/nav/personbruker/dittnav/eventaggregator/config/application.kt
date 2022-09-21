@@ -36,25 +36,25 @@ private fun startRapid(environment: Environment, database: Database, appContext:
             rapidsConnection = this,
             varselRepository = varselRepository,
             rapidMetricsProbe = rapidMetricsProbe,
-            writeToDb = environment.rapidWriteToDb
+            writeToDb = true
         )
         OppgaveSink(
             rapidsConnection = this,
             varselRepository = varselRepository,
             rapidMetricsProbe = rapidMetricsProbe,
-            writeToDb = environment.rapidWriteToDb
+            writeToDb = true
         )
         InnboksSink(
             rapidsConnection = this,
             varselRepository = varselRepository,
             rapidMetricsProbe = rapidMetricsProbe,
-            writeToDb = environment.rapidWriteToDb
+            writeToDb = true
         )
         DoneSink(
             rapidsConnection = this,
             varselRepository = varselRepository,
             rapidMetricsProbe = rapidMetricsProbe,
-            writeToDb = environment.rapidWriteToDb
+            writeToDb = true
         )
     }.apply {
         register(object : RapidsConnection.StatusListener {
