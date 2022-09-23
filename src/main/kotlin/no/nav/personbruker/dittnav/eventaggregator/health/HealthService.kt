@@ -13,7 +13,7 @@ class HealthService(private val applicationContext: ApplicationContext) {
             applicationContext.doneConsumer.status(),
             applicationContext.periodicDoneEventWaitingTableProcessor.status(),
             applicationContext.periodicConsumerPollingCheck.status(),
-            applicationContext.periodicExpiredBeskjedProcessor.status(),
+            applicationContext.periodicExpiredVarselProcessor.status(),
             applicationContext.doknotifikasjonStatusConsumer.status()
         )
     }

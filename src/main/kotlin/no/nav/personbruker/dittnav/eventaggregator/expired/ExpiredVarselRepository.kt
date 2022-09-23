@@ -1,22 +1,22 @@
 package no.nav.personbruker.dittnav.eventaggregator.expired
 
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.getExpiredBeskjedFromCursor
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.setExpiredBeskjedAsInactive
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.getExpiredOppgave
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.setExpiredOppgaveAsInactive
 
-class ExpiredPersistingService(private val database: Database) {
+class ExpiredVarselRepository(private val database: Database) {
 
-    suspend fun getExpiredBeskjeder(): List<Beskjed> {
+    suspend fun updateAllExpiredBeskjed(): Int {
         return database.queryWithExceptionTranslation {
-            getExpiredBeskjedFromCursor()
+            setExpiredBeskjedAsInactive()
         }
     }
 
-    suspend fun getExpiredOppgaver(): List<Oppgave> {
+    suspend fun updateAllExpiredOppgave(): Int {
         return database.queryWithExceptionTranslation {
-            getExpiredOppgave()
+            setExpiredOppgaveAsInactive()
         }
     }
 }

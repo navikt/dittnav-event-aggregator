@@ -65,7 +65,7 @@ object OppgaveObjectMother {
         )
     }
 
-    private fun giveMeOppgave(
+    fun giveMeOppgave(
         systembruker: String = defaultSystembruker,
         namespace: String = defaultNamespace,
         appnavn: String = defaultAppnavn,

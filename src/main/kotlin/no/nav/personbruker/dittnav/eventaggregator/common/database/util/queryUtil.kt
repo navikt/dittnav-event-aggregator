@@ -98,19 +98,6 @@ fun Connection.countTotalNumberOfEvents(eventType: EventType): Long {
     return numberOfEvents
 }
 
-fun Connection.countTotalNumberOfEventsByActiveStatus(eventType: EventType, aktiv: Boolean): Long {
-    val numberOfEvents = prepareStatement("SELECT count(*) from ${eventType.eventType} where aktiv = ?",
-            ResultSet.TYPE_SCROLL_INSENSITIVE,
-            ResultSet.CONCUR_READ_ONLY)
-            .use { statement ->
-                statement.setBoolean(1, aktiv)
-                val resultSet = statement.executeQuery()
-                resultSet.last()
-                resultSet.getLong(countResultColumnIndex)
-            }
-    return numberOfEvents
-}
-
 fun ResultSet.getListFromSeparatedString(columnLabel: String, separator: String): List<String> {
     val stringValue = getString(columnLabel)
     return if(stringValue.isNullOrEmpty()) {
