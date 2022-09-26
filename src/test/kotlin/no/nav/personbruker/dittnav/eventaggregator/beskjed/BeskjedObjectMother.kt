@@ -60,7 +60,7 @@ object BeskjedObjectMother {
         )
     }
 
-    private fun giveMeBeskjed(
+    fun giveMeBeskjed(
         systembruker: String = defaultSystembruker,
         namespace: String = defaultNamespace,
         appnavn: String = defaultAppnavn,
