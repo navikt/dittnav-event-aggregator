@@ -70,13 +70,13 @@ fun isOtherEnvironmentThanProd() = System.getenv("NAIS_CLUSTER_NAME") != "prod-s
 
 fun isProdEnvironment() = System.getenv("NAIS_CLUSTER_NAME") == "prod-sbs"
 
-fun shouldPollBeskjed() = StringEnvVar.getOptionalEnvVar("POLL_BESKJED", "true").toBoolean()
+fun shouldPollBeskjed() = StringEnvVar.getOptionalEnvVar("POLL_BESKJED", "false").toBoolean()
 
-fun shouldPollOppgave() = StringEnvVar.getOptionalEnvVar("POLL_OPPGAVE", "true").toBoolean()
+fun shouldPollOppgave() = StringEnvVar.getOptionalEnvVar("POLL_OPPGAVE", "false").toBoolean()
 
-fun shouldPollInnboks() = StringEnvVar.getOptionalEnvVar("POLL_INNBOKS", "true").toBoolean()
+fun shouldPollInnboks() = StringEnvVar.getOptionalEnvVar("POLL_INNBOKS", "false").toBoolean()
 
-fun shouldPollDone() = StringEnvVar.getOptionalEnvVar("POLL_DONE", "true").toBoolean()
+fun shouldPollDone() = StringEnvVar.getOptionalEnvVar("POLL_DONE", "false").toBoolean()
 
 fun shouldPollDoknotifikasjonStatus() = StringEnvVar.getOptionalEnvVar("POLL_DOKNOTIFIKASJON_STATUS", "false").toBoolean()
 
