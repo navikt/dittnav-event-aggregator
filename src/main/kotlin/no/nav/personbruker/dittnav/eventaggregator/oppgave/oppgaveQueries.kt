@@ -1,7 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
-import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper
-import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.EPOCH_START
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.*
@@ -10,9 +8,6 @@ import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.ZoneOffset
 
 private val createQuery = """INSERT INTO oppgave (systembruker, eventTidspunkt, forstBehandlet, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn, synligFremTil) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?)"""
 
@@ -59,22 +54,22 @@ private fun PreparedStatement.buildStatementForSingleRow(oppgave: Oppgave) {
 }
 
 fun Connection.setOppgaverAktivFlag(doneEvents: List<Done>, aktiv: Boolean) {
-    executeBatchUpdateQuery("""UPDATE oppgave SET aktiv = ? WHERE eventId = ?""") {
+    executeBatchUpdateQuery("""UPDATE oppgave SET aktiv = ?, sistoppdatert = ? WHERE eventId = ?""") {
         doneEvents.forEach { done ->
             setBoolean(1, aktiv)
-            setString(2, done.eventId)
+            setObject(2, nowAtUtc(), Types.TIMESTAMP)
+            setString(3, done.eventId)
             addBatch()
         }
     }
 }
 
-fun Connection.getExpiredOppgave(): List<Oppgave> {
-    val now = nowAtUtc()
-    return prepareStatement("""SELECT * FROM oppgave WHERE aktiv = true AND synligFremTil between ? and ? LIMIT 10000""")
+fun Connection.setExpiredOppgaveAsInactive(): Int {
+    return prepareStatement("""UPDATE oppgave set aktiv = false, sistoppdatert = ? WHERE aktiv = true AND synligFremTil < ?""")
         .use {
-            it.setObject(1, EPOCH_START, Types.TIMESTAMP)
-            it.setObject(2, now, Types.TIMESTAMP)
-            it.executeQuery().list { toOppgave() }
+            it.setObject(1, nowAtUtc(), Types.TIMESTAMP)
+            it.setObject(2, nowAtUtc(), Types.TIMESTAMP)
+            it.executeUpdate()
         }
 }
 

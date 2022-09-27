@@ -30,6 +30,7 @@ class OppgaveQueriesTest {
 
     private val expiredOppgave: Oppgave
     private val oppgaveWithOffsetForstBehandlet: Oppgave
+    private val inaktivOppgave: Oppgave
 
     private val systembruker = "dummySystembruker"
     private val eventId = "2"
@@ -43,8 +44,9 @@ class OppgaveQueriesTest {
         oppgave3 = createOppgave("3", fodselsnummer1)
         expiredOppgave = createExpiredOppgave("4", "5678")
         oppgaveWithOffsetForstBehandlet = createOppgaveWithOffsetForstBehandlet("5", fodselsnummer1)
-        allEvents = listOf(oppgave1, oppgave2, oppgave3, expiredOppgave, oppgaveWithOffsetForstBehandlet)
-        allEventsForSingleUser = listOf(oppgave1, oppgave3, oppgaveWithOffsetForstBehandlet)
+        inaktivOppgave = createInaktivOppgave("6", fodselsnummer1)
+        allEvents = listOf(oppgave1, oppgave2, oppgave3, expiredOppgave, oppgaveWithOffsetForstBehandlet, inaktivOppgave)
+        allEventsForSingleUser = listOf(oppgave1, oppgave3, oppgaveWithOffsetForstBehandlet, inaktivOppgave)
     }
 
     private fun createOppgave(eventId: String, fodselsnummer: String): Oppgave {
@@ -70,6 +72,22 @@ class OppgaveQueriesTest {
         return oppgave
     }
 
+    private fun createInaktivOppgave(eventId: String, fodselsnummer: String): Oppgave {
+        val oppgave = OppgaveObjectMother.giveMeOppgave(
+            eventId = eventId,
+            fodselsnummer = fodselsnummer,
+            aktiv = false
+        )
+
+        return runBlocking {
+            database.dbQuery {
+                val generatedId = createOppgave(oppgave).entityId
+
+                oppgave.copy(id = generatedId)
+            }
+        }
+    }
+
     private fun createOppgaveWithOffsetForstBehandlet(eventId: String, fodselsnummer: String): Oppgave {
         val offsetDate = nowTruncatedToMillis().minusDays(1)
         var oppgave = OppgaveObjectMother.giveMeOppgaveWithForstBehandlet(eventId, fodselsnummer, offsetDate)
@@ -93,13 +111,10 @@ class OppgaveQueriesTest {
 
     @Test
     fun `Finner alle aktive cachede Oppgave-eventer`() {
-        val doneEvent = DoneObjectMother.giveMeDone(eventId, systembruker, fodselsnummer2)
         runBlocking {
-            database.dbQuery { setOppgaverAktivFlag(listOf(doneEvent), false) }
             val result = database.dbQuery { getAllOppgaveByAktiv(true) }
-            result shouldContainAll listOf(oppgave1, oppgave3)
-            result shouldNotContain oppgave2
-            database.dbQuery { setOppgaverAktivFlag(listOf(doneEvent), true) }
+            result shouldContainAll listOf(oppgave1, oppgave2, oppgave3)
+            result shouldNotContain inaktivOppgave
         }
     }
 
@@ -197,17 +212,4 @@ class OppgaveQueriesTest {
             database.dbQuery { deleteOppgaveWithEventId(oppgave2.eventId) }
         }
     }
-
-    @Test
-    fun `Finner utaatt oppgaver`() {
-        runBlocking {
-            val result = database.dbQuery {
-                getExpiredOppgave()
-            }
-
-            result shouldHaveSize 1
-            result shouldContain expiredOppgave
-        }
-    }
-
 }

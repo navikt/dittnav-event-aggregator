@@ -20,9 +20,7 @@ class InnboksQueriesTest {
     private val innboks2: Innboks
     private val innboks3: Innboks
     private val innboksWithOffsetForstBehandlet: Innboks
-
-    private val systembruker = "dummySystembruker"
-    private val eventId = "1"
+    private val inaktivInnboks: Innboks
 
     private val allInnboks: List<Innboks>
     private val allInnboksForAktor1: List<Innboks>
@@ -32,9 +30,10 @@ class InnboksQueriesTest {
         innboks2 = createInnboks("2", fodselsnummer2)
         innboks3 = createInnboks("3", fodselsnummer1)
         innboksWithOffsetForstBehandlet = createInnboksWithOffsetForstBehandlet("4", fodselsnummer1)
+        inaktivInnboks = createInaktivInnboks("5", fodselsnummer1)
 
-        allInnboks = listOf(innboks1, innboks2, innboks3, innboksWithOffsetForstBehandlet)
-        allInnboksForAktor1 = listOf(innboks1, innboks3, innboksWithOffsetForstBehandlet)
+        allInnboks = listOf(innboks1, innboks2, innboks3, innboksWithOffsetForstBehandlet, inaktivInnboks)
+        allInnboksForAktor1 = listOf(innboks1, innboks3, innboksWithOffsetForstBehandlet, inaktivInnboks)
     }
 
     private fun createInnboks(eventId: String, fodselsnummer: String): Innboks {
@@ -62,6 +61,22 @@ class InnboksQueriesTest {
         }
     }
 
+    private fun createInaktivInnboks(eventId: String, fodselsnummer: String): Innboks {
+        val innboks = InnboksObjectMother.giveMeInnboks(
+            eventId = eventId,
+            fodselsnummer = fodselsnummer,
+            aktiv = false
+        )
+
+        return runBlocking {
+            database.dbQuery {
+                val generatedId = createInnboks(innboks).entityId
+
+                innboks.copy(id = generatedId)
+            }
+        }
+    }
+
     @Test
     fun `finner alle Innboks`() {
         runBlocking {
@@ -84,36 +99,13 @@ class InnboksQueriesTest {
     }
 
     @Test
-    fun `setter aktiv flag`() {
-        val doneEvent = DoneObjectMother.giveMeDone(eventId, systembruker, fodselsnummer1)
-        runBlocking {
-            database.dbQuery {
-                setInnboksEventerAktivFlag(listOf(doneEvent), false)
-                var innboks = getInnboksByEventId(eventId)
-                innboks.aktiv shouldBe false
-
-                setInnboksEventerAktivFlag(listOf(doneEvent), true)
-                innboks = getInnboksByEventId(eventId)
-                innboks.aktiv shouldBe true
-            }
-        }
-    }
-
-    @Test
     fun `finner Innboks etter aktiv flag`() {
-        val doneEvent = DoneObjectMother.giveMeDone(innboks1.eventId, systembruker, fodselsnummer1)
         runBlocking {
             database.dbQuery {
-                setInnboksEventerAktivFlag(listOf(doneEvent), false)
-                val aktiveInnboks = getAllInnboksByAktiv(true)
-                val inaktivInnboks = getAllInnboksByAktiv(false)
+                val aktivInnboks = getAllInnboksByAktiv(true)
 
-                aktiveInnboks.none { it.id == innboks1.id }
-                aktiveInnboks.size shouldBe allInnboks.size - 1
-                inaktivInnboks.single { it.id == innboks1.id }
-                inaktivInnboks.size shouldBe 1
-
-                setInnboksEventerAktivFlag(listOf(doneEvent), true)
+                aktivInnboks shouldContainAll listOf(innboks1, innboks2, innboks3)
+                aktivInnboks shouldNotContain  listOf(inaktivInnboks)
             }
         }
     }

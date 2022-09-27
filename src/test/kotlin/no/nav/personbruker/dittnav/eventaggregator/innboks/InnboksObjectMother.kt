@@ -69,7 +69,7 @@ object InnboksObjectMother {
         return giveMeInnboks(eventId = eventId, appnavn = appnavn)
     }
 
-    private fun giveMeInnboks(
+    fun giveMeInnboks(
         systembruker: String = defaultSystembruker,
         namespace: String = defaultNamespace,
         appnavn: String = defaultAppnavn,

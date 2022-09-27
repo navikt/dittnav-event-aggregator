@@ -17,9 +17,8 @@ import no.nav.personbruker.dittnav.eventaggregator.done.DoneEventService
 import no.nav.personbruker.dittnav.eventaggregator.done.DonePersistingService
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
 import no.nav.personbruker.dittnav.eventaggregator.done.PeriodicDoneEventWaitingTableProcessor
-import no.nav.personbruker.dittnav.eventaggregator.expired.DoneEventEmitter
-import no.nav.personbruker.dittnav.eventaggregator.expired.ExpiredPersistingService
-import no.nav.personbruker.dittnav.eventaggregator.expired.PeriodicExpiredNotificationProcessor
+import no.nav.personbruker.dittnav.eventaggregator.expired.ExpiredVarselRepository
+import no.nav.personbruker.dittnav.eventaggregator.expired.PeriodicExpiredVarselProcessor
 import no.nav.personbruker.dittnav.eventaggregator.health.HealthService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksEventService
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
@@ -83,10 +82,9 @@ class ApplicationContext {
     var periodicDoneEventWaitingTableProcessor = initializeDoneWaitingTableProcessor()
     var periodicConsumerPollingCheck = initializePeriodicConsumerPollingCheck()
 
-    private val expiredPersistingService = ExpiredPersistingService(database)
+    private val expiredVarselRepository = ExpiredVarselRepository(database)
     val kafkaProducerDone = KafkaProducerWrapper(environment.doneInputTopicName, KafkaProducer<NokkelInput, DoneInput>(Kafka.producerProps(environment)))
-    private val doneEventEmitter = DoneEventEmitter(kafkaProducerDone)
-    val periodicExpiredBeskjedProcessor = initializeExpiredBeskjedProcessor()
+    val periodicExpiredVarselProcessor = initializeExpiredVarselProcessor()
 
     private val doknotifikasjonRepository = DoknotifikasjonStatusRepository(database)
     private val doknotifkiasjonStatusUpdater = DoknotifikasjonStatusUpdater(beskjedRepository, oppgaveRepository, innboksRepository, doknotifikasjonRepository)
@@ -113,8 +111,7 @@ class ApplicationContext {
 
     private fun initializePeriodicConsumerPollingCheck() = PeriodicConsumerPollingCheck(this)
 
-    private fun initializeExpiredBeskjedProcessor() =
-        PeriodicExpiredNotificationProcessor(expiredPersistingService, doneEventEmitter)
+    private fun initializeExpiredVarselProcessor() = PeriodicExpiredVarselProcessor(expiredVarselRepository)
 
     private fun initializeDoknotifikasjonStatusConsumer() =
         KafkaConsumerSetup.setupConsumerForTheDoknotifikasjonStatusTopic(doknotifikasjonStatusKafkaProps, doknotifikasjonStatusService, environment.doknotifikasjonStatusTopicName)

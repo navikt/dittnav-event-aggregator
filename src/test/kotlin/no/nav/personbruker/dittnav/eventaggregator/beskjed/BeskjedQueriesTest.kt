@@ -2,18 +2,14 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.countTotalNumberOfEvents
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.countTotalNumberOfEventsByActiveStatus
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import no.nav.personbruker.dittnav.eventaggregator.done.DoneObjectMother
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
 
@@ -27,8 +23,8 @@ class BeskjedQueriesTest {
     private val beskjed4: Beskjed
     private val expiredBeskjed: Beskjed
     private val beskjedWithOffsetForstBehandlet: Beskjed
+    private val inaktivBeskjed: Beskjed
 
-    private val systembruker = "dummySystembruker"
     private val fodselsnummer = "12345"
     private val eventId = "2"
 
@@ -42,8 +38,9 @@ class BeskjedQueriesTest {
         beskjed4 = createBeskjed("4", "6789")
         expiredBeskjed = createExpiredBeskjed("123", "4567")
         beskjedWithOffsetForstBehandlet = createBeskjedWithOffsetForstBehandlet("5", "12345")
-        allEvents = listOf(beskjed1, beskjed2, beskjed3, beskjed4, expiredBeskjed, beskjedWithOffsetForstBehandlet)
-        allEventsForSingleUser = listOf(beskjed1, beskjed2, beskjed3, beskjedWithOffsetForstBehandlet)
+        inaktivBeskjed = createInaktivBeskjed("6", "12345")
+        allEvents = listOf(beskjed1, beskjed2, beskjed3, beskjed4, expiredBeskjed, beskjedWithOffsetForstBehandlet, inaktivBeskjed)
+        allEventsForSingleUser = listOf(beskjed1, beskjed2, beskjed3, beskjedWithOffsetForstBehandlet, inaktivBeskjed)
     }
 
     private fun createBeskjed(eventId: String, fodselsnummer: String): Beskjed {
@@ -81,15 +78,28 @@ class BeskjedQueriesTest {
         }
     }
 
+    private fun createInaktivBeskjed(eventId: String, fodselsnummer: String): Beskjed {
+        val beskjed = BeskjedObjectMother.giveMeBeskjed(
+            eventId = eventId,
+            fodselsnummer = fodselsnummer,
+            aktiv = false
+        )
+
+        return runBlocking {
+            database.dbQuery {
+                val generatedId = createBeskjed(beskjed).entityId
+
+                beskjed.copy(id = generatedId)
+            }
+        }
+    }
+
     @Test
     fun `Finner alle aktive cachede Beskjed-eventer`() {
-        val doneEvent = DoneObjectMother.giveMeDone(eventId, systembruker, fodselsnummer)
         runBlocking {
-            database.dbQuery { setBeskjederAktivflagg(listOf(doneEvent), false) }
             val result = database.dbQuery { getAllBeskjedByAktiv(true) }
-            result shouldContainAll listOf(beskjed1, beskjed3, beskjed4)
-            result shouldNotContain beskjed2
-            database.dbQuery { setBeskjederAktivflagg(listOf(doneEvent), true) }
+            result shouldContainAll listOf(beskjed1, beskjed2, beskjed3, beskjed4)
+            result shouldNotContain inaktivBeskjed
         }
     }
 
@@ -114,7 +124,7 @@ class BeskjedQueriesTest {
     fun `Finner cachede Beskjeds-eventer for fodselsnummer`() {
         runBlocking {
             val result = database.dbQuery { getBeskjedByFodselsnummer(fodselsnummer) }
-            result.size shouldBe 4
+            result.size shouldBe 5
             result shouldContainAll allEventsForSingleUser
         }
     }
@@ -187,32 +197,18 @@ class BeskjedQueriesTest {
     }
 
     @Test
-    fun `Skal telle det totale antall aktive beskjeder`() {
-        runBlocking {
-            database.dbQuery {
-                countTotalNumberOfEventsByActiveStatus(EventType.BESKJED_INTERN, true)
-            }
-        } shouldBe allEvents.size.toLong()
-    }
-
-    @Test
-    fun `Skal telle det totale antall inaktive beskjeder`() {
-        runBlocking {
-            database.dbQuery {
-                countTotalNumberOfEventsByActiveStatus(EventType.BESKJED_INTERN, false)
-            }
-        } shouldBe 0
-    }
-
-    @Test
     fun `Finner utgått beskjeder`() {
         runBlocking {
-            val result = database.dbQuery {
-                getExpiredBeskjedFromCursor()
+            val numberUpdated = database.dbQuery {
+                setExpiredBeskjedAsInactive()
             }
 
-            result shouldHaveSize 1
-            result shouldContain expiredBeskjed
+            val updatedOppave = database.dbQuery {
+                getBeskjedByEventId(expiredBeskjed.eventId)
+            }
+
+            numberUpdated shouldBe 1
+            updatedOppave.aktiv shouldBe false
         }
     }
 }

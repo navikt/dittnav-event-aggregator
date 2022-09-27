@@ -1,6 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
-import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.EPOCH_START
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
@@ -58,22 +57,23 @@ private fun PreparedStatement.setParametersForSingleRow(beskjed: Beskjed) {
 }
 
 fun Connection.setBeskjederAktivflagg(doneEvents: List<Done>, aktiv: Boolean) {
-    executeBatchUpdateQuery("""UPDATE beskjed SET aktiv = ? WHERE eventId = ?""") {
+    executeBatchUpdateQuery("""UPDATE beskjed SET aktiv = ?, sistoppdatert = ? WHERE eventId = ?""") {
         doneEvents.forEach { done ->
             setBoolean(1, aktiv)
-            setString(2, done.eventId)
+            setObject(2, nowAtUtc(), Types.TIMESTAMP)
+            setString(3, done.eventId)
             addBatch()
         }
     }
 }
 
-fun Connection.getExpiredBeskjedFromCursor(): List<Beskjed> {
-    return prepareStatement("""SELECT * FROM beskjed WHERE aktiv = true AND synligFremTil between ? and ? LIMIT 10000""")
-            .use {
-                it.setObject(1, EPOCH_START, Types.TIMESTAMP)
-                it.setObject(2, nowAtUtc(), Types.TIMESTAMP)
-                it.executeQuery().list { toBeskjed() }
-            }
+fun Connection.setExpiredBeskjedAsInactive(): Int {
+    return prepareStatement("""UPDATE beskjed set aktiv = false, sistoppdatert = ? WHERE aktiv = true AND synligFremTil < ?""")
+        .use {
+            it.setObject(1, nowAtUtc(), Types.TIMESTAMP)
+            it.setObject(2, nowAtUtc(), Types.TIMESTAMP)
+            it.executeUpdate()
+        }
 }
 
 fun ResultSet.toBeskjed(): Beskjed {

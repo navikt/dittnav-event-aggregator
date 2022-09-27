@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.*
 import no.nav.personbruker.dittnav.eventaggregator.done.Done
@@ -61,10 +62,11 @@ private fun PreparedStatement.buildStatementForSingleRow(innboks: Innboks) {
 }
 
 fun Connection.setInnboksEventerAktivFlag(doneEvents: List<Done>, aktiv: Boolean) {
-    executeBatchUpdateQuery("""UPDATE innboks SET aktiv = ? WHERE eventId = ?""") {
+    executeBatchUpdateQuery("""UPDATE innboks SET aktiv = ?, sistoppdatert = ? WHERE eventId = ?""") {
         doneEvents.forEach { done ->
             setBoolean(1, aktiv)
-            setString(2, done.eventId)
+            setObject(2, nowAtUtc(), Types.TIMESTAMP)
+            setString(3, done.eventId)
             addBatch()
         }
     }
