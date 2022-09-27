@@ -60,16 +60,13 @@ private fun startRapid(environment: Environment, database: Database, appContext:
         register(object : RapidsConnection.StatusListener {
             override fun onStartup(rapidsConnection: RapidsConnection) {
                 Flyway.runFlywayMigrations(environment)
-
                 appContext.periodicDoneEventWaitingTableProcessor.start()
-                appContext.periodicExpiredBeskjedProcessor.start()
                 appContext.startAllArchivers()
             }
 
             override fun onShutdown(rapidsConnection: RapidsConnection) {
                 runBlocking {
                     appContext.periodicDoneEventWaitingTableProcessor.stop()
-                    appContext.periodicExpiredBeskjedProcessor.stop()
                     appContext.kafkaProducerDone.flushAndClose()
                     appContext.stopAllArchivers()
                 }
