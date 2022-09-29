@@ -80,8 +80,6 @@ class EksternVarslingStatusSinkTest {
         val testRapid = TestRapid()
         setupEksternVarslingStatusSink(testRapid)
         setupBeskjedSink(testRapid)
-        setupOppgaveSink(testRapid)
-        setupInnboksSink(testRapid)
 
         testRapid.sendTestMessage(varselJson("beskjed", "111"))
         testRapid.sendTestMessage(eksternVarslingStatusJson("111", status = "status1", kanaler = listOf("SMS")))
@@ -117,6 +115,19 @@ class EksternVarslingStatusSinkTest {
             eksternVarslingStatusRepository.getStatusIfExists("111", VarselType.BESKJED) shouldBe null
             eksternVarslingStatusRepository.getStatusIfExists("222", VarselType.OPPGAVE) shouldBe null
             eksternVarslingStatusRepository.getStatusIfExists("333", VarselType.INNBOKS) shouldBe null
+        }
+    }
+
+    @Test
+    fun `gjør ingenting hvis eventId er ukjent`() {
+        val testRapid = TestRapid()
+        setupEksternVarslingStatusSink(testRapid)
+
+        testRapid.sendTestMessage(eksternVarslingStatusJson("111"))
+        runBlocking {
+            eksternVarslingStatusRepository.getStatusIfExists("111", VarselType.BESKJED) shouldBe null
+            eksternVarslingStatusRepository.getStatusIfExists("111", VarselType.OPPGAVE) shouldBe null
+            eksternVarslingStatusRepository.getStatusIfExists("111", VarselType.INNBOKS) shouldBe null
         }
     }
 
