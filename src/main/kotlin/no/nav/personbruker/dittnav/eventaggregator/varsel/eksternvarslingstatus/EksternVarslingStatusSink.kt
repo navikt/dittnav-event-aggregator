@@ -47,6 +47,7 @@ internal class EksternVarslingStatusSink(
         runBlocking {
             if (writeToDb) {
                 eksternVarslingStatusUpdater.insertOrUpdateStatus(eksternVarslingStatus)
+                log.info("Behandlet eksternVarslingStatus fra rapid med eventid ${eksternVarslingStatus.eventId}")
             } else {
                 log.info("Dryrun: eksternVarslingStatus fra rapid med eventid ${eksternVarslingStatus.eventId}")
             }
