@@ -45,8 +45,8 @@ internal class EksternVarslingStatusSink(
             bestillerAppnavn = packet["bestillerAppnavn"].asText(),
             status = packet["status"].asText(),
             melding = packet["melding"].asText(),
-            distribusjonsId = packet["eventId"].asLong(),
-            kanaler = packet["eventId"].map { it.asText() },
+            distribusjonsId = packet["distribusjonsId"].asLong(),
+            kanaler = packet["kanaler"].map { it.asText() },
         )
 
         runBlocking {
@@ -73,6 +73,22 @@ internal class EksternVarslingStatusSink(
                 else mergeStatuses(existingStatus.first(), newStatus)
 
             doknotifikasjonStatusRepository.updateStatusesForBeskjed(listOf(statusToPersist))
+        } else if (eventType == EventType.OPPGAVE_INTERN) {
+            val existingStatus = doknotifikasjonStatusRepository.getStatusesForOppgave(listOf(newStatus.eventId))
+
+            val statusToPersist =
+                if(existingStatus.isEmpty()) newStatus
+                else mergeStatuses(existingStatus.first(), newStatus)
+
+            doknotifikasjonStatusRepository.updateStatusesForOppgave(listOf(statusToPersist))
+        } else if (eventType == EventType.INNBOKS_INTERN) {
+            val existingStatus = doknotifikasjonStatusRepository.getStatusesForInnboks(listOf(newStatus.eventId))
+
+            val statusToPersist =
+                if(existingStatus.isEmpty()) newStatus
+                else mergeStatuses(existingStatus.first(), newStatus)
+
+            doknotifikasjonStatusRepository.updateStatusesForInnboks(listOf(statusToPersist))
         }
     }
 
