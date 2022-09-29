@@ -29,7 +29,6 @@ internal class EksternVarslingStatusSink(
             validate {
                 it.requireKey(
                     "eventId",
-                    "bestillerAppnavn",
                     "status",
                     "melding",
                     "kanaler"
@@ -42,7 +41,7 @@ internal class EksternVarslingStatusSink(
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val eksternVarslingStatus = DoknotifikasjonStatusDto(
             eventId = packet["eventId"].asText(),
-            bestillerAppnavn = packet["bestillerAppnavn"].asText(),
+            bestillerAppnavn = "", //Ubrukt, burde fjernes fra klasse
             status = packet["status"].asText(),
             melding = packet["melding"].asText(),
             distribusjonsId = packet["distribusjonsId"].asLong(),
