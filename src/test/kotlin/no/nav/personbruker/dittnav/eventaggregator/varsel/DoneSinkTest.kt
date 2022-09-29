@@ -21,6 +21,7 @@ import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.toOppgave
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class DoneSinkTest {
@@ -106,6 +107,12 @@ class DoneSinkTest {
 
         val beskjeder = doneFromWaitingTable()
         beskjeder.size shouldBe 0
+    }
+
+    @Test
+    @Disabled
+    fun `kaster feil hvis ulike varsler med samme id`() {
+
     }
 
     private fun setupBeskjedSink(testRapid: TestRapid) = BeskjedSink(

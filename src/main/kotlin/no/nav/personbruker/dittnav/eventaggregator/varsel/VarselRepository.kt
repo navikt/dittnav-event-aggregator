@@ -4,8 +4,8 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.setBeskjederAktivflagg
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
-import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon
-import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.getBrukernotifikasjonFromViewForEventIds
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.toVarcharArray
 import no.nav.personbruker.dittnav.eventaggregator.done.Done
 import no.nav.personbruker.dittnav.eventaggregator.done.createDoneEvent
 import no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks
@@ -14,6 +14,8 @@ import no.nav.personbruker.dittnav.eventaggregator.innboks.setInnboksEventerAkti
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.setOppgaverAktivFlag
+import java.sql.Connection
+import java.sql.ResultSet
 
 class VarselRepository(private val database: Database) {
     suspend fun persistBeskjed(beskjed: Beskjed) = database.queryWithExceptionTranslation {
@@ -50,9 +52,27 @@ class VarselRepository(private val database: Database) {
         }
     }
 
-    suspend fun getBrukernotifikasjoner(eventId: String): List<Brukernotifikasjon> {
+    suspend fun getVarsel(eventId: String): List<Varsel> {
         return database.queryWithExceptionTranslation {
-            getBrukernotifikasjonFromViewForEventIds(listOf(eventId))
+            getVarsler(listOf(eventId))
         }
     }
+}
+
+fun Connection.getVarsler(eventIds: List<String>): List<Varsel> =
+    prepareStatement("""SELECT brukernotifikasjon_view.* FROM brukernotifikasjon_view WHERE eventid = ANY(?)""")
+        .use {
+            it.setArray(1, toVarcharArray(eventIds))
+            it.executeQuery().list {
+                toVarsel()
+            }
+        }
+
+private fun ResultSet.toVarsel(): Varsel {
+    return Varsel(
+        eventId = getString("eventId"),
+        systembruker = getString("systembruker"),
+        type = VarselType.valueOf(getString("type").uppercase()),
+        fodselsnummer = getString("fodselsnummer")
+    )
 }

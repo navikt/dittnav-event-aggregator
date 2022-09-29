@@ -48,18 +48,17 @@ internal class DoneSink(
         )
 
         runBlocking {
-            val varsel = varselRepository.getBrukernotifikasjoner(done.eventId)
+            val varsler = varselRepository.getVarsel(done.eventId)
 
             if (writeToDb) {
-                if (varsel.isEmpty()) {
+                if (varsler.isEmpty()) {
                     // lagre i ventetabell hvis ikke varsel finnes
                     varselRepository.persistWaitingDone(done)
                 } else {
-                    when (varsel.first().type) {
-                        EventType.BESKJED_INTERN -> varselRepository.inaktiverBeskjed(done)
-                        EventType.OPPGAVE_INTERN -> varselRepository.inaktiverOppgave(done)
-                        EventType.INNBOKS_INTERN -> varselRepository.inaktiverInnboks(done)
-                        EventType.DONE_INTERN -> log.error("Prøvde å inaktivere done-event med eventid ${done.eventId}")
+                    when (varsler.first().type) {
+                        VarselType.BESKJED -> varselRepository.inaktiverBeskjed(done)
+                        VarselType.OPPGAVE -> varselRepository.inaktiverOppgave(done)
+                        VarselType.INNBOKS -> varselRepository.inaktiverInnboks(done)
                     }
                 }
 

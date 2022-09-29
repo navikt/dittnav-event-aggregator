@@ -3,12 +3,12 @@ package no.nav.personbruker.dittnav.eventaggregator.varsel.eksternvarslingstatus
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
-import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusRepository
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.deleteAllDoknotifikasjonStatusBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.deleteAllDoknotifikasjonStatusInnboks
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.deleteAllDoknotifikasjonStatusOppgave
@@ -18,6 +18,7 @@ import no.nav.personbruker.dittnav.eventaggregator.varsel.BeskjedSink
 import no.nav.personbruker.dittnav.eventaggregator.varsel.InnboksSink
 import no.nav.personbruker.dittnav.eventaggregator.varsel.OppgaveSink
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -25,7 +26,9 @@ class EksternVarslingStatusSinkTest {
     private val database = LocalPostgresDatabase.migratedDb()
     private val varselRepository = VarselRepository(database)
 
-    private val doknotifikasjonRepository = DoknotifikasjonStatusRepository(database)
+    private val eksternVarslingStatusRepository = EksternVarslingStatusRepository(database)
+    private val eksternVarslingStatusUpdater =
+        EksternVarslingStatusUpdater(eksternVarslingStatusRepository, varselRepository)
 
     @BeforeEach
     fun resetDb() {
@@ -42,13 +45,7 @@ class EksternVarslingStatusSinkTest {
     @Test
     fun `Lagrer ekstern varsling-status`() {
         val testRapid = TestRapid()
-        EksternVarslingStatusSink(
-            rapidsConnection = testRapid,
-            varselRepository = varselRepository,
-            doknotifikasjonStatusRepository = doknotifikasjonRepository,
-            writeToDb = true
-        )
-
+        setupEksternVarslingStatusSink(testRapid)
         setupBeskjedSink(testRapid)
         setupOppgaveSink(testRapid)
         setupInnboksSink(testRapid)
@@ -63,30 +60,25 @@ class EksternVarslingStatusSinkTest {
         testRapid.sendTestMessage(eksternVarslingStatusJson("333"))
 
         runBlocking {
-            doknotifikasjonRepository.getStatusesForBeskjed(listOf("111")).size shouldBe 1
-            doknotifikasjonRepository.getStatusesForOppgave(listOf("222")).size shouldBe 1
-            doknotifikasjonRepository.getStatusesForInnboks(listOf("333")).size shouldBe 1
+            eksternVarslingStatusRepository.getStatusIfExists("111", VarselType.BESKJED) shouldNotBe null
+            eksternVarslingStatusRepository.getStatusIfExists("222", VarselType.OPPGAVE) shouldNotBe null
+            eksternVarslingStatusRepository.getStatusIfExists("333", VarselType.INNBOKS).also {
+                it shouldNotBe null
 
-            val eksternVarslingJsonNode = ObjectMapper().readTree(eksternVarslingStatusJson("111"))
-            val status = doknotifikasjonRepository.getStatusesForBeskjed(listOf("111")).first()
-            status.eventId shouldBe eksternVarslingJsonNode["eventId"].textValue()
-            status.status shouldBe eksternVarslingJsonNode["status"].textValue()
-            status.melding shouldBe eksternVarslingJsonNode["melding"].textValue()
-            status.distribusjonsId shouldBe eksternVarslingJsonNode["distribusjonsId"].longValue()
-            status.kanaler shouldBe eksternVarslingJsonNode["kanaler"].map { it.textValue() }
+                val eksternVarslingJsonNode = ObjectMapper().readTree(eksternVarslingStatusJson("333"))
+                it!!.eventId shouldBe eksternVarslingJsonNode["eventId"].textValue()
+                it.status shouldBe eksternVarslingJsonNode["status"].textValue()
+                it.melding shouldBe eksternVarslingJsonNode["melding"].textValue()
+                it.distribusjonsId shouldBe eksternVarslingJsonNode["distribusjonsId"].longValue()
+                it.kanaler shouldBe eksternVarslingJsonNode["kanaler"].map { it.textValue() }
+            }
         }
     }
 
     @Test
-    fun `Flere ekstern varsling-statuser oppdaterer basen`()  {
+    fun `Flere ekstern varsling-statuser oppdaterer basen`() {
         val testRapid = TestRapid()
-        EksternVarslingStatusSink(
-            rapidsConnection = testRapid,
-            varselRepository = varselRepository,
-            doknotifikasjonStatusRepository = doknotifikasjonRepository,
-            writeToDb = true
-        )
-
+        setupEksternVarslingStatusSink(testRapid)
         setupBeskjedSink(testRapid)
         setupOppgaveSink(testRapid)
         setupInnboksSink(testRapid)
@@ -96,10 +88,9 @@ class EksternVarslingStatusSinkTest {
         testRapid.sendTestMessage(eksternVarslingStatusJson("111", status = "status2", kanaler = listOf("EPOST")))
 
         runBlocking {
-            doknotifikasjonRepository.getStatusesForBeskjed(listOf("111")).size shouldBe 1
-
-            val status = doknotifikasjonRepository.getStatusesForBeskjed(listOf("111")).first()
-            status.status shouldBe "status2"
+            val status = eksternVarslingStatusRepository.getStatusIfExists("111", VarselType.BESKJED)
+            status shouldNotBe null
+            status!!.status shouldBe "status2"
             status.kanaler shouldContainExactlyInAnyOrder setOf("EPOST", "SMS")
             status.antallOppdateringer shouldBe 2
         }
@@ -108,13 +99,7 @@ class EksternVarslingStatusSinkTest {
     @Test
     fun `dryryn-modus når writeToDb er false`() = runBlocking {
         val testRapid = TestRapid()
-        EksternVarslingStatusSink(
-            rapidsConnection = testRapid,
-            varselRepository = varselRepository,
-            doknotifikasjonStatusRepository = doknotifikasjonRepository,
-            writeToDb = false
-        )
-
+        setupEksternVarslingStatusSink(testRapid, writeToDb = false)
         setupBeskjedSink(testRapid)
         setupOppgaveSink(testRapid)
         setupInnboksSink(testRapid)
@@ -129,11 +114,18 @@ class EksternVarslingStatusSinkTest {
         testRapid.sendTestMessage(eksternVarslingStatusJson("333"))
 
         runBlocking {
-            doknotifikasjonRepository.getStatusesForBeskjed(listOf("111")).size shouldBe 0
-            doknotifikasjonRepository.getStatusesForOppgave(listOf("222")).size shouldBe 0
-            doknotifikasjonRepository.getStatusesForInnboks(listOf("333")).size shouldBe 0
+            eksternVarslingStatusRepository.getStatusIfExists("111", VarselType.BESKJED) shouldBe null
+            eksternVarslingStatusRepository.getStatusIfExists("222", VarselType.OPPGAVE) shouldBe null
+            eksternVarslingStatusRepository.getStatusIfExists("333", VarselType.INNBOKS) shouldBe null
         }
     }
+
+    private fun setupEksternVarslingStatusSink(testRapid: TestRapid, writeToDb: Boolean = true) =
+        EksternVarslingStatusSink(
+            rapidsConnection = testRapid,
+            eksternVarslingStatusUpdater = eksternVarslingStatusUpdater,
+            writeToDb = writeToDb
+        )
 
     private fun setupBeskjedSink(testRapid: TestRapid, writeToDb: Boolean = true) = BeskjedSink(
         rapidsConnection = testRapid,
@@ -168,7 +160,6 @@ class EksternVarslingStatusSinkTest {
         "distribusjonsId": 12345,
         "kanaler": ${kanaler.joinToString("\", \"", "[\"", "\"]")}
     }""".trimIndent()
-
 
     private fun varselJson(type: String, eventId: String) = """{
         "@event_name": "$type",

@@ -12,6 +12,9 @@ import no.nav.personbruker.dittnav.eventaggregator.varsel.DoneSink
 import no.nav.personbruker.dittnav.eventaggregator.varsel.InnboksSink
 import no.nav.personbruker.dittnav.eventaggregator.varsel.OppgaveSink
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
+import no.nav.personbruker.dittnav.eventaggregator.varsel.eksternvarslingstatus.EksternVarslingStatusRepository
+import no.nav.personbruker.dittnav.eventaggregator.varsel.eksternvarslingstatus.EksternVarslingStatusSink
+import no.nav.personbruker.dittnav.eventaggregator.varsel.eksternvarslingstatus.EksternVarslingStatusUpdater
 
 fun main() {
     val appContext = ApplicationContext()
@@ -31,6 +34,8 @@ fun main() {
 private fun startRapid(environment: Environment, database: Database, appContext: ApplicationContext) {
     val rapidMetricsProbe = buildRapidMetricsProbe(environment)
     val varselRepository = VarselRepository(database)
+    val eksternVarslingStatusRepository = EksternVarslingStatusRepository(database)
+    val eksternVarslingStatusUpdater = EksternVarslingStatusUpdater(eksternVarslingStatusRepository, varselRepository)
     RapidApplication.create(environment.rapidConfig() + mapOf("HTTP_PORT" to "8080")).apply {
         BeskjedSink(
             rapidsConnection = this,
@@ -54,6 +59,11 @@ private fun startRapid(environment: Environment, database: Database, appContext:
             rapidsConnection = this,
             varselRepository = varselRepository,
             rapidMetricsProbe = rapidMetricsProbe,
+            writeToDb = true
+        )
+        EksternVarslingStatusSink(
+            rapidsConnection = this,
+            eksternVarslingStatusUpdater = eksternVarslingStatusUpdater,
             writeToDb = true
         )
     }.apply {
