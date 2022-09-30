@@ -10,13 +10,12 @@ import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.done.Done
-import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 internal class DoneSink(
     rapidsConnection: RapidsConnection,
-    private val doneRepository: DoneRepository,
+    private val varselRepository: VarselRepository,
     private val rapidMetricsProbe: RapidMetricsProbe,
     private val writeToDb: Boolean
 ) :
@@ -49,18 +48,17 @@ internal class DoneSink(
         )
 
         runBlocking {
-            val varsel = doneRepository.fetchBrukernotifikasjonerFromViewForEventIds(listOf(done.eventId))
+            val varsler = varselRepository.getVarsel(done.eventId)
 
             if (writeToDb) {
-                if (varsel.isEmpty()) {
+                if (varsler.isEmpty()) {
                     // lagre i ventetabell hvis ikke varsel finnes
-                    doneRepository.createInOneBatch(listOf(done))
+                    varselRepository.persistWaitingDone(done)
                 } else {
-                    when (varsel.first().type) {
-                        EventType.BESKJED_INTERN -> doneRepository.writeDoneEventsForBeskjedToCache(listOf(done))
-                        EventType.OPPGAVE_INTERN -> doneRepository.writeDoneEventsForOppgaveToCache(listOf(done))
-                        EventType.INNBOKS_INTERN -> doneRepository.writeDoneEventsForInnboksToCache(listOf(done))
-                        EventType.DONE_INTERN -> log.error("Prøvde å inaktivere done-event med eventid ${done.eventId}")
+                    when (varsler.first().type) {
+                        VarselType.BESKJED -> varselRepository.inaktiverBeskjed(done)
+                        VarselType.OPPGAVE -> varselRepository.inaktiverOppgave(done)
+                        VarselType.INNBOKS -> varselRepository.inaktiverInnboks(done)
                     }
                 }
 

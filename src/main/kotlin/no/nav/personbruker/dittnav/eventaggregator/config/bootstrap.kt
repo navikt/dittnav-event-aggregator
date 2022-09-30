@@ -17,6 +17,10 @@ import no.nav.personbruker.dittnav.eventaggregator.varsel.BeskjedSink
 import no.nav.personbruker.dittnav.eventaggregator.varsel.DoneSink
 import no.nav.personbruker.dittnav.eventaggregator.varsel.InnboksSink
 import no.nav.personbruker.dittnav.eventaggregator.varsel.OppgaveSink
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
+import no.nav.personbruker.dittnav.eventaggregator.varsel.eksternvarslingstatus.EksternVarslingStatusRepository
+import no.nav.personbruker.dittnav.eventaggregator.varsel.eksternvarslingstatus.EksternVarslingStatusSink
+import no.nav.personbruker.dittnav.eventaggregator.varsel.eksternvarslingstatus.EksternVarslingStatusUpdater
 import kotlin.concurrent.thread
 
 fun Application.eventAggregatorApi(appContext: ApplicationContext) {
@@ -51,29 +55,37 @@ private fun Application.configureStartupHook(appContext: ApplicationContext) {
 
 private fun startRapid(appContext: ApplicationContext) {
     val rapidMetricsProbe = buildRapidMetricsProbe(appContext.environment)
-    RapidApplication.create(appContext.environment.rapidConfig()).apply {
+    val varselRepository = VarselRepository(appContext.database)
+    val eksternVarslingStatusRepository = EksternVarslingStatusRepository(appContext.database)
+    val eksternVarslingStatusUpdater = EksternVarslingStatusUpdater(eksternVarslingStatusRepository, varselRepository)
+    RapidApplication.create(appContext.environment.rapidConfig() + mapOf("HTTP_PORT" to "8090")).apply {
         BeskjedSink(
             rapidsConnection = this,
-            beskjedRepository = appContext.beskjedRepository,
+            varselRepository = varselRepository,
             rapidMetricsProbe = rapidMetricsProbe,
             writeToDb = appContext.environment.rapidWriteToDb
         )
         OppgaveSink(
             rapidsConnection = this,
-            oppgaveRepository = appContext.oppgaveRepository,
+            varselRepository = varselRepository,
             rapidMetricsProbe = rapidMetricsProbe,
             writeToDb = appContext.environment.rapidWriteToDb
         )
         InnboksSink(
             rapidsConnection = this,
-            innboksRepository = appContext.innboksRepository,
+            varselRepository = varselRepository,
             rapidMetricsProbe = rapidMetricsProbe,
             writeToDb = appContext.environment.rapidWriteToDb
         )
         DoneSink(
             rapidsConnection = this,
-            doneRepository = appContext.doneRepository,
+            varselRepository = varselRepository,
             rapidMetricsProbe = rapidMetricsProbe,
+            writeToDb = appContext.environment.rapidWriteToDb
+        )
+        EksternVarslingStatusSink(
+            rapidsConnection = this,
+            eksternVarslingStatusUpdater = eksternVarslingStatusUpdater,
             writeToDb = appContext.environment.rapidWriteToDb
         )
     }.start()

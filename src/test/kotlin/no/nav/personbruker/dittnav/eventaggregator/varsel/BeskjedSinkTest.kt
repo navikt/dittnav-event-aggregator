@@ -7,7 +7,6 @@ import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.toBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
@@ -17,7 +16,7 @@ import org.junit.jupiter.api.Test
 
 class BeskjedSinkTest {
     private val database = LocalPostgresDatabase.migratedDb()
-    private val beskjedRepository = BeskjedRepository(database)
+    private val varselRepository = VarselRepository(database)
 
     @BeforeEach
     fun resetDb() {
@@ -77,7 +76,7 @@ class BeskjedSinkTest {
 
     private fun setupBeskjedSink(testRapid: TestRapid, writeToDb: Boolean = true) = BeskjedSink(
         rapidsConnection = testRapid,
-        beskjedRepository = beskjedRepository,
+        varselRepository = varselRepository,
         rapidMetricsProbe = mockk(relaxed = true),
         writeToDb = writeToDb
     )

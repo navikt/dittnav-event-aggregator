@@ -9,7 +9,6 @@ import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.toOppgave
 import org.junit.jupiter.api.BeforeEach
@@ -17,7 +16,7 @@ import org.junit.jupiter.api.Test
 
 class OppgaveSinkTest {
     private val database = LocalPostgresDatabase.migratedDb()
-    private val oppgaveRepository = OppgaveRepository(database)
+    private val varselRepository = VarselRepository(database)
 
     @BeforeEach
     fun resetDb() {
@@ -72,7 +71,7 @@ class OppgaveSinkTest {
 
     private fun setupOppgaveSink(testRapid: TestRapid, writeToDb: Boolean = true) = OppgaveSink(
         rapidsConnection = testRapid,
-        oppgaveRepository = oppgaveRepository,
+        varselRepository = varselRepository,
         rapidMetricsProbe = mockk(relaxed = true),
         writeToDb = writeToDb
     )

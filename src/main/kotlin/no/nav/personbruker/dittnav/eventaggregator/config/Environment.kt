@@ -34,6 +34,7 @@ data class Environment(val groupId: String = getEnvVar("GROUP_ID"),
                        val rapidTopic: String = getEnvVar("RAPID_TOPIC"),
                        val rapidEnabled: Boolean = getEnvVar("RAPID_ENABLED", "false").toBoolean(),
                        val rapidWriteToDb: Boolean = getEnvVar("RAPID_WRITE_TO_DB", "false").toBoolean(),
+                       val rapidOnly: Boolean = getEnvVar("RAPID_ONLY", "false").toBoolean(),
                        val archivingEnabled: Boolean = getEnvVarAsBoolean("ARCHIVING_ENABLED"),
                        val archivingThresholdDays: Int = getEnvVarAsInt("ARCHIVING_THRESHOLD")
 ) {
@@ -43,8 +44,7 @@ data class Environment(val groupId: String = getEnvVar("GROUP_ID"),
         "KAFKA_RAPID_TOPIC" to rapidTopic,
         "KAFKA_KEYSTORE_PATH" to securityConfig.variables!!.aivenKeystorePath,
         "KAFKA_CREDSTORE_PASSWORD" to securityConfig.variables.aivenCredstorePassword,
-        "KAFKA_TRUSTSTORE_PATH" to securityConfig.variables.aivenTruststorePath,
-        "HTTP_PORT" to "8090"
+        "KAFKA_TRUSTSTORE_PATH" to securityConfig.variables.aivenTruststorePath
     )
 }
 

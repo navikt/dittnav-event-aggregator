@@ -10,13 +10,12 @@ import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks
-import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 internal class InnboksSink(
     rapidsConnection: RapidsConnection,
-    private val innboksRepository: InnboksRepository,
+    private val varselRepository: VarselRepository,
     private val rapidMetricsProbe: RapidMetricsProbe,
     private val writeToDb: Boolean
 ) :
@@ -65,7 +64,7 @@ internal class InnboksSink(
 
         runBlocking {
             if(writeToDb) {
-                innboksRepository.createInOneBatch(listOf(innboks))
+                varselRepository.persistVarsel(innboks)
                 log.info("Behandlet innboks fra rapid med eventid ${innboks.eventId}")
             } else {
                 log.info("Dryrun: innboks fra rapid med eventid ${innboks.eventId}")

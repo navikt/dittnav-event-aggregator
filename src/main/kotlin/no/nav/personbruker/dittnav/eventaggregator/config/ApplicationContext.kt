@@ -46,7 +46,7 @@ class ApplicationContext {
     private val dbMetricsProbe = buildDBMetricsProbe(environment)
     private val archivingMetricsProbe = buildArchivingMetricsProbe(environment)
 
-    val beskjedRepository = BeskjedRepository(database)
+    private val beskjedRepository = BeskjedRepository(database)
     private val beskjedPersistingService = BrukernotifikasjonPersistingService(beskjedRepository)
     private val beskjedEventProcessor = BeskjedEventService(beskjedPersistingService, eventMetricsProbe)
     private val beskjedKafkaProps = Kafka.consumerPropsForEventType(environment, EventType.BESKJED_INTERN)
@@ -55,7 +55,7 @@ class ApplicationContext {
     private val beskjedArchivingRepository = BeskjedArchivingRepository(database)
     private var beskjedArchiver = PeriodicBeskjedArchiver(beskjedArchivingRepository, archivingMetricsProbe, environment.archivingThresholdDays)
 
-    val oppgaveRepository = OppgaveRepository(database)
+    private val oppgaveRepository = OppgaveRepository(database)
     private val oppgavePersistingService = BrukernotifikasjonPersistingService(oppgaveRepository)
     private val oppgaveEventProcessor = OppgaveEventService(oppgavePersistingService, eventMetricsProbe)
     private val oppgaveKafkaProps = Kafka.consumerPropsForEventType(environment, EventType.OPPGAVE_INTERN)
@@ -64,7 +64,7 @@ class ApplicationContext {
     private val oppgaveArchivingRepository = OppgaveArchivingRepository(database)
     private var oppgaveArchiver = PeriodicOppgaveArchiver(oppgaveArchivingRepository, archivingMetricsProbe, environment.archivingThresholdDays)
 
-    val innboksRepository = InnboksRepository(database)
+    private val innboksRepository = InnboksRepository(database)
     private val innboksPersistingService = BrukernotifikasjonPersistingService(innboksRepository)
     private val innboksEventProcessor = InnboksEventService(innboksPersistingService, eventMetricsProbe)
     private val innboksKafkaProps = Kafka.consumerPropsForEventType(environment, EventType.INNBOKS_INTERN)

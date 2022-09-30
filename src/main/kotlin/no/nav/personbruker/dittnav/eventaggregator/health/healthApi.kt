@@ -12,7 +12,7 @@ import io.prometheus.client.exporter.common.TextFormat
 
 fun Routing.healthApi(healthService: HealthService) {
 
-    get("/internal/isAlive") {
+    get("/isalive") {
         if(isAlive(healthService)) {
             call.respondText(text = "ALIVE", contentType = ContentType.Text.Plain)
         } else {
@@ -20,7 +20,7 @@ fun Routing.healthApi(healthService: HealthService) {
         }
     }
 
-    get("/internal/isReady") {
+    get("/isready") {
         if (isReady(healthService)) {
             call.respondText(text = "READY", contentType = ContentType.Text.Plain)
         } else {

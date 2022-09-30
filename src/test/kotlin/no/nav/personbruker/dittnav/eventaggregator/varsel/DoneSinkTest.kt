@@ -7,21 +7,17 @@ import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.toBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
 import no.nav.personbruker.dittnav.eventaggregator.done.Done
-import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
 import no.nav.personbruker.dittnav.eventaggregator.done.deleteAllDone
 import no.nav.personbruker.dittnav.eventaggregator.done.toDoneEvent
 import no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks
-import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksRepository
 import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.toInnboks
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.toOppgave
 import org.junit.jupiter.api.BeforeEach
@@ -29,11 +25,7 @@ import org.junit.jupiter.api.Test
 
 class DoneSinkTest {
     private val database = LocalPostgresDatabase.migratedDb()
-    private val beskjedRepository = BeskjedRepository(database)
-    private val oppgaveRepository = OppgaveRepository(database)
-    private val innboksRepository = InnboksRepository(database)
-
-    private val doneRepository = DoneRepository(database)
+    private val varselRepository = VarselRepository(database)
 
     @BeforeEach
     fun resetDb() {
@@ -49,8 +41,8 @@ class DoneSinkTest {
     fun `Inaktiverer varsel`() = runBlocking {
         val testRapid = TestRapid()
         setupBeskjedSink(testRapid)
-        OppgaveSink(testRapid, oppgaveRepository, mockk(relaxed = true), writeToDb = true)
-        InnboksSink(testRapid, innboksRepository, mockk(relaxed = true), writeToDb = true)
+        OppgaveSink(testRapid, varselRepository, mockk(relaxed = true), writeToDb = true)
+        InnboksSink(testRapid, varselRepository, mockk(relaxed = true), writeToDb = true)
         setupDoneSink(testRapid)
 
         testRapid.sendTestMessage(varselJson("beskjed", "11"))
@@ -118,14 +110,14 @@ class DoneSinkTest {
 
     private fun setupBeskjedSink(testRapid: TestRapid) = BeskjedSink(
         rapidsConnection = testRapid,
-        beskjedRepository = beskjedRepository,
+        varselRepository = varselRepository,
         rapidMetricsProbe = mockk(relaxed = true),
         writeToDb = true
     )
 
     private fun setupDoneSink(testRapid: TestRapid, writeToDb: Boolean = true) = DoneSink(
         rapidsConnection = testRapid,
-        doneRepository = doneRepository,
+        varselRepository = varselRepository,
         rapidMetricsProbe = mockk(relaxed = true),
         writeToDb = writeToDb
     )

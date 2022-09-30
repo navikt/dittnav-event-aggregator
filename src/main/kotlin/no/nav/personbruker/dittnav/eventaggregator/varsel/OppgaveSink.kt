@@ -11,13 +11,12 @@ import no.nav.helse.rapids_rivers.asOptionalLocalDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 internal class OppgaveSink(
     rapidsConnection: RapidsConnection,
-    private val oppgaveRepository: OppgaveRepository,
+    private val varselRepository: VarselRepository,
     private val rapidMetricsProbe: RapidMetricsProbe,
     private val writeToDb: Boolean
 ) :
@@ -67,7 +66,7 @@ internal class OppgaveSink(
 
         runBlocking {
             if(writeToDb) {
-                oppgaveRepository.createInOneBatch(listOf(oppgave))
+                varselRepository.persistOppgave(oppgave)
                 log.info("Behandlet oppgave fra rapid med eventid ${oppgave.eventId}")
             } else {
                 log.info("Dryrun: oppgave fra rapid med eventid ${oppgave.eventId}")
