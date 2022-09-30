@@ -9,6 +9,7 @@ import no.nav.personbruker.dittnav.eventaggregator.config.Environment
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.metrics.DoknotifikasjonStatusMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.varsel.RapidMetricsProbe
+import java.util.concurrent.TimeUnit
 
 fun buildEventMetricsProbe(environment: Environment): EventMetricsProbe {
     val metricsReporter = resolveMetricsReporter(environment)
@@ -37,12 +38,12 @@ private fun resolveMetricsReporter(environment: Environment): MetricsReporter {
     return if (environment.influxdbHost == "" || environment.influxdbHost == "stub") {
         StubMetricsReporter()
     } else {
-        val sensuConfig = createSensuConfig(environment)
+        val sensuConfig = createInfluxConfig(environment)
         InfluxMetricsReporter(sensuConfig)
     }
 }
 
-private fun createSensuConfig(environment: Environment) = InfluxConfig(
+private fun createInfluxConfig(environment: Environment) = InfluxConfig(
         applicationName = "dittnav-event-aggregator",
         hostName = environment.influxdbHost,
         hostPort = environment.influxdbPort,
@@ -51,5 +52,6 @@ private fun createSensuConfig(environment: Environment) = InfluxConfig(
         clusterName = environment.clusterName,
         namespace = environment.namespace,
         userName = environment.influxdbUser,
-        password = environment.influxdbPassword
+        password = environment.influxdbPassword,
+        timePrecision = TimeUnit.NANOSECONDS
 )
