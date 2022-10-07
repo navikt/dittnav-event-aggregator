@@ -1,7 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.helse.rapids_rivers.RapidsConnection
@@ -19,16 +17,7 @@ import no.nav.personbruker.dittnav.eventaggregator.varsel.eksternvarslingstatus.
 fun main() {
     val appContext = ApplicationContext()
 
-    if(appContext.environment.rapidOnly) {
-        startRapid(appContext.environment, appContext.database, appContext)
-    }
-    else {
-        embeddedServer(Netty, port = 8080) {
-            eventAggregatorApi(
-                appContext
-            )
-        }.start(wait = true)
-    }
+    startRapid(appContext.environment, appContext.database, appContext)
 }
 
 private fun startRapid(environment: Environment, database: Database, appContext: ApplicationContext) {
