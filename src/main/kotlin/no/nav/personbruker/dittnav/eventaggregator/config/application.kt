@@ -66,7 +66,6 @@ private fun startRapid(environment: Environment, database: Database, appContext:
             override fun onShutdown(rapidsConnection: RapidsConnection) {
                 runBlocking {
                     appContext.periodicDoneEventWaitingTableProcessor.stop()
-                    appContext.kafkaProducerDone.flushAndClose()
                     appContext.stopAllArchivers()
                 }
             }
