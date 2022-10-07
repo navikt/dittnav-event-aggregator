@@ -17,7 +17,7 @@ class DoneQueriesTest {
     init {
         runBlocking {
             database.dbQuery {
-                createDoneEvents(listOf(done1, done2, done3))
+                listOf(done1, done2, done3).forEach { createDoneEvent(it) }
             }
         }
     }
@@ -25,7 +25,7 @@ class DoneQueriesTest {
     @Test
     fun `Finner alle cachede Done-eventer`() {
         runBlocking {
-            val result = database.dbQuery { getAllDoneEvent() }
+            val result = database.dbQuery { getAllDoneEventWithLimit(100) }
             result.size shouldBe 3
             result shouldContainAll allEvents
         }
@@ -38,13 +38,13 @@ class DoneQueriesTest {
         val doneEventsToInsertAndThenDelete = listOf(doneEvent1, doneEvent2)
 
         runBlocking {
-            database.dbQuery { createDoneEvents(doneEventsToInsertAndThenDelete) }
-            val antallDoneEventerForSletting = database.dbQuery { getAllDoneEvent() }
+            database.dbQuery { doneEventsToInsertAndThenDelete.forEach { createDoneEvent(it) } }
+            val antallDoneEventerForSletting = database.dbQuery { getAllDoneEventWithLimit(100) }
             val expectedAntallDoneEventerEtterSletting = antallDoneEventerForSletting.size - doneEventsToInsertAndThenDelete.size
 
             database.dbQuery { deleteDoneEvents(doneEventsToInsertAndThenDelete) }
 
-            val antallDoneEventerEtterSletting = database.dbQuery { getAllDoneEvent() }
+            val antallDoneEventerEtterSletting = database.dbQuery { getAllDoneEventWithLimit(100) }
             antallDoneEventerEtterSletting.size shouldBe expectedAntallDoneEventerEtterSletting
         }
     }

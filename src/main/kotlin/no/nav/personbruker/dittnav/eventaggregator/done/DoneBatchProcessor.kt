@@ -48,10 +48,6 @@ class DoneBatchProcessor(private val existingEntitiesInDatabase: List<Brukernoti
         }
     }
 
-    fun isMoreEventsToProcess(): Boolean {
-        return notFoundEvents.isNotEmpty()
-    }
-
     override fun toString(): String {
         val antallDoneEventer = allFoundEvents.size + notFoundEvents.size
         val antallBrukernotifikasjoner = existingEntitiesInDatabase.size

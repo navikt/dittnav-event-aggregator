@@ -91,15 +91,15 @@ class PeriodicDoneEventWaitingTableProcessorTest {
         val associatedBeskjed = BeskjedObjectMother.giveMeAktivBeskjed(expectedEventId, expectedFodselsnr, expectedSystembruker)
 
         runBlocking {
-            database.dbQuery { createDoneEvents(listOf(doneEvent)) }
+            database.dbQuery { createDoneEvent(doneEvent) }
             database.dbQuery { createBeskjed(associatedBeskjed) }
 
-            val elementsInDoneTableBeforeProcessing = database.dbQuery { getAllDoneEvent() }
+            val elementsInDoneTableBeforeProcessing = database.dbQuery { getAllDoneEventWithLimit(100) }
             val expectedNumberOfEventsAfterProcessing = elementsInDoneTableBeforeProcessing.size - 1
 
             eventConsumer.processDoneEvents()
 
-            val elementsInDoneTableAfterProcessing = database.dbQuery { getAllDoneEvent() }
+            val elementsInDoneTableAfterProcessing = database.dbQuery { getAllDoneEventWithLimit(100) }
             elementsInDoneTableAfterProcessing.size shouldBe expectedNumberOfEventsAfterProcessing
         }
     }
@@ -108,7 +108,7 @@ class PeriodicDoneEventWaitingTableProcessorTest {
     fun `feiler ikke hvis event med samme eventId som Done-event ikke er mottatt`() {
         shouldNotThrow<Exception> {
             runBlocking {
-                database.dbQuery { createDoneEvents(listOf(DoneObjectMother.giveMeDone("-1"))) }
+                database.dbQuery { createDoneEvent(DoneObjectMother.giveMeDone("-1")) }
                 eventConsumer.processDoneEvents()
             }
         }
@@ -128,7 +128,7 @@ class PeriodicDoneEventWaitingTableProcessorTest {
         }
         runBlocking {
             database.dbQuery { createBeskjed(beskjed) }
-            database.dbQuery { createDoneEvents(doneEvents) }
+            database.dbQuery { doneEvents.forEach { createDoneEvent(it) } }
             eventConsumer.processDoneEvents()
         }
 

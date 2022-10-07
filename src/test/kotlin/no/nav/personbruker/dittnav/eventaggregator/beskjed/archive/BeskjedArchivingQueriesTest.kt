@@ -8,6 +8,8 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgres
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.*
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusDtoObjectMother.createDoknotifikasjonStatusDto
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusEnum.FERDIGSTILT
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
+import no.nav.personbruker.dittnav.eventaggregator.varsel.eksternvarslingstatus.upsertDoknotifikasjonStatus
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
@@ -134,7 +136,7 @@ internal class BeskjedArchivingQueriesTest {
         }
     }
 
-    suspend fun createDoknotStatusInDb(eventId: String, status: DoknotifikasjonStatusEnum, kanaler: String) {
+    private suspend fun createDoknotStatusInDb(eventId: String, status: DoknotifikasjonStatusEnum, kanaler: String) {
         val doknotStatusBeskjed = createDoknotifikasjonStatusDto(
             eventId = eventId,
             status = status.name,
@@ -142,7 +144,7 @@ internal class BeskjedArchivingQueriesTest {
         )
 
         database.dbQuery {
-            upsertDoknotifikasjonStatusForBeskjed(listOf(doknotStatusBeskjed))
+            upsertDoknotifikasjonStatus(doknotStatusBeskjed, VarselType.BESKJED)
         }
     }
 }

@@ -5,24 +5,18 @@ import java.time.LocalDateTime
 
 object BeskjedObjectMother {
 
-    const val defaultSystembruker = "systembruker"
-    const val defaultNamespace = "namespace"
-    const val defaultAppnavn = "appnavn"
-    const val defaultFodselsnummer = "123"
-    const val defaultEventId = "12345"
-    const val defaultGrupperingsId = "grupperingsId"
-    const val defaultTekst = "tekst"
-    const val defaultLink = "http://link"
-    const val defaultSikkerhetsnivaa = 4
-    const val defaultAktiv = true
-    const val defaultEksternVarsling = false
+    private const val defaultSystembruker = "systembruker"
+    private const val defaultNamespace = "namespace"
+    private const val defaultAppnavn = "appnavn"
+    private const val defaultFodselsnummer = "123"
+    private const val defaultEventId = "12345"
+    private const val defaultGrupperingsId = "grupperingsId"
+    private const val defaultTekst = "tekst"
+    private const val defaultLink = "http://link"
+    private const val defaultSikkerhetsnivaa = 4
+    private const val defaultAktiv = true
+    private const val defaultEksternVarsling = false
 
-    fun giveMeTwoAktiveBeskjeder(): List<Beskjed> {
-        return listOf(
-                giveMeAktivBeskjed("b-1", "123"),
-                giveMeAktivBeskjed("b-2", "123")
-        )
-    }
 
     fun giveMeAktivBeskjed(): Beskjed {
         return giveMeBeskjed(eventId = "b-1", fodselsnummer = "123")
@@ -51,13 +45,6 @@ object BeskjedObjectMother {
     fun giveMeAktivBeskjedWithEksternVarslingAndPrefererteKanaler(eksternVarsling: Boolean, prefererteKanaler: List<String>): Beskjed {
         val beskjed = giveMeBeskjed(eventId = "B-3", fodselsnummer = "1234", systembruker = "dummySystembruker", link = "https://nav.no/systemX/")
         return beskjed.copy(eksternVarsling = eksternVarsling, prefererteKanaler = prefererteKanaler)
-    }
-
-    fun giveMeBeskjedWithEventIdAndAppnavn(eventId: String, appnavn: String): Beskjed {
-        return giveMeBeskjed(
-            eventId = eventId,
-            appnavn = appnavn
-        )
     }
 
     fun giveMeBeskjed(

@@ -7,6 +7,8 @@ import no.nav.personbruker.dittnav.eventaggregator.innboks.*
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.*
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusEnum.FERDIGSTILT
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
+import no.nav.personbruker.dittnav.eventaggregator.varsel.eksternvarslingstatus.upsertDoknotifikasjonStatus
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
@@ -81,7 +83,7 @@ internal class InnboksArchivingRepositoryTest {
         }
     }
 
-    suspend fun createDoknotStatusInDb(eventId: String, status: DoknotifikasjonStatusEnum, kanaler: String): DoknotifikasjonStatusDto {
+    private suspend fun createDoknotStatusInDb(eventId: String, status: DoknotifikasjonStatusEnum, kanaler: String): DoknotifikasjonStatusDto {
         val doknotStatusInnboks = DoknotifikasjonStatusDtoObjectMother.createDoknotifikasjonStatusDto(
             eventId = eventId,
             status = status.name,
@@ -89,7 +91,8 @@ internal class InnboksArchivingRepositoryTest {
         )
 
         database.dbQuery {
-            upsertDoknotifikasjonStatusForInnboks(listOf(doknotStatusInnboks))
+            upsertDoknotifikasjonStatus(doknotStatusInnboks, VarselType.INNBOKS)
+
         }
 
         return doknotStatusInnboks

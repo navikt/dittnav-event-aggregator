@@ -49,7 +49,6 @@ internal class DoneBatchProcessorTest {
         processor.foundInnboks.size shouldBe 0
         processor.foundOppgave.size shouldBe 0
         processor.notFoundEvents.size shouldBe 0
-        processor.isMoreEventsToProcess() shouldBe false
     }
 
     @Test
@@ -63,7 +62,6 @@ internal class DoneBatchProcessorTest {
         processor.foundInnboks.size shouldBe 0
         processor.foundOppgave.size shouldBe 0
         processor.notFoundEvents.size shouldBe 2
-        processor.isMoreEventsToProcess() shouldBe true
     }
 
     @Test
