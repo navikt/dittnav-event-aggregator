@@ -15,10 +15,7 @@ object PrometheusMetricsCollector {
             .labelNames("type", "producer")
             .register()
 
-
     fun registerEventsCached(count: Int, eventType: EventType, producer: String) {
         MESSAGES_CACHED.labels(eventType.eventType, producer).inc(count.toDouble())
     }
-
-
 }

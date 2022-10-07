@@ -1,15 +1,11 @@
 package no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon
 
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.*
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executeBatchPersistQuery
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.toBatchPersistResult
 import java.sql.Connection
 import java.sql.PreparedStatement
-import java.sql.ResultSet
 import java.sql.Types
-
-private fun getQuery(eventType: String) = """
-    SELECT * FROM doknotifikasjon_status_${eventType} WHERE eventId = ANY(?)
-"""
 
 private fun upsertQuery(eventType: String) = """
     INSERT INTO doknotifikasjon_status_${eventType}(eventId, status, melding, distribusjonsId, kanaler, tidspunkt, antall_oppdateringer) VALUES(?, ?, ?, ?, ?, ?, ?)
@@ -60,14 +56,3 @@ private fun PreparedStatement.buildStatementForSingleRow(dokStatus: Doknotifikas
     setObject(6, nowAtUtc(), Types.TIMESTAMP)
     setInt(7, dokStatus.antallOppdateringer)
 }
-
-private fun ResultSet.toDoknotifikasjonStatusDto() =
-    DoknotifikasjonStatusDto(
-        eventId = getString("eventId"),
-        status = getString("status"),
-        melding = getString("melding"),
-        distribusjonsId = getLong("distribusjonsId"),
-        kanaler = getListFromSeparatedString("kanaler", ","),
-        antallOppdateringer = getInt("antall_oppdateringer"),
-        bestillerAppnavn = ""
-    )

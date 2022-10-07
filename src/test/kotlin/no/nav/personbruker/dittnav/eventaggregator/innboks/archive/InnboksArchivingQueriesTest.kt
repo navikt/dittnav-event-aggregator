@@ -134,7 +134,7 @@ internal class InnboksArchivingQueriesTest {
         }
     }
 
-    suspend fun createDoknotStatusInDb(eventId: String, status: DoknotifikasjonStatusEnum, kanaler: String) {
+    private suspend fun createDoknotStatusInDb(eventId: String, status: DoknotifikasjonStatusEnum, kanaler: String) {
         val doknotStatusInnboks = createDoknotifikasjonStatusDto(
             eventId = eventId,
             status = status.name,

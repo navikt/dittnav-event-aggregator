@@ -3,12 +3,13 @@ package no.nav.personbruker.dittnav.eventaggregator.common.database.util
 import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistOutcome
-import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import java.sql.*
 import java.sql.Array
+import java.sql.Connection
+import java.sql.PreparedStatement
+import java.sql.ResultSet
+import java.sql.SQLException
+import java.sql.Statement
 import java.time.LocalDateTime
-
-const val countResultColumnIndex = 1
 
 fun <T> ResultSet.singleResult(result: ResultSet.() -> T): T =
         if (next()) {
@@ -61,14 +62,6 @@ fun Connection.executeBatchPersistQuery(sql: String, paramInit: PreparedStatemen
 
 fun <T> IntArray.toBatchPersistResult(paramList: List<T>) = ListPersistActionResult.mapParamListToResultArray(paramList, this)
 
-inline fun <T> List<T>.persistEachIndividuallyAndAggregateResults(persistAction: (T) -> PersistActionResult): ListPersistActionResult<T> {
-    return map { entity ->
-        entity to persistAction(entity).persistOutcome
-    }.let { aggregate ->
-        ListPersistActionResult.mapListOfIndividualResults(aggregate)
-    }
-}
-
 fun Connection.toVarcharArray(stringList: List<String>): Array {
     return createArrayOf("VARCHAR", stringList.toTypedArray())
 }
@@ -85,18 +78,6 @@ fun Connection.executePersistQuery(sql: String, paramInit: PreparedStatement.() 
                 PersistActionResult.failure(PersistOutcome.NO_INSERT_OR_UPDATE)
             }
         }
-
-fun Connection.countTotalNumberOfEvents(eventType: EventType): Long {
-    val numberOfEvents = prepareStatement("SELECT count(*) from ${eventType.eventType}",
-            ResultSet.TYPE_SCROLL_INSENSITIVE,
-            ResultSet.CONCUR_READ_ONLY)
-            .use { statement ->
-                val resultSet = statement.executeQuery()
-                resultSet.last()
-                resultSet.getLong(countResultColumnIndex)
-            }
-    return numberOfEvents
-}
 
 fun ResultSet.getListFromSeparatedString(columnLabel: String, separator: String): List<String> {
     val stringValue = getString(columnLabel)

@@ -8,8 +8,6 @@ import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.countTotalNumberOfEvents
-import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
 
@@ -165,16 +163,6 @@ class BeskjedQueriesTest {
         }
 
     }
-
-    @Test
-    fun `Skal telle det totale antall beskjeder`() {
-        runBlocking {
-            database.dbQuery {
-                countTotalNumberOfEvents(EventType.BESKJED_INTERN)
-            }
-        } shouldBe allEvents.size.toLong()
-    }
-
     @Test
     fun `Finner utgått beskjeder`() {
         runBlocking {
