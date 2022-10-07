@@ -23,40 +23,9 @@ private fun upsertQuery(eventType: String) = """
             antall_oppdateringer = excluded.antall_oppdateringer
 """
 
-private val getQueryBeskjed = getQuery("beskjed")
-private val getQueryOppgave = getQuery("oppgave")
-private val getQueryInnboks = getQuery("innboks")
-
 private val upsertQueryBeskjed = upsertQuery("beskjed")
 private val upsertQueryOppgave = upsertQuery("oppgave")
 private val upsertQueryInnboks = upsertQuery("innboks")
-
-fun Connection.getDoknotifikasjonStatusesForBeskjed(eventIds: List<String>): List<DoknotifikasjonStatusDto> =
-    prepareStatement(getQueryBeskjed)
-        .use {
-            it.setArray(1, toVarcharArray(eventIds))
-            it.executeQuery().list {
-                toDoknotifikasjonStatusDto()
-            }
-        }
-
-fun Connection.getDoknotifikasjonStatusesForOppgave(eventIds: List<String>): List<DoknotifikasjonStatusDto> =
-    prepareStatement(getQueryOppgave)
-        .use {
-            it.setArray(1, toVarcharArray(eventIds))
-            it.executeQuery().list {
-                toDoknotifikasjonStatusDto()
-            }
-        }
-
-fun Connection.getDoknotifikasjonStatusesForInnboks(eventIds: List<String>): List<DoknotifikasjonStatusDto> =
-    prepareStatement(getQueryInnboks)
-        .use {
-            it.setArray(1, toVarcharArray(eventIds))
-            it.executeQuery().list {
-                toDoknotifikasjonStatusDto()
-            }
-        }
 
 fun Connection.upsertDoknotifikasjonStatusForBeskjed(statuses: List<DoknotifikasjonStatusDto>) =
     executeBatchPersistQuery(upsertQueryBeskjed) {

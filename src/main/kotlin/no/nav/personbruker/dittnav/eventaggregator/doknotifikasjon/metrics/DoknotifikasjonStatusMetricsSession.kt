@@ -2,7 +2,6 @@ package no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.metrics
 
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusDto
-import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.UpdateStatusResult
 
 class DoknotifikasjonStatusMetricsSession {
 
@@ -11,19 +10,6 @@ class DoknotifikasjonStatusMetricsSession {
     private val statusesWithoutMatch = HashMap<EventType, List<DoknotifikasjonStatusDto>>()
 
     private val startTime = System.nanoTime()
-
-    fun countStatuses(dokStatus: List<DoknotifikasjonStatusDto>) {
-        allStatusesByProducer = countStatusesPerProducer(dokStatus)
-    }
-
-    fun recordUpdateResult(eventType: EventType, dokStatus: UpdateStatusResult) {
-        statusesSuccessfullyUpdatedByType[eventType] = dokStatus.updatedStatuses
-        statusesWithoutMatch[eventType] = dokStatus.unmatchedStatuses
-    }
-
-    private fun countStatusesPerProducer(dokStatus: List<DoknotifikasjonStatusDto>): Map<String, Int> {
-        return dokStatus.groupingBy { it.bestillerAppnavn }.eachCount()
-    }
 
     fun timeElapsedSinceSessionStartNanos(): Long {
         return System.nanoTime() - startTime
