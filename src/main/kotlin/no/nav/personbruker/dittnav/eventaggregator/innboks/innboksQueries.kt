@@ -9,16 +9,7 @@ import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
 
-fun Connection.getInnboksById(entityId: Int): Innboks =
-        prepareStatement("""SELECT * FROM innboks WHERE id = ?""")
-                .use {
-                    it.setInt(1, entityId)
-                    it.executeQuery().singleResult {
-                        toInnboks()
-                    }
-                }
-
-private val createQuery = """INSERT INTO innboks(systembruker, eventTidspunkt, forstBehandlet, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn)
+private const val createQuery = """INSERT INTO innboks(systembruker, eventTidspunkt, forstBehandlet, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn)
             VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
 fun Connection.createInnboksEventer(innboksEventer: List<Innboks>) =
@@ -32,15 +23,6 @@ fun Connection.createInnboksEventer(innboksEventer: List<Innboks>) =
 fun Connection.createInnboks(innboks: Innboks): PersistActionResult =
         executePersistQuery(createQuery) {
             buildStatementForSingleRow(innboks)
-        }
-
-fun Connection.getInnboksWithEksternVarslingForEventIds(eventIds: List<String>): List<Innboks> =
-    prepareStatement("""SELECT * FROM innboks WHERE eksternvarsling = true AND eventid = ANY(?)""")
-        .use {
-            it.setArray(1, toVarcharArray(eventIds))
-            it.executeQuery().list {
-                toInnboks()
-            }
         }
 
 private fun PreparedStatement.buildStatementForSingleRow(innboks: Innboks) {

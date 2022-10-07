@@ -7,31 +7,19 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executeP
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getListFromSeparatedString
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getNullableLocalDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getUtcDateTime
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.toVarcharArray
 import no.nav.personbruker.dittnav.eventaggregator.done.Done
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
 
-private val createQuery = """INSERT INTO beskjed (systembruker, eventTidspunkt, forstBehandlet, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn)
+private const val createQuery = """INSERT INTO beskjed (systembruker, eventTidspunkt, forstBehandlet, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
-
 
 
 fun Connection.createBeskjed(beskjed: Beskjed): PersistActionResult =
         executePersistQuery(createQuery) {
             setParametersForSingleRow(beskjed)
-        }
-
-fun Connection.getBeskjedWithEksternVarslingForEventIds(eventIds: List<String>): List<Beskjed> =
-    prepareStatement("""SELECT * FROM beskjed WHERE eksternvarsling = true AND eventid = ANY(?)""")
-        .use {
-            it.setArray(1, toVarcharArray(eventIds))
-            it.executeQuery().list {
-                toBeskjed()
-            }
         }
 
 private fun PreparedStatement.setParametersForSingleRow(beskjed: Beskjed) {

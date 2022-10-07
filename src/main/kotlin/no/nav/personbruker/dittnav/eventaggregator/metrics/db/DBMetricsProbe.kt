@@ -15,7 +15,7 @@ class DBMetricsProbe(private val metricsReporter: MetricsReporter) {
         }
     }
 
-    suspend fun handleCachedEvents(session: DBMetricsSession) {
+    private suspend fun handleCachedEvents(session: DBMetricsSession) {
         session.getUniqueProducers().forEach { producer ->
             val numberOfCachedEvents = session.getNumberOfCachedEventsForProducer(producer)
             val eventType = session.eventType

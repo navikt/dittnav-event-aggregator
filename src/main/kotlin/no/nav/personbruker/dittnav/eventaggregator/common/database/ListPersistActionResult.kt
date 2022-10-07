@@ -6,30 +6,6 @@ import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.AggregatorB
 
 class ListPersistActionResult<T> private constructor(private val resultList: List<RowResult<T>>) {
 
-    fun allEntitiesPersisted() = resultList.all { result ->
-        result.status == SUCCESS
-    }
-
-    fun foundUnalteredEntitites() = resultList.any { result ->
-        result.status == NO_INSERT_OR_UPDATE
-    }
-
-    fun getPersistedEntitites() = resultList.filter { result ->
-        result.status == SUCCESS
-    }.map { result ->
-        result.entity
-    }
-
-    fun getUnalteredEntities() = resultList.filter { result ->
-        result.status == NO_INSERT_OR_UPDATE
-    }.map { result ->
-        result.entity
-    }
-
-    fun getAllEntities() = resultList.map { result ->
-        result.entity
-    }
-
     companion object {
         fun <T> mapParamListToResultArray(paramEntities: List<T>, resultArray: IntArray): ListPersistActionResult<T> {
             if (paramEntities.size != resultArray.size) {
@@ -53,10 +29,6 @@ class ListPersistActionResult<T> private constructor(private val resultList: Lis
             }.let { rowResults ->
                 ListPersistActionResult(rowResults)
             }
-        }
-
-        fun <T> emptyInstance() : ListPersistActionResult<T> {
-            return ListPersistActionResult(emptyList())
         }
     }
 }

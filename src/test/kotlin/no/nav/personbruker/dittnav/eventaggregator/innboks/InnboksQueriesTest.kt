@@ -7,7 +7,6 @@ import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
-import no.nav.personbruker.dittnav.eventaggregator.done.DoneObjectMother
 import org.junit.jupiter.api.Test
 
 class InnboksQueriesTest {
@@ -84,16 +83,6 @@ class InnboksQueriesTest {
                 val result = getAllInnboks()
                 result.size shouldBe allInnboks.size
                 result shouldContainAll allInnboks
-            }
-        }
-    }
-
-    @Test
-    fun `finner Innboks med id`() {
-        runBlocking {
-            database.dbQuery {
-                val result = getInnboksById(innboks1.id!!)
-                result shouldBe innboks1
             }
         }
     }
