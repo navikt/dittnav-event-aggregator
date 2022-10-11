@@ -3,16 +3,16 @@ package no.nav.personbruker.dittnav.eventaggregator.config
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.helse.rapids_rivers.RapidsConnection
-import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
-import no.nav.personbruker.dittnav.eventaggregator.metrics.buildRapidMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedSink
+import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingStatusRepository
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingStatusSink
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingStatusUpdater
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneSink
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksSink
+import no.nav.personbruker.dittnav.eventaggregator.metrics.buildRapidMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveSink
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
-import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.eksternvarslingstatus.EksternVarslingStatusRepository
-import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.eksternvarslingstatus.EksternVarslingStatusSink
-import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.eksternvarslingstatus.EksternVarslingStatusUpdater
 
 fun main() {
     val appContext = ApplicationContext()

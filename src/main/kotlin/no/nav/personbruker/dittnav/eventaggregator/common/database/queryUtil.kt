@@ -1,6 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.database.util
 
-import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistOutcome
 import java.sql.Array
@@ -39,28 +38,6 @@ fun Connection.executeBatchUpdateQuery(sql: String, paramInit: PreparedStatement
     }
     commit()
 }
-
-fun Connection.executeBatchPersistQueryIgnoreConflict(sql: String, paramInit: PreparedStatement.() -> Unit): IntArray {
-    autoCommit = false
-    val result = prepareStatement("""$sql ON CONFLICT DO NOTHING""").use { statement ->
-        statement.paramInit()
-        statement.executeBatch()
-    }
-    commit()
-    return result
-}
-
-fun Connection.executeBatchPersistQuery(sql: String, paramInit: PreparedStatement.() -> Unit): IntArray {
-    autoCommit = false
-    val result = prepareStatement(sql).use { statement ->
-        statement.paramInit()
-        statement.executeBatch()
-    }
-    commit()
-    return result
-}
-
-fun <T> IntArray.toBatchPersistResult(paramList: List<T>) = ListPersistActionResult.mapParamListToResultArray(paramList, this)
 
 fun Connection.toVarcharArray(stringList: List<String>): Array {
     return createArrayOf("VARCHAR", stringList.toTypedArray())

@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.eksternvarslingstatus
+package no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon
 
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.JsonMessage
@@ -6,7 +6,6 @@ import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.MessageProblems
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
-import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusDto
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 

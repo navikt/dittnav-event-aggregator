@@ -134,27 +134,6 @@ class InnboksQueriesTest {
     }
 
     @Test
-    fun `Skal skrive eventer i batch`() {
-        val innboks1 = InnboksObjectMother.giveMeAktivInnboks("i-1", "123")
-        val innboks2 = InnboksObjectMother.giveMeAktivInnboks("i-2", "123")
-
-        runBlocking {
-            database.dbQuery {
-                createInnboksEventer(listOf(innboks1, innboks2))
-            }
-
-            val innboks1FraDb = database.dbQuery { getInnboksByEventId(innboks1.eventId) }
-            val innboks2FraDb = database.dbQuery { getInnboksByEventId(innboks2.eventId) }
-
-            innboks1FraDb.eventId shouldBe innboks1.eventId
-            innboks2FraDb.eventId shouldBe innboks2.eventId
-
-            database.dbQuery { deleteInnboksWithEventId(innboks1.eventId) }
-            database.dbQuery { deleteInnboksWithEventId(innboks2.eventId) }
-        }
-    }
-
-    @Test
     fun `Skal haandtere at prefererteKanaler er tom`() {
         val innboks = InnboksObjectMother.giveMeAktivInnboksWithEksternVarslingAndPrefererteKanaler(true, emptyList())
         runBlocking {

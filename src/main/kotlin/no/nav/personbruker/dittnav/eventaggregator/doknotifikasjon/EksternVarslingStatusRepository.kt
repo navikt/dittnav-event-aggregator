@@ -1,7 +1,6 @@
-package no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.eksternvarslingstatus
+package no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon
 
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
-import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusDto
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 
 class EksternVarslingStatusRepository(private val database: Database) {

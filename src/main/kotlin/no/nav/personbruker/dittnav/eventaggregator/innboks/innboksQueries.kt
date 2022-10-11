@@ -12,14 +12,6 @@ import java.sql.Types
 private const val createQuery = """INSERT INTO innboks(systembruker, eventTidspunkt, forstBehandlet, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn)
             VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
-fun Connection.createInnboksEventer(innboksEventer: List<Innboks>) =
-        executeBatchPersistQueryIgnoreConflict(createQuery) {
-            innboksEventer.forEach { innboks ->
-                buildStatementForSingleRow(innboks)
-                addBatch()
-            }
-        }.toBatchPersistResult(innboksEventer)
-
 fun Connection.createInnboks(innboks: Innboks): PersistActionResult =
         executePersistQuery(createQuery) {
             buildStatementForSingleRow(innboks)
