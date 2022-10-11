@@ -7,7 +7,6 @@ import no.nav.personbruker.dittnav.common.metrics.influxdb.InfluxMetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.archive.ArchiveMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.config.Environment
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
-import no.nav.personbruker.dittnav.eventaggregator.varsel.RapidMetricsProbe
 import java.util.concurrent.TimeUnit
 
 fun buildDBMetricsProbe(environment: Environment): DBMetricsProbe {

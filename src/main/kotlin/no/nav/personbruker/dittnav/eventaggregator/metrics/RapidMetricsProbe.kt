@@ -1,8 +1,7 @@
-package no.nav.personbruker.dittnav.eventaggregator.varsel
+package no.nav.personbruker.dittnav.eventaggregator.metrics
 
 import no.nav.personbruker.dittnav.common.metrics.MetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import no.nav.personbruker.dittnav.eventaggregator.metrics.KAFKA_RAPID_EVENTS_PROCESSED
 
 class RapidMetricsProbe(private val metricsReporter: MetricsReporter) {
 

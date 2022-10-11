@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.varsel
+package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.JsonMessage
@@ -7,13 +7,15 @@ import no.nav.helse.rapids_rivers.MessageProblems
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
 import no.nav.helse.rapids_rivers.asLocalDateTime
+import no.nav.helse.rapids_rivers.asOptionalLocalDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks
+import no.nav.personbruker.dittnav.eventaggregator.metrics.RapidMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-internal class InnboksSink(
+internal class BeskjedSink(
     rapidsConnection: RapidsConnection,
     private val varselRepository: VarselRepository,
     private val rapidMetricsProbe: RapidMetricsProbe,
@@ -21,11 +23,11 @@ internal class InnboksSink(
 ) :
     River.PacketListener {
 
-    private val log: Logger = LoggerFactory.getLogger(InnboksSink::class.java)
+    private val log: Logger = LoggerFactory.getLogger(BeskjedSink::class.java)
 
     init {
         River(rapidsConnection).apply {
-            validate { it.demandValue("@event_name", "innboks") }
+            validate { it.demandValue("@event_name", "beskjed") }
             validate { it.demandValue("aktiv", true) }
             validate { it.requireKey(
                 "namespace",
@@ -38,12 +40,12 @@ internal class InnboksSink(
                 "sikkerhetsnivaa",
                 "eksternVarsling"
             ) }
-            validate { it.interestedIn("prefererteKanaler")}
+            validate { it.interestedIn("synligFremTil", "prefererteKanaler")}
         }.register(this)
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
-        val innboks = Innboks(
+        val beskjed = Beskjed(
             id = null,
             systembruker = "N/A",
             namespace = packet["namespace"].textValue(),
@@ -57,6 +59,7 @@ internal class InnboksSink(
             link = packet["link"].textValue(),
             sikkerhetsnivaa = packet["sikkerhetsnivaa"].intValue(),
             sistOppdatert = nowAtUtc(),
+            synligFremTil = packet["synligFremTil"].asOptionalLocalDateTime(),
             aktiv = packet["aktiv"].booleanValue(),
             eksternVarsling = packet["eksternVarsling"].booleanValue(),
             prefererteKanaler = packet["prefererteKanaler"].map { it.textValue() }
@@ -64,12 +67,13 @@ internal class InnboksSink(
 
         runBlocking {
             if(writeToDb) {
-                varselRepository.persistVarsel(innboks)
-                log.info("Behandlet innboks fra rapid med eventid ${innboks.eventId}")
-            } else {
-                log.info("Dryrun: innboks fra rapid med eventid ${innboks.eventId}")
+                varselRepository.persistBeskjed(beskjed)
+                log.info("Behandlet beskjed fra rapid med eventid ${beskjed.eventId}")
             }
-            rapidMetricsProbe.countProcessed(EventType.INNBOKS_INTERN, innboks.appnavn)
+            else {
+                log.info("Dryrun: beskjed fra rapid med eventid ${beskjed.eventId}")
+            }
+            rapidMetricsProbe.countProcessed(EventType.BESKJED_INTERN, beskjed.appnavn)
         }
     }
 

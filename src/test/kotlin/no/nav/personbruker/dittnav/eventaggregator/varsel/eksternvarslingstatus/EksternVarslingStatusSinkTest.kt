@@ -14,9 +14,12 @@ import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.deleteAllDokn
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.deleteAllDoknotifikasjonStatusOppgave
 import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
-import no.nav.personbruker.dittnav.eventaggregator.varsel.BeskjedSink
-import no.nav.personbruker.dittnav.eventaggregator.varsel.InnboksSink
-import no.nav.personbruker.dittnav.eventaggregator.varsel.OppgaveSink
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedSink
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.eksternvarslingstatus.EksternVarslingStatusRepository
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.eksternvarslingstatus.EksternVarslingStatusSink
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.eksternvarslingstatus.EksternVarslingStatusUpdater
+import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksSink
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveSink
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import org.junit.jupiter.api.BeforeEach

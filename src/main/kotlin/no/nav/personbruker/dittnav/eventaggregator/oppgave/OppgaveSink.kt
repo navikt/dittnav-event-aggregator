@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.varsel
+package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.JsonMessage
@@ -8,13 +8,14 @@ import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
 import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.helse.rapids_rivers.asOptionalLocalDateTime
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
+import no.nav.personbruker.dittnav.eventaggregator.metrics.RapidMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-internal class BeskjedSink(
+internal class OppgaveSink(
     rapidsConnection: RapidsConnection,
     private val varselRepository: VarselRepository,
     private val rapidMetricsProbe: RapidMetricsProbe,
@@ -22,11 +23,11 @@ internal class BeskjedSink(
 ) :
     River.PacketListener {
 
-    private val log: Logger = LoggerFactory.getLogger(BeskjedSink::class.java)
+    private val log: Logger = LoggerFactory.getLogger(OppgaveSink::class.java)
 
     init {
         River(rapidsConnection).apply {
-            validate { it.demandValue("@event_name", "beskjed") }
+            validate { it.demandValue("@event_name", "oppgave") }
             validate { it.demandValue("aktiv", true) }
             validate { it.requireKey(
                 "namespace",
@@ -44,7 +45,7 @@ internal class BeskjedSink(
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
-        val beskjed = Beskjed(
+        val oppgave = Oppgave(
             id = null,
             systembruker = "N/A",
             namespace = packet["namespace"].textValue(),
@@ -66,13 +67,12 @@ internal class BeskjedSink(
 
         runBlocking {
             if(writeToDb) {
-                varselRepository.persistBeskjed(beskjed)
-                log.info("Behandlet beskjed fra rapid med eventid ${beskjed.eventId}")
+                varselRepository.persistOppgave(oppgave)
+                log.info("Behandlet oppgave fra rapid med eventid ${oppgave.eventId}")
+            } else {
+                log.info("Dryrun: oppgave fra rapid med eventid ${oppgave.eventId}")
             }
-            else {
-                log.info("Dryrun: beskjed fra rapid med eventid ${beskjed.eventId}")
-            }
-            rapidMetricsProbe.countProcessed(EventType.BESKJED_INTERN, beskjed.appnavn)
+            rapidMetricsProbe.countProcessed(EventType.OPPGAVE_INTERN, oppgave.appnavn)
         }
     }
 

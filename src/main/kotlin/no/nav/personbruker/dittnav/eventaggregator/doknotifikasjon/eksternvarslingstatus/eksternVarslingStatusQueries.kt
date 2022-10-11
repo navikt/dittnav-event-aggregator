@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.varsel.eksternvarslingstatus
+package no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.eksternvarslingstatus
 
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getListFromSeparatedString

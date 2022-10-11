@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.varsel.eksternvarslingstatus
+package no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.eksternvarslingstatus
 
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.JsonMessage

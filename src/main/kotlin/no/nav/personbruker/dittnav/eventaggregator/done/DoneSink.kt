@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.varsel
+package no.nav.personbruker.dittnav.eventaggregator.done
 
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.JsonMessage
@@ -9,7 +9,9 @@ import no.nav.helse.rapids_rivers.River
 import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import no.nav.personbruker.dittnav.eventaggregator.done.Done
+import no.nav.personbruker.dittnav.eventaggregator.metrics.RapidMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 

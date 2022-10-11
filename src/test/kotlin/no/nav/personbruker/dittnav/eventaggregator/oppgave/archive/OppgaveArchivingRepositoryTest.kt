@@ -8,7 +8,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgres
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.*
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusEnum.FERDIGSTILT
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
-import no.nav.personbruker.dittnav.eventaggregator.varsel.eksternvarslingstatus.upsertDoknotifikasjonStatus
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.eksternvarslingstatus.upsertDoknotifikasjonStatus
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
