@@ -1,7 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon
 
-import no.nav.doknotifikasjon.schemas.DoknotifikasjonStatus
-
 object DoknotifikasjonStatusDtoObjectMother {
 
     private val defaultBestillerAppnavn = "dummyBestiller"

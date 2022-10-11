@@ -27,8 +27,6 @@ repositories {
 
 dependencies {
     implementation("com.github.navikt:doknotifikasjon-schemas:1.2022.06.07-10.21-210529ac5c88")
-    implementation("com.github.navikt:brukernotifikasjon-schemas:1.2022.04.26-11.25-7155b5142c85")
-    implementation("com.github.navikt:brukernotifikasjon-schemas-internal:1.2022.04.27-11.14-a4039fef5785")
     implementation(DittNAV.Common.utils)
     implementation(DittNAV.Common.influxdb)
     implementation(Flyway.core)
