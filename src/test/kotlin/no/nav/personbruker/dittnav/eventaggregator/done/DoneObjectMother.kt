@@ -1,20 +1,12 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
-import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
-import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
-import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon
-import java.time.temporal.ChronoUnit
+import no.nav.personbruker.dittnav.eventaggregator.common.Brukernotifikasjon
 
 object DoneObjectMother {
 
     fun giveMeDone(eventId: String): Done {
         val systembruker = "dummySystembruker"
-        val fodselsnummer = "12345"
-        return giveMeDone(eventId, systembruker, fodselsnummer)
-    }
-
-    fun giveMeDone(eventId: String, systembruker: String): Done {
         val fodselsnummer = "12345"
         return giveMeDone(eventId, systembruker, fodselsnummer)
     }

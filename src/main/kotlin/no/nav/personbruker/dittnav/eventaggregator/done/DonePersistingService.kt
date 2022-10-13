@@ -1,13 +1,9 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
-import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
-import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonPersistingService
-import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon
-import java.time.LocalDateTime
-import java.time.ZoneId
+import no.nav.personbruker.dittnav.eventaggregator.common.Brukernotifikasjon
 
-class DonePersistingService(private val doneRepository: DoneRepository) : BrukernotifikasjonPersistingService<Done>(doneRepository) {
+class DonePersistingService(private val doneRepository: DoneRepository) {
 
     suspend fun writeDoneEventsForBeskjedToCache(doneEvents: List<Done>) {
         doneRepository.writeDoneEventsForBeskjedToCache(doneEvents)

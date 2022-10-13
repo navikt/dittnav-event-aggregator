@@ -23,14 +23,14 @@ internal class PeriodicExpiredVarselProcessorTest {
     private val expiredVarselRepository = ExpiredVarselRepository(database)
     private val expiredVarselProcessor = PeriodicExpiredVarselProcessor(expiredVarselRepository)
 
-    val pastDate = nowTruncatedToMillis().minusDays(7)
-    val futureDate = nowTruncatedToMillis().plusDays(7)
+    private val pastDate = nowTruncatedToMillis().minusDays(7)
+    private val futureDate = nowTruncatedToMillis().plusDays(7)
 
-    val activeOppgave = OppgaveObjectMother.giveMeOppgave(eventId = "o1", aktiv = true, synligFremTil = futureDate)
-    val expiredOppgave = OppgaveObjectMother.giveMeOppgave(eventId = "o2", aktiv = true, synligFremTil = pastDate)
+    private val activeOppgave = OppgaveObjectMother.giveMeOppgave(eventId = "o1", aktiv = true, synligFremTil = futureDate)
+    private val expiredOppgave = OppgaveObjectMother.giveMeOppgave(eventId = "o2", aktiv = true, synligFremTil = pastDate)
 
-    val activeBeskjed = BeskjedObjectMother.giveMeBeskjed(eventId = "b1", aktiv = true, synligFremTil = futureDate)
-    val expiredBeskjed = BeskjedObjectMother.giveMeBeskjed(eventId = "b2", aktiv = true, synligFremTil = pastDate)
+    private val activeBeskjed = BeskjedObjectMother.giveMeBeskjed(eventId = "b1", aktiv = true, synligFremTil = futureDate)
+    private val expiredBeskjed = BeskjedObjectMother.giveMeBeskjed(eventId = "b2", aktiv = true, synligFremTil = pastDate)
 
     @AfterEach
     fun cleanUp() = runBlocking<Unit> {

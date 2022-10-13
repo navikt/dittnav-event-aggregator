@@ -1,6 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
-import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon
+import no.nav.personbruker.dittnav.eventaggregator.common.Brukernotifikasjon
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -46,10 +46,6 @@ class DoneBatchProcessor(private val existingEntitiesInDatabase: List<Brukernoti
                 log.warn("Fant ukjent eventtype ved behandling av done-events: $matchingEntityInTheCache")
             }
         }
-    }
-
-    fun isMoreEventsToProcess(): Boolean {
-        return notFoundEvents.isNotEmpty()
     }
 
     override fun toString(): String {

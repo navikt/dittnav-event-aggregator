@@ -1,31 +1,13 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.setBeskjederAktivflagg
-import no.nav.personbruker.dittnav.eventaggregator.common.database.BrukernotifikasjonRepository
+import no.nav.personbruker.dittnav.eventaggregator.common.Brukernotifikasjon
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
-import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
-import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon
-import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.getBrukernotifikasjonFromViewForEventIds
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.persistEachIndividuallyAndAggregateResults
 import no.nav.personbruker.dittnav.eventaggregator.innboks.setInnboksEventerAktivFlag
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.setOppgaverAktivFlag
 import java.time.LocalDateTime
 
-class DoneRepository(private val database: Database) : BrukernotifikasjonRepository<Done> {
-
-    override suspend fun createInOneBatch(entities: List<Done>): ListPersistActionResult<Done> {
-        return database.queryWithExceptionTranslation {
-            createDoneEvents(entities)
-        }
-    }
-
-    override suspend fun createOneByOneToFilterOutTheProblematicEvents(entities: List<Done>): ListPersistActionResult<Done> {
-        return database.queryWithExceptionTranslation {
-            entities.persistEachIndividuallyAndAggregateResults { doneEvent ->
-                createDoneEvent(doneEvent)
-            }
-        }
-    }
+class DoneRepository(private val database: Database) {
 
     suspend fun writeDoneEventsForBeskjedToCache(doneEvents: List<Done>) {
         if (doneEvents.isEmpty()) {

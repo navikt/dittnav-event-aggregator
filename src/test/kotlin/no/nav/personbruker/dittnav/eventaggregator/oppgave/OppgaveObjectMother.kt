@@ -58,13 +58,6 @@ object OppgaveObjectMother {
         return giveMeOppgave(eventId = eventId, fodselsnummer = fodselsnummer, forstBehandlet = forstBehandlet)
     }
 
-    fun giveMeOppgaveWithEventIdAndAppnavn(eventId: String, appnavn: String): Oppgave {
-        return giveMeOppgave(
-            eventId = eventId,
-            appnavn = appnavn
-        )
-    }
-
     fun giveMeOppgave(
         systembruker: String = defaultSystembruker,
         namespace: String = defaultNamespace,

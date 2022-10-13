@@ -13,7 +13,7 @@ class AbstractPersonbrukerExceptionTest {
         val value1 = "value1"
         val value2 = "value2"
         val message = "A message"
-        val exception = RetriableDatabaseException(message)
+        val exception = RetriableDatabaseException(message, null)
         exception.addContext(key1, value1)
         exception.addContext(key2, value2)
 
@@ -30,7 +30,7 @@ class AbstractPersonbrukerExceptionTest {
     @Test
     fun `Skal bruke standard toString hvis det ikke er lagt ved noe context`() {
         val message = "A message"
-        val exception = RetriableDatabaseException(message)
+        val exception = RetriableDatabaseException(message, null)
 
         exception.toString() shouldNotContain "context:"
     }

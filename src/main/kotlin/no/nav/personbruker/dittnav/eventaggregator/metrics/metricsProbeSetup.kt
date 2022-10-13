@@ -6,20 +6,8 @@ import no.nav.personbruker.dittnav.common.metrics.influxdb.InfluxConfig
 import no.nav.personbruker.dittnav.common.metrics.influxdb.InfluxMetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.archive.ArchiveMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.config.Environment
-import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.metrics.DoknotifikasjonStatusMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
-import no.nav.personbruker.dittnav.eventaggregator.varsel.RapidMetricsProbe
 import java.util.concurrent.TimeUnit
-
-fun buildEventMetricsProbe(environment: Environment): EventMetricsProbe {
-    val metricsReporter = resolveMetricsReporter(environment)
-    return EventMetricsProbe(metricsReporter)
-}
-
-fun buildDoknotifikasjonStatusMetricsProbe(environment: Environment): DoknotifikasjonStatusMetricsProbe {
-    val metricsReporter = resolveMetricsReporter(environment)
-    return DoknotifikasjonStatusMetricsProbe(metricsReporter)
-}
 
 fun buildDBMetricsProbe(environment: Environment): DBMetricsProbe {
     val metricsReporter = resolveMetricsReporter(environment)

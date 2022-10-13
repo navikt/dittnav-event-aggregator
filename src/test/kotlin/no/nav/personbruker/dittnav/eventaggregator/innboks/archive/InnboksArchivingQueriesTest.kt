@@ -3,11 +3,19 @@ package no.nav.personbruker.dittnav.eventaggregator.innboks.archive
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
-import no.nav.personbruker.dittnav.eventaggregator.innboks.*
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
-import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.*
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusDtoObjectMother.createDoknotifikasjonStatusDto
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusEnum
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusEnum.FERDIGSTILT
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.deleteAllDoknotifikasjonStatusInnboks
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.getAllDoknotifikasjonStatusInnboks
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.upsertDoknotifikasjonStatus
+import no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks
+import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
+import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
+import no.nav.personbruker.dittnav.eventaggregator.innboks.getAllInnboks
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
@@ -134,7 +142,7 @@ internal class InnboksArchivingQueriesTest {
         }
     }
 
-    suspend fun createDoknotStatusInDb(eventId: String, status: DoknotifikasjonStatusEnum, kanaler: String) {
+    private suspend fun createDoknotStatusInDb(eventId: String, status: DoknotifikasjonStatusEnum, kanaler: String) {
         val doknotStatusInnboks = createDoknotifikasjonStatusDto(
             eventId = eventId,
             status = status.name,
@@ -142,7 +150,8 @@ internal class InnboksArchivingQueriesTest {
         )
 
         database.dbQuery {
-            upsertDoknotifikasjonStatusForInnboks(listOf(doknotStatusInnboks))
+            upsertDoknotifikasjonStatus(doknotStatusInnboks, VarselType.INNBOKS)
+
         }
     }
 }

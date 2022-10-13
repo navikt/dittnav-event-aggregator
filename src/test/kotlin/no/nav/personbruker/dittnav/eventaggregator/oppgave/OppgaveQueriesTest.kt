@@ -2,20 +2,14 @@ package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
-import no.nav.personbruker.dittnav.eventaggregator.done.DoneObjectMother
 import org.junit.jupiter.api.Test
 import java.sql.SQLException
-import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
 
 class OppgaveQueriesTest {
 
@@ -32,7 +26,6 @@ class OppgaveQueriesTest {
     private val oppgaveWithOffsetForstBehandlet: Oppgave
     private val inaktivOppgave: Oppgave
 
-    private val systembruker = "dummySystembruker"
     private val eventId = "2"
 
     private val allEvents: List<Oppgave>
@@ -189,27 +182,6 @@ class OppgaveQueriesTest {
             val result = database.dbQuery { getOppgaveByEventId(oppgave.eventId) }
             result.prefererteKanaler.shouldBeEmpty()
             database.dbQuery { deleteOppgaveWithEventId(oppgave.eventId) }
-        }
-    }
-
-    @Test
-    fun `Skal skrive eventer i batch`() {
-        val oppgave1 = OppgaveObjectMother.giveMeAktivOppgave("o-1", "123")
-        val oppgave2 = OppgaveObjectMother.giveMeAktivOppgave("o-2", "123")
-
-        runBlocking {
-            database.dbQuery {
-                createOppgaver(listOf(oppgave1, oppgave2))
-            }
-
-            val oppgave1FraDb = database.dbQuery { getOppgaveByEventId(oppgave1.eventId) }
-            val oppgave2FraDb = database.dbQuery { getOppgaveByEventId(oppgave2.eventId) }
-
-            oppgave1FraDb.eventId shouldBe oppgave1.eventId
-            oppgave2FraDb.eventId shouldBe oppgave2.eventId
-
-            database.dbQuery { deleteOppgaveWithEventId(oppgave1.eventId) }
-            database.dbQuery { deleteOppgaveWithEventId(oppgave2.eventId) }
         }
     }
 }

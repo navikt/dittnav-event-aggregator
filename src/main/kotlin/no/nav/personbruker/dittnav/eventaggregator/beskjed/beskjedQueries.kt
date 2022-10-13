@@ -1,40 +1,25 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
-import no.nav.personbruker.dittnav.eventaggregator.common.database.ListPersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.*
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executeBatchUpdateQuery
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executePersistQuery
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getListFromSeparatedString
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getNullableLocalDateTime
+import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getUtcDateTime
 import no.nav.personbruker.dittnav.eventaggregator.done.Done
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
 
-private val createQuery = """INSERT INTO beskjed (systembruker, eventTidspunkt, forstBehandlet, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn)
+private const val createQuery = """INSERT INTO beskjed (systembruker, eventTidspunkt, forstBehandlet, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
-
 
 
 fun Connection.createBeskjed(beskjed: Beskjed): PersistActionResult =
         executePersistQuery(createQuery) {
             setParametersForSingleRow(beskjed)
-        }
-
-fun Connection.createBeskjeder(beskjeder: List<Beskjed>): ListPersistActionResult<Beskjed> =
-        executeBatchPersistQueryIgnoreConflict(createQuery) {
-            beskjeder.forEach { beskjed ->
-                setParametersForSingleRow(beskjed)
-                addBatch()
-            }
-        }.toBatchPersistResult(beskjeder)
-
-fun Connection.getBeskjedWithEksternVarslingForEventIds(eventIds: List<String>): List<Beskjed> =
-    prepareStatement("""SELECT * FROM beskjed WHERE eksternvarsling = true AND eventid = ANY(?)""")
-        .use {
-            it.setArray(1, toVarcharArray(eventIds))
-            it.executeQuery().list {
-                toBeskjed()
-            }
         }
 
 private fun PreparedStatement.setParametersForSingleRow(beskjed: Beskjed) {

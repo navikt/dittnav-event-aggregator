@@ -3,10 +3,20 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed.archive
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.archive.BrukernotifikasjonArchiveDTO
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.*
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.getAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
-import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.*
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusDto
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusDtoObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusEnum
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusEnum.FERDIGSTILT
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.deleteAllDoknotifikasjonStatusBeskjed
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.getAllDoknotifikasjonStatusBeskjed
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.upsertDoknotifikasjonStatus
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
@@ -81,7 +91,7 @@ internal class BeskjedArchivingRepositoryTest {
         }
     }
 
-    suspend fun createDoknotStatusInDb(eventId: String, status: DoknotifikasjonStatusEnum, kanaler: String): DoknotifikasjonStatusDto {
+    private suspend fun createDoknotStatusInDb(eventId: String, status: DoknotifikasjonStatusEnum, kanaler: String): DoknotifikasjonStatusDto {
         val doknotStatusBeskjed = DoknotifikasjonStatusDtoObjectMother.createDoknotifikasjonStatusDto(
             eventId = eventId,
             status = status.name,
@@ -89,7 +99,7 @@ internal class BeskjedArchivingRepositoryTest {
         )
 
         database.dbQuery {
-            upsertDoknotifikasjonStatusForBeskjed(listOf(doknotStatusBeskjed))
+            upsertDoknotifikasjonStatus(doknotStatusBeskjed, VarselType.BESKJED)
         }
 
         return doknotStatusBeskjed

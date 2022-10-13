@@ -38,7 +38,6 @@ interface Database: HealthCheck {
         }
     }
 
-
     suspend fun <T> queryWithExceptionTranslation(operationToExecute: Connection.() -> T): T {
         return translateExternalExceptionsToInternalOnes {
             dbQuery {

@@ -2,9 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.config
 
 import no.nav.personbruker.dittnav.common.util.config.BooleanEnvVar.getEnvVarAsBoolean
 import no.nav.personbruker.dittnav.common.util.config.IntEnvVar.getEnvVarAsInt
-import no.nav.personbruker.dittnav.common.util.config.StringEnvVar
 import no.nav.personbruker.dittnav.common.util.config.StringEnvVar.getEnvVar
-import no.nav.personbruker.dittnav.eventaggregator.config.ConfigUtil.isCurrentlyRunningOnNais
 
 data class Environment(val groupId: String = getEnvVar("GROUP_ID"),
                        val clusterName: String = getEnvVar("NAIS_CLUSTER_NAME"),
@@ -17,24 +15,17 @@ data class Environment(val groupId: String = getEnvVar("GROUP_ID"),
                        val influxdbRetentionPolicy: String = getEnvVar("INFLUXDB_RETENTION_POLICY"),
                        val aivenBrokers: String = getEnvVar("KAFKA_BROKERS"),
                        val aivenSchemaRegistry: String = getEnvVar("KAFKA_SCHEMA_REGISTRY"),
-                       val securityConfig: SecurityConfig = SecurityConfig(isCurrentlyRunningOnNais()),
+                       val securityConfig: SecurityConfig = SecurityConfig(),
                        val dbUser: String = getEnvVar("DB_USERNAME"),
                        val dbPassword: String = getEnvVar("DB_PASSWORD"),
                        val dbHost: String = getEnvVar("DB_HOST"),
                        val dbPort: String = getEnvVar("DB_PORT"),
                        val dbName: String = getEnvVar("DB_DATABASE"),
                        val dbUrl: String = getDbUrl(dbHost, dbPort, dbName),
-                       val beskjedInternTopicName: String = getEnvVar("INTERN_BESKJED_TOPIC"),
-                       val oppgaveInternTopicName: String = getEnvVar("INTERN_OPPGAVE_TOPIC"),
-                       val innboksInternTopicName: String = getEnvVar("INTERN_INNBOKS_TOPIC"),
-                       val doneInternTopicName: String = getEnvVar("INTERN_DONE_TOPIC"),
-                       val doneInputTopicName: String = getEnvVar("INPUT_DONE_TOPIC"),
                        val doknotifikasjonStatusGroupId: String = getEnvVar("GROUP_ID_DOKNOTIFIKASJON_STATUS"),
                        val doknotifikasjonStatusTopicName: String = getEnvVar("DOKNOTIFIKASJON_STATUS_TOPIC"),
                        val rapidTopic: String = getEnvVar("RAPID_TOPIC"),
-                       val rapidEnabled: Boolean = getEnvVar("RAPID_ENABLED", "false").toBoolean(),
                        val rapidWriteToDb: Boolean = getEnvVar("RAPID_WRITE_TO_DB", "false").toBoolean(),
-                       val rapidOnly: Boolean = getEnvVar("RAPID_ONLY", "false").toBoolean(),
                        val archivingEnabled: Boolean = getEnvVarAsBoolean("ARCHIVING_ENABLED"),
                        val archivingThresholdDays: Int = getEnvVarAsInt("ARCHIVING_THRESHOLD")
 ) {
@@ -42,21 +33,13 @@ data class Environment(val groupId: String = getEnvVar("GROUP_ID"),
         "KAFKA_BROKERS" to aivenBrokers,
         "KAFKA_CONSUMER_GROUP_ID" to "dittnav-event-aggregator-v1",
         "KAFKA_RAPID_TOPIC" to rapidTopic,
-        "KAFKA_KEYSTORE_PATH" to securityConfig.variables!!.aivenKeystorePath,
+        "KAFKA_KEYSTORE_PATH" to securityConfig.variables.aivenKeystorePath,
         "KAFKA_CREDSTORE_PASSWORD" to securityConfig.variables.aivenCredstorePassword,
         "KAFKA_TRUSTSTORE_PATH" to securityConfig.variables.aivenTruststorePath
     )
 }
 
-data class SecurityConfig(
-        val enabled: Boolean,
-
-        val variables: SecurityVars? = if (enabled) {
-            SecurityVars()
-        } else {
-            null
-        }
-)
+data class SecurityConfig(val variables: SecurityVars = SecurityVars())
 
 data class SecurityVars(
         val aivenTruststorePath: String = getEnvVar("KAFKA_TRUSTSTORE_PATH"),
@@ -65,20 +48,6 @@ data class SecurityVars(
         val aivenSchemaRegistryUser: String = getEnvVar("KAFKA_SCHEMA_REGISTRY_USER"),
         val aivenSchemaRegistryPassword: String = getEnvVar("KAFKA_SCHEMA_REGISTRY_PASSWORD")
 )
-
-fun isOtherEnvironmentThanProd() = System.getenv("NAIS_CLUSTER_NAME") != "prod-sbs"
-
-fun isProdEnvironment() = System.getenv("NAIS_CLUSTER_NAME") == "prod-sbs"
-
-fun shouldPollBeskjed() = StringEnvVar.getOptionalEnvVar("POLL_BESKJED", "false").toBoolean()
-
-fun shouldPollOppgave() = StringEnvVar.getOptionalEnvVar("POLL_OPPGAVE", "false").toBoolean()
-
-fun shouldPollInnboks() = StringEnvVar.getOptionalEnvVar("POLL_INNBOKS", "false").toBoolean()
-
-fun shouldPollDone() = StringEnvVar.getOptionalEnvVar("POLL_DONE", "false").toBoolean()
-
-fun shouldPollDoknotifikasjonStatus() = StringEnvVar.getOptionalEnvVar("POLL_DOKNOTIFIKASJON_STATUS", "false").toBoolean()
 
 fun getDbUrl(host: String, port: String, name: String): String {
     return if (host.endsWith(":$port")) {

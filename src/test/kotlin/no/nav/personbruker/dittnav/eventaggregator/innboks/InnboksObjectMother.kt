@@ -29,10 +29,6 @@ object InnboksObjectMother {
         return giveMeAktivInnboks(eventId = eventId, fodselsnummer = fodselsnummer, systembruker = systembruker, link = "https://nav.no/systemX/")
     }
 
-    fun giveMeAktivInnboksWithLink(link: String): Innboks {
-        return giveMeAktivInnboks(eventId = "i-2", fodselsnummer = "123", systembruker = "dummySystembruker", link = link)
-    }
-
     fun giveMeAktivInnboks(eventId: String, fodselsnummer: String, systembruker: String, link: String): Innboks {
         return giveMeInnboks(
             aktiv = true,
@@ -63,10 +59,6 @@ object InnboksObjectMother {
             link = "https://nav.no/systemX/"
         )
         return innboks.copy(eksternVarsling = eksternVarsling, prefererteKanaler = prefererteKanaler)
-    }
-
-    fun giveMeInnboksWithEventIdAndAppnavn(eventId: String, appnavn: String): Innboks {
-        return giveMeInnboks(eventId = eventId, appnavn = appnavn)
     }
 
     fun giveMeInnboks(

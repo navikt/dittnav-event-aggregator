@@ -9,6 +9,7 @@ import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveSink
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.toOppgave
 import org.junit.jupiter.api.BeforeEach

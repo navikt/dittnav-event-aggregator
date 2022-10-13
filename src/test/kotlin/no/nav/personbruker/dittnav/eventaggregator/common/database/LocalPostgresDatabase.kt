@@ -3,6 +3,9 @@ package no.nav.personbruker.dittnav.eventaggregator.common.database
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.deleteAllDoknotifikasjonStatusBeskjed
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.deleteAllDoknotifikasjonStatusInnboks
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.deleteAllDoknotifikasjonStatusOppgave
 import no.nav.personbruker.dittnav.eventaggregator.done.deleteAllDone
 import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
@@ -28,6 +31,9 @@ class LocalPostgresDatabase private constructor() : Database {
                     deleteAllBeskjed()
                     deleteAllOppgave()
                     deleteAllInnboks()
+                    deleteAllDoknotifikasjonStatusBeskjed()
+                    deleteAllDoknotifikasjonStatusOppgave()
+                    deleteAllDoknotifikasjonStatusInnboks()
                 }
             }
             return instance

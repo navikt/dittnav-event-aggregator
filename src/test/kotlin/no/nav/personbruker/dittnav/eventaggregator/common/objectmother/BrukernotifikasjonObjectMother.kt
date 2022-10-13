@@ -1,7 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.common.objectmother
 
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
-import no.nav.personbruker.dittnav.eventaggregator.common.database.entity.Brukernotifikasjon
+import no.nav.personbruker.dittnav.eventaggregator.common.Brukernotifikasjon
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
@@ -16,24 +16,12 @@ object BrukernotifikasjonObjectMother {
         return Brukernotifikasjon("b-1", "dummySystembruker", EventType.BESKJED_INTERN, "123")
     }
 
-    fun giveMeBeskjed(fodselsnummer: String): Brukernotifikasjon {
-        return Brukernotifikasjon("b-1", "dummySystembruker", EventType.BESKJED_INTERN, fodselsnummer)
-    }
-
-    fun giveMeInnboks(): Brukernotifikasjon {
+    private fun giveMeInnboks(): Brukernotifikasjon {
         return Brukernotifikasjon("i-1", "dummySystembruker", EventType.INNBOKS_INTERN, "123")
     }
 
-    fun giveMeInnboks(fodselsnummer: String): Brukernotifikasjon {
-        return Brukernotifikasjon("i-1", "dummySystembruker", EventType.INNBOKS_INTERN, fodselsnummer)
-    }
-
-    fun giveMeOppgave(): Brukernotifikasjon {
+    private fun giveMeOppgave(): Brukernotifikasjon {
         return Brukernotifikasjon("o-1", "dummySystembruker", EventType.OPPGAVE_INTERN, "123")
-    }
-
-    fun giveMeOppgave(fodselsnummer: String): Brukernotifikasjon {
-        return Brukernotifikasjon("o-1", "dummySystembruker", EventType.OPPGAVE_INTERN, fodselsnummer)
     }
 
     fun giveMeFor(beskjed: Beskjed): Brukernotifikasjon {

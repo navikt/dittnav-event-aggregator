@@ -3,10 +3,20 @@ package no.nav.personbruker.dittnav.eventaggregator.oppgave.archive
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.archive.BrukernotifikasjonArchiveDTO
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.*
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
-import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.*
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusDto
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusDtoObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusEnum
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusEnum.FERDIGSTILT
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.deleteAllDoknotifikasjonStatusOppgave
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.getAllDoknotifikasjonStatusOppgave
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.upsertDoknotifikasjonStatus
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.getAllOppgave
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
@@ -81,7 +91,7 @@ internal class OppgaveArchivingRepositoryTest {
         }
     }
 
-    suspend fun createDoknotStatusInDb(eventId: String, status: DoknotifikasjonStatusEnum, kanaler: String): DoknotifikasjonStatusDto {
+    private suspend fun createDoknotStatusInDb(eventId: String, status: DoknotifikasjonStatusEnum, kanaler: String): DoknotifikasjonStatusDto {
         val doknotStatusOppgave = DoknotifikasjonStatusDtoObjectMother.createDoknotifikasjonStatusDto(
             eventId = eventId,
             status = status.name,
@@ -89,7 +99,7 @@ internal class OppgaveArchivingRepositoryTest {
         )
 
         database.dbQuery {
-            upsertDoknotifikasjonStatusForOppgave(listOf(doknotStatusOppgave))
+            upsertDoknotifikasjonStatus(doknotStatusOppgave, VarselType.OPPGAVE)
         }
 
         return doknotStatusOppgave

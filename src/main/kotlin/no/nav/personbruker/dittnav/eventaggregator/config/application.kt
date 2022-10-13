@@ -1,34 +1,23 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.helse.rapids_rivers.RapidsConnection
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedSink
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingStatusRepository
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingStatusSink
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingStatusUpdater
+import no.nav.personbruker.dittnav.eventaggregator.done.DoneSink
+import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksSink
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildRapidMetricsProbe
-import no.nav.personbruker.dittnav.eventaggregator.varsel.BeskjedSink
-import no.nav.personbruker.dittnav.eventaggregator.varsel.DoneSink
-import no.nav.personbruker.dittnav.eventaggregator.varsel.InnboksSink
-import no.nav.personbruker.dittnav.eventaggregator.varsel.OppgaveSink
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveSink
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
-import no.nav.personbruker.dittnav.eventaggregator.varsel.eksternvarslingstatus.EksternVarslingStatusRepository
-import no.nav.personbruker.dittnav.eventaggregator.varsel.eksternvarslingstatus.EksternVarslingStatusSink
-import no.nav.personbruker.dittnav.eventaggregator.varsel.eksternvarslingstatus.EksternVarslingStatusUpdater
 
 fun main() {
     val appContext = ApplicationContext()
 
-    if(appContext.environment.rapidOnly) {
-        startRapid(appContext.environment, appContext.database, appContext)
-    }
-    else {
-        embeddedServer(Netty, port = 8080) {
-            eventAggregatorApi(
-                appContext
-            )
-        }.start(wait = true)
-    }
+    startRapid(appContext.environment, appContext.database, appContext)
 }
 
 private fun startRapid(environment: Environment, database: Database, appContext: ApplicationContext) {
@@ -77,7 +66,6 @@ private fun startRapid(environment: Environment, database: Database, appContext:
             override fun onShutdown(rapidsConnection: RapidsConnection) {
                 runBlocking {
                     appContext.periodicDoneEventWaitingTableProcessor.stop()
-                    appContext.kafkaProducerDone.flushAndClose()
                     appContext.stopAllArchivers()
                 }
             }
