@@ -41,7 +41,7 @@ class PeriodicInnboksArchiver(
             log.warn("Fikk en periodisk feil mot databasen ved arkivering av Innboks. Forsøker igjen senere.", rt)
         } catch (e: Exception) {
             log.error("Fikk feil mot databasen ved arkivering av innboks. Stopper prosessering.", e)
-            stop()
+
         }
     }
 }

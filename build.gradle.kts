@@ -34,8 +34,6 @@ dependencies {
     implementation(Influxdb.java)
     implementation(Kafka.Apache.clients)
     implementation(Kafka.Confluent.avroSerializer)
-    implementation(Ktor.serverNetty)
-    implementation(Ktor.htmlBuilder)
     implementation(Logback.classic)
     implementation(Logstash.logbackEncoder)
     implementation(NAV.vaultJdbc)
