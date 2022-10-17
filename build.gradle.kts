@@ -52,6 +52,7 @@ dependencies {
     implementation(Ktor2.TmsTokenSupport.azureValidation)
     implementation(Ktor2.TmsTokenSupport.tokenXValidation)
     implementation(Ktor2.TmsTokenSupport.authenticationInstaller)
+    implementation(Ktor2.Server.statusPages)
 
     testImplementation(Junit.api)
     testImplementation(Junit.engine)

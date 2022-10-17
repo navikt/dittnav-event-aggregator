@@ -9,6 +9,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getListF
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getNullableLocalDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getUtcDateTime
 import no.nav.personbruker.dittnav.eventaggregator.done.Done
+import java.lang.IllegalArgumentException
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
@@ -107,4 +108,4 @@ fun ResultSet.toBeskjed(): Beskjed {
     )
 }
 
-class BeskjedNotFoundException(eventId: String) : Exception("Beskjed med eventID $eventId finnes ikke i database") {}
+class BeskjedNotFoundException(eventId: String) : IllegalArgumentException("beskjed med eventId $eventId ikke funnet") {}

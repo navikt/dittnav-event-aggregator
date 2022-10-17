@@ -5,19 +5,25 @@ import io.ktor.client.request.header
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
 import io.ktor.client.request.url
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
+import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedTestData
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.done.rest.DoneRapidProducer
 import no.nav.personbruker.dittnav.eventaggregator.done.rest.doneApi
 import no.nav.tms.token.support.authentication.installer.mock.installMockedAuthenticators
 import no.nav.tms.token.support.tokenx.validation.mock.SecurityLevel
+import org.apache.kafka.clients.producer.MockProducer
+import org.apache.kafka.common.serialization.StringSerializer
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.time.LocalDateTime
@@ -28,7 +34,12 @@ class DoneApiTest {
     private val doneEndpoint = "/done"
     private val database = LocalPostgresDatabase.migratedDb()
     private val beskjedRepository = BeskjedRepository(database)
-    private val rapidProducer = DoneRapidProducer()
+    private val mockProducer = MockProducer(
+        false,
+        StringSerializer(),
+        StringSerializer()
+    )
+    private val rapidProducer = DoneRapidProducer(mockProducer, "testtopic")
     private val apiTestfnr = "134567890"
     private val systembruker = "dummyTestBruker"
     private val namespace = "min-side"
@@ -44,7 +55,7 @@ class DoneApiTest {
     )
 
     private val aktivBeskjed = BeskjedTestData.beskjed(
-        eventId = "123465abnhkfg",
+        eventId = "123465lhgh",
         fodselsnummer = apiTestfnr,
         synligFremTil = LocalDateTime.now().plusHours(1),
         aktiv = true,
@@ -54,17 +65,29 @@ class DoneApiTest {
     )
 
 
-    @BeforeAll
+    @BeforeEach
     fun populate() {
+        runBlocking {
+            database.dbQuery {
+                createBeskjed(aktivBeskjed)
+                createBeskjed(inaktivBeskjed)
+            }
+        }
     }
 
-    @AfterEach()
-    fun clean() {
+    @AfterEach
+    fun cleanup() {
+        runBlocking {
+            database.dbQuery {
+                deleteAllBeskjed()
+            }
+        }
 
+        mockProducer.clear()
     }
 
     @Test
-    fun `inaktiverer varsel og returnerer 200`() =
+    fun `inaktiverer varsel og returnerer 200`() {
         testApplication {
             mockDoneApi()
             client.request {
@@ -74,63 +97,62 @@ class DoneApiTest {
                 setBody("""{"eventId": "${aktivBeskjed.eventId}"}""")
             }.status shouldBe HttpStatusCode.OK
         }
-    /*
+
+        mockProducer.history().size shouldBe 1
+    }
+
 
     @Test
     fun `200 for allerede inaktiverte varsel`() {
         testApplication {
-            mockEventHandlerApi(
-                doneEventService = doneEventService
-            )
-            val response = client.request{
-                method = HttpMethod.Post
+            mockDoneApi()
+            client.request {
                 url(doneEndpoint)
+                method = HttpMethod.Post
                 header("Content-Type", "application/json")
                 setBody("""{"eventId": "${inaktivBeskjed.eventId}"}""")
-            }
-            response.status shouldBe HttpStatusCode.OK
+            }.status shouldBe HttpStatusCode.OK
         }
+
+        mockProducer.history().size shouldBe 0
     }
 
     @Test
     fun `400 for varsel som ikke finnes`() {
         testApplication {
-            mockEventHandlerApi(
-                doneEventService = doneEventService
-            )
+            mockDoneApi()
             val response = client.request {
-                method = HttpMethod.Post
                 url(doneEndpoint)
+                method = HttpMethod.Post
                 header("Content-Type", "application/json")
-                setBody("""{"eventId": "12311111111"}""")
+                setBody("""{"eventId": "7777777777"}""")
             }
             response.status shouldBe HttpStatusCode.BadRequest
-            response.bodyAsText() shouldBe "beskjed med eventId 12311111111 ikke funnet"
+            response.bodyAsText() shouldBe "beskjed med eventId 7777777777 ikke funnet"
 
+            mockProducer.history().size shouldBe 0
         }
     }
 
     @Test
     fun `400 når eventId mangler`() {
-        testApplication{
-            mockEventHandlerApi(
-                doneEventService = doneEventService
-            )
-            val result = client.request {
+        testApplication {
+            mockDoneApi()
+            val response = client.request {
                 method = HttpMethod.Post
                 url(doneEndpoint)
                 header("Content-Type", "application/json")
                 setBody("""{"event": "12398634581111"}""")
             }
-            result.status shouldBe HttpStatusCode.BadRequest
-            result.bodyAsText() shouldBe "eventid parameter mangler"
+            response.status shouldBe HttpStatusCode.BadRequest
+            response.bodyAsText() shouldBe "eventid parameter mangler"
+            mockProducer.history().size shouldBe 0
         }
     }
 
-        @Test
+    @Test
     fun `401 for uantentisert bruker`() {
     }
-    */
 
     private fun ApplicationTestBuilder.mockDoneApi() {
         application {
