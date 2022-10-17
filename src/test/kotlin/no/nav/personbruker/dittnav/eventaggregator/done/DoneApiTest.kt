@@ -1,40 +1,54 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
+import io.kotest.matchers.shouldBe
+import io.ktor.client.request.header
+import io.ktor.client.request.request
+import io.ktor.client.request.setBody
+import io.ktor.client.request.url
+import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.testing.testApplication
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedTestData
+import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
+import no.nav.personbruker.dittnav.eventaggregator.done.rest.DoneRapidProducer
+import no.nav.personbruker.dittnav.eventaggregator.done.rest.doneApi
+import no.nav.tms.token.support.authentication.installer.mock.installMockedAuthenticators
+import no.nav.tms.token.support.tokenx.validation.mock.SecurityLevel
 import org.junit.jupiter.api.AfterEach
-
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import java.time.LocalDateTime
 
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DoneApiTest {
     private val doneEndpoint = "/done"
-   // private val database = LocalPostgresDatabase.cleanDb()
-   // private val doneEventService = DoneEventService(database = database)
-    private val systembruker = "x-dittnav"
-    private val namespace = "localhost"
+    private val doneRepository = DoneRepository(LocalPostgresDatabase.migratedDb())
+    private val rapidProducer = DoneRapidProducer()
+    private val apiTestfnr = "134567890"
+    private val systembruker = "dummyTestBruker"
+    private val namespace = "min-side"
     private val appnavn = "dittnav"
-  /*  private val inaktivBeskjed = BeskjedObjectMother.createBeskjed(
-        id = 1,
-        eventId = "12387696478230",
+
+    private val inaktivBeskjed = BeskjedTestData.beskjed(
+        eventId = "123465abnhkfg",
         fodselsnummer = apiTestfnr,
-        synligFremTil = OsloDateTime.now().plusHours(1),
         aktiv = false,
         systembruker = systembruker,
         namespace = namespace,
         appnavn = appnavn
     )
-    private val aktivBeskjed = BeskjedObjectMother.createBeskjed(
-        id = 2,
+
+    private val aktivBeskjed = BeskjedTestData.beskjed(
         eventId = "123465abnhkfg",
         fodselsnummer = apiTestfnr,
-        synligFremTil = OsloDateTime.now().plusHours(1),
+        synligFremTil = LocalDateTime.now().plusHours(1),
         aktiv = true,
         systembruker = systembruker,
         namespace = namespace,
         appnavn = appnavn
-    )*/
+    )
 
 
     @BeforeAll
@@ -47,13 +61,21 @@ class DoneApiTest {
     }
 
     @Test
-    fun `inaktiverer varsel og returnerer 200`() {}
-/*
+    fun `inaktiverer varsel og returnerer 200`() =
         testApplication {
-            mockDoneApi(
-                doneEventService = doneEventService,
-                database = database
-            )
+            application {
+                doneApi(repository = doneRepository, producer = rapidProducer, installAuthenticatorsFunction = {
+                    installMockedAuthenticators {
+                        installTokenXAuthMock {
+                            setAsDefault = true
+                            alwaysAuthenticated = true
+                            staticUserPid = apiTestfnr
+                            staticSecurityLevel = SecurityLevel.LEVEL_4
+                        }
+                        installAzureAuthMock {}
+                    }
+                })
+            }
             val response = client.request {
                 url(doneEndpoint)
                 method = HttpMethod.Post
@@ -61,8 +83,8 @@ class DoneApiTest {
                 setBody("""{"eventId": "${aktivBeskjed.eventId}"}""")
             }
             response.status shouldBe HttpStatusCode.OK
-
-    }
+        }
+    /*
 
     @Test
     fun `200 for allerede inaktiverte varsel`() {

@@ -34,8 +34,8 @@ object BeskjedTestData {
         )
     }
 
-    fun inaktivBeskjed(): Beskjed {
-        return beskjed(eventId = "b-1", fodselsnummer = "123", aktiv = false)
+    fun inaktivBeskjed(eventId: String = "b-1", fodselsnummer: String = "123"): Beskjed {
+        return beskjed(eventId = eventId, fodselsnummer = fodselsnummer, aktiv = false)
     }
 
     fun beskjedWithForstBehandlet(

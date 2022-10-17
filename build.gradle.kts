@@ -42,6 +42,16 @@ dependencies {
     implementation(Prometheus.hotspot)
     implementation(Prometheus.logback)
     implementation(RapidsAndRivers)
+    implementation(Ktor2.Server.core)
+    implementation(Ktor2.Server.netty)
+    implementation(Ktor2.Server.contentNegotiation)
+    implementation(Ktor2.Server.auth)
+    implementation(Ktor2.Server.authJwt)
+    implementation(Ktor2.jackson)
+    implementation(Ktor2.TmsTokenSupport.azureExchange)
+    implementation(Ktor2.TmsTokenSupport.azureValidation)
+    implementation(Ktor2.TmsTokenSupport.tokenXValidation)
+    implementation(Ktor2.TmsTokenSupport.authenticationInstaller)
 
     testImplementation(Junit.api)
     testImplementation(Junit.engine)
@@ -53,6 +63,10 @@ dependencies {
     testImplementation(TestContainers.postgresql)
     testImplementation(Kotest.runnerJunit5)
     testImplementation(Kotest.assertionsCore)
+    testImplementation(Ktor2.Test.serverTestHost)
+    testImplementation(Ktor2.TmsTokenSupport.authenticationInstallerMock)
+    testImplementation(Ktor2.TmsTokenSupport.tokenXValidationMock)
+    testImplementation(Ktor2.TmsTokenSupport.azureValidationMock)
 }
 
 application {
