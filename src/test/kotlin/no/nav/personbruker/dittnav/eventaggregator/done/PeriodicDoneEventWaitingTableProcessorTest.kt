@@ -8,7 +8,7 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.slot
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedTestData
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.getBeskjedByEventId
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
@@ -47,7 +47,7 @@ class PeriodicDoneEventWaitingTableProcessorTest {
 
     @Test
     fun `setter Beskjed-event inaktivt hvis Done-event med samme eventId tidligere er mottatt`() {
-        val beskjedWithExistingDoneEvent = BeskjedObjectMother.giveMeAktivBeskjed(done1.eventId, fodselsnummer, systembruker)
+        val beskjedWithExistingDoneEvent = BeskjedTestData.aktivBeskjed(eventId = done1.eventId, fodselsnummer = fodselsnummer, systembruker = systembruker)
         runBlocking {
             database.dbQuery { createDoneEvent(done1) }
             database.dbQuery { createBeskjed(beskjedWithExistingDoneEvent) }
@@ -59,7 +59,8 @@ class PeriodicDoneEventWaitingTableProcessorTest {
 
     @Test
     fun `setter Oppgave-event inaktivt hvis Done-event med samme eventId tidligere er mottatt`() {
-        val oppgaveWithExistingDoneEvent = OppgaveObjectMother.giveMeAktivOppgave(done2.eventId, fodselsnummer, systembruker)
+        val oppgaveWithExistingDoneEvent =
+            OppgaveObjectMother.giveMeAktivOppgave(done2.eventId, fodselsnummer, systembruker)
         runBlocking {
             database.dbQuery { createDoneEvent(done2) }
             database.dbQuery { createOppgave(oppgaveWithExistingDoneEvent) }
@@ -87,8 +88,16 @@ class PeriodicDoneEventWaitingTableProcessorTest {
         val expectedEventId = "50"
         val expectedFodselsnr = "45678"
         val expectedSystembruker = "dummySystembruker"
-        val doneEvent = DoneObjectMother.giveMeDone(expectedEventId, expectedSystembruker, expectedFodselsnr)
-        val associatedBeskjed = BeskjedObjectMother.giveMeAktivBeskjed(expectedEventId, expectedFodselsnr, expectedSystembruker)
+        val doneEvent = DoneObjectMother.giveMeDone(
+            eventId = expectedEventId,
+            systembruker = expectedSystembruker,
+            fodselsnummer = expectedFodselsnr
+        )
+        val associatedBeskjed = BeskjedTestData.aktivBeskjed(
+            eventId = expectedEventId,
+            fodselsnummer = expectedFodselsnr,
+            systembruker = expectedSystembruker
+        )
 
         runBlocking {
             database.dbQuery { createDoneEvent(doneEvent) }
@@ -116,11 +125,12 @@ class PeriodicDoneEventWaitingTableProcessorTest {
 
     @Test
     fun `skal telle og lage metrikk paa antall done-eventer vi ikke fant tilhorende oppgave for`() {
-        val beskjed = BeskjedObjectMother.giveMeAktivBeskjed()
+        val beskjed = BeskjedTestData.aktivBeskjed()
         val doneEvents = listOf(
             DoneObjectMother.giveMeDone(beskjed.eventId, beskjed.systembruker, beskjed.fodselsnummer),
             DoneObjectMother.giveMeDone("utenMatch1"),
-            DoneObjectMother.giveMeDone("utenMatch2"))
+            DoneObjectMother.giveMeDone("utenMatch2")
+        )
 
         val slot = slot<suspend DBMetricsSession.() -> Unit>()
         coEvery { dbMetricsProbe.runWithMetrics(any(), capture(slot)) } coAnswers {

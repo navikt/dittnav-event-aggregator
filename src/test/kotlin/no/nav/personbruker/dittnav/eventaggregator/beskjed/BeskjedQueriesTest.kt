@@ -37,12 +37,20 @@ class BeskjedQueriesTest {
         expiredBeskjed = createExpiredBeskjed("123", "4567")
         beskjedWithOffsetForstBehandlet = createBeskjedWithOffsetForstBehandlet("5", "12345")
         inaktivBeskjed = createInaktivBeskjed("6", "12345")
-        allEvents = listOf(beskjed1, beskjed2, beskjed3, beskjed4, expiredBeskjed, beskjedWithOffsetForstBehandlet, inaktivBeskjed)
+        allEvents = listOf(
+            beskjed1,
+            beskjed2,
+            beskjed3,
+            beskjed4,
+            expiredBeskjed,
+            beskjedWithOffsetForstBehandlet,
+            inaktivBeskjed
+        )
         allEventsForSingleUser = listOf(beskjed1, beskjed2, beskjed3, beskjedWithOffsetForstBehandlet, inaktivBeskjed)
     }
 
     private fun createBeskjed(eventId: String, fodselsnummer: String): Beskjed {
-        val beskjed = BeskjedObjectMother.giveMeAktivBeskjed(eventId, fodselsnummer)
+        val beskjed = BeskjedTestData.aktivBeskjed(eventId = eventId, fodselsnummer = fodselsnummer)
         return runBlocking {
             database.dbQuery {
                 createBeskjed(beskjed).entityId.let {
@@ -53,7 +61,7 @@ class BeskjedQueriesTest {
     }
 
     private fun createExpiredBeskjed(eventId: String, fodselsnummer: String): Beskjed {
-        val beskjed = BeskjedObjectMother.giveMeAktivBeskjed(eventId, fodselsnummer)
+        val beskjed = BeskjedTestData.aktivBeskjed(eventId = eventId, fodselsnummer = fodselsnummer)
             .copy(synligFremTil = nowTruncatedToMillis().minusDays(1))
         return runBlocking {
             database.dbQuery {
@@ -66,7 +74,7 @@ class BeskjedQueriesTest {
 
     private fun createBeskjedWithOffsetForstBehandlet(eventId: String, fodselsnummer: String): Beskjed {
         val offsetDate = nowTruncatedToMillis().minusDays(1)
-        val beskjed = BeskjedObjectMother.giveMeBeskjedWithForstBehandlet(eventId, fodselsnummer, offsetDate)
+        val beskjed = BeskjedTestData.giveMeBeskjedWithForstBehandlet(eventId, fodselsnummer, offsetDate)
         return runBlocking {
             database.dbQuery {
                 createBeskjed(beskjed).entityId.let {
@@ -77,7 +85,7 @@ class BeskjedQueriesTest {
     }
 
     private fun createInaktivBeskjed(eventId: String, fodselsnummer: String): Beskjed {
-        val beskjed = BeskjedObjectMother.giveMeBeskjed(
+        val beskjed = BeskjedTestData.beskjed(
             eventId = eventId,
             fodselsnummer = fodselsnummer,
             aktiv = false
@@ -154,7 +162,7 @@ class BeskjedQueriesTest {
 
     @Test
     fun `Skal haandtere at prefererteKanaler er tom`() {
-        val beskjed = BeskjedObjectMother.giveMeAktivBeskjedWithEksternVarslingAndPrefererteKanaler(true, emptyList())
+        val beskjed = BeskjedTestData.giveMeAktivBeskjedWithEksternVarslingAndPrefererteKanaler(true, emptyList())
         runBlocking {
             database.dbQuery { createBeskjed(beskjed) }
             val result = database.dbQuery { getBeskjedByEventId(beskjed.eventId) }
@@ -163,6 +171,7 @@ class BeskjedQueriesTest {
         }
 
     }
+
     @Test
     fun `Finner utgått beskjeder`() {
         runBlocking {

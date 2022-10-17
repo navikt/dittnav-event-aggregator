@@ -3,7 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.common.database.entity
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedTestData
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.BrukernotifikasjonObjectMother
@@ -18,10 +18,10 @@ class BrukernotifikasjonQueriesTest {
 
     private val database = LocalPostgresDatabase.migratedDb()
     private val aktivOppgave = OppgaveObjectMother.giveMeAktivOppgave()
-    private val aktivBeskjed = BeskjedObjectMother.giveMeAktivBeskjed()
+    private val aktivBeskjed = BeskjedTestData.aktivBeskjed()
     private val aktivInnboks = InnboksObjectMother.giveMeAktivInnboks()
     private val inaktivOppgave = OppgaveObjectMother.giveMeInaktivOppgave()
-    private val inaktivBeskjed = BeskjedObjectMother.giveMeInaktivBeskjed()
+    private val inaktivBeskjed = BeskjedTestData.giveMeInaktivBeskjed()
     private val inaktivInnboks = InnboksObjectMother.giveMeInaktivInnboks()
 
 

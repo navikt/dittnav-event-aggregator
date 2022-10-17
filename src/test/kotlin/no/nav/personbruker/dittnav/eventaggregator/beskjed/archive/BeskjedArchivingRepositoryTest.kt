@@ -4,7 +4,7 @@ import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.archive.BrukernotifikasjonArchiveDTO
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedTestData
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.getAllBeskjed
@@ -82,7 +82,7 @@ internal class BeskjedArchivingRepositoryTest {
         )
 
     suspend fun createBeskjedInDb(): Beskjed {
-        val beskjed = BeskjedObjectMother.giveMeAktivBeskjed()
+        val beskjed = BeskjedTestData.aktivBeskjed()
 
         return database.dbQuery {
             createBeskjed(beskjed).entityId.let {
