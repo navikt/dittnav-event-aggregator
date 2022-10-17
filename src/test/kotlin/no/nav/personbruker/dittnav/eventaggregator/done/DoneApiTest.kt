@@ -7,7 +7,9 @@ import io.ktor.client.request.setBody
 import io.ktor.client.request.url
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedTestData
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.done.rest.DoneRapidProducer
@@ -24,7 +26,8 @@ import java.time.LocalDateTime
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DoneApiTest {
     private val doneEndpoint = "/done"
-    private val doneRepository = DoneRepository(LocalPostgresDatabase.migratedDb())
+    private val database = LocalPostgresDatabase.migratedDb()
+    private val beskjedRepository = BeskjedRepository(database)
     private val rapidProducer = DoneRapidProducer()
     private val apiTestfnr = "134567890"
     private val systembruker = "dummyTestBruker"
@@ -63,26 +66,13 @@ class DoneApiTest {
     @Test
     fun `inaktiverer varsel og returnerer 200`() =
         testApplication {
-            application {
-                doneApi(repository = doneRepository, producer = rapidProducer, installAuthenticatorsFunction = {
-                    installMockedAuthenticators {
-                        installTokenXAuthMock {
-                            setAsDefault = true
-                            alwaysAuthenticated = true
-                            staticUserPid = apiTestfnr
-                            staticSecurityLevel = SecurityLevel.LEVEL_4
-                        }
-                        installAzureAuthMock {}
-                    }
-                })
-            }
-            val response = client.request {
+            mockDoneApi()
+            client.request {
                 url(doneEndpoint)
                 method = HttpMethod.Post
                 header("Content-Type", "application/json")
                 setBody("""{"eventId": "${aktivBeskjed.eventId}"}""")
-            }
-            response.status shouldBe HttpStatusCode.OK
+            }.status shouldBe HttpStatusCode.OK
         }
     /*
 
@@ -136,6 +126,30 @@ class DoneApiTest {
             result.bodyAsText() shouldBe "eventid parameter mangler"
         }
     }
+
+        @Test
+    fun `401 for uantentisert bruker`() {
+    }
     */
 
+    private fun ApplicationTestBuilder.mockDoneApi() {
+        application {
+            doneApi(
+                beskjedRepository = beskjedRepository,
+                producer = rapidProducer,
+                installAuthenticatorsFunction = {
+                    installMockedAuthenticators {
+                        installTokenXAuthMock {
+                            setAsDefault = true
+                            alwaysAuthenticated = true
+                            staticUserPid = apiTestfnr
+                            staticSecurityLevel = SecurityLevel.LEVEL_4
+                        }
+                        installAzureAuthMock {}
+                    }
+                })
+        }
+    }
 }
+
+
