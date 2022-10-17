@@ -21,7 +21,7 @@ class BrukernotifikasjonQueriesTest {
     private val aktivBeskjed = BeskjedTestData.aktivBeskjed()
     private val aktivInnboks = InnboksObjectMother.giveMeAktivInnboks()
     private val inaktivOppgave = OppgaveObjectMother.giveMeInaktivOppgave()
-    private val inaktivBeskjed = BeskjedTestData.giveMeInaktivBeskjed()
+    private val inaktivBeskjed = BeskjedTestData.inaktivBeskjed()
     private val inaktivInnboks = InnboksObjectMother.giveMeInaktivInnboks()
 
 

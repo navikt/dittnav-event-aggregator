@@ -34,9 +34,9 @@ class PeriodicDoneEventWaitingTableProcessorTest {
 
     private val systembruker = "dummySystembruker"
     private val fodselsnummer = "12345"
-    private val done1 = DoneObjectMother.giveMeDone("3", systembruker, fodselsnummer)
-    private val done2 = DoneObjectMother.giveMeDone("4", systembruker, fodselsnummer)
-    private val done3 = DoneObjectMother.giveMeDone("5", systembruker, fodselsnummer)
+    private val done1 = DoneTestData.done("3", systembruker, fodselsnummer)
+    private val done2 = DoneTestData.done("4", systembruker, fodselsnummer)
+    private val done3 = DoneTestData.done("5", systembruker, fodselsnummer)
 
     @AfterAll
     fun tearDown() {
@@ -88,7 +88,7 @@ class PeriodicDoneEventWaitingTableProcessorTest {
         val expectedEventId = "50"
         val expectedFodselsnr = "45678"
         val expectedSystembruker = "dummySystembruker"
-        val doneEvent = DoneObjectMother.giveMeDone(
+        val doneEvent = DoneTestData.done(
             eventId = expectedEventId,
             systembruker = expectedSystembruker,
             fodselsnummer = expectedFodselsnr
@@ -117,7 +117,7 @@ class PeriodicDoneEventWaitingTableProcessorTest {
     fun `feiler ikke hvis event med samme eventId som Done-event ikke er mottatt`() {
         shouldNotThrow<Exception> {
             runBlocking {
-                database.dbQuery { createDoneEvent(DoneObjectMother.giveMeDone("-1")) }
+                database.dbQuery { createDoneEvent(DoneTestData.done("-1")) }
                 eventConsumer.processDoneEvents()
             }
         }
@@ -127,9 +127,9 @@ class PeriodicDoneEventWaitingTableProcessorTest {
     fun `skal telle og lage metrikk paa antall done-eventer vi ikke fant tilhorende oppgave for`() {
         val beskjed = BeskjedTestData.aktivBeskjed()
         val doneEvents = listOf(
-            DoneObjectMother.giveMeDone(beskjed.eventId, beskjed.systembruker, beskjed.fodselsnummer),
-            DoneObjectMother.giveMeDone("utenMatch1"),
-            DoneObjectMother.giveMeDone("utenMatch2")
+            DoneTestData.done(beskjed.eventId, beskjed.systembruker, beskjed.fodselsnummer),
+            DoneTestData.done("utenMatch1"),
+            DoneTestData.done("utenMatch2")
         )
 
         val slot = slot<suspend DBMetricsSession.() -> Unit>()

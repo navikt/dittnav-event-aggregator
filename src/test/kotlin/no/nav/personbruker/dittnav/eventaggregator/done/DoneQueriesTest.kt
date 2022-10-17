@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Test
 class DoneQueriesTest {
 
     private val database = LocalPostgresDatabase.migratedDb()
-    private val done1 = DoneObjectMother.giveMeDone("1")
-    private val done2 = DoneObjectMother.giveMeDone("2")
-    private val done3 = DoneObjectMother.giveMeDone("3")
+    private val done1 = DoneTestData.done("1")
+    private val done2 = DoneTestData.done("2")
+    private val done3 = DoneTestData.done("3")
     private val allEvents = listOf(done1, done2, done3)
 
     init {
@@ -33,8 +33,8 @@ class DoneQueriesTest {
 
     @Test
     fun `skal slette spesifikke done-eventer`() {
-        val doneEvent1 = DoneObjectMother.giveMeDone("111", "dummySystembruker", "123")
-        val doneEvent2 = DoneObjectMother.giveMeDone("222", "dummySystembruker", "123")
+        val doneEvent1 = DoneTestData.done("111", "dummySystembruker", "123")
+        val doneEvent2 = DoneTestData.done("222", "dummySystembruker", "123")
         val doneEventsToInsertAndThenDelete = listOf(doneEvent1, doneEvent2)
 
         runBlocking {

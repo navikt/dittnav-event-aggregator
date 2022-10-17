@@ -133,7 +133,7 @@ internal class BeskjedArchivingQueriesTest {
     }
 
     suspend fun createBeskjedInDb(forstBehandlet: LocalDateTime): Beskjed {
-        val beskjed = BeskjedTestData.giveMeBeskjedWithForstBehandlet(forstBehandlet = forstBehandlet)
+        val beskjed = BeskjedTestData.beskjedWithForstBehandlet(forstBehandlet = forstBehandlet)
 
         return database.dbQuery {
             createBeskjed(beskjed).entityId.let {

@@ -74,7 +74,7 @@ class BeskjedQueriesTest {
 
     private fun createBeskjedWithOffsetForstBehandlet(eventId: String, fodselsnummer: String): Beskjed {
         val offsetDate = nowTruncatedToMillis().minusDays(1)
-        val beskjed = BeskjedTestData.giveMeBeskjedWithForstBehandlet(eventId, fodselsnummer, offsetDate)
+        val beskjed = BeskjedTestData.beskjedWithForstBehandlet(eventId, fodselsnummer, offsetDate)
         return runBlocking {
             database.dbQuery {
                 createBeskjed(beskjed).entityId.let {
@@ -162,7 +162,7 @@ class BeskjedQueriesTest {
 
     @Test
     fun `Skal haandtere at prefererteKanaler er tom`() {
-        val beskjed = BeskjedTestData.giveMeAktivBeskjedWithEksternVarslingAndPrefererteKanaler(true, emptyList())
+        val beskjed = BeskjedTestData.aktivBeskjedWithEksternVarslingAndPrefererteKanaler(true, emptyList())
         runBlocking {
             database.dbQuery { createBeskjed(beskjed) }
             val result = database.dbQuery { getBeskjedByEventId(beskjed.eventId) }

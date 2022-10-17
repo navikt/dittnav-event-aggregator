@@ -34,11 +34,11 @@ object BeskjedTestData {
         )
     }
 
-    fun giveMeInaktivBeskjed(): Beskjed {
+    fun inaktivBeskjed(): Beskjed {
         return beskjed(eventId = "b-1", fodselsnummer = "123", aktiv = false)
     }
 
-    fun giveMeBeskjedWithForstBehandlet(
+    fun beskjedWithForstBehandlet(
         eventId: String = "b-1",
         fodselsnummer: String = "123",
         forstBehandlet: LocalDateTime
@@ -46,7 +46,7 @@ object BeskjedTestData {
         return beskjed(eventId = eventId, fodselsnummer = fodselsnummer, forstBehandlet = forstBehandlet)
     }
 
-    fun giveMeAktivBeskjedWithEksternVarslingAndPrefererteKanaler(
+    fun aktivBeskjedWithEksternVarslingAndPrefererteKanaler(
         eksternVarsling: Boolean,
         prefererteKanaler: List<String>
     ): Beskjed {
