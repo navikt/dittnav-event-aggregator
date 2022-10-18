@@ -1,6 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
 import io.kotest.matchers.shouldBe
+import io.ktor.client.HttpClient
 import io.ktor.client.request.header
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
@@ -90,12 +91,9 @@ class DoneApiTest {
     fun `inaktiverer varsel og returnerer 200`() {
         testApplication {
             mockDoneApi()
-            client.request {
-                url(doneEndpoint)
-                method = HttpMethod.Post
-                header("Content-Type", "application/json")
-                setBody("""{"eventId": "${aktivBeskjed.eventId}"}""")
-            }.status shouldBe HttpStatusCode.OK
+            client.doneRequest(
+                body = """{"eventId": "${aktivBeskjed.eventId}"}"""
+            ).status shouldBe HttpStatusCode.OK
         }
 
         mockProducer.history().size shouldBe 1
@@ -106,44 +104,32 @@ class DoneApiTest {
     fun `200 for allerede inaktiverte varsel`() {
         testApplication {
             mockDoneApi()
-            client.request {
-                url(doneEndpoint)
-                method = HttpMethod.Post
-                header("Content-Type", "application/json")
-                setBody("""{"eventId": "${inaktivBeskjed.eventId}"}""")
-            }.status shouldBe HttpStatusCode.OK
-        }
-
-        mockProducer.history().size shouldBe 0
-    }
-
-    @Test
-    fun `400 for varsel som ikke finnes`() {
-        testApplication {
-            mockDoneApi()
-            val response = client.request {
-                url(doneEndpoint)
-                method = HttpMethod.Post
-                header("Content-Type", "application/json")
-                setBody("""{"eventId": "7777777777"}""")
-            }
-            response.status shouldBe HttpStatusCode.BadRequest
-            response.bodyAsText() shouldBe "beskjed med eventId 7777777777 ikke funnet"
+            client.doneRequest(
+                body = """{"eventId": "${inaktivBeskjed.eventId}"}"""
+            ).status shouldBe HttpStatusCode.OK
 
             mockProducer.history().size shouldBe 0
         }
     }
 
     @Test
+    fun `400 for varsel som ikke finnes`() {
+        testApplication {
+            mockDoneApi()
+            val response = client.doneRequest(body = """{"eventId": "7777777777"}""")
+
+            response.status shouldBe HttpStatusCode.BadRequest
+            response.bodyAsText() shouldBe "beskjed med eventId 7777777777 ikke funnet"
+            mockProducer.history().size shouldBe 0
+        }
+    }
+
+
+    @Test
     fun `400 når eventId mangler`() {
         testApplication {
             mockDoneApi()
-            val response = client.request {
-                method = HttpMethod.Post
-                url(doneEndpoint)
-                header("Content-Type", "application/json")
-                setBody("""{"event": "12398634581111"}""")
-            }
+            val response = client.doneRequest(body = """{"event": "12398634581111"}""")
             response.status shouldBe HttpStatusCode.BadRequest
             response.bodyAsText() shouldBe "eventid parameter mangler"
             mockProducer.history().size shouldBe 0
@@ -151,10 +137,16 @@ class DoneApiTest {
     }
 
     @Test
-    fun `401 for uantentisert bruker`() {
+    fun `401 for uantentisert bruker`() = testApplication {
+        mockDoneApi(authenticated = false)
+        client.doneRequest(
+            body = """{"eventId": "${aktivBeskjed.eventId}"}"""
+        ).status shouldBe HttpStatusCode.Unauthorized
+        mockProducer.history().size shouldBe 0
+
     }
 
-    private fun ApplicationTestBuilder.mockDoneApi() {
+    private fun ApplicationTestBuilder.mockDoneApi(authenticated: Boolean = true) {
         application {
             doneApi(
                 beskjedRepository = beskjedRepository,
@@ -163,7 +155,7 @@ class DoneApiTest {
                     installMockedAuthenticators {
                         installTokenXAuthMock {
                             setAsDefault = true
-                            alwaysAuthenticated = true
+                            alwaysAuthenticated = authenticated
                             staticUserPid = apiTestfnr
                             staticSecurityLevel = SecurityLevel.LEVEL_4
                         }
@@ -171,6 +163,13 @@ class DoneApiTest {
                     }
                 })
         }
+    }
+
+    private suspend fun HttpClient.doneRequest(body: String) = request {
+        url(doneEndpoint)
+        method = HttpMethod.Post
+        header("Content-Type", "application/json")
+        setBody(body)
     }
 }
 
