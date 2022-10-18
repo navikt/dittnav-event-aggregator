@@ -41,11 +41,20 @@ fun Application.doneApi(
     install(StatusPages) {
         exception<Throwable> { call, cause ->
             when (cause) {
-                is BeskjedDoesNotBelongToUserException -> call.respond(HttpStatusCode.Unauthorized)
-                is IllegalArgumentException -> call.respondText(
-                    status = HttpStatusCode.BadRequest,
-                    text = cause.message ?: "Feil i parametre"
-                )
+                is BeskjedDoesNotBelongToUserException -> {
+                    call.respond(HttpStatusCode.Unauthorized)
+                    log.warn("Forsøk på å inaktivere beskjed ${cause.eventId} med feil personnummer")
+                }
+
+                is IllegalArgumentException -> {
+                    call.respondText(
+                        status = HttpStatusCode.BadRequest,
+                        text = cause.message ?: "Feil i parametre"
+                    )
+
+                    log.warn(cause.message, cause.stackTrace)
+                }
+
                 else -> call.respond(HttpStatusCode.InternalServerError)
             }
 
@@ -59,7 +68,8 @@ fun Application.doneApi(
                 post {
 
                     val eventId = call.eventId()
-                    beskjedRepository.setBeskjedInactive(eventId, call.fnr()).also {
+                    val fnr = TokenXUserFactory.createTokenXUser(call).ident
+                    beskjedRepository.setBeskjedInactive(eventId, fnr).also {
                         when (it) {
                             0 -> log.warn("Forsøk på inaktivere beskjed som allerede er innatkivert med eventid $eventId")
                             1 -> producer.cancelEksternVarsling(eventId)
@@ -73,16 +83,24 @@ fun Application.doneApi(
         authenticate(AzureAuthenticator.name) {
             route("/on-behalf-of/beskjed/done") {
                 post {
-
+                    val eventId = call.eventId()
+                    val fnr = call.request.headers["fodselsnummer"] ?: throw FnrHeaderMissingException()
+                    beskjedRepository.setBeskjedInactive(
+                        eventId,
+                        fnr
+                    ).also {
+                        when (it) {
+                            0 -> log.warn("Forsøk på inaktivere beskjed som allerede er innatkivert med eventid $eventId")
+                            1 -> producer.cancelEksternVarsling(eventId)
+                        }
+                    }
+                    call.respond(HttpStatusCode.OK)
                 }
             }
         }
     }
-
-
 }
 
-private fun ApplicationCall.fnr() = TokenXUserFactory.createTokenXUser(this).ident
 private suspend fun ApplicationCall.eventId(): String =
     receive<EventIdBody>().eventId ?: throw EventIdMissingException()
 
@@ -100,3 +118,4 @@ private fun installAuth(): Application.() -> Unit = {
 data class EventIdBody(val eventId: String? = null)
 
 class EventIdMissingException : IllegalArgumentException("eventid parameter mangler")
+class FnrHeaderMissingException : IllegalArgumentException("header fodselsnummer mangler")

@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.done
+package no.nav.personbruker.dittnav.eventaggregator.done.rest
 
 import io.kotest.matchers.shouldBe
 import io.ktor.client.HttpClient
@@ -17,8 +17,6 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedTestData
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
-import no.nav.personbruker.dittnav.eventaggregator.done.rest.DoneRapidProducer
-import no.nav.personbruker.dittnav.eventaggregator.done.rest.doneApi
 import no.nav.tms.token.support.authentication.installer.mock.installMockedAuthenticators
 import no.nav.tms.token.support.tokenx.validation.mock.SecurityLevel
 import org.apache.kafka.clients.producer.MockProducer
@@ -148,10 +146,12 @@ class DoneApiTest {
 
     @Test
     fun `401 for forsøk på deaktivering av eventid som ikke matcher fødeslsnummer`() = testApplication {
-        mockDoneApi(tokenForfnr="45670987987")
+        mockDoneApi(tokenForfnr = "45670987987")
         client.doneRequest(
             body = """{"eventId": "${aktivBeskjed.eventId}"}"""
         ).status shouldBe HttpStatusCode.Unauthorized
+
+        mockProducer.history().size shouldBe 0
     }
 
     private fun ApplicationTestBuilder.mockDoneApi(authenticated: Boolean = true, tokenForfnr: String = apiTestfnr) {
