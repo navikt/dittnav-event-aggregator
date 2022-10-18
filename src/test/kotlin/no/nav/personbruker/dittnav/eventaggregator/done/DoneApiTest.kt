@@ -32,7 +32,7 @@ import java.time.LocalDateTime
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DoneApiTest {
-    private val doneEndpoint = "/done"
+    private val doneEndpoint = "/beskjed/done"
     private val database = LocalPostgresDatabase.migratedDb()
     private val beskjedRepository = BeskjedRepository(database)
     private val mockProducer = MockProducer(
@@ -146,7 +146,15 @@ class DoneApiTest {
 
     }
 
-    private fun ApplicationTestBuilder.mockDoneApi(authenticated: Boolean = true) {
+    @Test
+    fun `401 for forsøk på deaktivering av eventid som ikke matcher fødeslsnummer`() = testApplication {
+        mockDoneApi(tokenForfnr="45670987987")
+        client.doneRequest(
+            body = """{"eventId": "${aktivBeskjed.eventId}"}"""
+        ).status shouldBe HttpStatusCode.Unauthorized
+    }
+
+    private fun ApplicationTestBuilder.mockDoneApi(authenticated: Boolean = true, tokenForfnr: String = apiTestfnr) {
         application {
             doneApi(
                 beskjedRepository = beskjedRepository,
@@ -156,7 +164,7 @@ class DoneApiTest {
                         installTokenXAuthMock {
                             setAsDefault = true
                             alwaysAuthenticated = authenticated
-                            staticUserPid = apiTestfnr
+                            staticUserPid = tokenForfnr
                             staticSecurityLevel = SecurityLevel.LEVEL_4
                         }
                         installAzureAuthMock {}

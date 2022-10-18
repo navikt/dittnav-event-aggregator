@@ -152,7 +152,7 @@ class BeskjedQueriesTest {
     }
 
     @Test
-    fun `Kaster Exception hvis Beskjed-event med eventId ikke finnes`() {
+    fun `Kaster Exception hvis beskjed-event med eventId ikke finnes`() {
         shouldThrow<SQLException> {
             runBlocking {
                 database.dbQuery { getBeskjedByEventId("-1") }

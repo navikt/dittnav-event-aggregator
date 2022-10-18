@@ -39,7 +39,7 @@ internal class BeskjedRepositoryTest {
 
     @Test
     fun `inaktiverer aktivt beskjedvarsel`() {
-        beskjedRepository.setBeskjedInactive(aktivBeskjed.eventId) shouldBe 1
+        beskjedRepository.setBeskjedInactive(aktivBeskjed.eventId,fnr) shouldBe 1
         runBlocking {
             database.dbQuery {
                 getAllBeskjedByAktiv(false).apply {
@@ -53,7 +53,7 @@ internal class BeskjedRepositoryTest {
 
     @Test
     fun `gjør ingenting om varselet allerede en innaktivert`() {
-        beskjedRepository.setBeskjedInactive(inaktivBeskjed.eventId) shouldBe 0
+        beskjedRepository.setBeskjedInactive(inaktivBeskjed.eventId,fnr) shouldBe 0
         runBlocking {
             database.dbQuery {
                 getAllBeskjedByAktiv(false).apply {
@@ -67,7 +67,15 @@ internal class BeskjedRepositoryTest {
     @Test
     fun `kaster excpetion hvis beskjedvarselet ikke finnes`() {
         assertThrows<BeskjedNotFoundException> {
-            beskjedRepository.setBeskjedInactive("even3tfinnesikke")
+            beskjedRepository.setBeskjedInactive("even3tfinnesikke", fnr)
+        }
+
+    }
+
+    @Test
+    fun `kaster excpetion hvis beskjed med eventId tilhører et annet fødselsnummer`() {
+        assertThrows<BeskjedDoesNotBelongToUserException> {
+            beskjedRepository.setBeskjedInactive(eventId = inaktivBeskjed.eventId, fnr="765432984")
         }
 
     }

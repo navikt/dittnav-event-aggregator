@@ -1,6 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
-import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executeBatchUpdateQuery
@@ -55,8 +54,8 @@ fun Connection.setBeskjederAktivflagg(doneEvents: List<Done>, aktiv: Boolean) {
     }
 }
 
-fun Connection.setBeskjedInaktiv(eventId: String): Int {
-    requireBeskjedExists(eventId)
+fun Connection.setBeskjedInaktiv(eventId: String, fnr: String): Int {
+    requireBeskjedExists(eventId, fnr)
     return prepareStatement("""UPDATE beskjed SET aktiv = FALSE, sistoppdatert = ? WHERE eventId = ? AND aktiv=TRUE""".trimMargin())
         .use {
             it.setObject(1, nowAtUtc(), Types.TIMESTAMP)
@@ -65,13 +64,16 @@ fun Connection.setBeskjedInaktiv(eventId: String): Int {
         }
 }
 
-private fun Connection.requireBeskjedExists(eventId: String) {
+private fun Connection.requireBeskjedExists(eventId: String, fnr: String) {
     prepareStatement("""SELECT * FROM beskjed WHERE eventId=?""".trimMargin())
         .use {
             it.setString(1, eventId)
             it.executeQuery().apply {
-                if (!isBeforeFirst) {
+                if (!next()) {
                     throw BeskjedNotFoundException(eventId)
+                }
+                if (getString("fodselsnummer") != fnr) {
+                    throw BeskjedDoesNotBelongToUserException(eventId)
                 }
             }
         }
@@ -108,4 +110,7 @@ fun ResultSet.toBeskjed(): Beskjed {
     )
 }
 
-class BeskjedNotFoundException(eventId: String) : IllegalArgumentException("beskjed med eventId $eventId ikke funnet") {}
+class BeskjedNotFoundException(eventId: String) :
+    IllegalArgumentException("beskjed med eventId $eventId ikke funnet")
+
+class BeskjedDoesNotBelongToUserException(val eventId: String) : IllegalArgumentException()
