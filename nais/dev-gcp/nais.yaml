@@ -9,7 +9,6 @@ spec:
   envFrom:
     - secret: dittnav-event-aggregator-secrets
     - secret: influxdb-credentials
-    - configmap: loginservice-idporten
   image: {{version}}
   port: 8080
   liveness:
@@ -54,8 +53,18 @@ spec:
         cascadingDelete: false
   kafka:
     pool: nav-dev
+  tokenx:
+    enabled: true
+  azure:
+    application:
+      enabled: true
   accessPolicy:
     outbound:
       external:
         - host: kafka-schema-registry.nais-q.adeo.no
+    inbound:
+      rules:
+        - application: dittnav-api
+        - application: tms-varselbjelle-api
+
 
