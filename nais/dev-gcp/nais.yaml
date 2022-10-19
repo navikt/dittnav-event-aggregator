@@ -9,6 +9,7 @@ spec:
   envFrom:
     - secret: dittnav-event-aggregator-secrets
     - secret: influxdb-credentials
+    - configmap: loginservice-idporten
   image: {{version}}
   port: 8080
   liveness:
