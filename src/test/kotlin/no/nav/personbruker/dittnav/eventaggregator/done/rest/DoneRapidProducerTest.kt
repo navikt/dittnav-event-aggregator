@@ -23,7 +23,7 @@ internal class DoneRapidProducerTest{
     }
 
     @Test
-    fun `produserer done melding til eksternt varsling topic`(){
+    fun `produserer varselInaktivert event`(){
         val expectedEventId = "sghj1654"
         rapidProducer.cancelEksternVarsling(expectedEventId)
         mockProducer.history().size shouldBe 1
@@ -32,7 +32,7 @@ internal class DoneRapidProducerTest{
             this.key() shouldBe expectedEventId
             val msg = jacksonObjectMapper().readTree(this.value())
             msg["eventId"].textValue() shouldBe expectedEventId
-            msg["@event_name"].textValue() shouldBe "done"
+            msg["@event_name"].textValue() shouldBe "varselInaktivert"
         }
     }
 

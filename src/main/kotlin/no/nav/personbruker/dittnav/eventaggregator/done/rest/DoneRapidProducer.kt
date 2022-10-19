@@ -15,7 +15,7 @@ class DoneRapidProducer(
 
     fun cancelEksternVarsling(eventId: String) {
         val objectNode = objectMapper.createObjectNode()
-        objectNode.put("@event_name", "done")
+        objectNode.put("@event_name", "varselInaktivert")
         objectNode.put("eventId", eventId)
         val producerRecord = ProducerRecord(topicName, eventId, objectNode.toString())
         kafkaProducer.send(producerRecord)

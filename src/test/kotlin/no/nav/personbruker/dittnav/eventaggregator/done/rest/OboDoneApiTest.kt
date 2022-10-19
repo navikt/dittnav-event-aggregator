@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.done.rest
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.kotest.matchers.shouldBe
 import io.ktor.client.HttpClient
 import io.ktor.client.request.header
@@ -94,6 +95,10 @@ class OboDoneApiTest {
         }
 
         mockProducer.history().size shouldBe 1
+        jacksonObjectMapper().readTree(mockProducer.history().first().value()).apply {
+            this["eventId"].asText() shouldBe aktivBeskjed.eventId
+            this["@event_name"].asText() shouldBe "varselInaktivert"
+        }
     }
 
 
