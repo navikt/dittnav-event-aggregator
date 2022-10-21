@@ -9,7 +9,7 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.getAllBeskjedByAktiv
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveTestData
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.getAllOppgaveByAktiv
@@ -26,8 +26,8 @@ internal class PeriodicExpiredVarselProcessorTest {
     private val pastDate = nowTruncatedToMillis().minusDays(7)
     private val futureDate = nowTruncatedToMillis().plusDays(7)
 
-    private val activeOppgave = OppgaveObjectMother.giveMeOppgave(eventId = "o1", aktiv = true, synligFremTil = futureDate)
-    private val expiredOppgave = OppgaveObjectMother.giveMeOppgave(eventId = "o2", aktiv = true, synligFremTil = pastDate)
+    private val activeOppgave = OppgaveTestData.oppgave(eventId = "o1", aktiv = true, synligFremTil = futureDate)
+    private val expiredOppgave = OppgaveTestData.oppgave(eventId = "o2", aktiv = true, synligFremTil = pastDate)
 
     private val activeBeskjed = BeskjedTestData.beskjed(eventId = "b1", aktiv = true, synligFremTil = futureDate)
     private val expiredBeskjed = BeskjedTestData.beskjed(eventId = "b2", aktiv = true, synligFremTil = pastDate)

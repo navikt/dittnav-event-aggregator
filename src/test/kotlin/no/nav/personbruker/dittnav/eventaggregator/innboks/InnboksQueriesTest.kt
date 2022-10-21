@@ -36,7 +36,7 @@ class InnboksQueriesTest {
     }
 
     private fun createInnboks(eventId: String, fodselsnummer: String): Innboks {
-        val innboks = InnboksObjectMother.giveMeAktivInnboks(eventId, fodselsnummer)
+        val innboks = InnboksTestData.innboks(eventId = eventId, fodselsnummer = fodselsnummer)
 
         return runBlocking {
             database.dbQuery {
@@ -47,10 +47,9 @@ class InnboksQueriesTest {
         }
     }
 
-
     private fun createInnboksWithOffsetForstBehandlet(eventId: String, fodselsnummer: String): Innboks {
         val offsetDate = nowTruncatedToMillis().minusDays(1)
-        val innboks = InnboksObjectMother.giveMeInnboksWithForstBehandlet(eventId, fodselsnummer, offsetDate)
+        val innboks = InnboksTestData.innboks(eventId = eventId, fodselsnummer = fodselsnummer, forstBehandlet = offsetDate)
         return runBlocking {
             database.dbQuery {
                 createInnboks(innboks).entityId.let {
@@ -61,7 +60,7 @@ class InnboksQueriesTest {
     }
 
     private fun createInaktivInnboks(eventId: String, fodselsnummer: String): Innboks {
-        val innboks = InnboksObjectMother.giveMeInnboks(
+        val innboks = InnboksTestData.innboks(
             eventId = eventId,
             fodselsnummer = fodselsnummer,
             aktiv = false
@@ -135,7 +134,7 @@ class InnboksQueriesTest {
 
     @Test
     fun `Skal haandtere at prefererteKanaler er tom`() {
-        val innboks = InnboksObjectMother.giveMeAktivInnboksWithEksternVarslingAndPrefererteKanaler(true, emptyList())
+        val innboks = InnboksTestData.innboks(aktiv = true, prefererteKanaler =  emptyList())
         runBlocking {
             database.dbQuery { createInnboks(innboks) }
             val result = database.dbQuery { getInnboksByEventId(innboks.eventId) }

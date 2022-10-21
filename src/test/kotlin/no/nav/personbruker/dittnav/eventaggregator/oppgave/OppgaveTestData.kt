@@ -1,11 +1,11 @@
-package no.nav.personbruker.dittnav.eventaggregator.beskjed
+package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
 import java.time.LocalDateTime
 
-object BeskjedTestData {
+object OppgaveTestData {
 
-    fun beskjed(
+    fun oppgave(
         systembruker: String = "systembruker",
         namespace: String = "namespace",
         appnavn: String = "appnavn",
@@ -13,16 +13,16 @@ object BeskjedTestData {
         forstBehandlet: LocalDateTime = nowTruncatedToMillis(),
         synligFremTil: LocalDateTime = nowTruncatedToMillis().plusDays(1),
         fodselsnummer: String = "123",
-        eventId: String = "12345",
-        grupperingsId: String = "grupperingsId",
+        eventId: String = "o-123",
+        grupperingsId: String = "Dok12345",
         tekst: String = "tekst",
-        link: String = "http://link",
+        link: String = "https://link",
         sistOppdatert: LocalDateTime = nowTruncatedToMillis(),
         sikkerhetsnivaa: Int = 4,
         aktiv: Boolean = true,
         eksternVarsling: Boolean = false,
         prefererteKanaler: List<String> = emptyList()
-    ) = Beskjed(
+    ) = Oppgave(
         systembruker = systembruker,
         namespace = namespace,
         appnavn = appnavn,

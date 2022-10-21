@@ -11,7 +11,7 @@ import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.deleteAllDokn
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.getAllDoknotifikasjonStatusOppgave
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.upsertDoknotifikasjonStatus
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveTestData
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.getAllOppgave
@@ -134,7 +134,7 @@ internal class OppgaveArchivingQueriesTest {
     }
 
     suspend fun createOppgaveInDb(forstBehandlet: LocalDateTime): Oppgave {
-        val oppgave = OppgaveObjectMother.giveMeOppgaveWithForstBehandlet(forstBehandlet)
+        val oppgave = OppgaveTestData.oppgave(forstBehandlet = forstBehandlet)
 
         return database.dbQuery {
             createOppgave(oppgave).entityId.let {

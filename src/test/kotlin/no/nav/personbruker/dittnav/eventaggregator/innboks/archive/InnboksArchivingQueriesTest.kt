@@ -11,7 +11,7 @@ import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.deleteAllDokn
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.getAllDoknotifikasjonStatusInnboks
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.upsertDoknotifikasjonStatus
 import no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks
-import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksTestData
 import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.getAllInnboks
@@ -132,8 +132,8 @@ internal class InnboksArchivingQueriesTest {
         remainingDoknotStatus.isEmpty() shouldBe true
     }
 
-    suspend fun createInnboksInDb(forstBehandlet: LocalDateTime): Innboks {
-        val innboks = InnboksObjectMother.giveMeInnboksWithForstBehandlet(forstBehandlet)
+    private suspend fun createInnboksInDb(forstBehandlet: LocalDateTime): Innboks {
+        val innboks = InnboksTestData.innboks(forstBehandlet = forstBehandlet)
 
         return database.dbQuery {
             createInnboks(innboks).entityId.let {

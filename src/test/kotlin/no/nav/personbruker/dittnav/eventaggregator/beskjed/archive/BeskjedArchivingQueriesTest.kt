@@ -132,8 +132,8 @@ internal class BeskjedArchivingQueriesTest {
         remainingDoknotStatus.isEmpty() shouldBe true
     }
 
-    suspend fun createBeskjedInDb(forstBehandlet: LocalDateTime): Beskjed {
-        val beskjed = BeskjedTestData.beskjedWithForstBehandlet(forstBehandlet = forstBehandlet)
+    private suspend fun createBeskjedInDb(forstBehandlet: LocalDateTime): Beskjed {
+        val beskjed = BeskjedTestData.beskjed(forstBehandlet = forstBehandlet)
 
         return database.dbQuery {
             createBeskjed(beskjed).entityId.let {

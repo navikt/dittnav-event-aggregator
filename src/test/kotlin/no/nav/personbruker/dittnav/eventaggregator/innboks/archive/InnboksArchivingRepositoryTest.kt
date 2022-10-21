@@ -12,7 +12,7 @@ import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.deleteAllDokn
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.getAllDoknotifikasjonStatusInnboks
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.upsertDoknotifikasjonStatus
 import no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks
-import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksTestData
 import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.getAllInnboks
@@ -82,7 +82,7 @@ internal class InnboksArchivingRepositoryTest {
         )
 
     suspend fun createInnboksInDb(): Innboks {
-        val innboks = InnboksObjectMother.giveMeAktivInnboks()
+        val innboks = InnboksTestData.innboks()
 
         return database.dbQuery {
             createInnboks(innboks).entityId.let {

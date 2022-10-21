@@ -12,12 +12,12 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedTestData
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.getBeskjedByEventId
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
-import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksTestData
 import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.getInnboksByEventId
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsSession
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveTestData
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.getOppgaveByEventId
 import org.junit.jupiter.api.AfterAll
@@ -47,7 +47,7 @@ class PeriodicDoneEventWaitingTableProcessorTest {
 
     @Test
     fun `setter Beskjed-event inaktivt hvis Done-event med samme eventId tidligere er mottatt`() {
-        val beskjedWithExistingDoneEvent = BeskjedTestData.aktivBeskjed(eventId = done1.eventId, fodselsnummer = fodselsnummer, systembruker = systembruker)
+        val beskjedWithExistingDoneEvent = BeskjedTestData.beskjed(eventId = done1.eventId, fodselsnummer = fodselsnummer, systembruker = systembruker)
         runBlocking {
             database.dbQuery { createDoneEvent(done1) }
             database.dbQuery { createBeskjed(beskjedWithExistingDoneEvent) }
@@ -60,7 +60,7 @@ class PeriodicDoneEventWaitingTableProcessorTest {
     @Test
     fun `setter Oppgave-event inaktivt hvis Done-event med samme eventId tidligere er mottatt`() {
         val oppgaveWithExistingDoneEvent =
-            OppgaveObjectMother.giveMeAktivOppgave(done2.eventId, fodselsnummer, systembruker)
+            OppgaveTestData.oppgave(eventId = done2.eventId, fodselsnummer = fodselsnummer, systembruker = systembruker)
         runBlocking {
             database.dbQuery { createDoneEvent(done2) }
             database.dbQuery { createOppgave(oppgaveWithExistingDoneEvent) }
@@ -73,7 +73,7 @@ class PeriodicDoneEventWaitingTableProcessorTest {
     @Test
     fun `setter Innboks-event inaktivt hvis Done-event med samme eventId tidligere er mottatt`() {
         val eventConsumer = PeriodicDoneEventWaitingTableProcessor(donePersistingService, dbMetricsProbe)
-        val innboksWithExistingDone = InnboksObjectMother.giveMeAktivInnboks(done3.eventId, fodselsnummer, systembruker)
+        val innboksWithExistingDone = InnboksTestData.innboks(eventId = done3.eventId, fodselsnummer = fodselsnummer)
         runBlocking {
             database.dbQuery { createDoneEvent(done3) }
             database.dbQuery { createInnboks(innboksWithExistingDone) }
@@ -93,7 +93,7 @@ class PeriodicDoneEventWaitingTableProcessorTest {
             systembruker = expectedSystembruker,
             fodselsnummer = expectedFodselsnr
         )
-        val associatedBeskjed = BeskjedTestData.aktivBeskjed(
+        val associatedBeskjed = BeskjedTestData.beskjed(
             eventId = expectedEventId,
             fodselsnummer = expectedFodselsnr,
             systembruker = expectedSystembruker
@@ -125,7 +125,7 @@ class PeriodicDoneEventWaitingTableProcessorTest {
 
     @Test
     fun `skal telle og lage metrikk paa antall done-eventer vi ikke fant tilhorende oppgave for`() {
-        val beskjed = BeskjedTestData.aktivBeskjed()
+        val beskjed = BeskjedTestData.beskjed()
         val doneEvents = listOf(
             DoneTestData.done(beskjed.eventId, beskjed.systembruker, beskjed.fodselsnummer),
             DoneTestData.done("utenMatch1"),

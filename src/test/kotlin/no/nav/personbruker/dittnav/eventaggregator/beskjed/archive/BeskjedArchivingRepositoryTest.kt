@@ -81,8 +81,8 @@ internal class BeskjedArchivingRepositoryTest {
             forstBehandlet = beskjed.forstBehandlet
         )
 
-    suspend fun createBeskjedInDb(): Beskjed {
-        val beskjed = BeskjedTestData.aktivBeskjed()
+    private suspend fun createBeskjedInDb(): Beskjed {
+        val beskjed = BeskjedTestData.beskjed()
 
         return database.dbQuery {
             createBeskjed(beskjed).entityId.let {

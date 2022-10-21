@@ -50,7 +50,7 @@ class BeskjedQueriesTest {
     }
 
     private fun createBeskjed(eventId: String, fodselsnummer: String): Beskjed {
-        val beskjed = BeskjedTestData.aktivBeskjed(eventId = eventId, fodselsnummer = fodselsnummer)
+        val beskjed = BeskjedTestData.beskjed(eventId = eventId, fodselsnummer = fodselsnummer)
         return runBlocking {
             database.dbQuery {
                 createBeskjed(beskjed).entityId.let {
@@ -61,7 +61,7 @@ class BeskjedQueriesTest {
     }
 
     private fun createExpiredBeskjed(eventId: String, fodselsnummer: String): Beskjed {
-        val beskjed = BeskjedTestData.aktivBeskjed(eventId = eventId, fodselsnummer = fodselsnummer)
+        val beskjed = BeskjedTestData.beskjed(eventId = eventId, fodselsnummer = fodselsnummer)
             .copy(synligFremTil = nowTruncatedToMillis().minusDays(1))
         return runBlocking {
             database.dbQuery {
@@ -74,7 +74,7 @@ class BeskjedQueriesTest {
 
     private fun createBeskjedWithOffsetForstBehandlet(eventId: String, fodselsnummer: String): Beskjed {
         val offsetDate = nowTruncatedToMillis().minusDays(1)
-        val beskjed = BeskjedTestData.beskjedWithForstBehandlet(eventId, fodselsnummer, offsetDate)
+        val beskjed = BeskjedTestData.beskjed(eventId = eventId, fodselsnummer = fodselsnummer, forstBehandlet = offsetDate)
         return runBlocking {
             database.dbQuery {
                 createBeskjed(beskjed).entityId.let {
@@ -162,7 +162,7 @@ class BeskjedQueriesTest {
 
     @Test
     fun `Skal haandtere at prefererteKanaler er tom`() {
-        val beskjed = BeskjedTestData.aktivBeskjedWithEksternVarslingAndPrefererteKanaler(true, emptyList())
+        val beskjed = BeskjedTestData.beskjed(eksternVarsling = true, prefererteKanaler = emptyList())
         runBlocking {
             database.dbQuery { createBeskjed(beskjed) }
             val result = database.dbQuery { getBeskjedByEventId(beskjed.eventId) }

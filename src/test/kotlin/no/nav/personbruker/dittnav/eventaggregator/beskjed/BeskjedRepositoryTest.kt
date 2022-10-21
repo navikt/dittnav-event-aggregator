@@ -14,8 +14,8 @@ internal class BeskjedRepositoryTest {
     private val beskjedRepository = BeskjedRepository(database)
     private val fnr = "123456789081"
 
-    private val aktivBeskjed = BeskjedTestData.aktivBeskjed(eventId = "987653", fodselsnummer = fnr)
-    private val inaktivBeskjed = BeskjedTestData.inaktivBeskjed(eventId = "98767777", fodselsnummer = fnr)
+    private val aktivBeskjed = BeskjedTestData.beskjed(eventId = "987653", fodselsnummer = fnr, aktiv = true)
+    private val inaktivBeskjed = BeskjedTestData.beskjed(eventId = "98767777", fodselsnummer = fnr, aktiv = false)
 
     @BeforeEach
     fun populate() {
@@ -39,7 +39,7 @@ internal class BeskjedRepositoryTest {
 
     @Test
     fun `inaktiverer aktivt beskjedvarsel`() {
-        beskjedRepository.setBeskjedInactive(aktivBeskjed.eventId,fnr) shouldBe 1
+        beskjedRepository.setBeskjedInactive(aktivBeskjed.eventId, fnr) shouldBe 1
         runBlocking {
             database.dbQuery {
                 getAllBeskjedByAktiv(false).apply {
@@ -53,7 +53,7 @@ internal class BeskjedRepositoryTest {
 
     @Test
     fun `gjør ingenting om varselet allerede en innaktivert`() {
-        beskjedRepository.setBeskjedInactive(inaktivBeskjed.eventId,fnr) shouldBe 0
+        beskjedRepository.setBeskjedInactive(inaktivBeskjed.eventId, fnr) shouldBe 0
         runBlocking {
             database.dbQuery {
                 getAllBeskjedByAktiv(false).apply {
@@ -75,7 +75,7 @@ internal class BeskjedRepositoryTest {
     @Test
     fun `kaster excpetion hvis beskjed med eventId tilhører et annet fødselsnummer`() {
         assertThrows<BeskjedDoesNotBelongToUserException> {
-            beskjedRepository.setBeskjedInactive(eventId = inaktivBeskjed.eventId, fnr="765432984")
+            beskjedRepository.setBeskjedInactive(eventId = inaktivBeskjed.eventId, fnr = "765432984")
         }
 
     }

@@ -12,7 +12,7 @@ import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.deleteAllDokn
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.getAllDoknotifikasjonStatusOppgave
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.upsertDoknotifikasjonStatus
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveTestData
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.getAllOppgave
@@ -67,7 +67,7 @@ internal class OppgaveArchivingRepositoryTest {
         archivedOppgave.forstBehandlet shouldBe oppgave.forstBehandlet
     }
 
-    fun mergeToArchiveDTO(oppgave: Oppgave, doknotStatus: DoknotifikasjonStatusDto) =
+    private fun mergeToArchiveDTO(oppgave: Oppgave, doknotStatus: DoknotifikasjonStatusDto) =
         BrukernotifikasjonArchiveDTO(
             fodselsnummer = oppgave.fodselsnummer,
             eventId = oppgave.eventId,
@@ -81,8 +81,8 @@ internal class OppgaveArchivingRepositoryTest {
             forstBehandlet = oppgave.forstBehandlet
         )
 
-    suspend fun createOppgaveInDb(): Oppgave {
-        val oppgave = OppgaveObjectMother.giveMeAktivOppgave()
+    private suspend fun createOppgaveInDb(): Oppgave {
+        val oppgave = OppgaveTestData.oppgave()
 
         return database.dbQuery {
             createOppgave(oppgave).entityId.let {

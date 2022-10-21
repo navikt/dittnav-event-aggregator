@@ -4,8 +4,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelpe
 import no.nav.personbruker.dittnav.eventaggregator.common.Brukernotifikasjon
 
 object DoneTestData {
-    private const val testFnr = "123"
-    fun done(eventId: String, systembruker: String = "dummySystembruker", fodselsnummer: String= testFnr): Done {
+    fun done(eventId: String, systembruker: String = "dummySystembruker", fodselsnummer: String= "123"): Done {
         return Done(
             systembruker = systembruker,
             namespace = "dummyNamespace",

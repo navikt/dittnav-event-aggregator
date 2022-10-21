@@ -8,21 +8,21 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.BrukernotifikasjonObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.done.getBrukernotifikasjonFromViewForEventIds
-import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksTestData
 import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveTestData
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
 import org.junit.jupiter.api.Test
 
 class BrukernotifikasjonQueriesTest {
 
     private val database = LocalPostgresDatabase.migratedDb()
-    private val aktivOppgave = OppgaveObjectMother.giveMeAktivOppgave()
-    private val aktivBeskjed = BeskjedTestData.aktivBeskjed()
-    private val aktivInnboks = InnboksObjectMother.giveMeAktivInnboks()
-    private val inaktivOppgave = OppgaveObjectMother.giveMeInaktivOppgave()
-    private val inaktivBeskjed = BeskjedTestData.inaktivBeskjed()
-    private val inaktivInnboks = InnboksObjectMother.giveMeInaktivInnboks()
+    private val aktivOppgave = OppgaveTestData.oppgave()
+    private val aktivBeskjed = BeskjedTestData.beskjed()
+    private val aktivInnboks = InnboksTestData.innboks()
+    private val inaktivOppgave = OppgaveTestData.oppgave(aktiv = false)
+    private val inaktivBeskjed = BeskjedTestData.beskjed(aktiv = false)
+    private val inaktivInnboks = InnboksTestData.innboks(aktiv = false)
 
 
     init {

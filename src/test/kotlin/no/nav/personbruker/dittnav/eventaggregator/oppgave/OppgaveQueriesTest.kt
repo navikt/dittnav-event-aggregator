@@ -43,7 +43,7 @@ class OppgaveQueriesTest {
     }
 
     private fun createOppgave(eventId: String, fodselsnummer: String): Oppgave {
-        var oppgave = OppgaveObjectMother.giveMeAktivOppgave(eventId, fodselsnummer)
+        var oppgave = OppgaveTestData.oppgave(eventId = eventId, fodselsnummer = fodselsnummer)
         runBlocking {
             database.dbQuery {
                 val generatedId = createOppgave(oppgave).entityId
@@ -54,7 +54,7 @@ class OppgaveQueriesTest {
     }
 
     private fun createExpiredOppgave(eventId: String, fodselsnummer: String): Oppgave {
-        var oppgave = OppgaveObjectMother.giveMeAktivOppgave(eventId, fodselsnummer)
+        var oppgave = OppgaveTestData.oppgave(eventId = eventId, fodselsnummer = fodselsnummer)
             .copy(synligFremTil = nowTruncatedToMillis().minusDays(1))
         runBlocking {
             database.dbQuery {
@@ -66,7 +66,7 @@ class OppgaveQueriesTest {
     }
 
     private fun createInaktivOppgave(eventId: String, fodselsnummer: String): Oppgave {
-        val oppgave = OppgaveObjectMother.giveMeOppgave(
+        val oppgave = OppgaveTestData.oppgave(
             eventId = eventId,
             fodselsnummer = fodselsnummer,
             aktiv = false
@@ -83,7 +83,7 @@ class OppgaveQueriesTest {
 
     private fun createOppgaveWithOffsetForstBehandlet(eventId: String, fodselsnummer: String): Oppgave {
         val offsetDate = nowTruncatedToMillis().minusDays(1)
-        var oppgave = OppgaveObjectMother.giveMeOppgaveWithForstBehandlet(eventId, fodselsnummer, offsetDate)
+        var oppgave = OppgaveTestData.oppgave(eventId = eventId, fodselsnummer = fodselsnummer, forstBehandlet = offsetDate)
         runBlocking {
             database.dbQuery {
                 val generatedId = createOppgave(oppgave).entityId
@@ -176,7 +176,7 @@ class OppgaveQueriesTest {
 
     @Test
     fun `Skal haandtere at prefererteKanaler er tom`() {
-        val oppgave = OppgaveObjectMother.giveMeAktivOppgaveWithEksternVarslingAndPrefererteKanaler(true, emptyList())
+        val oppgave = OppgaveTestData.oppgave(aktiv = true, prefererteKanaler = emptyList())
         runBlocking {
             database.dbQuery { createOppgave(oppgave) }
             val result = database.dbQuery { getOppgaveByEventId(oppgave.eventId) }
