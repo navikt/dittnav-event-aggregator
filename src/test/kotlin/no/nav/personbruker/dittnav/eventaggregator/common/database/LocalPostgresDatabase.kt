@@ -10,11 +10,12 @@ import no.nav.personbruker.dittnav.eventaggregator.done.deleteAllDone
 import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
 import org.flywaydb.core.Flyway
+import org.testcontainers.containers.PostgreSQLContainer
 
 class LocalPostgresDatabase private constructor() : Database {
 
     private val memDataSource: HikariDataSource
-    private val container = TestPostgresqlContainer()
+    private val container = PostgreSQLContainer("postgres:12.6")
 
     companion object {
         private val instance by lazy {

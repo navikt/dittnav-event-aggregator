@@ -1,7 +1,6 @@
-package no.nav.personbruker.dittnav.eventaggregator.common.database.entity
+package no.nav.personbruker.dittnav.eventaggregator.common.brukernotifikasjon
 
 import io.kotest.matchers.shouldBe
-import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.BrukernotifikasjonObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneTestData
 import org.junit.jupiter.api.Test
 

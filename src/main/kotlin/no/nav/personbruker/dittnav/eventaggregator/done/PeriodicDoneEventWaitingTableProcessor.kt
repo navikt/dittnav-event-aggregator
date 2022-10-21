@@ -1,7 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import no.nav.personbruker.dittnav.eventaggregator.common.PeriodicJob
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException

@@ -9,7 +9,7 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.getAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
-import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusDtoObjectMother.createDoknotifikasjonStatusDto
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusDtoTestData.createDoknotifikasjonStatusDto
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusEnum
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusEnum.FERDIGSTILT
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.deleteAllDoknotifikasjonStatusBeskjed

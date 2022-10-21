@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.common.database.entity
+package no.nav.personbruker.dittnav.eventaggregator.common.brukernotifikasjon
 
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
@@ -6,7 +6,6 @@ import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedTestData
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
-import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.BrukernotifikasjonObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.done.getBrukernotifikasjonFromViewForEventIds
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksTestData
 import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks

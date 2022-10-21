@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.common.objectmother
+package no.nav.personbruker.dittnav.eventaggregator.common.brukernotifikasjon
 
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.Brukernotifikasjon

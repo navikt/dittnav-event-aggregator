@@ -3,7 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 import no.nav.personbruker.dittnav.eventaggregator.common.Brukernotifikasjon
-import no.nav.personbruker.dittnav.eventaggregator.common.objectmother.BrukernotifikasjonObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.common.brukernotifikasjon.BrukernotifikasjonObjectMother
 import org.junit.jupiter.api.Test
 
 internal class DoneBatchProcessorTest {

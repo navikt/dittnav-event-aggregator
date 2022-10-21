@@ -5,7 +5,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.archive.BrukernotifikasjonArchiveDTO
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusDto
-import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusDtoObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusDtoTestData
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusEnum
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusEnum.FERDIGSTILT
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.deleteAllDoknotifikasjonStatusOppgave
@@ -92,7 +92,7 @@ internal class OppgaveArchivingRepositoryTest {
     }
 
     private suspend fun createDoknotStatusInDb(eventId: String, status: DoknotifikasjonStatusEnum, kanaler: String): DoknotifikasjonStatusDto {
-        val doknotStatusOppgave = DoknotifikasjonStatusDtoObjectMother.createDoknotifikasjonStatusDto(
+        val doknotStatusOppgave = DoknotifikasjonStatusDtoTestData.createDoknotifikasjonStatusDto(
             eventId = eventId,
             status = status.name,
             kanaler = kanaler.split(",")

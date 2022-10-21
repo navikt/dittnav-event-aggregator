@@ -10,7 +10,7 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.getAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusDto
-import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusDtoObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusDtoTestData
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusEnum
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusEnum.FERDIGSTILT
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.deleteAllDoknotifikasjonStatusBeskjed
@@ -92,7 +92,7 @@ internal class BeskjedArchivingRepositoryTest {
     }
 
     private suspend fun createDoknotStatusInDb(eventId: String, status: DoknotifikasjonStatusEnum, kanaler: String): DoknotifikasjonStatusDto {
-        val doknotStatusBeskjed = DoknotifikasjonStatusDtoObjectMother.createDoknotifikasjonStatusDto(
+        val doknotStatusBeskjed = DoknotifikasjonStatusDtoTestData.createDoknotifikasjonStatusDto(
             eventId = eventId,
             status = status.name,
             kanaler = kanaler.split(",")
