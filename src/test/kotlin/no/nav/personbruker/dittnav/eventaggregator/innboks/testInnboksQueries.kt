@@ -12,24 +12,6 @@ fun Connection.getAllInnboks(): List<Innboks> =
             }
         }
 
-fun Connection.getAllInnboksByAktiv(aktiv: Boolean): List<Innboks> =
-    prepareStatement("""SELECT * FROM innboks WHERE aktiv = ?""")
-        .use {
-            it.setBoolean(1, aktiv)
-            it.executeQuery().list {
-                toInnboks()
-            }
-        }
-
-fun Connection.getInnboksByFodselsnummer(fodselsnummer: String): List<Innboks> =
-    prepareStatement("""SELECT * FROM innboks WHERE fodselsnummer = ?""")
-        .use {
-            it.setString(1, fodselsnummer)
-            it.executeQuery().list {
-                toInnboks()
-            }
-        }
-
 fun Connection.getInnboksByEventId(eventId: String): Innboks =
     prepareStatement("""SELECT * FROM innboks WHERE eventId = ?""")
         .use {
@@ -41,10 +23,3 @@ fun Connection.getInnboksByEventId(eventId: String): Innboks =
 
 fun Connection.deleteAllInnboks() =
         prepareStatement("""DELETE FROM INNBOKS""").execute()
-
-fun Connection.deleteInnboksWithEventId(eventId: String) =
-        prepareStatement("""DELETE FROM INNBOKS WHERE eventId = ?""")
-                .use {
-                    it.setString(1, eventId)
-                    it.execute()
-                }

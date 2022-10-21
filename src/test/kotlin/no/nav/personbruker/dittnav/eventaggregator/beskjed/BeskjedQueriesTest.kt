@@ -1,163 +1,24 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContainAll
-import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import java.sql.SQLException
 
 class BeskjedQueriesTest {
 
     private val database = LocalPostgresDatabase.migratedDb()
 
-    private val beskjed1: Beskjed
-    private val beskjed2: Beskjed
-    private val beskjed3: Beskjed
-    private val beskjed4: Beskjed
-    private val expiredBeskjed: Beskjed
-    private val beskjedWithOffsetForstBehandlet: Beskjed
-    private val inaktivBeskjed: Beskjed
-
-    private val fodselsnummer = "12345"
-    private val eventId = "2"
-
-    private val allEvents: List<Beskjed>
-    private val allEventsForSingleUser: List<Beskjed>
-
-    init {
-        beskjed1 = createBeskjed("1", "12345")
-        beskjed2 = createBeskjed("2", "12345")
-        beskjed3 = createBeskjed("3", "12345")
-        beskjed4 = createBeskjed("4", "6789")
-        expiredBeskjed = createExpiredBeskjed("123", "4567")
-        beskjedWithOffsetForstBehandlet = createBeskjedWithOffsetForstBehandlet("5", "12345")
-        inaktivBeskjed = createInaktivBeskjed("6", "12345")
-        allEvents = listOf(
-            beskjed1,
-            beskjed2,
-            beskjed3,
-            beskjed4,
-            expiredBeskjed,
-            beskjedWithOffsetForstBehandlet,
-            inaktivBeskjed
-        )
-        allEventsForSingleUser = listOf(beskjed1, beskjed2, beskjed3, beskjedWithOffsetForstBehandlet, inaktivBeskjed)
-    }
-
-    private fun createBeskjed(eventId: String, fodselsnummer: String): Beskjed {
-        val beskjed = BeskjedTestData.beskjed(eventId = eventId, fodselsnummer = fodselsnummer)
-        return runBlocking {
+    @AfterEach
+    fun cleanup() {
+        runBlocking {
             database.dbQuery {
-                createBeskjed(beskjed).entityId.let {
-                    beskjed.copy(id = it)
-                }
+                deleteAllBeskjed()
             }
         }
-    }
-
-    private fun createExpiredBeskjed(eventId: String, fodselsnummer: String): Beskjed {
-        val beskjed = BeskjedTestData.beskjed(eventId = eventId, fodselsnummer = fodselsnummer)
-            .copy(synligFremTil = nowTruncatedToMillis().minusDays(1))
-        return runBlocking {
-            database.dbQuery {
-                createBeskjed(beskjed).entityId.let {
-                    beskjed.copy(id = it)
-                }
-            }
-        }
-    }
-
-    private fun createBeskjedWithOffsetForstBehandlet(eventId: String, fodselsnummer: String): Beskjed {
-        val offsetDate = nowTruncatedToMillis().minusDays(1)
-        val beskjed = BeskjedTestData.beskjed(eventId = eventId, fodselsnummer = fodselsnummer, forstBehandlet = offsetDate)
-        return runBlocking {
-            database.dbQuery {
-                createBeskjed(beskjed).entityId.let {
-                    beskjed.copy(id = it)
-                }
-            }
-        }
-    }
-
-    private fun createInaktivBeskjed(eventId: String, fodselsnummer: String): Beskjed {
-        val beskjed = BeskjedTestData.beskjed(
-            eventId = eventId,
-            fodselsnummer = fodselsnummer,
-            aktiv = false
-        )
-
-        return runBlocking {
-            database.dbQuery {
-                val generatedId = createBeskjed(beskjed).entityId
-
-                beskjed.copy(id = generatedId)
-            }
-        }
-    }
-
-    @Test
-    fun `Finner alle aktive cachede Beskjed-eventer`() {
-        runBlocking {
-            val result = database.dbQuery { getAllBeskjedByAktiv(true) }
-            result shouldContainAll listOf(beskjed1, beskjed2, beskjed3, beskjed4)
-            result shouldNotContain inaktivBeskjed
-        }
-    }
-
-    @Test
-    fun `Finner cachet Beskjed-event med Id`() {
-        runBlocking {
-            val result = database.dbQuery { beskjed2.id?.let { getBeskjedById(it) } }
-            result shouldBe beskjed2
-        }
-    }
-
-    @Test
-    fun `Kaster Exception hvis Beskjed-event med Id ikke finnes`() {
-        shouldThrow<SQLException> {
-            runBlocking {
-                database.dbQuery { getBeskjedById(999) }
-            }
-        }.message shouldBe "Found no rows"
-    }
-
-    @Test
-    fun `Finner cachede Beskjeds-eventer for fodselsnummer`() {
-        runBlocking {
-            val result = database.dbQuery { getBeskjedByFodselsnummer(fodselsnummer) }
-            result.size shouldBe 5
-            result shouldContainAll allEventsForSingleUser
-        }
-    }
-
-    @Test
-    fun `Returnerer tom liste hvis Beskjeds-eventer for fodselsnummer ikke finnes`() {
-        runBlocking {
-            val result = database.dbQuery { getBeskjedByFodselsnummer("-1") }
-            result.isEmpty() shouldBe true
-        }
-    }
-
-    @Test
-    fun `Finner cachet Beskjed-event med eventId`() {
-        runBlocking {
-            val result = database.dbQuery { getBeskjedByEventId(eventId) }
-            result shouldBe beskjed2
-        }
-    }
-
-    @Test
-    fun `Kaster Exception hvis beskjed-event med eventId ikke finnes`() {
-        shouldThrow<SQLException> {
-            runBlocking {
-                database.dbQuery { getBeskjedByEventId("-1") }
-            }
-        }.message shouldBe "Found no rows"
     }
 
     @Test
@@ -167,24 +28,25 @@ class BeskjedQueriesTest {
             database.dbQuery { createBeskjed(beskjed) }
             val result = database.dbQuery { getBeskjedByEventId(beskjed.eventId) }
             result.prefererteKanaler.shouldBeEmpty()
-            database.dbQuery { deleteBeskjedWithEventId(beskjed.eventId) }
         }
-
     }
 
     @Test
     fun `Finner utgått beskjeder`() {
         runBlocking {
+            val expiredBeskjed = BeskjedTestData.beskjed(synligFremTil = nowTruncatedToMillis().minusDays(1))
+            database.dbQuery { createBeskjed(expiredBeskjed) }
+
             val numberUpdated = database.dbQuery {
                 setExpiredBeskjedAsInactive()
             }
 
-            val updatedOppave = database.dbQuery {
+            val updatedBeskjed = database.dbQuery {
                 getBeskjedByEventId(expiredBeskjed.eventId)
             }
 
             numberUpdated shouldBe 1
-            updatedOppave.aktiv shouldBe false
+            updatedBeskjed.aktiv shouldBe false
         }
     }
 }

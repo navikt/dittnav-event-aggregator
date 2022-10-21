@@ -133,7 +133,7 @@ internal class OppgaveArchivingQueriesTest {
         remainingDoknotStatus.isEmpty() shouldBe true
     }
 
-    suspend fun createOppgaveInDb(forstBehandlet: LocalDateTime): Oppgave {
+    private suspend fun createOppgaveInDb(forstBehandlet: LocalDateTime): Oppgave {
         val oppgave = OppgaveTestData.oppgave(forstBehandlet = forstBehandlet)
 
         return database.dbQuery {

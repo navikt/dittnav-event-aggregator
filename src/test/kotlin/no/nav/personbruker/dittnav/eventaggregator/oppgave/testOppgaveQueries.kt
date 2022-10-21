@@ -21,24 +21,6 @@ fun Connection.getAllOppgaveByAktiv(aktiv: Boolean): List<Oppgave> =
             }
         }
 
-fun Connection.getOppgaveByFodselsnummer(fodselsnummer: String): List<Oppgave> =
-    prepareStatement("""SELECT * FROM oppgave WHERE fodselsnummer = ?""")
-        .use {
-            it.setString(1, fodselsnummer)
-            it.executeQuery().list {
-                toOppgave()
-            }
-        }
-
-fun Connection.getOppgaveById(id: Int): Oppgave =
-    prepareStatement("""SELECT * FROM oppgave WHERE id = ?""")
-        .use {
-            it.setInt(1, id)
-            it.executeQuery().singleResult {
-                toOppgave()
-            }
-        }
-
 fun Connection.getOppgaveByEventId(eventId: String): Oppgave =
     prepareStatement("""SELECT * FROM oppgave WHERE eventId = ?""")
         .use {
@@ -51,10 +33,3 @@ fun Connection.getOppgaveByEventId(eventId: String): Oppgave =
 fun Connection.deleteAllOppgave() =
         prepareStatement("""DELETE FROM OPPGAVE""")
                 .use {it.execute()}
-
-fun Connection.deleteOppgaveWithEventId(eventId: String) =
-        prepareStatement("""DELETE FROM OPPGAVE WHERE eventId = ?""")
-                .use {
-                    it.setString(1, eventId)
-                    it.execute()
-                }
