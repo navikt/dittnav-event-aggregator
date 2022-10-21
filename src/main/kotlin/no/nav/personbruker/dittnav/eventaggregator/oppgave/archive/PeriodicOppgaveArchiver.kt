@@ -41,7 +41,6 @@ class PeriodicOppgaveArchiver(
             log.warn("Fikk en periodisk feil mot databasen ved arkivering av Oppgave. Forsøker igjen senere.", rt)
         } catch (e: Exception) {
             log.error("Fikk feil mot databasen ved arkivering av oppgave. Stopper prosessering.", e)
-            stop()
         }
     }
 }

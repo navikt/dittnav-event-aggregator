@@ -40,7 +40,6 @@ class PeriodicBeskjedArchiver(
             log.warn("Fikk en periodisk feil mot databasen ved arkivering av Beskjed. Forsøker igjen senere.", rt)
         } catch (e: Exception) {
             log.error("Fikk feil mot databasen ved arkivering av beskjed. Stopper prosessering.", e)
-            stop()
         }
     }
 }

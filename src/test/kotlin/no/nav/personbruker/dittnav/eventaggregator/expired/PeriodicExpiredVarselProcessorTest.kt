@@ -3,7 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.expired
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedTestData
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.getAllBeskjedByAktiv
@@ -29,8 +29,8 @@ internal class PeriodicExpiredVarselProcessorTest {
     private val activeOppgave = OppgaveObjectMother.giveMeOppgave(eventId = "o1", aktiv = true, synligFremTil = futureDate)
     private val expiredOppgave = OppgaveObjectMother.giveMeOppgave(eventId = "o2", aktiv = true, synligFremTil = pastDate)
 
-    private val activeBeskjed = BeskjedObjectMother.giveMeBeskjed(eventId = "b1", aktiv = true, synligFremTil = futureDate)
-    private val expiredBeskjed = BeskjedObjectMother.giveMeBeskjed(eventId = "b2", aktiv = true, synligFremTil = pastDate)
+    private val activeBeskjed = BeskjedTestData.beskjed(eventId = "b1", aktiv = true, synligFremTil = futureDate)
+    private val expiredBeskjed = BeskjedTestData.beskjed(eventId = "b2", aktiv = true, synligFremTil = pastDate)
 
     @AfterEach
     fun cleanUp() = runBlocking<Unit> {

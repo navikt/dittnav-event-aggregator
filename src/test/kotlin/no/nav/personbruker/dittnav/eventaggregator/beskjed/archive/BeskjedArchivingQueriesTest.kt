@@ -3,7 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed.archive
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedObjectMother
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedTestData
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.getAllBeskjed
@@ -133,7 +133,7 @@ internal class BeskjedArchivingQueriesTest {
     }
 
     suspend fun createBeskjedInDb(forstBehandlet: LocalDateTime): Beskjed {
-        val beskjed = BeskjedObjectMother.giveMeBeskjedWithForstBehandlet(forstBehandlet)
+        val beskjed = BeskjedTestData.beskjedWithForstBehandlet(forstBehandlet = forstBehandlet)
 
         return database.dbQuery {
             createBeskjed(beskjed).entityId.let {

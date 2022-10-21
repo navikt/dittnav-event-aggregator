@@ -8,19 +8,21 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getListF
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getNullableLocalDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getUtcDateTime
 import no.nav.personbruker.dittnav.eventaggregator.done.Done
+import java.lang.IllegalArgumentException
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
 
-private const val createQuery = """INSERT INTO beskjed (systembruker, eventTidspunkt, forstBehandlet, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn)
+private const val createQuery =
+    """INSERT INTO beskjed (systembruker, eventTidspunkt, forstBehandlet, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
 
 fun Connection.createBeskjed(beskjed: Beskjed): PersistActionResult =
-        executePersistQuery(createQuery) {
-            setParametersForSingleRow(beskjed)
-        }
+    executePersistQuery(createQuery) {
+        setParametersForSingleRow(beskjed)
+    }
 
 private fun PreparedStatement.setParametersForSingleRow(beskjed: Beskjed) {
     setString(1, beskjed.systembruker)
@@ -52,8 +54,33 @@ fun Connection.setBeskjederAktivflagg(doneEvents: List<Done>, aktiv: Boolean) {
     }
 }
 
+fun Connection.setBeskjedInaktiv(eventId: String, fnr: String): Int {
+    requireBeskjedExists(eventId, fnr)
+    return prepareStatement("""UPDATE beskjed SET aktiv = FALSE, sistoppdatert = ? WHERE eventId = ? AND aktiv=TRUE""".trimMargin())
+        .use {
+            it.setObject(1, nowAtUtc(), Types.TIMESTAMP)
+            it.setString(2, eventId)
+            it.executeUpdate()
+        }
+}
+
+private fun Connection.requireBeskjedExists(eventId: String, fnr: String) {
+    prepareStatement("""SELECT * FROM beskjed WHERE eventId=?""".trimMargin())
+        .use {
+            it.setString(1, eventId)
+            it.executeQuery().apply {
+                if (!next()) {
+                    throw BeskjedNotFoundException(eventId)
+                }
+                if (getString("fodselsnummer") != fnr) {
+                    throw BeskjedDoesNotBelongToUserException(eventId)
+                }
+            }
+        }
+}
+
 fun Connection.setExpiredBeskjedAsInactive(): Int {
-    return prepareStatement("""UPDATE beskjed set aktiv = false, sistoppdatert = ? WHERE aktiv = true AND synligFremTil < ?""")
+    return prepareStatement("""UPDATE beskjed SET aktiv = FALSE, sistoppdatert = ? WHERE aktiv = TRUE AND synligFremTil < ?""")
         .use {
             it.setObject(1, nowAtUtc(), Types.TIMESTAMP)
             it.setObject(2, nowAtUtc(), Types.TIMESTAMP)
@@ -63,22 +90,27 @@ fun Connection.setExpiredBeskjedAsInactive(): Int {
 
 fun ResultSet.toBeskjed(): Beskjed {
     return Beskjed(
-            id = getInt("id"),
-            systembruker = getString("systembruker"),
-            namespace = getString("namespace"),
-            appnavn = getString("appnavn"),
-            eventTidspunkt = getUtcDateTime("eventTidspunkt"),
-            forstBehandlet = getUtcDateTime("forstBehandlet"),
-            fodselsnummer = getString("fodselsnummer"),
-            eventId = getString("eventId"),
-            grupperingsId = getString("grupperingsId"),
-            tekst = getString("tekst"),
-            link = getString("link"),
-            sikkerhetsnivaa = getInt("sikkerhetsnivaa"),
-            sistOppdatert = getUtcDateTime("sistOppdatert"),
-            synligFremTil = getNullableLocalDateTime("synligFremTil"),
-            aktiv = getBoolean("aktiv"),
-            eksternVarsling = getBoolean("eksternVarsling"),
-            prefererteKanaler = getListFromSeparatedString("prefererteKanaler", ",")
+        id = getInt("id"),
+        systembruker = getString("systembruker"),
+        namespace = getString("namespace"),
+        appnavn = getString("appnavn"),
+        eventTidspunkt = getUtcDateTime("eventTidspunkt"),
+        forstBehandlet = getUtcDateTime("forstBehandlet"),
+        fodselsnummer = getString("fodselsnummer"),
+        eventId = getString("eventId"),
+        grupperingsId = getString("grupperingsId"),
+        tekst = getString("tekst"),
+        link = getString("link"),
+        sikkerhetsnivaa = getInt("sikkerhetsnivaa"),
+        sistOppdatert = getUtcDateTime("sistOppdatert"),
+        synligFremTil = getNullableLocalDateTime("synligFremTil"),
+        aktiv = getBoolean("aktiv"),
+        eksternVarsling = getBoolean("eksternVarsling"),
+        prefererteKanaler = getListFromSeparatedString("prefererteKanaler", ",")
     )
 }
+
+class BeskjedNotFoundException(eventId: String) :
+    IllegalArgumentException("beskjed med eventId $eventId ikke funnet")
+
+class BeskjedDoesNotBelongToUserException(val eventId: String) : IllegalArgumentException()

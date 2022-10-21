@@ -40,18 +40,7 @@ class ApplicationContext {
 
     var periodicDoneEventWaitingTableProcessor = initializeDoneWaitingTableProcessor()
 
-    val periodicExpiredVarselProcessor = PeriodicExpiredVarselProcessor(ExpiredVarselRepository(database))
-
     private fun initializeDoneWaitingTableProcessor() = PeriodicDoneEventWaitingTableProcessor(donePersistingService, dbMetricsProbe)
-
-    fun reinitializeDoneWaitingTableProcessor() {
-        if (periodicDoneEventWaitingTableProcessor.isCompleted()) {
-            periodicDoneEventWaitingTableProcessor = initializeDoneWaitingTableProcessor()
-            log.info("periodicDoneEventWaitingTableProcessor har blitt reinstansiert.")
-        } else {
-            log.warn("periodicDoneEventWaitingTableProcessor kunne ikke bli reinstansiert fordi den fortsatt er aktiv.")
-        }
-    }
 
     fun startAllArchivers() {
         if (environment.archivingEnabled) {
