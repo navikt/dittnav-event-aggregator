@@ -3,9 +3,9 @@ package no.nav.personbruker.dittnav.eventaggregator.innboks.archive
 import no.nav.personbruker.dittnav.eventaggregator.archive.BrukernotifikasjonArchiveDTO
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.EPOCH_START
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getUtcDateTime
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.toVarcharArray
+import no.nav.personbruker.dittnav.eventaggregator.common.database.getUtcDateTime
+import no.nav.personbruker.dittnav.eventaggregator.common.database.list
+import no.nav.personbruker.dittnav.eventaggregator.common.database.toVarcharArray
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusEnum.FERDIGSTILT
 import java.sql.Connection
 import java.sql.PreparedStatement

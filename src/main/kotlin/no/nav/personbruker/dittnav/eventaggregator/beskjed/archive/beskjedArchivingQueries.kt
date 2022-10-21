@@ -3,14 +3,15 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed.archive
 import no.nav.personbruker.dittnav.eventaggregator.archive.BrukernotifikasjonArchiveDTO
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.EPOCH_START
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.*
+import no.nav.personbruker.dittnav.eventaggregator.common.database.getUtcDateTime
+import no.nav.personbruker.dittnav.eventaggregator.common.database.list
+import no.nav.personbruker.dittnav.eventaggregator.common.database.toVarcharArray
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusEnum.FERDIGSTILT
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
 import java.time.LocalDateTime
-import java.time.ZoneId
 
 private const val getBeskjedToArchiveQuery = """
     SELECT 

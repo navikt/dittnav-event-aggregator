@@ -1,8 +1,8 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed.archive
 
 import no.nav.personbruker.dittnav.eventaggregator.archive.BrukernotifikasjonArchiveDTO
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getUtcDateTime
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
+import no.nav.personbruker.dittnav.eventaggregator.common.database.getUtcDateTime
+import no.nav.personbruker.dittnav.eventaggregator.common.database.list
 import java.sql.Connection
 import java.sql.ResultSet
 

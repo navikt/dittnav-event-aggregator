@@ -1,7 +1,5 @@
-package no.nav.personbruker.dittnav.eventaggregator.common.database.util
+package no.nav.personbruker.dittnav.eventaggregator.common.database
 
-import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
-import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistOutcome
 import java.sql.Array
 import java.sql.Connection
 import java.sql.PreparedStatement

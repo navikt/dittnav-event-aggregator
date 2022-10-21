@@ -2,11 +2,11 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executeBatchUpdateQuery
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executePersistQuery
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getListFromSeparatedString
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getNullableLocalDateTime
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getUtcDateTime
+import no.nav.personbruker.dittnav.eventaggregator.common.database.executeBatchUpdateQuery
+import no.nav.personbruker.dittnav.eventaggregator.common.database.executePersistQuery
+import no.nav.personbruker.dittnav.eventaggregator.common.database.getListFromSeparatedString
+import no.nav.personbruker.dittnav.eventaggregator.common.database.getNullableLocalDateTime
+import no.nav.personbruker.dittnav.eventaggregator.common.database.getUtcDateTime
 import no.nav.personbruker.dittnav.eventaggregator.done.Done
 import java.lang.IllegalArgumentException
 import java.sql.Connection

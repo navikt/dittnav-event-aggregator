@@ -1,7 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.singleResult
+import no.nav.personbruker.dittnav.eventaggregator.common.database.list
+import no.nav.personbruker.dittnav.eventaggregator.common.database.singleResult
 import java.sql.Connection
 
 fun Connection.getAllInnboks(): List<Innboks> =

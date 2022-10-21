@@ -2,11 +2,11 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 
 import no.nav.personbruker.dittnav.eventaggregator.common.Brukernotifikasjon
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executeBatchUpdateQuery
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.executePersistQuery
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.getUtcDateTime
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
-import no.nav.personbruker.dittnav.eventaggregator.common.database.util.toVarcharArray
+import no.nav.personbruker.dittnav.eventaggregator.common.database.executeBatchUpdateQuery
+import no.nav.personbruker.dittnav.eventaggregator.common.database.executePersistQuery
+import no.nav.personbruker.dittnav.eventaggregator.common.database.getUtcDateTime
+import no.nav.personbruker.dittnav.eventaggregator.common.database.list
+import no.nav.personbruker.dittnav.eventaggregator.common.database.toVarcharArray
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import java.sql.Connection
 import java.sql.PreparedStatement
