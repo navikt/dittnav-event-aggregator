@@ -4,17 +4,12 @@ import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.no
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.executeBatchUpdateQuery
 import no.nav.personbruker.dittnav.eventaggregator.common.database.executePersistQuery
-import no.nav.personbruker.dittnav.eventaggregator.common.database.getListFromSeparatedString
-import no.nav.personbruker.dittnav.eventaggregator.common.database.getNullableLocalDateTime
-import no.nav.personbruker.dittnav.eventaggregator.common.database.getUtcDateTime
 import no.nav.personbruker.dittnav.eventaggregator.done.Done
 import java.sql.Connection
 import java.sql.PreparedStatement
-import java.sql.ResultSet
 import java.sql.Types
 
 private const val createQuery = """INSERT INTO oppgave (systembruker, eventTidspunkt, forstBehandlet, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn, synligFremTil) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?)"""
-
 
 fun Connection.createOppgave(oppgave: Oppgave): PersistActionResult =
         executePersistQuery(createQuery) {
@@ -59,26 +54,4 @@ fun Connection.setExpiredOppgaveAsInactive(): Int {
             it.setObject(2, nowAtUtc(), Types.TIMESTAMP)
             it.executeUpdate()
         }
-}
-
-fun ResultSet.toOppgave(): Oppgave {
-    return Oppgave(
-            id = getInt("id"),
-            systembruker = getString("systembruker"),
-            namespace = getString("namespace"),
-            appnavn = getString("appnavn"),
-            eventTidspunkt = getUtcDateTime("eventTidspunkt"),
-            forstBehandlet = getUtcDateTime("forstBehandlet"),
-            fodselsnummer = getString("fodselsnummer"),
-            eventId = getString("eventId"),
-            grupperingsId = getString("grupperingsId"),
-            tekst = getString("tekst"),
-            link = getString("link"),
-            sikkerhetsnivaa = getInt("sikkerhetsnivaa"),
-            sistOppdatert = getUtcDateTime("sistOppdatert"),
-            aktiv = getBoolean("aktiv"),
-            eksternVarsling = getBoolean("eksternVarsling"),
-            prefererteKanaler = getListFromSeparatedString("prefererteKanaler", ","),
-            synligFremTil = getNullableLocalDateTime("synligFremTil")
-    )
 }

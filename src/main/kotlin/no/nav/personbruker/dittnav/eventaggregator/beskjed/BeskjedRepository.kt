@@ -11,5 +11,4 @@ class BeskjedRepository(val database: Database) {
                 this.setBeskjedInaktiv(eventId, fnr)
             }
         }
-
 }

@@ -4,12 +4,9 @@ import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.no
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.executeBatchUpdateQuery
 import no.nav.personbruker.dittnav.eventaggregator.common.database.executePersistQuery
-import no.nav.personbruker.dittnav.eventaggregator.common.database.getListFromSeparatedString
-import no.nav.personbruker.dittnav.eventaggregator.common.database.getUtcDateTime
 import no.nav.personbruker.dittnav.eventaggregator.done.Done
 import java.sql.Connection
 import java.sql.PreparedStatement
-import java.sql.ResultSet
 import java.sql.Types
 
 private const val createQuery = """INSERT INTO innboks(systembruker, eventTidspunkt, forstBehandlet, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn)
@@ -47,25 +44,4 @@ fun Connection.setInnboksEventerAktivFlag(doneEvents: List<Done>, aktiv: Boolean
             addBatch()
         }
     }
-}
-
-fun ResultSet.toInnboks(): Innboks {
-    return Innboks(
-        id = getInt("id"),
-        systembruker = getString("systembruker"),
-        namespace =  getString("namespace"),
-        appnavn =  getString("appnavn"),
-        eventTidspunkt = getUtcDateTime("eventTidspunkt"),
-        forstBehandlet = getUtcDateTime("forstBehandlet"),
-        fodselsnummer = getString("fodselsnummer"),
-        eventId = getString("eventId"),
-        grupperingsId = getString("grupperingsId"),
-        tekst = getString("tekst"),
-        link = getString("link"),
-        sikkerhetsnivaa = getInt("sikkerhetsnivaa"),
-        sistOppdatert = getUtcDateTime("sistOppdatert"),
-        aktiv = getBoolean("aktiv"),
-        eksternVarsling = getBoolean("eksternVarsling"),
-        prefererteKanaler = getListFromSeparatedString("prefererteKanaler", ",")
-    )
 }

@@ -1,8 +1,12 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
+import no.nav.personbruker.dittnav.eventaggregator.common.database.getListFromSeparatedString
+import no.nav.personbruker.dittnav.eventaggregator.common.database.getNullableLocalDateTime
+import no.nav.personbruker.dittnav.eventaggregator.common.database.getUtcDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.database.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.singleResult
 import java.sql.Connection
+import java.sql.ResultSet
 
 fun Connection.getAllOppgave(): List<Oppgave> =
     prepareStatement("""SELECT * FROM oppgave""")
@@ -33,3 +37,23 @@ fun Connection.getOppgaveByEventId(eventId: String): Oppgave =
 fun Connection.deleteAllOppgave() =
         prepareStatement("""DELETE FROM OPPGAVE""")
                 .use {it.execute()}
+
+fun ResultSet.toOppgave() = Oppgave(
+    id = getInt("id"),
+    systembruker = getString("systembruker"),
+    namespace = getString("namespace"),
+    appnavn = getString("appnavn"),
+    eventTidspunkt = getUtcDateTime("eventTidspunkt"),
+    forstBehandlet = getUtcDateTime("forstBehandlet"),
+    fodselsnummer = getString("fodselsnummer"),
+    eventId = getString("eventId"),
+    grupperingsId = getString("grupperingsId"),
+    tekst = getString("tekst"),
+    link = getString("link"),
+    sikkerhetsnivaa = getInt("sikkerhetsnivaa"),
+    sistOppdatert = getUtcDateTime("sistOppdatert"),
+    aktiv = getBoolean("aktiv"),
+    eksternVarsling = getBoolean("eksternVarsling"),
+    prefererteKanaler = getListFromSeparatedString("prefererteKanaler", ","),
+    synligFremTil = getNullableLocalDateTime("synligFremTil")
+)
