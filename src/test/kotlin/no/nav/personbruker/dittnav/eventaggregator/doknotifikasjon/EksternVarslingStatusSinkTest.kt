@@ -92,30 +92,6 @@ class EksternVarslingStatusSinkTest {
     }
 
     @Test
-    fun `dryryn-modus når writeToDb er false`() = runBlocking {
-        val testRapid = TestRapid()
-        setupEksternVarslingStatusSink(testRapid, writeToDb = false)
-        setupBeskjedSink(testRapid)
-        setupOppgaveSink(testRapid)
-        setupInnboksSink(testRapid)
-
-        testRapid.sendTestMessage(varselJson("beskjed", "111"))
-        testRapid.sendTestMessage(eksternVarslingStatusJson("111"))
-
-        testRapid.sendTestMessage(varselJson("oppgave", "222"))
-        testRapid.sendTestMessage(eksternVarslingStatusJson("222"))
-
-        testRapid.sendTestMessage(varselJson("innboks", "333"))
-        testRapid.sendTestMessage(eksternVarslingStatusJson("333"))
-
-        runBlocking {
-            eksternVarslingStatusRepository.getStatusIfExists("111", VarselType.BESKJED) shouldBe null
-            eksternVarslingStatusRepository.getStatusIfExists("222", VarselType.OPPGAVE) shouldBe null
-            eksternVarslingStatusRepository.getStatusIfExists("333", VarselType.INNBOKS) shouldBe null
-        }
-    }
-
-    @Test
     fun `gjør ingenting hvis eventId er ukjent`() {
         val testRapid = TestRapid()
         setupEksternVarslingStatusSink(testRapid)
@@ -128,32 +104,28 @@ class EksternVarslingStatusSinkTest {
         }
     }
 
-    private fun setupEksternVarslingStatusSink(testRapid: TestRapid, writeToDb: Boolean = true) =
+    private fun setupEksternVarslingStatusSink(testRapid: TestRapid) =
         EksternVarslingStatusSink(
             rapidsConnection = testRapid,
             eksternVarslingStatusUpdater = eksternVarslingStatusUpdater,
-            writeToDb = writeToDb
         )
 
-    private fun setupBeskjedSink(testRapid: TestRapid, writeToDb: Boolean = true) = BeskjedSink(
+    private fun setupBeskjedSink(testRapid: TestRapid) = BeskjedSink(
         rapidsConnection = testRapid,
         varselRepository = varselRepository,
-        rapidMetricsProbe = mockk(relaxed = true),
-        writeToDb = writeToDb
+        rapidMetricsProbe = mockk(relaxed = true)
     )
 
-    private fun setupOppgaveSink(testRapid: TestRapid, writeToDb: Boolean = true) = OppgaveSink(
+    private fun setupOppgaveSink(testRapid: TestRapid) = OppgaveSink(
         rapidsConnection = testRapid,
         varselRepository = varselRepository,
-        rapidMetricsProbe = mockk(relaxed = true),
-        writeToDb = writeToDb
+        rapidMetricsProbe = mockk(relaxed = true)
     )
 
-    private fun setupInnboksSink(testRapid: TestRapid, writeToDb: Boolean = true) = InnboksSink(
+    private fun setupInnboksSink(testRapid: TestRapid) = InnboksSink(
         rapidsConnection = testRapid,
         varselRepository = varselRepository,
-        rapidMetricsProbe = mockk(relaxed = true),
-        writeToDb = writeToDb
+        rapidMetricsProbe = mockk(relaxed = true)
     )
 
     private fun eksternVarslingStatusJson(

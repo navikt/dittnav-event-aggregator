@@ -19,7 +19,6 @@ internal class BeskjedSink(
     rapidsConnection: RapidsConnection,
     private val varselRepository: VarselRepository,
     private val rapidMetricsProbe: RapidMetricsProbe,
-    private val writeToDb: Boolean
 ) :
     River.PacketListener {
 
@@ -66,13 +65,9 @@ internal class BeskjedSink(
         )
 
         runBlocking {
-            if(writeToDb) {
-                varselRepository.persistBeskjed(beskjed)
-                log.info("Behandlet beskjed fra rapid med eventid ${beskjed.eventId}")
-            }
-            else {
-                log.info("Dryrun: beskjed fra rapid med eventid ${beskjed.eventId}")
-            }
+            varselRepository.persistBeskjed(beskjed)
+            log.info("Behandlet beskjed fra rapid med eventid ${beskjed.eventId}")
+
             rapidMetricsProbe.countProcessed(EventType.BESKJED_INTERN, beskjed.appnavn)
         }
     }

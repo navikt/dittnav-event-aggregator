@@ -11,8 +11,7 @@ import org.slf4j.LoggerFactory
 
 internal class EksternVarslingStatusSink(
     rapidsConnection: RapidsConnection,
-    private val eksternVarslingStatusUpdater: EksternVarslingStatusUpdater,
-    private val writeToDb: Boolean
+    private val eksternVarslingStatusUpdater: EksternVarslingStatusUpdater
 ) :
     River.PacketListener {
 
@@ -44,10 +43,8 @@ internal class EksternVarslingStatusSink(
         )
 
         runBlocking {
-            if (writeToDb) {
-                eksternVarslingStatusUpdater.insertOrUpdateStatus(eksternVarslingStatus)
-                log.info("Behandlet eksternVarslingStatus fra rapid med eventid ${eksternVarslingStatus.eventId}")
-            }
+            eksternVarslingStatusUpdater.insertOrUpdateStatus(eksternVarslingStatus)
+            log.info("Behandlet eksternVarslingStatus fra rapid med eventid ${eksternVarslingStatus.eventId}")
 
             //TODO metricsProbe.countProcessed()
         }

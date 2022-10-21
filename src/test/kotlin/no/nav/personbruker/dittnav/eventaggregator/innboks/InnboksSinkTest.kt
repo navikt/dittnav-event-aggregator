@@ -58,20 +58,10 @@ class InnboksSinkTest {
         innboksFromDb().size shouldBe 1
     }
 
-    @Test
-    fun `dryryn-modus når writeToDb er false`() = runBlocking {
-        val testRapid = TestRapid()
-        setupInnboksSink(testRapid, writeToDb = false)
-        testRapid.sendTestMessage(innboksJson)
-
-        innboksFromDb().size shouldBe 0
-    }
-
-    private fun setupInnboksSink(testRapid: TestRapid, writeToDb: Boolean = true) = InnboksSink(
+    private fun setupInnboksSink(testRapid: TestRapid) = InnboksSink(
         rapidsConnection = testRapid,
         varselRepository = varselRepository,
-        rapidMetricsProbe = mockk(relaxed = true),
-        writeToDb = writeToDb
+        rapidMetricsProbe = mockk(relaxed = true)
     )
 
 

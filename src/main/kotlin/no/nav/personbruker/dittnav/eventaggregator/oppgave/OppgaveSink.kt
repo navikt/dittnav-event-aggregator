@@ -18,8 +18,7 @@ import org.slf4j.LoggerFactory
 internal class OppgaveSink(
     rapidsConnection: RapidsConnection,
     private val varselRepository: VarselRepository,
-    private val rapidMetricsProbe: RapidMetricsProbe,
-    private val writeToDb: Boolean
+    private val rapidMetricsProbe: RapidMetricsProbe
 ) :
     River.PacketListener {
 
@@ -66,12 +65,9 @@ internal class OppgaveSink(
         )
 
         runBlocking {
-            if(writeToDb) {
-                varselRepository.persistOppgave(oppgave)
-                log.info("Behandlet oppgave fra rapid med eventid ${oppgave.eventId}")
-            } else {
-                log.info("Dryrun: oppgave fra rapid med eventid ${oppgave.eventId}")
-            }
+            varselRepository.persistOppgave(oppgave)
+            log.info("Behandlet oppgave fra rapid med eventid ${oppgave.eventId}")
+
             rapidMetricsProbe.countProcessed(EventType.OPPGAVE_INTERN, oppgave.appnavn)
         }
     }

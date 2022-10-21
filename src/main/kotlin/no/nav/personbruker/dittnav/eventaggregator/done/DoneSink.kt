@@ -18,8 +18,7 @@ import org.slf4j.LoggerFactory
 internal class DoneSink(
     rapidsConnection: RapidsConnection,
     private val varselRepository: VarselRepository,
-    private val rapidMetricsProbe: RapidMetricsProbe,
-    private val writeToDb: Boolean
+    private val rapidMetricsProbe: RapidMetricsProbe
 ) :
     River.PacketListener {
 
@@ -52,22 +51,18 @@ internal class DoneSink(
         runBlocking {
             val varsler = varselRepository.getVarsel(done.eventId)
 
-            if (writeToDb) {
-                if (varsler.isEmpty()) {
-                    // lagre i ventetabell hvis ikke varsel finnes
-                    varselRepository.persistWaitingDone(done)
-                } else {
-                    when (varsler.first().type) {
-                        VarselType.BESKJED -> varselRepository.inaktiverBeskjed(done)
-                        VarselType.OPPGAVE -> varselRepository.inaktiverOppgave(done)
-                        VarselType.INNBOKS -> varselRepository.inaktiverInnboks(done)
-                    }
-                }
-
-                log.info("Behandlet done fra rapid med eventid ${done.eventId}")
+            if (varsler.isEmpty()) {
+                // lagre i ventetabell hvis ikke varsel finnes
+                varselRepository.persistWaitingDone(done)
             } else {
-                log.info("Dryrun: done fra rapid med eventid ${done.eventId}")
+                when (varsler.first().type) {
+                    VarselType.BESKJED -> varselRepository.inaktiverBeskjed(done)
+                    VarselType.OPPGAVE -> varselRepository.inaktiverOppgave(done)
+                    VarselType.INNBOKS -> varselRepository.inaktiverInnboks(done)
+                }
             }
+
+            log.info("Behandlet done fra rapid med eventid ${done.eventId}")
             rapidMetricsProbe.countProcessed(EventType.DONE_INTERN, done.appnavn)
         }
     }

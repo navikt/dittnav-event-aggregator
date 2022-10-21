@@ -58,20 +58,10 @@ class OppgaveSinkTest {
         oppgaverFromDb().size shouldBe 1
     }
 
-    @Test
-    fun `dryryn-modus når writeToDb er false`() = runBlocking {
-        val testRapid = TestRapid()
-        setupOppgaveSink(testRapid, writeToDb = false)
-        testRapid.sendTestMessage(oppgaveJson)
-
-        oppgaverFromDb().size shouldBe 0
-    }
-
-    private fun setupOppgaveSink(testRapid: TestRapid, writeToDb: Boolean = true) = OppgaveSink(
+    private fun setupOppgaveSink(testRapid: TestRapid) = OppgaveSink(
         rapidsConnection = testRapid,
         varselRepository = varselRepository,
-        rapidMetricsProbe = mockk(relaxed = true),
-        writeToDb = writeToDb
+        rapidMetricsProbe = mockk(relaxed = true)
     )
 
 

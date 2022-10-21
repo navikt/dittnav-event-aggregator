@@ -42,8 +42,8 @@ class DoneSinkTest {
     fun `Inaktiverer varsel`() = runBlocking {
         val testRapid = TestRapid()
         setupBeskjedSink(testRapid)
-        OppgaveSink(testRapid, varselRepository, mockk(relaxed = true), writeToDb = true)
-        InnboksSink(testRapid, varselRepository, mockk(relaxed = true), writeToDb = true)
+        OppgaveSink(testRapid, varselRepository, mockk(relaxed = true))
+        InnboksSink(testRapid, varselRepository, mockk(relaxed = true))
         setupDoneSink(testRapid)
 
         testRapid.sendTestMessage(varselJson("beskjed", "11"))
@@ -98,29 +98,16 @@ class DoneSinkTest {
         done.fodselsnummer shouldBe doneJsonNode["fodselsnummer"].textValue()
     }
 
-    @Test
-    fun `dryryn-modus når writeToDb er false`() = runBlocking {
-        val testRapid = TestRapid()
-        setupDoneSink(testRapid, writeToDb = false)
-
-        testRapid.sendTestMessage(doneJson("999"))
-
-        val beskjeder = doneFromWaitingTable()
-        beskjeder.size shouldBe 0
-    }
-
     private fun setupBeskjedSink(testRapid: TestRapid) = BeskjedSink(
         rapidsConnection = testRapid,
         varselRepository = varselRepository,
-        rapidMetricsProbe = mockk(relaxed = true),
-        writeToDb = true
+        rapidMetricsProbe = mockk(relaxed = true)
     )
 
-    private fun setupDoneSink(testRapid: TestRapid, writeToDb: Boolean = true) = DoneSink(
+    private fun setupDoneSink(testRapid: TestRapid) = DoneSink(
         rapidsConnection = testRapid,
         varselRepository = varselRepository,
-        rapidMetricsProbe = mockk(relaxed = true),
-        writeToDb = writeToDb
+        rapidMetricsProbe = mockk(relaxed = true)
     )
 
 

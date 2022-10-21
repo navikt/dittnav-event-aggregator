@@ -1,8 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.config
 
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.helse.rapids_rivers.RapidApplication.RapidApplicationConfig.Companion.fromEnv
@@ -51,31 +49,26 @@ private fun startRapid(environment: Environment, database: Database, appContext:
         BeskjedSink(
             rapidsConnection = this,
             varselRepository = varselRepository,
-            rapidMetricsProbe = rapidMetricsProbe,
-            writeToDb = true
+            rapidMetricsProbe = rapidMetricsProbe
         )
         OppgaveSink(
             rapidsConnection = this,
             varselRepository = varselRepository,
-            rapidMetricsProbe = rapidMetricsProbe,
-            writeToDb = true
+            rapidMetricsProbe = rapidMetricsProbe
         )
         InnboksSink(
             rapidsConnection = this,
             varselRepository = varselRepository,
-            rapidMetricsProbe = rapidMetricsProbe,
-            writeToDb = true
+            rapidMetricsProbe = rapidMetricsProbe
         )
         DoneSink(
             rapidsConnection = this,
             varselRepository = varselRepository,
-            rapidMetricsProbe = rapidMetricsProbe,
-            writeToDb = true
+            rapidMetricsProbe = rapidMetricsProbe
         )
         EksternVarslingStatusSink(
             rapidsConnection = this,
-            eksternVarslingStatusUpdater = eksternVarslingStatusUpdater,
-            writeToDb = true
+            eksternVarslingStatusUpdater = eksternVarslingStatusUpdater
         )
     }.apply {
         register(object : RapidsConnection.StatusListener {

@@ -61,22 +61,10 @@ class BeskjedSinkTest {
         beskjeder.size shouldBe 1
     }
 
-    @Test
-    fun `dryryn-modus når writeToDb er false`() = runBlocking {
-        val testRapid = TestRapid()
-        setupBeskjedSink(testRapid, writeToDb = false)
-
-        testRapid.sendTestMessage(beskjedJson)
-
-        val beskjeder = beskjederFromDb()
-        beskjeder.size shouldBe 0
-    }
-
-    private fun setupBeskjedSink(testRapid: TestRapid, writeToDb: Boolean = true) = BeskjedSink(
+    private fun setupBeskjedSink(testRapid: TestRapid) = BeskjedSink(
         rapidsConnection = testRapid,
         varselRepository = varselRepository,
         rapidMetricsProbe = mockk(relaxed = true),
-        writeToDb = writeToDb
     )
 
     private suspend fun beskjederFromDb(): List<Beskjed> {

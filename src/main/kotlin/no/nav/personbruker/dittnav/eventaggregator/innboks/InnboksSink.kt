@@ -17,8 +17,7 @@ import org.slf4j.LoggerFactory
 internal class InnboksSink(
     rapidsConnection: RapidsConnection,
     private val varselRepository: VarselRepository,
-    private val rapidMetricsProbe: RapidMetricsProbe,
-    private val writeToDb: Boolean
+    private val rapidMetricsProbe: RapidMetricsProbe
 ) :
     River.PacketListener {
 
@@ -64,12 +63,8 @@ internal class InnboksSink(
         )
 
         runBlocking {
-            if(writeToDb) {
-                varselRepository.persistVarsel(innboks)
-                log.info("Behandlet innboks fra rapid med eventid ${innboks.eventId}")
-            } else {
-                log.info("Dryrun: innboks fra rapid med eventid ${innboks.eventId}")
-            }
+            varselRepository.persistVarsel(innboks)
+            log.info("Behandlet innboks fra rapid med eventid ${innboks.eventId}")
             rapidMetricsProbe.countProcessed(EventType.INNBOKS_INTERN, innboks.appnavn)
         }
     }
