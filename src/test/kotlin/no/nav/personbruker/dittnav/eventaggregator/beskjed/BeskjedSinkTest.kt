@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.varsel
+package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.shouldBe
@@ -6,12 +6,9 @@ import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedSink
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.toBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 

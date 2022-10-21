@@ -28,12 +28,12 @@ class LocalPostgresDatabase private constructor() : Database {
                 //En del raskere å slette alle radene enn å kjøre clean/migrate hver gang
                 instance.dbQuery {
                     deleteAllDone()
-                    deleteAllBeskjed()
-                    deleteAllOppgave()
-                    deleteAllInnboks()
                     deleteAllDoknotifikasjonStatusBeskjed()
                     deleteAllDoknotifikasjonStatusOppgave()
                     deleteAllDoknotifikasjonStatusInnboks()
+                    deleteAllBeskjed()
+                    deleteAllOppgave()
+                    deleteAllInnboks()
                 }
             }
             return instance

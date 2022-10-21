@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.varsel
+package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.shouldBe
@@ -8,10 +8,7 @@ import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveSink
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.toOppgave
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 

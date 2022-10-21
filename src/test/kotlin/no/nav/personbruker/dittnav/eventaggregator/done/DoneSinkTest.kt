@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.varsel
+package no.nav.personbruker.dittnav.eventaggregator.done
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.shouldBe
@@ -12,10 +12,6 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.toBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.util.list
-import no.nav.personbruker.dittnav.eventaggregator.done.Done
-import no.nav.personbruker.dittnav.eventaggregator.done.DoneSink
-import no.nav.personbruker.dittnav.eventaggregator.done.deleteAllDone
-import no.nav.personbruker.dittnav.eventaggregator.done.toDoneEvent
 import no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksSink
 import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
@@ -24,6 +20,7 @@ import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveSink
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.toOppgave
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 

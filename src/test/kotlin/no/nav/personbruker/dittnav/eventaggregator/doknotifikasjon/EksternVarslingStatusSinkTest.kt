@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.varsel.eksternvarslingstatus
+package no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -10,12 +10,6 @@ import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedSink
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
-import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingStatusRepository
-import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingStatusSink
-import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingStatusUpdater
-import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.deleteAllDoknotifikasjonStatusBeskjed
-import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.deleteAllDoknotifikasjonStatusInnboks
-import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.deleteAllDoknotifikasjonStatusOppgave
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksSink
 import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveSink
