@@ -13,6 +13,8 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.getAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusDtoTestData.createDoknotifikasjonStatusDto
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.upsertDoknotifikasjonStatus
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksTestData.innboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.archive.deleteAllInnboksArchive
 import no.nav.personbruker.dittnav.eventaggregator.innboks.archive.getAllArchivedInnboks
@@ -25,7 +27,9 @@ import no.nav.personbruker.dittnav.eventaggregator.oppgave.archive.getAllArchive
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.getAllOppgave
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.sql.Connection
 import java.time.Duration.ofMillis
@@ -50,7 +54,7 @@ internal class PeriodicVarselArchiverTest {
     }
 
     @Test
-    fun `skal flytte gamle varsler til arkivet`() = runBlocking {
+    fun `flytter gamle varsler til arkivet`() = runBlocking {
         val gammelBeskjed = beskjed(eventId = "b1", forstBehandlet = nowTruncatedToMillis().minusDays(11))
         val nyBeskjed = beskjed(eventId = "b2", forstBehandlet = nowTruncatedToMillis().minusDays(9))
         val gammelOppgave = oppgave(eventId = "o1", forstBehandlet = nowTruncatedToMillis().minusDays(11))
@@ -74,11 +78,7 @@ internal class PeriodicVarselArchiverTest {
             interval = ofMinutes(10)
         )
         archiver.start()
-        withTimeout(1000) {
-            while (database.dbQuery { antallVarsler() } > 3) {
-                delay(100)
-            }
-        }
+        delayUntilVarslerDeleted(3)
         archiver.stop()
 
         database.dbQuery { getAllArchivedBeskjed() }.size shouldBe 1
@@ -92,6 +92,44 @@ internal class PeriodicVarselArchiverTest {
     }
 
     @Test
+    fun `arkiverer beskjed-data`() {
+        runBlocking {
+            val beskjed = beskjed(eventId = "b1", forstBehandlet = nowTruncatedToMillis().minusDays(11))
+            val eksternVarslingStatus = createDoknotifikasjonStatusDto(beskjed.eventId, status = "FERDIGSTILT", kanaler = listOf("SMS"))
+            database.dbQuery {
+                createBeskjed(beskjed)
+                upsertDoknotifikasjonStatus(eksternVarslingStatus, VarselType.BESKJED)
+            }
+
+            val archiver = PeriodicVarselArchiver(
+                varselArchivingRepository = repository,
+                archiveMetricsProbe = probe,
+                ageThresholdDays = 10,
+                interval = ofMinutes(10)
+            )
+            archiver.start()
+            delayUntilVarslerDeleted()
+            archiver.stop()
+
+            val archivedBeskjeder = database.dbQuery { getAllArchivedBeskjed() }
+            archivedBeskjeder.size shouldBe 1
+            archivedBeskjeder.first().apply {
+                fodselsnummer shouldBe beskjed.fodselsnummer
+                eventId shouldBe beskjed.eventId
+                tekst shouldBe beskjed.tekst
+                link shouldBe beskjed.link
+                sikkerhetsnivaa shouldBe beskjed.sikkerhetsnivaa
+                aktiv shouldBe beskjed.aktiv
+                produsentApp shouldBe beskjed.appnavn
+                eksternVarslingSendt shouldBe true
+                eksternVarslingKanaler shouldBe eksternVarslingStatus.kanaler.first()
+                forstBehandlet shouldBe beskjed.forstBehandlet
+            }
+        }
+    }
+
+    @Test
+    @Disabled //tester PeriodicJob, ikke PeriodicVarselArchiver
     fun `starter på nytt etter et tidsintervall`() = runBlocking {
         val beskjed1 = beskjed(eventId = "1", forstBehandlet = nowTruncatedToMillis().minusDays(11))
         val beskjed2 = beskjed(eventId = "2", forstBehandlet = nowTruncatedToMillis().minusDays(12))
@@ -119,9 +157,9 @@ internal class PeriodicVarselArchiverTest {
         database.dbQuery { getAllBeskjed() }.size shouldBe 0
     }
 
-    private suspend fun delayUntilVarslerDeleted() {
+    private suspend fun delayUntilVarslerDeleted(remainingVarsler: Int = 0) {
         withTimeout(1000) {
-            while (database.dbQuery { antallVarsler() } > 0) {
+            while (database.dbQuery { antallVarsler() } > remainingVarsler) {
                 delay(100)
             }
         }
