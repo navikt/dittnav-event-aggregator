@@ -12,6 +12,9 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.getAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusDtoTestData.createDoknotifikasjonStatusDto
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.getAllDoknotifikasjonStatusBeskjed
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.getAllDoknotifikasjonStatusInnboks
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.getAllDoknotifikasjonStatusOppgave
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.upsertDoknotifikasjonStatus
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksTestData.innboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.archive.getAllArchivedInnboks
@@ -42,9 +45,12 @@ internal class PeriodicVarselArchiverTest {
     private val gammelInnboks = innboks(eventId = "i1", forstBehandlet = nowTruncatedToMillis().minusDays(11))
     private val nyInnboks = innboks(eventId = "i2", forstBehandlet = nowTruncatedToMillis().minusDays(9))
 
-    private val eksternVarslingStatusBeskjed = createDoknotifikasjonStatusDto(gammelBeskjed.eventId, status = "FERDIGSTILT", kanaler = listOf("SMS"))
-    private val eksternVarslingStatusOppgave = createDoknotifikasjonStatusDto(gammelOppgave.eventId, status = "FERDIGSTILT", kanaler = listOf("EPOST"))
-    private val eksternVarslingStatusInnboks = createDoknotifikasjonStatusDto(gammelInnboks.eventId, status = "FERDIGSTILT", kanaler = listOf("SMS"))
+    private val eksternVarslingStatusGammelBeskjed = createDoknotifikasjonStatusDto(gammelBeskjed.eventId, status = "FERDIGSTILT", kanaler = listOf("SMS"))
+    private val eksternVarslingStatusNyBeskjed = createDoknotifikasjonStatusDto(nyBeskjed.eventId, status = "FERDIGSTILT", kanaler = listOf("SMS"))
+    private val eksternVarslingStatusGammelOppgave = createDoknotifikasjonStatusDto(gammelOppgave.eventId, status = "FERDIGSTILT", kanaler = listOf("EPOST"))
+    private val eksternVarslingStatusNyOppgave = createDoknotifikasjonStatusDto(nyOppgave.eventId, status = "FERDIGSTILT", kanaler = listOf("EPOST"))
+    private val eksternVarslingStatusGammelInnboks = createDoknotifikasjonStatusDto(gammelInnboks.eventId, status = "FERDIGSTILT", kanaler = listOf("SMS"))
+    private val eksternVarslingStatusNyInnboks = createDoknotifikasjonStatusDto(nyInnboks.eventId, status = "FERDIGSTILT", kanaler = listOf("SMS"))
 
     @BeforeAll
     fun setup() {
@@ -57,9 +63,12 @@ internal class PeriodicVarselArchiverTest {
                 createInnboks(gammelInnboks)
                 createInnboks(nyInnboks)
 
-                upsertDoknotifikasjonStatus(eksternVarslingStatusBeskjed, VarselType.BESKJED)
-                upsertDoknotifikasjonStatus(eksternVarslingStatusOppgave, VarselType.OPPGAVE)
-                upsertDoknotifikasjonStatus(eksternVarslingStatusInnboks, VarselType.INNBOKS)
+                upsertDoknotifikasjonStatus(eksternVarslingStatusGammelBeskjed, VarselType.BESKJED)
+                upsertDoknotifikasjonStatus(eksternVarslingStatusNyBeskjed, VarselType.BESKJED)
+                upsertDoknotifikasjonStatus(eksternVarslingStatusGammelOppgave, VarselType.OPPGAVE)
+                upsertDoknotifikasjonStatus(eksternVarslingStatusNyOppgave, VarselType.OPPGAVE)
+                upsertDoknotifikasjonStatus(eksternVarslingStatusGammelInnboks, VarselType.INNBOKS)
+                upsertDoknotifikasjonStatus(eksternVarslingStatusNyInnboks, VarselType.INNBOKS)
             }
 
             val archiver = PeriodicVarselArchiver(
@@ -84,6 +93,10 @@ internal class PeriodicVarselArchiverTest {
 
         database.dbQuery { getAllArchivedInnboks() }.size shouldBe 1
         database.dbQuery { getAllInnboks() }.size shouldBe 1
+
+        database.dbQuery { getAllDoknotifikasjonStatusBeskjed() }.size shouldBe 1
+        database.dbQuery { getAllDoknotifikasjonStatusOppgave() }.size shouldBe 1
+        database.dbQuery { getAllDoknotifikasjonStatusInnboks() }.size shouldBe 1
     }
 
     @Test
@@ -99,8 +112,8 @@ internal class PeriodicVarselArchiverTest {
                 sikkerhetsnivaa shouldBe gammelBeskjed.sikkerhetsnivaa
                 aktiv shouldBe gammelBeskjed.aktiv
                 produsentApp shouldBe gammelBeskjed.appnavn
-                eksternVarslingSendt shouldBe (eksternVarslingStatusBeskjed.status == "FERDIGSTILT")
-                eksternVarslingKanaler shouldBe eksternVarslingStatusBeskjed.kanaler.first()
+                eksternVarslingSendt shouldBe (eksternVarslingStatusGammelBeskjed.status == "FERDIGSTILT")
+                eksternVarslingKanaler shouldBe eksternVarslingStatusGammelBeskjed.kanaler.first()
                 forstBehandlet shouldBe gammelBeskjed.forstBehandlet
             }
         }
@@ -119,8 +132,8 @@ internal class PeriodicVarselArchiverTest {
                 sikkerhetsnivaa shouldBe gammelOppgave.sikkerhetsnivaa
                 aktiv shouldBe gammelOppgave.aktiv
                 produsentApp shouldBe gammelOppgave.appnavn
-                eksternVarslingSendt shouldBe (eksternVarslingStatusOppgave.status == "FERDIGSTILT")
-                eksternVarslingKanaler shouldBe eksternVarslingStatusOppgave.kanaler.first()
+                eksternVarslingSendt shouldBe (eksternVarslingStatusGammelOppgave.status == "FERDIGSTILT")
+                eksternVarslingKanaler shouldBe eksternVarslingStatusGammelOppgave.kanaler.first()
                 forstBehandlet shouldBe gammelOppgave.forstBehandlet
             }
         }
@@ -139,8 +152,8 @@ internal class PeriodicVarselArchiverTest {
                 sikkerhetsnivaa shouldBe gammelInnboks.sikkerhetsnivaa
                 aktiv shouldBe gammelInnboks.aktiv
                 produsentApp shouldBe gammelInnboks.appnavn
-                eksternVarslingSendt shouldBe (eksternVarslingStatusInnboks.status == "FERDIGSTILT")
-                eksternVarslingKanaler shouldBe eksternVarslingStatusInnboks.kanaler.first()
+                eksternVarslingSendt shouldBe (eksternVarslingStatusGammelInnboks.status == "FERDIGSTILT")
+                eksternVarslingKanaler shouldBe eksternVarslingStatusGammelInnboks.kanaler.first()
                 forstBehandlet shouldBe gammelInnboks.forstBehandlet
             }
         }

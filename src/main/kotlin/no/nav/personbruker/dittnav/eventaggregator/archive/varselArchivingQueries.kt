@@ -12,108 +12,46 @@ import java.sql.ResultSet
 import java.sql.Types
 import java.time.LocalDateTime
 
-private const val getBeskjedToArchiveQuery = """
+private enum class VarselTableName {
+    beskjed, oppgave, innboks
+}
+
+private fun getVarselToArchiveQuery(varselName: VarselTableName) = """
     SELECT 
-      beskjed.fodselsnummer,
-      beskjed.eventId,
-      beskjed.tekst,
-      beskjed.link,
-      beskjed.sikkerhetsnivaa,
-      beskjed.aktiv,
-      beskjed.appnavn,
-      beskjed.forstBehandlet,
+      varsel.fodselsnummer,
+      varsel.eventId,
+      varsel.tekst,
+      varsel.link,
+      varsel.sikkerhetsnivaa,
+      varsel.aktiv,
+      varsel.appnavn,
+      varsel.forstBehandlet,
       dns.status as dns_status,
       dns.kanaler as dns_kanaler
     FROM
-      beskjed
-        LEFT JOIN doknotifikasjon_status_beskjed as dns ON beskjed.eventId = dns.eventId
+      $varselName as varsel
+        LEFT JOIN doknotifikasjon_status_$varselName as dns ON varsel.eventId = dns.eventId
     WHERE
-      beskjed.forstBehandlet between ? and ?
+      varsel.forstBehandlet between ? and ?
     limit 1000
 """
 
-private const val getOppgaveToArchiveQuery = """
-    SELECT 
-      oppgave.fodselsnummer,
-      oppgave.eventId,
-      oppgave.tekst,
-      oppgave.link,
-      oppgave.sikkerhetsnivaa,
-      oppgave.aktiv,
-      oppgave.appnavn,
-      oppgave.forstBehandlet,
-      dns.status as dns_status,
-      dns.kanaler as dns_kanaler
-    FROM
-      oppgave
-        LEFT JOIN doknotifikasjon_status_oppgave as dns ON oppgave.eventId = dns.eventId
-    WHERE
-      oppgave.forstBehandlet between ? and ?
-    limit 1000
-"""
-
-private const val getInnboksToArchiveQuery = """
-    SELECT 
-      innboks.fodselsnummer,
-      innboks.eventId,
-      innboks.tekst,
-      innboks.link,
-      innboks.sikkerhetsnivaa,
-      innboks.aktiv,
-      innboks.appnavn,
-      innboks.forstBehandlet,
-      dns.status as dns_status,
-      dns.kanaler as dns_kanaler
-    FROM
-      innboks
-        LEFT JOIN doknotifikasjon_status_innboks as dns ON innboks.eventId = dns.eventId
-    WHERE
-      innboks.forstBehandlet between ? and ?
-    limit 1000
-"""
-
-private const val insertBeskjedArchiveQuery = """
-    INSERT INTO beskjed_arkiv (fodselsnummer, eventid, tekst, link, sikkerhetsnivaa, aktiv, produsentApp, eksternVarslingSendt, eksternVarslingKanaler, forstbehandlet, arkivert)
+private fun insertVarselArchiveQuery(varselName: VarselTableName) = """
+    INSERT INTO ${varselName}_arkiv (fodselsnummer, eventid, tekst, link, sikkerhetsnivaa, aktiv, produsentApp, eksternVarslingSendt, eksternVarslingKanaler, forstbehandlet, arkivert)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 """
 
-private const val deleteDoknotifikasjonStatusBeskjedQuery = """
-    DELETE FROM doknotifikasjon_status_beskjed WHERE eventId = ANY(?)
+private fun deleteVarselQuery(varselName: VarselTableName) = """
+    DELETE FROM $varselName WHERE eventId = ANY(?)
 """
 
-private const val deleteBeskjedQuery = """
-    DELETE FROM beskjed WHERE eventId = ANY(?)
+private fun deleteDoknotifikasjonStatusQuery(varselName: VarselTableName) = """
+    DELETE FROM doknotifikasjon_status_$varselName WHERE eventId = ANY(?)
 """
 
-private const val insertOppgaveArchiveQuery = """
-    INSERT INTO oppgave_arkiv (fodselsnummer, eventid, tekst, link, sikkerhetsnivaa, aktiv, produsentApp, eksternVarslingSendt, eksternVarslingKanaler, forstbehandlet, arkivert)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-"""
-
-private const val deleteDoknotifikasjonStatusOppgaveQuery = """
-    DELETE FROM doknotifikasjon_status_oppgave WHERE eventId = ANY(?)
-"""
-
-private const val deleteOppgaveQuery = """
-    DELETE FROM oppgave WHERE eventId = ANY(?)
-"""
-
-private const val insertInnboksArchiveQuery = """
-    INSERT INTO innboks_arkiv (fodselsnummer, eventid, tekst, link, sikkerhetsnivaa, aktiv, produsentApp, eksternVarslingSendt, eksternVarslingKanaler, forstbehandlet, arkivert)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-"""
-
-private const val deleteDoknotifikasjonStatusInnboksQuery = """
-    DELETE FROM doknotifikasjon_status_innboks WHERE eventId = ANY(?)
-"""
-
-private const val deleteInnboksQuery = """
-    DELETE FROM innboks WHERE eventId = ANY(?)
-"""
-
-fun Connection.getArchivableBeskjeder(dateThreshold: LocalDateTime) = getVarselAsArchiveDtoOlderThan(dateThreshold, getBeskjedToArchiveQuery)
-fun Connection.getArchivableOppgaver(dateThreshold: LocalDateTime) = getVarselAsArchiveDtoOlderThan(dateThreshold, getOppgaveToArchiveQuery)
-fun Connection.getArchivableInnbokser(dateThreshold: LocalDateTime) = getVarselAsArchiveDtoOlderThan(dateThreshold, getInnboksToArchiveQuery)
+fun Connection.getArchivableBeskjeder(dateThreshold: LocalDateTime) = getVarselAsArchiveDtoOlderThan(dateThreshold, getVarselToArchiveQuery(VarselTableName.beskjed))
+fun Connection.getArchivableOppgaver(dateThreshold: LocalDateTime) = getVarselAsArchiveDtoOlderThan(dateThreshold, getVarselToArchiveQuery(VarselTableName.oppgave))
+fun Connection.getArchivableInnbokser(dateThreshold: LocalDateTime) = getVarselAsArchiveDtoOlderThan(dateThreshold, getVarselToArchiveQuery(VarselTableName.innboks))
 
 private fun Connection.getVarselAsArchiveDtoOlderThan(dateThreshold: LocalDateTime, getArchivableVarselQuery: String): List<BrukernotifikasjonArchiveDTO> {
     return prepareStatement(getArchivableVarselQuery)
@@ -127,33 +65,32 @@ private fun Connection.getVarselAsArchiveDtoOlderThan(dateThreshold: LocalDateTi
 }
 
 fun Connection.createArchivedBeskjeder(toArchive: List<BrukernotifikasjonArchiveDTO>) {
-    createVarselInArchive(toArchive, insertBeskjedArchiveQuery)
+    createVarselInArchive(toArchive, insertVarselArchiveQuery(VarselTableName.beskjed))
 }
 fun Connection.createArchivedOppgaver(toArchive: List<BrukernotifikasjonArchiveDTO>) {
-    createVarselInArchive(toArchive, insertOppgaveArchiveQuery)
+    createVarselInArchive(toArchive, insertVarselArchiveQuery(VarselTableName.oppgave))
 }
 fun Connection.createArchivedInnbokser(toArchive: List<BrukernotifikasjonArchiveDTO>) {
-    createVarselInArchive(toArchive, insertInnboksArchiveQuery)
+    createVarselInArchive(toArchive, insertVarselArchiveQuery(VarselTableName.innboks))
 }
 private fun Connection.createVarselInArchive(toArchive: List<BrukernotifikasjonArchiveDTO>, insertVarselArchiveQuery: String) {
     prepareStatement(insertVarselArchiveQuery).use { statement ->
-        toArchive.forEach { beskjedToArchive ->
-            statement.setParametersForSingleRow(beskjedToArchive)
+        toArchive.forEach {
+            statement.setParametersForSingleRow(it)
             statement.addBatch()
         }
         statement.executeBatch()
     }
 }
 
-
 fun Connection.deleteDoknotifikasjonStatusVarselBeskjed(eventIds: List<String>) {
-    deleteDoknotifikasjonStatusVarsel(eventIds, deleteDoknotifikasjonStatusBeskjedQuery)
+    deleteDoknotifikasjonStatusVarsel(eventIds, deleteDoknotifikasjonStatusQuery(VarselTableName.beskjed))
 }
 fun Connection.deleteDoknotifikasjonStatusVarselOppgave(eventIds: List<String>) {
-    deleteDoknotifikasjonStatusVarsel(eventIds, deleteDoknotifikasjonStatusOppgaveQuery)
+    deleteDoknotifikasjonStatusVarsel(eventIds, deleteDoknotifikasjonStatusQuery(VarselTableName.oppgave))
 }
 fun Connection.deleteDoknotifikasjonStatusVarselInnboks(eventIds: List<String>) {
-    deleteDoknotifikasjonStatusVarsel(eventIds, deleteDoknotifikasjonStatusInnboksQuery)
+    deleteDoknotifikasjonStatusVarsel(eventIds, deleteDoknotifikasjonStatusQuery(VarselTableName.innboks))
 }
 private fun Connection.deleteDoknotifikasjonStatusVarsel(eventIds: List<String>, deleteDoknotifikasjonStatusQuery: String) {
     prepareStatement(deleteDoknotifikasjonStatusQuery).use {
@@ -163,13 +100,13 @@ private fun Connection.deleteDoknotifikasjonStatusVarsel(eventIds: List<String>,
 }
 
 fun Connection.deleteBeskjeder(eventIds: List<String>) {
-    deleteVarsler(eventIds, deleteBeskjedQuery)
+    deleteVarsler(eventIds, deleteVarselQuery(VarselTableName.beskjed))
 }
 fun Connection.deleteOppgaver(eventIds: List<String>) {
-    deleteVarsler(eventIds, deleteOppgaveQuery)
+    deleteVarsler(eventIds, deleteVarselQuery(VarselTableName.oppgave))
 }
 fun Connection.deleteInnbokser(eventIds: List<String>) {
-    deleteVarsler(eventIds, deleteInnboksQuery)
+    deleteVarsler(eventIds, deleteVarselQuery(VarselTableName.innboks))
 }
 private fun Connection.deleteVarsler(eventIds: List<String>, deleteVarselQuery: String) {
     prepareStatement(deleteVarselQuery).use {
@@ -178,17 +115,17 @@ private fun Connection.deleteVarsler(eventIds: List<String>, deleteVarselQuery: 
     }
 }
 
-private fun PreparedStatement.setParametersForSingleRow(beskjedArchiveDTO: BrukernotifikasjonArchiveDTO) {
-    setString(1, beskjedArchiveDTO.fodselsnummer)
-    setString(2, beskjedArchiveDTO.eventId)
-    setString(3, beskjedArchiveDTO.tekst)
-    setString(4, beskjedArchiveDTO.link)
-    setInt(5, beskjedArchiveDTO.sikkerhetsnivaa)
-    setBoolean(6, beskjedArchiveDTO.aktiv)
-    setString(7, beskjedArchiveDTO.produsentApp)
-    setBoolean(8, beskjedArchiveDTO.eksternVarslingSendt)
-    setString(9, beskjedArchiveDTO.eksternVarslingKanaler)
-    setObject(10, beskjedArchiveDTO.forstBehandlet, Types.TIMESTAMP)
+private fun PreparedStatement.setParametersForSingleRow(varselArchiveDTO: BrukernotifikasjonArchiveDTO) {
+    setString(1, varselArchiveDTO.fodselsnummer)
+    setString(2, varselArchiveDTO.eventId)
+    setString(3, varselArchiveDTO.tekst)
+    setString(4, varselArchiveDTO.link)
+    setInt(5, varselArchiveDTO.sikkerhetsnivaa)
+    setBoolean(6, varselArchiveDTO.aktiv)
+    setString(7, varselArchiveDTO.produsentApp)
+    setBoolean(8, varselArchiveDTO.eksternVarslingSendt)
+    setString(9, varselArchiveDTO.eksternVarslingKanaler)
+    setObject(10, varselArchiveDTO.forstBehandlet, Types.TIMESTAMP)
     setObject(11, nowAtUtc(), Types.TIMESTAMP)
 }
 
