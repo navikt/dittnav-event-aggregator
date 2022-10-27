@@ -6,29 +6,23 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedTestData.beskjed
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.archive.deleteAllBeskjedArchive
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.archive.getAllArchivedBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.getAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusDtoTestData.createDoknotifikasjonStatusDto
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.upsertDoknotifikasjonStatus
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksTestData.innboks
-import no.nav.personbruker.dittnav.eventaggregator.innboks.archive.deleteAllInnboksArchive
 import no.nav.personbruker.dittnav.eventaggregator.innboks.archive.getAllArchivedInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
-import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.getAllInnboks
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveTestData.oppgave
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.archive.deleteAllOppgaveArchive
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.archive.getAllArchivedOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.getAllOppgave
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.sql.Connection
@@ -41,46 +35,47 @@ internal class PeriodicVarselArchiverTest {
     private val repository = VarselArchivingRepository(database)
     private val probe: ArchiveMetricsProbe = mockk(relaxed = true)
 
-    @BeforeEach
-    fun resetDb() {
+    private val gammelBeskjed = beskjed(eventId = "b1", forstBehandlet = nowTruncatedToMillis().minusDays(11))
+    private val nyBeskjed = beskjed(eventId = "b2", forstBehandlet = nowTruncatedToMillis().minusDays(9))
+    private val gammelOppgave = oppgave(eventId = "o1", forstBehandlet = nowTruncatedToMillis().minusDays(11))
+    private val nyOppgave = oppgave(eventId = "o2", forstBehandlet = nowTruncatedToMillis().minusDays(9))
+    private val gammelInnboks = innboks(eventId = "i1", forstBehandlet = nowTruncatedToMillis().minusDays(11))
+    private val nyInnboks = innboks(eventId = "i2", forstBehandlet = nowTruncatedToMillis().minusDays(9))
+
+    private val eksternVarslingStatusBeskjed = createDoknotifikasjonStatusDto(gammelBeskjed.eventId, status = "FERDIGSTILT", kanaler = listOf("SMS"))
+    private val eksternVarslingStatusOppgave = createDoknotifikasjonStatusDto(gammelOppgave.eventId, status = "FERDIGSTILT", kanaler = listOf("EPOST"))
+    private val eksternVarslingStatusInnboks = createDoknotifikasjonStatusDto(gammelInnboks.eventId, status = "FERDIGSTILT", kanaler = listOf("SMS"))
+
+    @BeforeAll
+    fun setup() {
         runBlocking {
-            database.dbQuery { deleteAllBeskjed() }
-            database.dbQuery { deleteAllOppgave() }
-            database.dbQuery { deleteAllInnboks() }
-            database.dbQuery { deleteAllBeskjedArchive() }
-            database.dbQuery { deleteAllOppgaveArchive() }
-            database.dbQuery { deleteAllInnboksArchive() }
+            database.dbQuery {
+                createBeskjed(gammelBeskjed)
+                createBeskjed(nyBeskjed)
+                createOppgave(gammelOppgave)
+                createOppgave(nyOppgave)
+                createInnboks(gammelInnboks)
+                createInnboks(nyInnboks)
+
+                upsertDoknotifikasjonStatus(eksternVarslingStatusBeskjed, VarselType.BESKJED)
+                upsertDoknotifikasjonStatus(eksternVarslingStatusOppgave, VarselType.OPPGAVE)
+                upsertDoknotifikasjonStatus(eksternVarslingStatusInnboks, VarselType.INNBOKS)
+            }
+
+            val archiver = PeriodicVarselArchiver(
+                varselArchivingRepository = repository,
+                archiveMetricsProbe = probe,
+                ageThresholdDays = 10,
+                interval = ofMinutes(10)
+            )
+            archiver.start()
+            delayUntilVarslerDeleted(3)
+            archiver.stop()
         }
     }
 
     @Test
-    fun `flytter gamle varsler til arkivet`() = runBlocking {
-        val gammelBeskjed = beskjed(eventId = "b1", forstBehandlet = nowTruncatedToMillis().minusDays(11))
-        val nyBeskjed = beskjed(eventId = "b2", forstBehandlet = nowTruncatedToMillis().minusDays(9))
-        val gammelOppgave = oppgave(eventId = "o1", forstBehandlet = nowTruncatedToMillis().minusDays(11))
-        val nyOppgave = oppgave(eventId = "o2", forstBehandlet = nowTruncatedToMillis().minusDays(9))
-        val gammelInnboks = innboks(eventId = "i1", forstBehandlet = nowTruncatedToMillis().minusDays(11))
-        val nyInnboks = innboks(eventId = "i2", forstBehandlet = nowTruncatedToMillis().minusDays(9))
-
-        database.dbQuery {
-            createBeskjed(gammelBeskjed)
-            createBeskjed(nyBeskjed)
-            createOppgave(gammelOppgave)
-            createOppgave(nyOppgave)
-            createInnboks(gammelInnboks)
-            createInnboks(nyInnboks)
-        }
-
-        val archiver = PeriodicVarselArchiver(
-            varselArchivingRepository = repository,
-            archiveMetricsProbe = probe,
-            ageThresholdDays = 10,
-            interval = ofMinutes(10)
-        )
-        archiver.start()
-        delayUntilVarslerDeleted(3)
-        archiver.stop()
-
+    fun `arkiverer alle gamle varsler`() = runBlocking {
         database.dbQuery { getAllArchivedBeskjed() }.size shouldBe 1
         database.dbQuery { getAllBeskjed() }.size shouldBe 1
 
@@ -94,36 +89,59 @@ internal class PeriodicVarselArchiverTest {
     @Test
     fun `arkiverer beskjed-data`() {
         runBlocking {
-            val beskjed = beskjed(eventId = "b1", forstBehandlet = nowTruncatedToMillis().minusDays(11))
-            val eksternVarslingStatus = createDoknotifikasjonStatusDto(beskjed.eventId, status = "FERDIGSTILT", kanaler = listOf("SMS"))
-            database.dbQuery {
-                createBeskjed(beskjed)
-                upsertDoknotifikasjonStatus(eksternVarslingStatus, VarselType.BESKJED)
-            }
-
-            val archiver = PeriodicVarselArchiver(
-                varselArchivingRepository = repository,
-                archiveMetricsProbe = probe,
-                ageThresholdDays = 10,
-                interval = ofMinutes(10)
-            )
-            archiver.start()
-            delayUntilVarslerDeleted()
-            archiver.stop()
-
             val archivedBeskjeder = database.dbQuery { getAllArchivedBeskjed() }
             archivedBeskjeder.size shouldBe 1
             archivedBeskjeder.first().apply {
-                fodselsnummer shouldBe beskjed.fodselsnummer
-                eventId shouldBe beskjed.eventId
-                tekst shouldBe beskjed.tekst
-                link shouldBe beskjed.link
-                sikkerhetsnivaa shouldBe beskjed.sikkerhetsnivaa
-                aktiv shouldBe beskjed.aktiv
-                produsentApp shouldBe beskjed.appnavn
-                eksternVarslingSendt shouldBe true
-                eksternVarslingKanaler shouldBe eksternVarslingStatus.kanaler.first()
-                forstBehandlet shouldBe beskjed.forstBehandlet
+                fodselsnummer shouldBe gammelBeskjed.fodselsnummer
+                eventId shouldBe gammelBeskjed.eventId
+                tekst shouldBe gammelBeskjed.tekst
+                link shouldBe gammelBeskjed.link
+                sikkerhetsnivaa shouldBe gammelBeskjed.sikkerhetsnivaa
+                aktiv shouldBe gammelBeskjed.aktiv
+                produsentApp shouldBe gammelBeskjed.appnavn
+                eksternVarslingSendt shouldBe (eksternVarslingStatusBeskjed.status == "FERDIGSTILT")
+                eksternVarslingKanaler shouldBe eksternVarslingStatusBeskjed.kanaler.first()
+                forstBehandlet shouldBe gammelBeskjed.forstBehandlet
+            }
+        }
+    }
+
+    @Test
+    fun `arkiverer oppgave-data`() {
+        runBlocking {
+            val archivedOppgaver = database.dbQuery { getAllArchivedOppgave() }
+            archivedOppgaver.size shouldBe 1
+            archivedOppgaver.first().apply {
+                fodselsnummer shouldBe gammelOppgave.fodselsnummer
+                eventId shouldBe gammelOppgave.eventId
+                tekst shouldBe gammelOppgave.tekst
+                link shouldBe gammelOppgave.link
+                sikkerhetsnivaa shouldBe gammelOppgave.sikkerhetsnivaa
+                aktiv shouldBe gammelOppgave.aktiv
+                produsentApp shouldBe gammelOppgave.appnavn
+                eksternVarslingSendt shouldBe (eksternVarslingStatusOppgave.status == "FERDIGSTILT")
+                eksternVarslingKanaler shouldBe eksternVarslingStatusOppgave.kanaler.first()
+                forstBehandlet shouldBe gammelOppgave.forstBehandlet
+            }
+        }
+    }
+
+    @Test
+    fun `arkiverer innboks-data`() {
+        runBlocking {
+            val archivedInnbokser = database.dbQuery { getAllArchivedInnboks() }
+            archivedInnbokser.size shouldBe 1
+            archivedInnbokser.first().apply {
+                fodselsnummer shouldBe gammelInnboks.fodselsnummer
+                eventId shouldBe gammelInnboks.eventId
+                tekst shouldBe gammelInnboks.tekst
+                link shouldBe gammelInnboks.link
+                sikkerhetsnivaa shouldBe gammelInnboks.sikkerhetsnivaa
+                aktiv shouldBe gammelInnboks.aktiv
+                produsentApp shouldBe gammelInnboks.appnavn
+                eksternVarslingSendt shouldBe (eksternVarslingStatusInnboks.status == "FERDIGSTILT")
+                eksternVarslingKanaler shouldBe eksternVarslingStatusInnboks.kanaler.first()
+                forstBehandlet shouldBe gammelInnboks.forstBehandlet
             }
         }
     }
