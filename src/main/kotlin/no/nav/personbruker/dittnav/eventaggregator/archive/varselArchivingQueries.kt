@@ -6,6 +6,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.getUtcDateTim
 import no.nav.personbruker.dittnav.eventaggregator.common.database.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.toVarcharArray
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusEnum.FERDIGSTILT
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
@@ -13,7 +14,16 @@ import java.sql.Types
 import java.time.LocalDateTime
 
 private enum class VarselTableName {
-    beskjed, oppgave, innboks
+    beskjed, oppgave, innboks;
+    companion object {
+        fun fromVarselType(varselType: VarselType): VarselTableName {
+            return when(varselType){
+                VarselType.OPPGAVE -> oppgave
+                VarselType.BESKJED -> beskjed
+                VarselType.INNBOKS -> innboks
+            }
+        }
+    }
 }
 
 private fun getVarselToArchiveQuery(varselName: VarselTableName) = """
@@ -49,12 +59,8 @@ private fun deleteDoknotifikasjonStatusQuery(varselName: VarselTableName) = """
     DELETE FROM doknotifikasjon_status_$varselName WHERE eventId = ANY(?)
 """
 
-fun Connection.getArchivableBeskjeder(dateThreshold: LocalDateTime) = getVarselAsArchiveDtoOlderThan(dateThreshold, getVarselToArchiveQuery(VarselTableName.beskjed))
-fun Connection.getArchivableOppgaver(dateThreshold: LocalDateTime) = getVarselAsArchiveDtoOlderThan(dateThreshold, getVarselToArchiveQuery(VarselTableName.oppgave))
-fun Connection.getArchivableInnbokser(dateThreshold: LocalDateTime) = getVarselAsArchiveDtoOlderThan(dateThreshold, getVarselToArchiveQuery(VarselTableName.innboks))
-
-private fun Connection.getVarselAsArchiveDtoOlderThan(dateThreshold: LocalDateTime, getArchivableVarselQuery: String): List<BrukernotifikasjonArchiveDTO> {
-    return prepareStatement(getArchivableVarselQuery)
+fun Connection.getArchivableVarsler(varselType: VarselType, dateThreshold: LocalDateTime): List<BrukernotifikasjonArchiveDTO> {
+    return prepareStatement(getVarselToArchiveQuery(VarselTableName.fromVarselType(varselType)))
         .use {
             it.setObject(1, EPOCH_START, Types.TIMESTAMP)
             it.setObject(2, dateThreshold, Types.TIMESTAMP)
@@ -64,17 +70,8 @@ private fun Connection.getVarselAsArchiveDtoOlderThan(dateThreshold: LocalDateTi
         }
 }
 
-fun Connection.createArchivedBeskjeder(toArchive: List<BrukernotifikasjonArchiveDTO>) {
-    createVarselInArchive(toArchive, insertVarselArchiveQuery(VarselTableName.beskjed))
-}
-fun Connection.createArchivedOppgaver(toArchive: List<BrukernotifikasjonArchiveDTO>) {
-    createVarselInArchive(toArchive, insertVarselArchiveQuery(VarselTableName.oppgave))
-}
-fun Connection.createArchivedInnbokser(toArchive: List<BrukernotifikasjonArchiveDTO>) {
-    createVarselInArchive(toArchive, insertVarselArchiveQuery(VarselTableName.innboks))
-}
-private fun Connection.createVarselInArchive(toArchive: List<BrukernotifikasjonArchiveDTO>, insertVarselArchiveQuery: String) {
-    prepareStatement(insertVarselArchiveQuery).use { statement ->
+fun Connection.createArchivedVarsler(varselType: VarselType, toArchive: List<BrukernotifikasjonArchiveDTO>) {
+    prepareStatement(insertVarselArchiveQuery(VarselTableName.fromVarselType(varselType))).use { statement ->
         toArchive.forEach {
             statement.setParametersForSingleRow(it)
             statement.addBatch()
@@ -83,33 +80,15 @@ private fun Connection.createVarselInArchive(toArchive: List<BrukernotifikasjonA
     }
 }
 
-fun Connection.deleteDoknotifikasjonStatusVarselBeskjed(eventIds: List<String>) {
-    deleteDoknotifikasjonStatusVarsel(eventIds, deleteDoknotifikasjonStatusQuery(VarselTableName.beskjed))
-}
-fun Connection.deleteDoknotifikasjonStatusVarselOppgave(eventIds: List<String>) {
-    deleteDoknotifikasjonStatusVarsel(eventIds, deleteDoknotifikasjonStatusQuery(VarselTableName.oppgave))
-}
-fun Connection.deleteDoknotifikasjonStatusVarselInnboks(eventIds: List<String>) {
-    deleteDoknotifikasjonStatusVarsel(eventIds, deleteDoknotifikasjonStatusQuery(VarselTableName.innboks))
-}
-private fun Connection.deleteDoknotifikasjonStatusVarsel(eventIds: List<String>, deleteDoknotifikasjonStatusQuery: String) {
-    prepareStatement(deleteDoknotifikasjonStatusQuery).use {
+fun Connection.deleteDoknotifikasjonStatus(varselType: VarselType, eventIds: List<String>) {
+    prepareStatement(deleteDoknotifikasjonStatusQuery(VarselTableName.fromVarselType(varselType))).use {
         it.setArray(1, toVarcharArray(eventIds))
         it.executeUpdate()
     }
 }
 
-fun Connection.deleteBeskjeder(eventIds: List<String>) {
-    deleteVarsler(eventIds, deleteVarselQuery(VarselTableName.beskjed))
-}
-fun Connection.deleteOppgaver(eventIds: List<String>) {
-    deleteVarsler(eventIds, deleteVarselQuery(VarselTableName.oppgave))
-}
-fun Connection.deleteInnbokser(eventIds: List<String>) {
-    deleteVarsler(eventIds, deleteVarselQuery(VarselTableName.innboks))
-}
-private fun Connection.deleteVarsler(eventIds: List<String>, deleteVarselQuery: String) {
-    prepareStatement(deleteVarselQuery).use {
+fun Connection.deleteVarsler(varselType: VarselType, eventIds: List<String>) {
+    prepareStatement(deleteVarselQuery(VarselTableName.fromVarselType(varselType))).use {
         it.setArray(1, toVarcharArray(eventIds))
         it.executeUpdate()
     }

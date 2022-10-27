@@ -5,6 +5,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.PeriodicJob
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.done.PeriodicDoneEventWaitingTableProcessor
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
@@ -26,13 +27,13 @@ class PeriodicVarselArchiver(
         val thresholdDate = nowAtUtc().minusDays(ageThresholdDays.toLong())
 
         try {
-            val archivedBeskjeder = varselArchivingRepository.archiveOldBeskjeder(thresholdDate)
+            val archivedBeskjeder = varselArchivingRepository.archiveOldVarsler(VarselType.BESKJED, thresholdDate)
             archiveMetricsProbe.countEntitiesArchived(EventType.BESKJED_INTERN, archivedBeskjeder)
 
-            val archivedOppgaver = varselArchivingRepository.archiveOldOppgaver(thresholdDate)
+            val archivedOppgaver = varselArchivingRepository.archiveOldVarsler(VarselType.OPPGAVE, thresholdDate)
             archiveMetricsProbe.countEntitiesArchived(EventType.OPPGAVE_INTERN, archivedOppgaver)
 
-            val archivedInnbokser = varselArchivingRepository.archiveOldInnbokser(thresholdDate)
+            val archivedInnbokser = varselArchivingRepository.archiveOldVarsler(VarselType.INNBOKS, thresholdDate)
             archiveMetricsProbe.countEntitiesArchived(EventType.INNBOKS_INTERN, archivedInnbokser)
 
         } catch (rt: RetriableDatabaseException) {
