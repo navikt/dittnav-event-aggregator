@@ -183,7 +183,7 @@ internal class PeriodicVarselArchiverTest {
     }
 
     private suspend fun delayUntilVarslerDeleted(remainingVarsler: Int = 0) {
-        withTimeout(1000) {
+        withTimeout(5000) {
             while (database.dbQuery { antallVarsler() } > remainingVarsler) {
                 delay(100)
             }
