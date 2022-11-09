@@ -37,13 +37,14 @@ private fun startRapid(environment: Environment, database: Database, appContext:
     val varselRepository = VarselRepository(database)
     val eksternVarslingStatusRepository = EksternVarslingStatusRepository(database)
     val eksternVarslingStatusUpdater = EksternVarslingStatusUpdater(eksternVarslingStatusRepository, varselRepository)
+    val doneRapidProducer = DoneRapidProducer(
+        kafkaProducer = initializeRapidKafkaProducer(environment),
+        topicName = environment.rapidTopic
+    )
     RapidApplication.Builder(fromEnv(environment.rapidConfig())).withKtorModule {
         doneApi(
             beskjedRepository = BeskjedRepository(database = database),
-            producer = DoneRapidProducer(
-                kafkaProducer = initializeRapidKafkaProducer(environment),
-                topicName = environment.rapidTopic
-            )
+            producer = doneRapidProducer
         )
     }.build().apply {
         BeskjedSink(
@@ -82,6 +83,7 @@ private fun startRapid(environment: Environment, database: Database, appContext:
                 runBlocking {
                     appContext.periodicDoneEventWaitingTableProcessor.stop()
                     appContext.stopAllArchivers()
+                    doneRapidProducer.flushAndClose()
                 }
             }
         })
