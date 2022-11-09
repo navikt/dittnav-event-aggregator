@@ -37,6 +37,7 @@ data class Environment(
         "KAFKA_KEYSTORE_PATH" to securityConfig.variables.aivenKeystorePath,
         "KAFKA_CREDSTORE_PASSWORD" to securityConfig.variables.aivenCredstorePassword,
         "KAFKA_TRUSTSTORE_PATH" to securityConfig.variables.aivenTruststorePath,
+        "KAFKA_RESET_POLICY" to "earliest",
         "HTTP_PORT" to "8080"
     )
 }
