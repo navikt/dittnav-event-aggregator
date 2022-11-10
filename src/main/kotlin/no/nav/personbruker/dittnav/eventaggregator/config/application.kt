@@ -42,7 +42,8 @@ private fun startRapid(environment: Environment, database: Database, appContext:
             beskjedRepository = BeskjedRepository(database = database),
             producer = VarselInaktivertRapidProducer(
                 kafkaProducer = initializeRapidKafkaProducer(environment),
-                topicName = environment.rapidTopic
+                topicName = environment.rapidTopic,
+                rapidMetricsProbe = rapidMetricsProbe
             )
         )
     }.build().apply {

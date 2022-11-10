@@ -12,6 +12,7 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
+import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedTestData
@@ -39,7 +40,7 @@ class DoneApiTest {
         StringSerializer(),
         StringSerializer()
     )
-    private val rapidProducer = VarselInaktivertRapidProducer(mockProducer, "testtopic")
+    private val rapidProducer = VarselInaktivertRapidProducer(mockProducer, "testtopic", mockk(relaxed = true))
     private val apiTestfnr = "134567890"
     private val systembruker = "dummyTestBruker"
     private val namespace = "min-side"

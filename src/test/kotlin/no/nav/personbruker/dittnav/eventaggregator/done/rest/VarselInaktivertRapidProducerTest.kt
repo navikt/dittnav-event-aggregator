@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.done.rest
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.kotest.matchers.shouldBe
+import io.mockk.mockk
 import org.apache.kafka.clients.producer.MockProducer
 import org.apache.kafka.common.serialization.StringSerializer
 import org.junit.jupiter.api.AfterAll
@@ -15,7 +16,7 @@ internal class VarselInaktivertRapidProducerTest{
          StringSerializer()
     )
 
-    private val rapidProducer = VarselInaktivertRapidProducer(kafkaProducer = mockProducer, topicName = "testtopic")
+    private val rapidProducer = VarselInaktivertRapidProducer(kafkaProducer = mockProducer, topicName = "testtopic", mockk(relaxed = true))
 
     @AfterAll
     fun cleanup(){
