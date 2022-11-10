@@ -71,7 +71,7 @@ fun Application.doneApi(
                     val fnr = TokenXUserFactory.createTokenXUser(call).ident
                     beskjedRepository.setBeskjedInactive(eventId, fnr).also {
                         when (it) {
-                            0 -> log.warn("Forsøk på inaktivere beskjed som allerede er innatkivert med eventid $eventId")
+                            0 -> log.info("Forsøk på inaktivere beskjed som allerede er innatkivert med eventid $eventId")
                             1 -> producer.cancelEksternVarsling(eventId)
                         }
                     }

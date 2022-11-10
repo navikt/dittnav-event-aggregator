@@ -1,6 +1,8 @@
 package no.nav.personbruker.dittnav.eventaggregator.done.rest
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import kotlinx.coroutines.runBlocking
+import no.nav.personbruker.dittnav.eventaggregator.metrics.RapidMetricsProbe
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.Logger
@@ -8,7 +10,8 @@ import org.slf4j.LoggerFactory
 
 class VarselInaktivertRapidProducer(
     private val kafkaProducer: Producer<String, String>,
-    private val topicName: String
+    private val topicName: String,
+    private val rapidMetricsProbe: RapidMetricsProbe
 ) {
     val log: Logger = LoggerFactory.getLogger(Producer::class.java)
     private val objectMapper = jacksonObjectMapper()
@@ -19,7 +22,9 @@ class VarselInaktivertRapidProducer(
         objectNode.put("eventId", eventId)
         val producerRecord = ProducerRecord(topicName, eventId, objectNode.toString())
         kafkaProducer.send(producerRecord)
-        log.info("Produsert done på rapid med eventid $eventId")
+        runBlocking {
+            rapidMetricsProbe.countVarselInaktivertProduced()
+        }
     }
 
     fun flushAndClose() {
