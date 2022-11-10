@@ -46,6 +46,7 @@ private fun startRapid(environment: Environment, database: Database, appContext:
                 rapidMetricsProbe = rapidMetricsProbe
             )
         )
+
     }.build().apply {
         BeskjedSink(
             rapidsConnection = this,
