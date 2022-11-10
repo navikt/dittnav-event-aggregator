@@ -6,7 +6,7 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class DoneRapidProducer(
+class VarselInaktivertRapidProducer(
     private val kafkaProducer: Producer<String, String>,
     private val topicName: String
 ) {

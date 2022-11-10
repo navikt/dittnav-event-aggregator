@@ -12,7 +12,7 @@ import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarsli
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingStatusSink
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingStatusUpdater
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneSink
-import no.nav.personbruker.dittnav.eventaggregator.done.rest.DoneRapidProducer
+import no.nav.personbruker.dittnav.eventaggregator.done.rest.VarselInaktivertRapidProducer
 import no.nav.personbruker.dittnav.eventaggregator.done.rest.doneApi
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksSink
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildRapidMetricsProbe
@@ -40,7 +40,7 @@ private fun startRapid(environment: Environment, database: Database, appContext:
     RapidApplication.Builder(fromEnv(environment.rapidConfig())).withKtorModule {
         doneApi(
             beskjedRepository = BeskjedRepository(database = database),
-            producer = DoneRapidProducer(
+            producer = VarselInaktivertRapidProducer(
                 kafkaProducer = initializeRapidKafkaProducer(environment),
                 topicName = environment.rapidTopic
             )

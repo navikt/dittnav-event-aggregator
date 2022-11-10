@@ -7,7 +7,7 @@ import org.apache.kafka.common.serialization.StringSerializer
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 
-internal class DoneRapidProducerTest{
+internal class VarselInaktivertRapidProducerTest{
 
     private val mockProducer = MockProducer(
         false,
@@ -15,7 +15,7 @@ internal class DoneRapidProducerTest{
          StringSerializer()
     )
 
-    private val rapidProducer = DoneRapidProducer(kafkaProducer = mockProducer, topicName = "testtopic")
+    private val rapidProducer = VarselInaktivertRapidProducer(kafkaProducer = mockProducer, topicName = "testtopic")
 
     @AfterAll
     fun cleanup(){

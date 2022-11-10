@@ -39,7 +39,7 @@ class DoneApiTest {
         StringSerializer(),
         StringSerializer()
     )
-    private val rapidProducer = DoneRapidProducer(mockProducer, "testtopic")
+    private val rapidProducer = VarselInaktivertRapidProducer(mockProducer, "testtopic")
     private val apiTestfnr = "134567890"
     private val systembruker = "dummyTestBruker"
     private val namespace = "min-side"
