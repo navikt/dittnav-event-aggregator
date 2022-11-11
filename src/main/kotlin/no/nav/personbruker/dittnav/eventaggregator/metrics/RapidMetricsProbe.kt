@@ -10,7 +10,7 @@ class RapidMetricsProbe(private val metricsReporter: MetricsReporter) {
     }
 
     suspend fun countVarselInaktivertProduced() {
-        metricsReporter.registerDataPoint(KAFKA_RAPID_EVENTS_PROCESSED, counterField(1), emptyMap())
+        metricsReporter.registerDataPoint(KAFKA_RAPID_VARSEL_INAKTIVERT_PRODUCED, counterField(1), emptyMap())
 
     }
 
