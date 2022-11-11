@@ -26,7 +26,7 @@ import no.nav.tms.token.support.tokenx.validation.user.TokenXUserFactory
 
 fun Application.doneApi(
     beskjedRepository: BeskjedRepository,
-    producer: VarselInaktivertRapidProducer,
+    producer: VarselInaktivertProducer,
     installAuthenticatorsFunction: Application.() -> Unit = installAuth(),
 ) {
 

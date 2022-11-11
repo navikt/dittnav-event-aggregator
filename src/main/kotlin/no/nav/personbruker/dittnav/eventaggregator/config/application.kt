@@ -12,7 +12,7 @@ import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarsli
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingStatusSink
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingStatusUpdater
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneSink
-import no.nav.personbruker.dittnav.eventaggregator.done.rest.VarselInaktivertRapidProducer
+import no.nav.personbruker.dittnav.eventaggregator.done.rest.VarselInaktivertProducer
 import no.nav.personbruker.dittnav.eventaggregator.done.rest.doneApi
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksSink
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildRapidMetricsProbe
@@ -37,14 +37,16 @@ private fun startRapid(environment: Environment, database: Database, appContext:
     val varselRepository = VarselRepository(database)
     val eksternVarslingStatusRepository = EksternVarslingStatusRepository(database)
     val eksternVarslingStatusUpdater = EksternVarslingStatusUpdater(eksternVarslingStatusRepository, varselRepository)
+    val varselInaktivertProducer = VarselInaktivertProducer(
+        kafkaProducer = initializeRapidKafkaProducer(environment),
+        topicName = environment.rapidTopic,
+        rapidMetricsProbe = rapidMetricsProbe
+    )
+
     RapidApplication.Builder(fromEnv(environment.rapidConfig())).withKtorModule {
         doneApi(
             beskjedRepository = BeskjedRepository(database = database),
-            producer = VarselInaktivertRapidProducer(
-                kafkaProducer = initializeRapidKafkaProducer(environment),
-                topicName = environment.rapidTopic,
-                rapidMetricsProbe = rapidMetricsProbe
-            )
+            producer = varselInaktivertProducer
         )
 
     }.build().apply {
@@ -84,6 +86,7 @@ private fun startRapid(environment: Environment, database: Database, appContext:
                 runBlocking {
                     appContext.periodicDoneEventWaitingTableProcessor.stop()
                     appContext.stopAllArchivers()
+                    varselInaktivertProducer.flushAndClose()
                 }
             }
         })

@@ -8,7 +8,7 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class VarselInaktivertRapidProducer(
+class VarselInaktivertProducer(
     private val kafkaProducer: Producer<String, String>,
     private val topicName: String,
     private val rapidMetricsProbe: RapidMetricsProbe

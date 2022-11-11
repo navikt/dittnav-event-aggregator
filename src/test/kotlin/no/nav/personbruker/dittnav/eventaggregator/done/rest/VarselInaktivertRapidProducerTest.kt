@@ -16,7 +16,7 @@ internal class VarselInaktivertRapidProducerTest{
          StringSerializer()
     )
 
-    private val rapidProducer = VarselInaktivertRapidProducer(kafkaProducer = mockProducer, topicName = "testtopic", mockk(relaxed = true))
+    private val rapidProducer = VarselInaktivertProducer(kafkaProducer = mockProducer, topicName = "testtopic", mockk(relaxed = true))
 
     @AfterAll
     fun cleanup(){
