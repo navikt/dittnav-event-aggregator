@@ -113,18 +113,21 @@ class EksternVarslingStatusSinkTest {
     private fun setupBeskjedSink(testRapid: TestRapid) = BeskjedSink(
         rapidsConnection = testRapid,
         varselRepository = varselRepository,
+        varselAktivertProducer = mockk(relaxed = true),
         rapidMetricsProbe = mockk(relaxed = true)
     )
 
     private fun setupOppgaveSink(testRapid: TestRapid) = OppgaveSink(
         rapidsConnection = testRapid,
         varselRepository = varselRepository,
+        varselAktivertProducer = mockk(relaxed = true),
         rapidMetricsProbe = mockk(relaxed = true)
     )
 
     private fun setupInnboksSink(testRapid: TestRapid) = InnboksSink(
         rapidsConnection = testRapid,
         varselRepository = varselRepository,
+        varselAktivertProducer = mockk(relaxed = true),
         rapidMetricsProbe = mockk(relaxed = true)
     )
 

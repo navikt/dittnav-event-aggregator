@@ -20,7 +20,10 @@ object InnboksTestData {
         sikkerhetsnivaa: Int = 4,
         aktiv: Boolean = true,
         eksternVarsling: Boolean = false,
-        prefererteKanaler: List<String> = emptyList()
+        prefererteKanaler: List<String> = emptyList(),
+        smsVarslingstekst: String = "smsVarslingstekst",
+        epostVarslingstekst: String = "epostVarslingstekst",
+        epostVarslingstittel: String = "epostVarslingstittel"
     ) = Innboks(
         systembruker = systembruker,
         namespace = namespace,
@@ -36,7 +39,10 @@ object InnboksTestData {
         sistOppdatert = sistOppdatert,
         aktiv = aktiv,
         eksternVarsling = eksternVarsling,
-        prefererteKanaler = prefererteKanaler
+        prefererteKanaler = prefererteKanaler,
+        smsVarslingstekst = smsVarslingstekst,
+        epostVarslingstekst = epostVarslingstekst,
+        epostVarslingstittel = epostVarslingstittel
     )
 
 }

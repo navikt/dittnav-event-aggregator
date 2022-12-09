@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.done.rest
+package no.nav.personbruker.dittnav.eventaggregator.done
 
 import com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES
 import io.ktor.http.HttpStatusCode
@@ -19,6 +19,7 @@ import io.ktor.server.routing.routing
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedDoesNotBelongToUserException
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.common.database.log
+import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertProducer
 import no.nav.tms.token.support.authentication.installer.installAuthenticators
 import no.nav.tms.token.support.azure.validation.AzureAuthenticator
 import no.nav.tms.token.support.tokenx.validation.user.TokenXUserFactory

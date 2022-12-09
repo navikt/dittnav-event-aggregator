@@ -21,7 +21,10 @@ object OppgaveTestData {
         sikkerhetsnivaa: Int = 4,
         aktiv: Boolean = true,
         eksternVarsling: Boolean = false,
-        prefererteKanaler: List<String> = emptyList()
+        prefererteKanaler: List<String> = emptyList(),
+        smsVarslingstekst: String = "smsVarslingstekst",
+        epostVarslingstekst: String = "epostVarslingstekst",
+        epostVarslingstittel: String = "epostVarslingstittel"
     ) = Oppgave(
         systembruker = systembruker,
         namespace = namespace,
@@ -38,6 +41,9 @@ object OppgaveTestData {
         synligFremTil = synligFremTil,
         aktiv = aktiv,
         eksternVarsling = eksternVarsling,
-        prefererteKanaler = prefererteKanaler
+        prefererteKanaler = prefererteKanaler,
+        smsVarslingstekst = smsVarslingstekst,
+        epostVarslingstekst = epostVarslingstekst,
+        epostVarslingstittel = epostVarslingstittel
     )
 }

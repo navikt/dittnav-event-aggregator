@@ -29,7 +29,6 @@ fun Connection.deleteAllInnboks() =
 
 
 fun ResultSet.toInnboks() = Innboks(
-    id = getInt("id"),
     systembruker = getString("systembruker"),
     namespace = getString("namespace"),
     appnavn = getString("appnavn"),

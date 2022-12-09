@@ -11,12 +11,15 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingStatusRepository
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingStatusSink
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingStatusUpdater
+import no.nav.personbruker.dittnav.eventaggregator.done.*
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneSink
-import no.nav.personbruker.dittnav.eventaggregator.done.rest.VarselInaktivertProducer
-import no.nav.personbruker.dittnav.eventaggregator.done.rest.doneApi
+import no.nav.personbruker.dittnav.eventaggregator.expired.ExpiredVarselRepository
+import no.nav.personbruker.dittnav.eventaggregator.expired.PeriodicExpiredVarselProcessor
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksSink
+import no.nav.personbruker.dittnav.eventaggregator.metrics.buildDBMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildRapidMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveSink
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselAktivertProducer
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.producer.KafkaProducer
@@ -37,11 +40,26 @@ private fun startRapid(environment: Environment, database: Database, appContext:
     val varselRepository = VarselRepository(database)
     val eksternVarslingStatusRepository = EksternVarslingStatusRepository(database)
     val eksternVarslingStatusUpdater = EksternVarslingStatusUpdater(eksternVarslingStatusRepository, varselRepository)
+
+    val varselAktivertProducer = VarselAktivertProducer(
+        kafkaProducer = initializeRapidKafkaProducer(environment),
+        topicName = environment.rapidTopic,
+        rapidMetricsProbe = rapidMetricsProbe
+    )
+
     val varselInaktivertProducer = VarselInaktivertProducer(
         kafkaProducer = initializeRapidKafkaProducer(environment),
         topicName = environment.rapidTopic,
         rapidMetricsProbe = rapidMetricsProbe
     )
+
+    val dbMetricsProbe = buildDBMetricsProbe(environment)
+    val doneRepository = DoneRepository(database)
+    val donePersistingService = DonePersistingService(doneRepository)
+    val periodicDoneEventWaitingTableProcessor = PeriodicDoneEventWaitingTableProcessor(donePersistingService, varselInaktivertProducer, dbMetricsProbe)
+
+    val expiredVarselRepository = ExpiredVarselRepository(database)
+    val periodicExpiredVarselProcessor = PeriodicExpiredVarselProcessor(expiredVarselRepository, varselInaktivertProducer)
 
     RapidApplication.Builder(fromEnv(environment.rapidConfig())).withKtorModule {
         doneApi(
@@ -53,21 +71,25 @@ private fun startRapid(environment: Environment, database: Database, appContext:
         BeskjedSink(
             rapidsConnection = this,
             varselRepository = varselRepository,
+            varselAktivertProducer = varselAktivertProducer,
             rapidMetricsProbe = rapidMetricsProbe
         )
         OppgaveSink(
             rapidsConnection = this,
             varselRepository = varselRepository,
+            varselAktivertProducer = varselAktivertProducer,
             rapidMetricsProbe = rapidMetricsProbe
         )
         InnboksSink(
             rapidsConnection = this,
             varselRepository = varselRepository,
+            varselAktivertProducer = varselAktivertProducer,
             rapidMetricsProbe = rapidMetricsProbe
         )
         DoneSink(
             rapidsConnection = this,
             varselRepository = varselRepository,
+            varselInaktivertProducer = varselInaktivertProducer,
             rapidMetricsProbe = rapidMetricsProbe
         )
         EksternVarslingStatusSink(
@@ -78,15 +100,18 @@ private fun startRapid(environment: Environment, database: Database, appContext:
         register(object : RapidsConnection.StatusListener {
             override fun onStartup(rapidsConnection: RapidsConnection) {
                 Flyway.runFlywayMigrations(environment)
-                appContext.periodicDoneEventWaitingTableProcessor.start()
+                periodicDoneEventWaitingTableProcessor.start()
+                periodicExpiredVarselProcessor.start()
                 appContext.startAllArchivers()
             }
 
             override fun onShutdown(rapidsConnection: RapidsConnection) {
                 runBlocking {
-                    appContext.periodicDoneEventWaitingTableProcessor.stop()
+                    periodicDoneEventWaitingTableProcessor.stop()
+                    periodicExpiredVarselProcessor.stop()
                     appContext.stopAllArchivers()
                     varselInaktivertProducer.flushAndClose()
+                    varselAktivertProducer.flushAndClose()
                 }
             }
         })

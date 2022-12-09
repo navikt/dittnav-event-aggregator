@@ -39,7 +39,6 @@ fun Connection.deleteAllBeskjed() =
                 .use {it.execute()}
 
 fun ResultSet.toBeskjed() = Beskjed(
-    id = getInt("id"),
     systembruker = getString("systembruker"),
     namespace = getString("namespace"),
     appnavn = getString("appnavn"),

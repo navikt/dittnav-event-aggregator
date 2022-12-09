@@ -18,6 +18,7 @@ import java.sql.Connection
 import java.sql.ResultSet
 
 class VarselRepository(private val database: Database) {
+
     suspend fun persistBeskjed(beskjed: Beskjed) = database.queryWithExceptionTranslation {
         createBeskjed(beskjed)
     }
@@ -52,14 +53,14 @@ class VarselRepository(private val database: Database) {
         }
     }
 
-    suspend fun getVarsel(eventId: String): List<Varsel> {
+    suspend fun getVarsel(eventId: String): List<VarselIdentifier> {
         return database.queryWithExceptionTranslation {
             getVarsler(listOf(eventId))
         }
     }
 }
 
-fun Connection.getVarsler(eventIds: List<String>): List<Varsel> =
+fun Connection.getVarsler(eventIds: List<String>): List<VarselIdentifier> =
     prepareStatement("""SELECT brukernotifikasjon_view.* FROM brukernotifikasjon_view WHERE eventid = ANY(?)""")
         .use {
             it.setArray(1, toVarcharArray(eventIds))
@@ -68,8 +69,8 @@ fun Connection.getVarsler(eventIds: List<String>): List<Varsel> =
             }
         }
 
-private fun ResultSet.toVarsel(): Varsel {
-    return Varsel(
+private fun ResultSet.toVarsel(): VarselIdentifier {
+    return VarselIdentifier(
         eventId = getString("eventId"),
         systembruker = getString("systembruker"),
         type = VarselType.valueOf(getString("type").uppercase()),

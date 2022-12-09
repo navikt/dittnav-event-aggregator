@@ -153,35 +153,6 @@ internal class PeriodicVarselArchiverTest {
         }
     }
 
-    @Test
-    @Disabled //tester PeriodicJob, ikke PeriodicVarselArchiver
-    fun `starter på nytt etter et tidsintervall`() = runBlocking {
-        val beskjed1 = beskjed(eventId = "1", forstBehandlet = nowTruncatedToMillis().minusDays(11))
-        val beskjed2 = beskjed(eventId = "2", forstBehandlet = nowTruncatedToMillis().minusDays(12))
-
-        database.dbQuery {
-            createBeskjed(beskjed1)
-        }
-
-        val archiver = PeriodicVarselArchiver(
-            varselArchivingRepository = repository,
-            archiveMetricsProbe = probe,
-            ageThresholdDays = 10,
-            interval = ofMillis(100)
-        )
-        archiver.start()
-        delayUntilVarslerDeleted()
-
-        database.dbQuery {
-            createBeskjed(beskjed2)
-        }
-        delayUntilVarslerDeleted()
-        archiver.stop()
-
-        database.dbQuery { getAllArchivedBeskjed() }.size shouldBe 2
-        database.dbQuery { getAllBeskjed() }.size shouldBe 0
-    }
-
     private suspend fun delayUntilVarslerDeleted(remainingVarsler: Int = 0) {
         withTimeout(5000) {
             while (database.dbQuery { antallVarsler() } > remainingVarsler) {

@@ -21,7 +21,10 @@ object BeskjedTestData {
         sikkerhetsnivaa: Int = 4,
         aktiv: Boolean = true,
         eksternVarsling: Boolean = false,
-        prefererteKanaler: List<String> = emptyList()
+        prefererteKanaler: List<String> = emptyList(),
+        smsVarslingstekst: String = "smsVarslingstekst",
+        epostVarslingstekst: String = "epostVarslingstekst",
+        epostVarslingstittel: String = "epostVarslingstittel"
     ) = Beskjed(
         systembruker = systembruker,
         namespace = namespace,
@@ -38,6 +41,9 @@ object BeskjedTestData {
         synligFremTil = synligFremTil,
         aktiv = aktiv,
         eksternVarsling = eksternVarsling,
-        prefererteKanaler = prefererteKanaler
+        prefererteKanaler = prefererteKanaler,
+        smsVarslingstekst = smsVarslingstekst,
+        epostVarslingstekst = epostVarslingstekst,
+        epostVarslingstittel = epostVarslingstittel
     )
 }

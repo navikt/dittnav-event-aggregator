@@ -2,6 +2,9 @@ package no.nav.personbruker.dittnav.eventaggregator.expired
 
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.clearMocks
+import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedTestData
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
@@ -9,6 +12,7 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.getAllBeskjedByAktiv
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
+import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertProducer
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveTestData
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
@@ -20,8 +24,10 @@ import org.junit.jupiter.api.Test
 internal class PeriodicExpiredVarselProcessorTest {
     private val database = LocalPostgresDatabase.migratedDb()
 
+    private val varselInaktivertProducer = mockk<VarselInaktivertProducer>(relaxed = true)
+
     private val expiredVarselRepository = ExpiredVarselRepository(database)
-    private val expiredVarselProcessor = PeriodicExpiredVarselProcessor(expiredVarselRepository)
+    private val expiredVarselProcessor = PeriodicExpiredVarselProcessor(expiredVarselRepository, varselInaktivertProducer)
 
     private val pastDate = nowTruncatedToMillis().minusDays(7)
     private val futureDate = nowTruncatedToMillis().plusDays(7)
@@ -38,6 +44,7 @@ internal class PeriodicExpiredVarselProcessorTest {
             deleteAllBeskjed()
             deleteAllOppgave()
         }
+        clearMocks(varselInaktivertProducer)
     }
 
     @BeforeEach
@@ -69,6 +76,8 @@ internal class PeriodicExpiredVarselProcessorTest {
         updatedBeskjed.eventId shouldBe expiredBeskjed.eventId
         updatedBeskjed.sistOppdatert shouldNotBe expiredBeskjed.sistOppdatert
         updatedBeskjed.aktiv shouldBe false
+
+        verify(exactly = 1) { varselInaktivertProducer.cancelEksternVarsling(expiredBeskjed.eventId) }
     }
 
     @Test
@@ -90,5 +99,7 @@ internal class PeriodicExpiredVarselProcessorTest {
         updatedOppgave.eventId shouldBe expiredOppgave.eventId
         updatedOppgave.sistOppdatert shouldNotBe expiredOppgave.sistOppdatert
         updatedOppgave.aktiv shouldBe false
+
+        verify(exactly = 1) { varselInaktivertProducer.cancelEksternVarsling(expiredOppgave.eventId) }
     }
 }

@@ -11,6 +11,7 @@ import java.time.Duration
 
 class PeriodicDoneEventWaitingTableProcessor(
         private val donePersistingService: DonePersistingService,
+        private val varselInaktivertProducer: VarselInaktivertProducer,
         private val dbMetricsProbe: DBMetricsProbe,
 ) : PeriodicJob(interval = Duration.ofSeconds(30)) {
 
@@ -46,6 +47,7 @@ class PeriodicDoneEventWaitingTableProcessor(
             }
         }
         updateTheDatabase(groupedDoneEvents)
+        sendVarselInaktivert(groupedDoneEvents)
     }
 
     private suspend fun fetchRelatedEvents(allDone: List<Done>): DoneBatchProcessor {
@@ -60,5 +62,11 @@ class PeriodicDoneEventWaitingTableProcessor(
         donePersistingService.writeDoneEventsForInnboksToCache(groupedDoneEvents.foundInnboks)
         donePersistingService.deleteDoneEventsFromCache(groupedDoneEvents.allFoundEvents)
         donePersistingService.updateDoneSistBehandetForUnmatchedEvents(groupedDoneEvents.notFoundEvents)
+    }
+
+    private fun sendVarselInaktivert(groupedDoneEvents: DoneBatchProcessor) {
+        groupedDoneEvents.allFoundEvents.forEach { done ->
+            varselInaktivertProducer.cancelEksternVarsling(done.eventId)
+        }
     }
 }

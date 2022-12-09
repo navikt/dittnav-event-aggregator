@@ -32,7 +32,7 @@ class BeskjedQueriesTest {
     }
 
     @Test
-    fun `Finner utgått beskjeder`() {
+    fun `Finner utgåtte beskjeder`() {
         runBlocking {
             val expiredBeskjed = BeskjedTestData.beskjed(synligFremTil = nowTruncatedToMillis().minusDays(1))
             database.dbQuery { createBeskjed(expiredBeskjed) }
@@ -45,7 +45,8 @@ class BeskjedQueriesTest {
                 getBeskjedByEventId(expiredBeskjed.eventId)
             }
 
-            numberUpdated shouldBe 1
+            numberUpdated.size shouldBe 1
+            numberUpdated.first() shouldBe expiredBeskjed.eventId
             updatedBeskjed.aktiv shouldBe false
         }
     }
