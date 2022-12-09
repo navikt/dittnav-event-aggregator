@@ -54,7 +54,7 @@ class BeskjedSinkTest {
         beskjed.eksternVarsling shouldBe beskjedJsonNode["eksternVarsling"].booleanValue()
         beskjed.prefererteKanaler shouldBe beskjedJsonNode["prefererteKanaler"].map { it.textValue() }
 
-        verify { varselAktivertProducer.varselAktivert(beskjed) }
+        verify(exactly = 1) { varselAktivertProducer.varselAktivert(any<Beskjed>()) }
     }
 
     @Test

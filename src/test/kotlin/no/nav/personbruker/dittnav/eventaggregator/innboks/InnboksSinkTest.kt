@@ -8,6 +8,7 @@ import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.list
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselAktivertProducer
@@ -52,7 +53,7 @@ class InnboksSinkTest {
         innboks.eksternVarsling shouldBe innboksJsonNode["eksternVarsling"].booleanValue()
         innboks.prefererteKanaler shouldBe innboksJsonNode["prefererteKanaler"].map { it.textValue() }
 
-        verify { varselAktivertProducer.varselAktivert(innboks) }
+        verify(exactly = 1) { varselAktivertProducer.varselAktivert(any<Innboks>()) }
     }
 
     @Test
