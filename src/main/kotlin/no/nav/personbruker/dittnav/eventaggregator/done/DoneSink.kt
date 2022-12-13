@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory
 internal class DoneSink(
     rapidsConnection: RapidsConnection,
     private val varselRepository: VarselRepository,
+    private val varselInaktivertProducer: VarselInaktivertProducer,
     private val rapidMetricsProbe: RapidMetricsProbe
 ) :
     River.PacketListener {
@@ -60,6 +61,7 @@ internal class DoneSink(
                     VarselType.OPPGAVE -> varselRepository.inaktiverOppgave(done)
                     VarselType.INNBOKS -> varselRepository.inaktiverInnboks(done)
                 }
+                varselInaktivertProducer.cancelEksternVarsling(done.eventId)
             }
 
             log.info("Behandlet done fra rapid med eventid ${done.eventId}")

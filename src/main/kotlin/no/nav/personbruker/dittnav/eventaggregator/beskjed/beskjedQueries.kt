@@ -4,6 +4,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.no
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.executeBatchUpdateQuery
 import no.nav.personbruker.dittnav.eventaggregator.common.database.executePersistQuery
+import no.nav.personbruker.dittnav.eventaggregator.common.database.list
 import no.nav.personbruker.dittnav.eventaggregator.done.Done
 import java.sql.Connection
 import java.sql.PreparedStatement
@@ -74,12 +75,14 @@ private fun Connection.requireBeskjedExists(eventId: String, fnr: String) {
         }
 }
 
-fun Connection.setExpiredBeskjedAsInactive(): Int {
-    return prepareStatement("""UPDATE beskjed SET aktiv = FALSE, sistoppdatert = ? WHERE aktiv = TRUE AND synligFremTil < ?""")
+fun Connection.setExpiredBeskjedAsInactive(): List<String> {
+    return prepareStatement("""UPDATE beskjed SET aktiv = FALSE, sistoppdatert = ? WHERE aktiv = TRUE AND synligFremTil < ? RETURNING eventId""")
         .use {
             it.setObject(1, nowAtUtc(), Types.TIMESTAMP)
             it.setObject(2, nowAtUtc(), Types.TIMESTAMP)
-            it.executeUpdate()
+            it.executeQuery().list {
+                getString("eventId")
+            }
         }
 }
 

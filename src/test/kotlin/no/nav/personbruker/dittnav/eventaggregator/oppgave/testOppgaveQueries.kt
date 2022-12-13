@@ -39,7 +39,6 @@ fun Connection.deleteAllOppgave() =
                 .use {it.execute()}
 
 fun ResultSet.toOppgave() = Oppgave(
-    id = getInt("id"),
     systembruker = getString("systembruker"),
     namespace = getString("namespace"),
     appnavn = getString("appnavn"),

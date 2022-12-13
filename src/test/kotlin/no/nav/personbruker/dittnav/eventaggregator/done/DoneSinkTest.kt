@@ -2,7 +2,9 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.shouldBe
+import io.mockk.clearMocks
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
@@ -20,6 +22,7 @@ import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveSink
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.toOppgave
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselAktivertProducer
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -28,22 +31,25 @@ class DoneSinkTest {
     private val database = LocalPostgresDatabase.migratedDb()
     private val varselRepository = VarselRepository(database)
 
+    private val varselInaktivertProducer: VarselInaktivertProducer = mockk(relaxed = true)
+
     @BeforeEach
-    fun resetDb() {
+    fun reset() {
         runBlocking {
             database.dbQuery { deleteAllBeskjed() }
             database.dbQuery { deleteAllOppgave() }
             database.dbQuery { deleteAllInnboks() }
             database.dbQuery { deleteAllDone() }
         }
+        clearMocks(varselInaktivertProducer)
     }
 
     @Test
     fun `Inaktiverer varsel`() = runBlocking {
         val testRapid = TestRapid()
         setupBeskjedSink(testRapid)
-        OppgaveSink(testRapid, varselRepository, mockk(relaxed = true))
-        InnboksSink(testRapid, varselRepository, mockk(relaxed = true))
+        OppgaveSink(testRapid, varselRepository, mockk(relaxed = true), mockk(relaxed = true))
+        InnboksSink(testRapid, varselRepository, mockk(relaxed = true), mockk(relaxed = true))
         setupDoneSink(testRapid)
 
         testRapid.sendTestMessage(varselJson("beskjed", "11"))
@@ -56,6 +62,10 @@ class DoneSinkTest {
         aktiveBeskjederFromDb().size shouldBe 0
         aktiveOppgaverFromDb().size shouldBe 0
         aktiveInnboksvarslerFromDb().size shouldBe 0
+
+        verify { varselInaktivertProducer.cancelEksternVarsling("11") }
+        verify { varselInaktivertProducer.cancelEksternVarsling("22") }
+        verify { varselInaktivertProducer.cancelEksternVarsling("33") }
     }
 
     @Test
@@ -74,6 +84,9 @@ class DoneSinkTest {
         testRapid.sendTestMessage(doneJson("645"))
         testRapid.sendTestMessage(doneJson("645"))
         doneFromWaitingTable().size shouldBe 1
+
+        verify { varselInaktivertProducer.cancelEksternVarsling("11") }
+        verify(exactly = 0) { varselInaktivertProducer.cancelEksternVarsling("645") }
     }
 
     @Test
@@ -96,17 +109,21 @@ class DoneSinkTest {
         done.eventId shouldBe doneJsonNode["eventId"].textValue()
         done.forstBehandlet shouldBe doneJsonNode["forstBehandlet"].asLocalDateTime()
         done.fodselsnummer shouldBe doneJsonNode["fodselsnummer"].textValue()
+
+        verify(exactly = 0) { varselInaktivertProducer.cancelEksternVarsling("999") }
     }
 
     private fun setupBeskjedSink(testRapid: TestRapid) = BeskjedSink(
         rapidsConnection = testRapid,
         varselRepository = varselRepository,
+        varselAktivertProducer = mockk(relaxed = true),
         rapidMetricsProbe = mockk(relaxed = true)
     )
 
     private fun setupDoneSink(testRapid: TestRapid) = DoneSink(
         rapidsConnection = testRapid,
         varselRepository = varselRepository,
+        varselInaktivertProducer = varselInaktivertProducer,
         rapidMetricsProbe = mockk(relaxed = true)
     )
 

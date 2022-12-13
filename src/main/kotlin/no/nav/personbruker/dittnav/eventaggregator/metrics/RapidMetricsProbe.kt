@@ -9,9 +9,13 @@ class RapidMetricsProbe(private val metricsReporter: MetricsReporter) {
         metricsReporter.registerDataPoint(KAFKA_RAPID_EVENTS_PROCESSED, counterField(1), createTagMap(eventType.name, producerApp))
     }
 
+    suspend fun countVarselAktivertProduced() {
+        metricsReporter.registerDataPoint(KAFKA_RAPID_VARSEL_AKTIVERT_PRODUCED, counterField(1), emptyMap())
+    }
+
+
     suspend fun countVarselInaktivertProduced() {
         metricsReporter.registerDataPoint(KAFKA_RAPID_VARSEL_INAKTIVERT_PRODUCED, counterField(1), emptyMap())
-
     }
 
     private fun counterField(events: Int): Map<String, Int> = listOf("counter" to events).toMap()

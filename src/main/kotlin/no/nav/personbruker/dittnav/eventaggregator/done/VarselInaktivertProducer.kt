@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.eventaggregator.done.rest
+package no.nav.personbruker.dittnav.eventaggregator.done
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import kotlinx.coroutines.runBlocking
@@ -17,14 +17,19 @@ class VarselInaktivertProducer(
     private val objectMapper = jacksonObjectMapper()
 
     fun cancelEksternVarsling(eventId: String) {
-        val objectNode = objectMapper.createObjectNode()
-        objectNode.put("@event_name", "varselInaktivert")
-        objectNode.put("eventId", eventId)
-        val producerRecord = ProducerRecord(topicName, eventId, objectNode.toString())
-        kafkaProducer.send(producerRecord)
+        sendEvent(eventId, "varselInaktivert")
+        sendEvent(eventId, "inaktivert")
         runBlocking {
             rapidMetricsProbe.countVarselInaktivertProduced()
         }
+    }
+
+    private fun sendEvent(eventId: String, eventName: String) {
+        val objectNode = objectMapper.createObjectNode()
+        objectNode.put("@event_name", eventName)
+        objectNode.put("eventId", eventId)
+        val producerRecord = ProducerRecord(topicName, eventId, objectNode.toString())
+        kafkaProducer.send(producerRecord)
     }
 
     fun flushAndClose() {

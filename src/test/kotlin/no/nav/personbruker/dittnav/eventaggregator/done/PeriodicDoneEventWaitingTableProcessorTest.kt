@@ -30,7 +30,8 @@ class PeriodicDoneEventWaitingTableProcessorTest {
     private val donePersistingService = DonePersistingService(doneRepository)
     private val dbMetricsProbe = mockk<DBMetricsProbe>(relaxed = true)
     private val metricsSession = mockk<DBMetricsSession>(relaxed = true)
-    private val eventConsumer = PeriodicDoneEventWaitingTableProcessor(donePersistingService, dbMetricsProbe)
+    private val varselInaktivertProducer = mockk<VarselInaktivertProducer>(relaxed = true)
+    private val eventConsumer = PeriodicDoneEventWaitingTableProcessor(donePersistingService, varselInaktivertProducer, dbMetricsProbe)
 
     private val systembruker = "dummySystembruker"
     private val fodselsnummer = "12345"
@@ -72,7 +73,7 @@ class PeriodicDoneEventWaitingTableProcessorTest {
 
     @Test
     fun `setter Innboks-event inaktivt hvis Done-event med samme eventId tidligere er mottatt`() {
-        val eventConsumer = PeriodicDoneEventWaitingTableProcessor(donePersistingService, dbMetricsProbe)
+        val eventConsumer = PeriodicDoneEventWaitingTableProcessor(donePersistingService, varselInaktivertProducer, dbMetricsProbe)
         val innboksWithExistingDone = InnboksTestData.innboks(eventId = done3.eventId, fodselsnummer = fodselsnummer)
         runBlocking {
             database.dbQuery { createDoneEvent(done3) }

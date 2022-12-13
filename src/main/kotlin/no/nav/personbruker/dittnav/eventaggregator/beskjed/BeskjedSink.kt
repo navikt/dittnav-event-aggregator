@@ -11,6 +11,7 @@ import no.nav.helse.rapids_rivers.asOptionalLocalDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.metrics.RapidMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselAktivertProducer
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory
 internal class BeskjedSink(
     rapidsConnection: RapidsConnection,
     private val varselRepository: VarselRepository,
+    private val varselAktivertProducer: VarselAktivertProducer,
     private val rapidMetricsProbe: RapidMetricsProbe,
 ) :
     River.PacketListener {
@@ -39,13 +41,18 @@ internal class BeskjedSink(
                 "sikkerhetsnivaa",
                 "eksternVarsling"
             ) }
-            validate { it.interestedIn("synligFremTil", "prefererteKanaler")}
+            validate { it.interestedIn(
+                "synligFremTil",
+                "prefererteKanaler",
+                "smsVarslingstekst",
+                "epostVarslingstekst",
+                "epostVarslingstittel"
+            ) }
         }.register(this)
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val beskjed = Beskjed(
-            id = null,
             systembruker = "N/A",
             namespace = packet["namespace"].textValue(),
             appnavn = packet["appnavn"].textValue(),
@@ -61,11 +68,15 @@ internal class BeskjedSink(
             synligFremTil = packet["synligFremTil"].asOptionalLocalDateTime(),
             aktiv = packet["aktiv"].booleanValue(),
             eksternVarsling = packet["eksternVarsling"].booleanValue(),
-            prefererteKanaler = packet["prefererteKanaler"].map { it.textValue() }
+            prefererteKanaler = packet["prefererteKanaler"].map { it.textValue() },
+            smsVarslingstekst = packet["smsVarslingstekst"].textValue(),
+            epostVarslingstekst = packet["epostVarslingstekst"].textValue(),
+            epostVarslingstittel = packet["epostVarslingstittel"].textValue()
         )
 
         runBlocking {
             varselRepository.persistBeskjed(beskjed)
+            varselAktivertProducer.varselAktivert(beskjed)
             log.info("Behandlet beskjed fra rapid med eventid ${beskjed.eventId}")
 
             rapidMetricsProbe.countProcessed(EventType.BESKJED_INTERN, beskjed.appnavn)

@@ -2,12 +2,16 @@ package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.shouldBe
+import io.mockk.clearMocks
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.list
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselAktivertProducer
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -16,11 +20,14 @@ class OppgaveSinkTest {
     private val database = LocalPostgresDatabase.migratedDb()
     private val varselRepository = VarselRepository(database)
 
+    private val varselAktivertProducer: VarselAktivertProducer = mockk(relaxed = true)
+
     @BeforeEach
-    fun resetDb() {
+    fun reset() {
         runBlocking {
             database.dbQuery { deleteAllOppgave() }
         }
+        clearMocks(varselAktivertProducer)
     }
 
     @Test
@@ -46,6 +53,8 @@ class OppgaveSinkTest {
         oppgave.aktiv shouldBe oppgaveJsonNode["aktiv"].booleanValue()
         oppgave.eksternVarsling shouldBe oppgaveJsonNode["eksternVarsling"].booleanValue()
         oppgave.prefererteKanaler shouldBe oppgaveJsonNode["prefererteKanaler"].map { it.textValue() }
+
+        verify(exactly = 1) { varselAktivertProducer.varselAktivert(any<Oppgave>()) }
     }
 
     @Test
@@ -61,6 +70,7 @@ class OppgaveSinkTest {
     private fun setupOppgaveSink(testRapid: TestRapid) = OppgaveSink(
         rapidsConnection = testRapid,
         varselRepository = varselRepository,
+        varselAktivertProducer = varselAktivertProducer,
         rapidMetricsProbe = mockk(relaxed = true)
     )
 
