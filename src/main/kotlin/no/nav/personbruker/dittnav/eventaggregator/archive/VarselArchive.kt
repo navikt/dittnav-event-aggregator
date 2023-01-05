@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.archive
 
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import java.time.LocalDateTime
 
 data class VarselArchiveDTO(
@@ -12,5 +13,6 @@ data class VarselArchiveDTO(
     val produsentApp: String,
     val eksternVarslingSendt: Boolean,
     val eksternVarslingKanaler: String,
-    val forstBehandlet: LocalDateTime
+    val forstBehandlet: LocalDateTime,
+    val fristUtløpt: Boolean?
 )

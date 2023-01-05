@@ -35,7 +35,8 @@ internal class PeriodicVarselArchiverTest {
     private val repository = VarselArchivingRepository(database)
     private val probe: ArchiveMetricsProbe = mockk(relaxed = true)
 
-    private val gammelBeskjed = beskjed(eventId = "b1", forstBehandlet = nowTruncatedToMillis().minusDays(11))
+    private val gammelBeskjed =
+        beskjed(eventId = "b1", forstBehandlet = nowTruncatedToMillis().minusDays(11), fristUtløpt = false)
     private val nyBeskjed = beskjed(eventId = "b2", forstBehandlet = nowTruncatedToMillis().minusDays(9))
     private val gammelOppgave = oppgave(eventId = "o1", forstBehandlet = nowTruncatedToMillis().minusDays(11))
     private val nyOppgave = oppgave(eventId = "o2", forstBehandlet = nowTruncatedToMillis().minusDays(9))
@@ -91,13 +92,29 @@ internal class PeriodicVarselArchiverTest {
 
     @Test
     fun `arkiverer alle gamle varsler`() = runBlocking {
-        database.dbQuery { getAllArchivedBeskjed() }.size shouldBe 1
+        val arkiverteBeskjeder = database.dbQuery { getAllArchivedBeskjed() }
+        arkiverteBeskjeder.size shouldBe 1
+        arkiverteBeskjeder.first().apply {
+            fristUtløpt shouldBe false
+            eventId shouldBe gammelBeskjed.eventId
+        }
+
         database.dbQuery { getAllBeskjed() }.size shouldBe 2
 
-        database.dbQuery { getAllArchivedOppgave() }.size shouldBe 1
+        val arkiverteOppgaver = database.dbQuery { getAllArchivedOppgave() }
+        arkiverteOppgaver.size shouldBe 1
+        arkiverteOppgaver.first().apply {
+            fristUtløpt shouldBe null
+            eventId shouldBe gammelOppgave.eventId
+        }
         database.dbQuery { getAllOppgave() }.size shouldBe 2
 
-        database.dbQuery { getAllArchivedInnboks() }.size shouldBe 1
+        val arkiverteInnbokser = database.dbQuery { getAllArchivedInnboks() }
+        arkiverteInnbokser.size shouldBe 1
+        arkiverteInnbokser.first().apply {
+            fristUtløpt shouldBe null
+            eventId shouldBe gammelInnboks.eventId
+        }
         database.dbQuery { getAllInnboks() }.size shouldBe 2
 
         database.dbQuery { getAllDoknotifikasjonStatusBeskjed() }.size shouldBe 1

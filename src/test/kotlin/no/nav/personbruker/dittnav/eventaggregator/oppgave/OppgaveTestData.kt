@@ -44,6 +44,7 @@ object OppgaveTestData {
         prefererteKanaler = prefererteKanaler,
         smsVarslingstekst = smsVarslingstekst,
         epostVarslingstekst = epostVarslingstekst,
-        epostVarslingstittel = epostVarslingstittel
+        epostVarslingstittel = epostVarslingstittel,
+        fristUtløpt = null
     )
 }
