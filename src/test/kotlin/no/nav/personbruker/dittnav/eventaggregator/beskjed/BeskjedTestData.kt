@@ -24,7 +24,8 @@ object BeskjedTestData {
         prefererteKanaler: List<String> = emptyList(),
         smsVarslingstekst: String = "smsVarslingstekst",
         epostVarslingstekst: String = "epostVarslingstekst",
-        epostVarslingstittel: String = "epostVarslingstittel"
+        epostVarslingstittel: String = "epostVarslingstittel",
+        fristUtløpt: Boolean? = null
     ) = Beskjed(
         systembruker = systembruker,
         namespace = namespace,
@@ -44,6 +45,7 @@ object BeskjedTestData {
         prefererteKanaler = prefererteKanaler,
         smsVarslingstekst = smsVarslingstekst,
         epostVarslingstekst = epostVarslingstekst,
-        epostVarslingstittel = epostVarslingstittel
+        epostVarslingstittel = epostVarslingstittel,
+        fristUtløpt = fristUtløpt
     )
 }

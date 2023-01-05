@@ -42,6 +42,7 @@ class OppgaveQueriesTest {
             numberUpdated.size shouldBe 1
             numberUpdated.first() shouldBe expiredOppgave.eventId
             updatedOppgave.aktiv shouldBe false
+            updatedOppgave.fristUtløpt shouldBe true
         }
     }
 }
