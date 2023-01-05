@@ -5,7 +5,7 @@ import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.metrics.DB_EVENTS_ARCHIVED
 
 class ArchiveMetricsProbe(private val metricsReporter: MetricsReporter) {
-    suspend fun countEntitiesArchived(eventType: EventType, events: List<BrukernotifikasjonArchiveDTO>) {
+    suspend fun countEntitiesArchived(eventType: EventType, events: List<VarselArchiveDTO>) {
         events.groupBy { it.produsentApp }
             .forEach { (produsentApp, archived) ->
                 reportArchived(archived.size, eventType, produsentApp)

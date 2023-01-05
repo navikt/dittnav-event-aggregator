@@ -5,7 +5,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.list
 import java.sql.Connection
 import java.sql.ResultSet
 
-fun Connection.getAllArchivedBeskjed(): List<BrukernotifikasjonArchiveDTO> =
+fun Connection.getAllArchivedBeskjed(): List<VarselArchiveDTO> =
     prepareStatement("""SELECT * FROM beskjed_arkiv""")
         .use {
             it.executeQuery().list {
@@ -13,7 +13,7 @@ fun Connection.getAllArchivedBeskjed(): List<BrukernotifikasjonArchiveDTO> =
             }
         }
 
-fun Connection.getAllArchivedOppgave(): List<BrukernotifikasjonArchiveDTO> =
+fun Connection.getAllArchivedOppgave(): List<VarselArchiveDTO> =
     prepareStatement("""SELECT * FROM oppgave_arkiv""")
         .use {
             it.executeQuery().list {
@@ -21,7 +21,7 @@ fun Connection.getAllArchivedOppgave(): List<BrukernotifikasjonArchiveDTO> =
             }
         }
 
-fun Connection.getAllArchivedInnboks(): List<BrukernotifikasjonArchiveDTO> =
+fun Connection.getAllArchivedInnboks(): List<VarselArchiveDTO> =
     prepareStatement("""SELECT * FROM innboks_arkiv""")
         .use {
             it.executeQuery().list {
@@ -30,7 +30,7 @@ fun Connection.getAllArchivedInnboks(): List<BrukernotifikasjonArchiveDTO> =
         }
 
 fun ResultSet.toArchiveDto() =
-    BrukernotifikasjonArchiveDTO(
+    VarselArchiveDTO(
         eventId = getString("eventid"),
         fodselsnummer = getString("fodselsnummer"),
         tekst = getString("tekst"),

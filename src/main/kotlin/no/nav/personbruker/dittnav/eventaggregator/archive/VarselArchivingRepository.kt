@@ -6,7 +6,7 @@ import java.time.LocalDateTime
 
 class VarselArchivingRepository(private val database: Database) {
 
-    suspend fun archiveOldVarsler(varselType: VarselType, dateThreshold: LocalDateTime): List<BrukernotifikasjonArchiveDTO> {
+    suspend fun archiveOldVarsler(varselType: VarselType, dateThreshold: LocalDateTime): List<VarselArchiveDTO> {
         val archivableBeskjeder = database.queryWithExceptionTranslation {
             getArchivableVarsler(varselType, dateThreshold)
         }

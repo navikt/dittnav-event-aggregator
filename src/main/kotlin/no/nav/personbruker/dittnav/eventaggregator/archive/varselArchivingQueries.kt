@@ -59,7 +59,7 @@ private fun deleteDoknotifikasjonStatusQuery(varselName: VarselTableName) = """
     DELETE FROM doknotifikasjon_status_$varselName WHERE eventId = ANY(?)
 """
 
-fun Connection.getArchivableVarsler(varselType: VarselType, dateThreshold: LocalDateTime): List<BrukernotifikasjonArchiveDTO> {
+fun Connection.getArchivableVarsler(varselType: VarselType, dateThreshold: LocalDateTime): List<VarselArchiveDTO> {
     return prepareStatement(getVarselToArchiveQuery(VarselTableName.fromVarselType(varselType)))
         .use {
             it.setObject(1, EPOCH_START, Types.TIMESTAMP)
@@ -70,7 +70,7 @@ fun Connection.getArchivableVarsler(varselType: VarselType, dateThreshold: Local
         }
 }
 
-fun Connection.createArchivedVarsler(varselType: VarselType, toArchive: List<BrukernotifikasjonArchiveDTO>) {
+fun Connection.createArchivedVarsler(varselType: VarselType, toArchive: List<VarselArchiveDTO>) {
     prepareStatement(insertVarselArchiveQuery(VarselTableName.fromVarselType(varselType))).use { statement ->
         toArchive.forEach {
             statement.setParametersForSingleRow(it)
@@ -94,7 +94,7 @@ fun Connection.deleteVarsler(varselType: VarselType, eventIds: List<String>) {
     }
 }
 
-private fun PreparedStatement.setParametersForSingleRow(varselArchiveDTO: BrukernotifikasjonArchiveDTO) {
+private fun PreparedStatement.setParametersForSingleRow(varselArchiveDTO: VarselArchiveDTO) {
     setString(1, varselArchiveDTO.fodselsnummer)
     setString(2, varselArchiveDTO.eventId)
     setString(3, varselArchiveDTO.tekst)
@@ -108,8 +108,8 @@ private fun PreparedStatement.setParametersForSingleRow(varselArchiveDTO: Bruker
     setObject(11, nowAtUtc(), Types.TIMESTAMP)
 }
 
-private fun ResultSet.toBrukernotifikasjonArchiveDTO(): BrukernotifikasjonArchiveDTO {
-    return BrukernotifikasjonArchiveDTO(
+private fun ResultSet.toBrukernotifikasjonArchiveDTO(): VarselArchiveDTO {
+    return VarselArchiveDTO(
         fodselsnummer = getString("fodselsnummer"),
         eventId = getString("eventId"),
         tekst = getString("tekst"),
