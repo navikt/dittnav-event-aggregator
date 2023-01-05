@@ -11,8 +11,8 @@ import java.sql.PreparedStatement
 import java.sql.Types
 
 private const val createQuery =
-    """INSERT INTO beskjed (systembruker, eventTidspunkt, forstBehandlet, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+    """INSERT INTO beskjed (systembruker, eventTidspunkt, forstBehandlet, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, synligFremTil, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn,frist_utløpt)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
 
 fun Connection.createBeskjed(beskjed: Beskjed): PersistActionResult =
@@ -37,6 +37,7 @@ private fun PreparedStatement.setParametersForSingleRow(beskjed: Beskjed) {
     setObject(14, beskjed.prefererteKanaler.joinToString(","))
     setString(15, beskjed.namespace)
     setString(16, beskjed.appnavn)
+    beskjed.fristUtløpt?.let { setBoolean(17, it) } ?: setNull(17, Types.BOOLEAN)
 }
 
 fun Connection.setBeskjederAktivflagg(doneEvents: List<Done>, aktiv: Boolean) {

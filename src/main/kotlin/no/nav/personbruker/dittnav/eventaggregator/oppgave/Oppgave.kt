@@ -21,5 +21,6 @@ data class Oppgave(
         val synligFremTil: LocalDateTime?,
         val smsVarslingstekst: String? = null,
         val epostVarslingstekst: String? = null,
-        val epostVarslingstittel: String? = null
+        val epostVarslingstittel: String? = null,
+        val fristUtløpt: Boolean? = null
 )

@@ -21,5 +21,6 @@ data class Beskjed(
         val prefererteKanaler: List<String> = emptyList(),
         val smsVarslingstekst: String? = null,
         val epostVarslingstekst: String? = null,
-        val epostVarslingstittel: String? = null
+        val epostVarslingstittel: String? = null,
+        val fristUtløpt: Boolean? = null
 )

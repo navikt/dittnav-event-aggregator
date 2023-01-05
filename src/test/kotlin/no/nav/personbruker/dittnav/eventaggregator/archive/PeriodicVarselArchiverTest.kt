@@ -42,12 +42,18 @@ internal class PeriodicVarselArchiverTest {
     private val gammelInnboks = innboks(eventId = "i1", forstBehandlet = nowTruncatedToMillis().minusDays(11))
     private val nyInnboks = innboks(eventId = "i2", forstBehandlet = nowTruncatedToMillis().minusDays(9))
 
-    private val eksternVarslingStatusGammelBeskjed = createDoknotifikasjonStatusDto(gammelBeskjed.eventId, status = "FERDIGSTILT", kanaler = listOf("SMS"))
-    private val eksternVarslingStatusNyBeskjed = createDoknotifikasjonStatusDto(nyBeskjed.eventId, status = "FERDIGSTILT", kanaler = listOf("SMS"))
-    private val eksternVarslingStatusGammelOppgave = createDoknotifikasjonStatusDto(gammelOppgave.eventId, status = "FERDIGSTILT", kanaler = listOf("EPOST"))
-    private val eksternVarslingStatusNyOppgave = createDoknotifikasjonStatusDto(nyOppgave.eventId, status = "FERDIGSTILT", kanaler = listOf("EPOST"))
-    private val eksternVarslingStatusGammelInnboks = createDoknotifikasjonStatusDto(gammelInnboks.eventId, status = "FERDIGSTILT", kanaler = listOf("SMS"))
-    private val eksternVarslingStatusNyInnboks = createDoknotifikasjonStatusDto(nyInnboks.eventId, status = "FERDIGSTILT", kanaler = listOf("SMS"))
+    private val eksternVarslingStatusGammelBeskjed =
+        createDoknotifikasjonStatusDto(gammelBeskjed.eventId, status = "FERDIGSTILT", kanaler = listOf("SMS"))
+    private val eksternVarslingStatusNyBeskjed =
+        createDoknotifikasjonStatusDto(nyBeskjed.eventId, status = "FERDIGSTILT", kanaler = listOf("SMS"))
+    private val eksternVarslingStatusGammelOppgave =
+        createDoknotifikasjonStatusDto(gammelOppgave.eventId, status = "FERDIGSTILT", kanaler = listOf("EPOST"))
+    private val eksternVarslingStatusNyOppgave =
+        createDoknotifikasjonStatusDto(nyOppgave.eventId, status = "FERDIGSTILT", kanaler = listOf("EPOST"))
+    private val eksternVarslingStatusGammelInnboks =
+        createDoknotifikasjonStatusDto(gammelInnboks.eventId, status = "FERDIGSTILT", kanaler = listOf("SMS"))
+    private val eksternVarslingStatusNyInnboks =
+        createDoknotifikasjonStatusDto(nyInnboks.eventId, status = "FERDIGSTILT", kanaler = listOf("SMS"))
 
     @BeforeAll
     fun setup() {
@@ -162,7 +168,7 @@ internal class PeriodicVarselArchiverTest {
     }
 
     private fun Connection.antallVarsler(): Int =
-        prepareStatement("""SELECT count(*) FROM brukernotifikasjon_view""")
+        prepareStatement("""SELECT COUNT(*) FROM brukernotifikasjon_view""")
             .use {
                 it.executeQuery().use { resultSet ->
                     if (resultSet.next()) resultSet.getInt(1) else 0

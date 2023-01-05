@@ -121,7 +121,7 @@ internal class PeriodicExpiredVarselProcessorTest {
     }
 }
 
-private fun Connection.getAllBeskjedByFristUtløpt(): List<Beskjed> =
+fun Connection.getAllBeskjedByFristUtløpt(): List<Beskjed> =
     prepareStatement("""SELECT * FROM beskjed WHERE frist_utløpt = TRUE""")
         .use {
             it.executeQuery().list {
@@ -129,7 +129,7 @@ private fun Connection.getAllBeskjedByFristUtløpt(): List<Beskjed> =
             }
         }
 
-private fun Connection.getAllOppgaveByFristUtløpt(): List<Oppgave> =
+fun Connection.getAllOppgaveByFristUtløpt(): List<Oppgave> =
     prepareStatement("""SELECT * FROM oppgave WHERE frist_utløpt = TRUE""")
         .use {
             it.executeQuery().list {

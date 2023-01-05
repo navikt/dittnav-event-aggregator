@@ -5,6 +5,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.getNullableLo
 import no.nav.personbruker.dittnav.eventaggregator.common.database.getUtcDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.database.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.singleResult
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.toOppgave
 import java.sql.Connection
 import java.sql.ResultSet
 
@@ -55,5 +56,6 @@ fun ResultSet.toBeskjed() = Beskjed(
     synligFremTil = getNullableLocalDateTime("synligFremTil"),
     aktiv = getBoolean("aktiv"),
     eksternVarsling = getBoolean("eksternVarsling"),
-    prefererteKanaler = getListFromSeparatedString("prefererteKanaler", ",")
+    prefererteKanaler = getListFromSeparatedString("prefererteKanaler", ","),
+    fristUtløpt = getBoolean("frist_utløpt")
 )

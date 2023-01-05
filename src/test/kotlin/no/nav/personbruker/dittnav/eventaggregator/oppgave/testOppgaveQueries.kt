@@ -54,5 +54,6 @@ fun ResultSet.toOppgave() = Oppgave(
     aktiv = getBoolean("aktiv"),
     eksternVarsling = getBoolean("eksternVarsling"),
     prefererteKanaler = getListFromSeparatedString("prefererteKanaler", ","),
-    synligFremTil = getNullableLocalDateTime("synligFremTil")
+    synligFremTil = getNullableLocalDateTime("synligFremTil"),
+    fristUtløpt = getBoolean("frist_utløpt")
 )
