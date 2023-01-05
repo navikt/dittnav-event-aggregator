@@ -16,6 +16,7 @@ fun Connection.getAllBeskjed(): List<Beskjed> =
             }
         }
 
+
 fun Connection.getAllBeskjedByAktiv(aktiv: Boolean): List<Beskjed> =
     prepareStatement("""SELECT * FROM beskjed WHERE aktiv = ?""")
         .use {
@@ -35,8 +36,8 @@ fun Connection.getBeskjedByEventId(eventId: String): Beskjed =
         }
 
 fun Connection.deleteAllBeskjed() =
-        prepareStatement("""DELETE FROM BESKJED""")
-                .use {it.execute()}
+    prepareStatement("""DELETE FROM BESKJED""")
+        .use { it.execute() }
 
 fun ResultSet.toBeskjed() = Beskjed(
     systembruker = getString("systembruker"),

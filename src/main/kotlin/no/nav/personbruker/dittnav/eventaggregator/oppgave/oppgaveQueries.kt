@@ -49,7 +49,7 @@ fun Connection.setOppgaverAktivFlag(doneEvents: List<Done>, aktiv: Boolean) {
 }
 
 fun Connection.setExpiredOppgaveAsInactive(): List<String> {
-    return prepareStatement("""UPDATE oppgave set aktiv = false, sistoppdatert = ? WHERE aktiv = true AND synligFremTil < ? RETURNING eventId""")
+    return prepareStatement("""UPDATE oppgave set aktiv = false, sistoppdatert = ?, frist_utløpt = TRUE WHERE aktiv = true AND synligFremTil < ? RETURNING eventId""")
         .use {
             it.setObject(1, nowAtUtc(), Types.TIMESTAMP)
             it.setObject(2, nowAtUtc(), Types.TIMESTAMP)

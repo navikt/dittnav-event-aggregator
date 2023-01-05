@@ -76,7 +76,7 @@ private fun Connection.requireBeskjedExists(eventId: String, fnr: String) {
 }
 
 fun Connection.setExpiredBeskjedAsInactive(): List<String> {
-    return prepareStatement("""UPDATE beskjed SET aktiv = FALSE, sistoppdatert = ? WHERE aktiv = TRUE AND synligFremTil < ? RETURNING eventId""")
+    return prepareStatement("""UPDATE beskjed SET aktiv = FALSE, sistoppdatert = ?, frist_utløpt = TRUE WHERE aktiv = TRUE AND synligFremTil < ? RETURNING eventId""")
         .use {
             it.setObject(1, nowAtUtc(), Types.TIMESTAMP)
             it.setObject(2, nowAtUtc(), Types.TIMESTAMP)
