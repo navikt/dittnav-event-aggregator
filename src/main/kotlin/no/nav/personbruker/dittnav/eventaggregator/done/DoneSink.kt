@@ -57,8 +57,8 @@ internal class DoneSink(
                 varselRepository.persistWaitingDone(done)
             } else {
                 when (varsler.first().type) {
-                    VarselType.BESKJED -> varselRepository.inaktiverBeskjed(done)
-                    VarselType.OPPGAVE -> varselRepository.inaktiverOppgave(done)
+                    VarselType.BESKJED -> varselRepository.inaktiverVarsel(done, VarselType.BESKJED)
+                    VarselType.OPPGAVE -> varselRepository.inaktiverVarsel(done, VarselType.OPPGAVE)
                     VarselType.INNBOKS -> varselRepository.inaktiverInnboks(done)
                 }
                 varselInaktivertProducer.cancelEksternVarsling(done.eventId)

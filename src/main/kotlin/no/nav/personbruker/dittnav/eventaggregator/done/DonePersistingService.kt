@@ -2,15 +2,12 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.common.Brukernotifikasjon
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 
 class DonePersistingService(private val doneRepository: DoneRepository) {
 
-    suspend fun writeDoneEventsForBeskjedToCache(doneEvents: List<Done>) {
-        doneRepository.writeDoneEventsForBeskjedToCache(doneEvents)
-    }
-
-    suspend fun writeDoneEventsForOppgaveToCache(doneEvents: List<Done>) {
-        doneRepository.writeDoneEventsForOppgaveToCache(doneEvents)
+    suspend fun updateVarselTables(doneEvents: List<Done>, varselType: VarselType) {
+        doneRepository.updateVarselTables(doneEvents,varselType)
     }
 
     suspend fun writeDoneEventsForInnboksToCache(doneEvents: List<Done>) {

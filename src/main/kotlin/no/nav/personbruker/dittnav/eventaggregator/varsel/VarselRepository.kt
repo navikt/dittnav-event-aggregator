@@ -4,6 +4,7 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
+import no.nav.personbruker.dittnav.eventaggregator.common.database.executeBatchUpdateQuery
 import no.nav.personbruker.dittnav.eventaggregator.common.database.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.toVarcharArray
 import no.nav.personbruker.dittnav.eventaggregator.done.Done
@@ -36,18 +37,11 @@ class VarselRepository(private val database: Database) {
         createDoneEvent(done)
     }
 
-    suspend fun inaktiverBeskjed(done: Done) {
+    suspend fun inaktiverVarsel(done: Done, varselType: VarselType) {
         database.queryWithExceptionTranslation {
-            setVarselInaktiv(done.eventId, VarselType.BESKJED)
+            setVarselInaktiv(done.eventId, varselType)
         }
     }
-
-    suspend fun inaktiverOppgave(done: Done) {
-        database.queryWithExceptionTranslation {
-            setVarselInaktiv(done.eventId, VarselType.OPPGAVE)
-        }
-    }
-
     suspend fun inaktiverInnboks(done: Done) {
         database.queryWithExceptionTranslation {
             setInnboksEventerAktivFlag(listOf(done), false)
@@ -59,30 +53,4 @@ class VarselRepository(private val database: Database) {
             getVarsler(listOf(eventId))
         }
     }
-}
-
-fun Connection.getVarsler(eventIds: List<String>): List<VarselIdentifier> =
-    prepareStatement("""SELECT brukernotifikasjon_view.* FROM brukernotifikasjon_view WHERE eventid = ANY(?)""")
-        .use {
-            it.setArray(1, toVarcharArray(eventIds))
-            it.executeQuery().list {
-                toVarsel()
-            }
-        }
-
-fun Connection.setVarselInaktiv(eventId: String, varselType: VarselType): Int =
-    prepareStatement("""UPDATE ${VarselTable.fromVarselType(varselType)} SET aktiv = FALSE, frist_utløpt= FALSE, sistoppdatert = ? WHERE eventId = ? AND aktiv=TRUE""".trimMargin())
-        .use {
-            it.setObject(1, LocalDateTimeHelper.nowAtUtc(), Types.TIMESTAMP)
-            it.setString(2, eventId)
-            it.executeUpdate()
-        }
-
-private fun ResultSet.toVarsel(): VarselIdentifier {
-    return VarselIdentifier(
-        eventId = getString("eventId"),
-        systembruker = getString("systembruker"),
-        type = VarselType.valueOf(getString("type").uppercase()),
-        fodselsnummer = getString("fodselsnummer")
-    )
 }

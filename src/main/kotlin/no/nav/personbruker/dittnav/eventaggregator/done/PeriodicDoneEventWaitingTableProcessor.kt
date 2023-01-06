@@ -5,6 +5,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDa
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Duration
@@ -23,8 +24,17 @@ class PeriodicDoneEventWaitingTableProcessor(
 
     suspend fun processDoneEvents() {
         try {
+
             val allDoneEventsWithinLimit = donePersistingService.fetchAllDoneEventsWithLimit()
-            processEvents(allDoneEventsWithinLimit)
+            val groupedDoneEvents = fetchRelatedEvents(allDoneEventsWithinLimit)
+            groupedDoneEvents.process(allDoneEventsWithinLimit)
+            dbMetricsProbe.runWithMetrics(eventType = EventType.DONE_INTERN) {
+                groupedDoneEvents.notFoundEvents.forEach { event ->
+                    countCachedEventForProducer(event.appnavn)
+                }
+            }
+            updateTheDatabase(groupedDoneEvents)
+            sendVarselInaktivert(groupedDoneEvents)
 
         } catch (rde: RetriableDatabaseException) {
             log.warn("Behandling av done-eventer fra ventetabellen feilet. Klarte ikke å skrive til databasen, prøver igjen senere. Context: ${rde.context}", rde)
@@ -37,19 +47,6 @@ class PeriodicDoneEventWaitingTableProcessor(
         }
     }
 
-
-    private suspend fun processEvents(allDone: List<Done>) {
-        val groupedDoneEvents = fetchRelatedEvents(allDone)
-        groupedDoneEvents.process(allDone)
-        dbMetricsProbe.runWithMetrics(eventType = EventType.DONE_INTERN) {
-            groupedDoneEvents.notFoundEvents.forEach { event ->
-                countCachedEventForProducer(event.appnavn)
-            }
-        }
-        updateTheDatabase(groupedDoneEvents)
-        sendVarselInaktivert(groupedDoneEvents)
-    }
-
     private suspend fun fetchRelatedEvents(allDone: List<Done>): DoneBatchProcessor {
         val eventIds = allDone.map { it.eventId }.distinct()
         val activeBrukernotifikasjoner = donePersistingService.fetchBrukernotifikasjonerFromViewForEventIds(eventIds)
@@ -57,8 +54,8 @@ class PeriodicDoneEventWaitingTableProcessor(
     }
 
     private suspend fun updateTheDatabase(groupedDoneEvents: DoneBatchProcessor) {
-        donePersistingService.writeDoneEventsForBeskjedToCache(groupedDoneEvents.foundBeskjed)
-        donePersistingService.writeDoneEventsForOppgaveToCache(groupedDoneEvents.foundOppgave)
+        donePersistingService.updateVarselTables(groupedDoneEvents.foundBeskjed, VarselType.BESKJED)
+        donePersistingService.updateVarselTables(groupedDoneEvents.foundOppgave, VarselType.OPPGAVE)
         donePersistingService.writeDoneEventsForInnboksToCache(groupedDoneEvents.foundInnboks)
         donePersistingService.deleteDoneEventsFromCache(groupedDoneEvents.allFoundEvents)
         donePersistingService.updateDoneSistBehandetForUnmatchedEvents(groupedDoneEvents.notFoundEvents)

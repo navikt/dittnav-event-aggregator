@@ -42,36 +42,6 @@ private fun PreparedStatement.setParametersForSingleRow(beskjed: Beskjed) {
     beskjed.fristUtløpt?.let { setBoolean(17, it) } ?: setNull(17, Types.BOOLEAN)
 }
 
-fun Connection.setBeskjederAktivflagg(doneEvents: List<Done>, aktiv: Boolean) {
-    executeBatchUpdateQuery("""UPDATE beskjed SET aktiv = ?, sistoppdatert = ? WHERE eventId = ?""") {
-        doneEvents.forEach { done ->
-            setBoolean(1, aktiv)
-            setObject(2, nowAtUtc(), Types.TIMESTAMP)
-            setString(3, done.eventId)
-            addBatch()
-        }
-    }
-}
-
-fun Connection.setBeskjedInaktiv(eventId: String, fnr: String): Int {
-    requireBeskjedExists(eventId, fnr)
-    return setVarselInaktiv(eventId, VarselType.BESKJED)
-}
-
-private fun Connection.requireBeskjedExists(eventId: String, fnr: String) {
-    prepareStatement("""SELECT * FROM beskjed WHERE eventId=?""".trimMargin())
-        .use {
-            it.setString(1, eventId)
-            it.executeQuery().apply {
-                if (!next()) {
-                    throw BeskjedNotFoundException(eventId)
-                }
-                if (getString("fodselsnummer") != fnr) {
-                    throw BeskjedDoesNotBelongToUserException(eventId)
-                }
-            }
-        }
-}
 
 fun Connection.setExpiredBeskjedAsInactive(): List<String> {
     return prepareStatement("""UPDATE beskjed SET aktiv = FALSE, sistoppdatert = ?, frist_utløpt = TRUE WHERE aktiv = TRUE AND synligFremTil < ? RETURNING eventId""")
