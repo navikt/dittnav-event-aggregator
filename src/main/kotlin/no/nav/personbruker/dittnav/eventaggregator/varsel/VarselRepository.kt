@@ -2,8 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.varsel
 
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.setBeskjedInaktiv
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.setBeskjederAktivflagg
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.database.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.toVarcharArray
@@ -17,6 +16,7 @@ import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.setOppgaverAktivFlag
 import java.sql.Connection
 import java.sql.ResultSet
+import java.sql.Types
 
 class VarselRepository(private val database: Database) {
 
@@ -38,13 +38,13 @@ class VarselRepository(private val database: Database) {
 
     suspend fun inaktiverBeskjed(done: Done) {
         database.queryWithExceptionTranslation {
-            setBeskjedInaktiv(done.eventId)
+            setVarselInaktiv(done.eventId, "beskjed")
         }
     }
 
     suspend fun inaktiverOppgave(done: Done) {
         database.queryWithExceptionTranslation {
-            setOppgaverAktivFlag(listOf(done), false)
+            setVarselInaktiv(done.eventId, "oppgave")
         }
     }
 
@@ -70,6 +70,13 @@ fun Connection.getVarsler(eventIds: List<String>): List<VarselIdentifier> =
             }
         }
 
+fun Connection.setVarselInaktiv(eventId: String, tablename: String): Int =
+    prepareStatement("""UPDATE $tablename SET aktiv = FALSE, frist_utløpt= FALSE, sistoppdatert = ? WHERE eventId = ? AND aktiv=TRUE""".trimMargin())
+        .use {
+            it.setObject(1, LocalDateTimeHelper.nowAtUtc(), Types.TIMESTAMP)
+            it.setString(2, eventId)
+            it.executeUpdate()
+        }
 private fun ResultSet.toVarsel(): VarselIdentifier {
     return VarselIdentifier(
         eventId = getString("eventId"),

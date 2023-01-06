@@ -67,7 +67,7 @@ internal class VarselAktivertProducerTest {
     @Test
     fun `sender varsel-aktivert event for oppgave`() {
 
-        val oppgave = OppgaveTestData.oppgave()
+        val oppgave = OppgaveTestData.oppgave(fristUtløpt = null)
 
         rapidProducer.varselAktivert(oppgave)
 

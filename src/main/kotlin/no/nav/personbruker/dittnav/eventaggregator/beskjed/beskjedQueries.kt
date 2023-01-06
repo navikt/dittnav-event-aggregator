@@ -6,6 +6,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.executeBatchU
 import no.nav.personbruker.dittnav.eventaggregator.common.database.executePersistQuery
 import no.nav.personbruker.dittnav.eventaggregator.common.database.list
 import no.nav.personbruker.dittnav.eventaggregator.done.Done
+import no.nav.personbruker.dittnav.eventaggregator.varsel.setVarselInaktiv
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.Types
@@ -53,16 +54,8 @@ fun Connection.setBeskjederAktivflagg(doneEvents: List<Done>, aktiv: Boolean) {
 
 fun Connection.setBeskjedInaktiv(eventId: String, fnr: String): Int {
     requireBeskjedExists(eventId, fnr)
-    return setBeskjedInaktiv(eventId)
+    return setVarselInaktiv(eventId, "beskjed")
 }
-
-fun Connection.setBeskjedInaktiv(eventId: String): Int =
-     prepareStatement("""UPDATE beskjed SET aktiv = FALSE, frist_utløpt= FALSE, sistoppdatert = ? WHERE eventId = ? AND aktiv=TRUE""".trimMargin())
-        .use {
-            it.setObject(1, nowAtUtc(), Types.TIMESTAMP)
-            it.setString(2, eventId)
-            it.executeUpdate()
-        }
 
 private fun Connection.requireBeskjedExists(eventId: String, fnr: String) {
     prepareStatement("""SELECT * FROM beskjed WHERE eventId=?""".trimMargin())

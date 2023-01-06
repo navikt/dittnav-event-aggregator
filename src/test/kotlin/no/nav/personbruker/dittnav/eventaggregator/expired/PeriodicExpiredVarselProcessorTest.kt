@@ -39,8 +39,18 @@ internal class PeriodicExpiredVarselProcessorTest {
     private val pastDate = nowTruncatedToMillis().minusDays(7)
     private val futureDate = nowTruncatedToMillis().plusDays(7)
 
-    private val activeOppgave = OppgaveTestData.oppgave(eventId = "o1", aktiv = true, synligFremTil = futureDate)
-    private val expiredOppgave = OppgaveTestData.oppgave(eventId = "o2", aktiv = true, synligFremTil = pastDate)
+    private val activeOppgave = OppgaveTestData.oppgave(
+        synligFremTil = futureDate,
+        eventId = "o1",
+        aktiv = true,
+        fristUtløpt = null
+    )
+    private val expiredOppgave = OppgaveTestData.oppgave(
+        synligFremTil = pastDate,
+        eventId = "o2",
+        aktiv = true,
+        fristUtløpt = null
+    )
 
     private val activeBeskjed = BeskjedTestData.beskjed(eventId = "b1", aktiv = true, synligFremTil = futureDate)
     private val expiredBeskjed = BeskjedTestData.beskjed(eventId = "b2", aktiv = true, synligFremTil = pastDate)

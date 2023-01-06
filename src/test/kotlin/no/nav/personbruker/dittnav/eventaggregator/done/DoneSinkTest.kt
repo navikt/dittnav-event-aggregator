@@ -14,7 +14,6 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedTestData
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.getBeskjedByEventId
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.setBeskjedInaktiv
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.toBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.list
@@ -24,9 +23,11 @@ import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.toInnboks
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveSink
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveTestData
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.getOppgaveByEventId
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.toOppgave
-import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselAktivertProducer
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -67,6 +68,7 @@ class DoneSinkTest {
         aktiveOppgaverFromDb().size shouldBe 0
         aktiveInnboksvarslerFromDb().size shouldBe 0
         getBeskjedFromDb("11").fristUtløpt shouldBe false
+        getOppgaveFromDb("22").fristUtløpt shouldBe false
 
 
         verify { varselInaktivertProducer.cancelEksternVarsling("11") }
@@ -101,25 +103,36 @@ class DoneSinkTest {
         val testRapid = TestRapid()
         setupDoneSink(testRapid)
 
-        val firstUtløpt = BeskjedTestData.beskjed(eventId = "22", fristUtløpt = true, aktiv = false)
-        val firstIkkeUtløpt = BeskjedTestData.beskjed(eventId = "23", fristUtløpt = false, aktiv = false)
-        val firstUtløptErNull = BeskjedTestData.beskjed(eventId = "24",fristUtløpt = null, aktiv = false)
+        val fristUtløpt = BeskjedTestData.beskjed(eventId = "22", fristUtløpt = true, aktiv = false)
+        val fristIkkeUtløpt = BeskjedTestData.beskjed(eventId = "23", fristUtløpt = false, aktiv = false)
+        val fristUtløptErNull = BeskjedTestData.beskjed(eventId = "24",fristUtløpt = null, aktiv = false)
+        val fristUtløptErNullOppgave = OppgaveTestData.oppgave(eventId = "27",fristUtløpt = null, aktiv = false)
+        val fristUtløptOppgave = OppgaveTestData.oppgave(eventId = "28",fristUtløpt = true, aktiv = false)
 
         runBlocking {
             database.dbQuery {
-                createBeskjed(firstUtløpt)
-                createBeskjed(firstIkkeUtløpt)
-                createBeskjed(firstUtløptErNull)
+                createBeskjed(fristUtløpt)
+                createBeskjed(fristIkkeUtløpt)
+                createBeskjed(fristUtløptErNull)
+                createOppgave(fristUtløptErNullOppgave)
+                createOppgave(fristUtløptOppgave)
             }
         }
-        testRapid.sendTestMessage(doneJson(firstUtløpt.eventId))
-        testRapid.sendTestMessage(doneJson(firstIkkeUtløpt.eventId))
-        testRapid.sendTestMessage(doneJson(firstUtløptErNull.eventId))
+        testRapid.sendTestMessage(doneJson(fristUtløpt.eventId))
+        testRapid.sendTestMessage(doneJson(fristIkkeUtløpt.eventId))
+        testRapid.sendTestMessage(doneJson(fristUtløptErNull.eventId))
 
-        getBeskjedFromDb(firstUtløpt.eventId).fristUtløpt shouldBe true
-        getBeskjedFromDb(firstIkkeUtløpt.eventId).fristUtløpt shouldBe false
-        getBeskjedFromDb(firstUtløptErNull.eventId).fristUtløpt shouldBe null
+        getBeskjedFromDb(fristUtløpt.eventId).fristUtløpt shouldBe true
+        getBeskjedFromDb(fristIkkeUtløpt.eventId).fristUtløpt shouldBe false
+        getBeskjedFromDb(fristUtløptErNull.eventId).fristUtløpt shouldBe null
+
+        testRapid.sendTestMessage(doneJson(fristUtløptErNullOppgave.eventId))
+        testRapid.sendTestMessage(doneJson(fristUtløptOppgave.eventId))
+
+        getOppgaveFromDb(fristUtløptOppgave.eventId).fristUtløpt shouldBe true
+        getOppgaveFromDb(fristUtløptErNullOppgave.eventId).fristUtløpt shouldBe null
     }
+
 
     @Test
     fun `Legger done-eventet i ventetabell hvis det kommer før varslet`() = runBlocking {
@@ -186,6 +199,10 @@ class DoneSinkTest {
 
     private fun getBeskjedFromDb(eventId: String): Beskjed = runBlocking {
         database.dbQuery { getBeskjedByEventId(eventId) }
+    }
+
+    private fun getOppgaveFromDb(eventId: String): Oppgave = runBlocking {
+        database.dbQuery { getOppgaveByEventId( eventId) }
     }
 
     private fun doneJson(eventId: String) = """{

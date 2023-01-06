@@ -1,6 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
 import no.nav.personbruker.dittnav.eventaggregator.common.Brukernotifikasjon
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.executeBatchUpdateQuery
 import no.nav.personbruker.dittnav.eventaggregator.common.database.executePersistQuery
@@ -95,5 +96,4 @@ private fun PreparedStatement.buildStatementForSingleRow(doneEvent: Done) {
     setString(8, doneEvent.appnavn)
     setObject(9, doneEvent.sistBehandlet, Types.TIMESTAMP)
 }
-
 

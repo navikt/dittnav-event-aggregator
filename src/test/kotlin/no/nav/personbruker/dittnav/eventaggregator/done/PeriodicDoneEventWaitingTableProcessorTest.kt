@@ -61,7 +61,12 @@ class PeriodicDoneEventWaitingTableProcessorTest {
     @Test
     fun `setter Oppgave-event inaktivt hvis Done-event med samme eventId tidligere er mottatt`() {
         val oppgaveWithExistingDoneEvent =
-            OppgaveTestData.oppgave(eventId = done2.eventId, fodselsnummer = fodselsnummer, systembruker = systembruker)
+            OppgaveTestData.oppgave(
+                systembruker = systembruker,
+                fodselsnummer = fodselsnummer,
+                eventId = done2.eventId,
+                fristUtløpt = null
+            )
         runBlocking {
             database.dbQuery { createDoneEvent(done2) }
             database.dbQuery { createOppgave(oppgaveWithExistingDoneEvent) }

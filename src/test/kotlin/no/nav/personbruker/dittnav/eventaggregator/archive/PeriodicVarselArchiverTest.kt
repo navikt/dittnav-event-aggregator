@@ -23,10 +23,8 @@ import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.getAllOppgave
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.sql.Connection
-import java.time.Duration.ofMillis
 import java.time.Duration.ofMinutes
 
 internal class PeriodicVarselArchiverTest {
@@ -38,8 +36,16 @@ internal class PeriodicVarselArchiverTest {
     private val gammelBeskjed =
         beskjed(eventId = "b1", forstBehandlet = nowTruncatedToMillis().minusDays(11), fristUtløpt = false)
     private val nyBeskjed = beskjed(eventId = "b2", forstBehandlet = nowTruncatedToMillis().minusDays(9))
-    private val gammelOppgave = oppgave(eventId = "o1", forstBehandlet = nowTruncatedToMillis().minusDays(11))
-    private val nyOppgave = oppgave(eventId = "o2", forstBehandlet = nowTruncatedToMillis().minusDays(9))
+    private val gammelOppgave = oppgave(
+        forstBehandlet = nowTruncatedToMillis().minusDays(11),
+        eventId = "o1",
+        fristUtløpt = null
+    )
+    private val nyOppgave = oppgave(
+        forstBehandlet = nowTruncatedToMillis().minusDays(9),
+        eventId = "o2",
+        fristUtløpt = null
+    )
     private val gammelInnboks = innboks(eventId = "i1", forstBehandlet = nowTruncatedToMillis().minusDays(11))
     private val nyInnboks = innboks(eventId = "i2", forstBehandlet = nowTruncatedToMillis().minusDays(9))
 
@@ -65,7 +71,7 @@ internal class PeriodicVarselArchiverTest {
                 createBeskjed(beskjed())
                 createOppgave(gammelOppgave)
                 createOppgave(nyOppgave)
-                createOppgave(oppgave())
+                createOppgave(oppgave(fristUtløpt = null))
                 createInnboks(gammelInnboks)
                 createInnboks(nyInnboks)
                 createInnboks(innboks())

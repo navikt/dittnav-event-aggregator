@@ -24,7 +24,8 @@ object OppgaveTestData {
         prefererteKanaler: List<String> = emptyList(),
         smsVarslingstekst: String = "smsVarslingstekst",
         epostVarslingstekst: String = "epostVarslingstekst",
-        epostVarslingstittel: String = "epostVarslingstittel"
+        epostVarslingstittel: String = "epostVarslingstittel",
+        fristUtløpt: Boolean?
     ) = Oppgave(
         systembruker = systembruker,
         namespace = namespace,
@@ -45,6 +46,6 @@ object OppgaveTestData {
         smsVarslingstekst = smsVarslingstekst,
         epostVarslingstekst = epostVarslingstekst,
         epostVarslingstittel = epostVarslingstittel,
-        fristUtløpt = null
+        fristUtløpt = fristUtløpt
     )
 }

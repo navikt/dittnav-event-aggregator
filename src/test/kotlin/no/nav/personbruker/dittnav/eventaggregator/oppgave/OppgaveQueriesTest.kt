@@ -3,10 +3,6 @@ package no.nav.personbruker.dittnav.eventaggregator.oppgave
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveTestData
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.getOppgaveByEventId
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.setExpiredOppgaveAsInactive
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import org.junit.jupiter.api.Test
@@ -17,7 +13,7 @@ class OppgaveQueriesTest {
 
     @Test
     fun `Skal haandtere at prefererteKanaler er tom`() {
-        val oppgave = OppgaveTestData.oppgave(aktiv = true, prefererteKanaler = emptyList())
+        val oppgave = OppgaveTestData.oppgave(aktiv = true, prefererteKanaler = emptyList(), fristUtløpt = null)
         runBlocking {
             database.dbQuery { createOppgave(oppgave) }
             val result = database.dbQuery { getOppgaveByEventId(oppgave.eventId) }
@@ -28,7 +24,10 @@ class OppgaveQueriesTest {
     @Test
     fun `Finner utgåtte oppgaver`() {
         runBlocking {
-            val expiredOppgave = OppgaveTestData.oppgave(synligFremTil = LocalDateTimeTestHelper.nowTruncatedToMillis().minusDays(1))
+            val expiredOppgave = OppgaveTestData.oppgave(
+                synligFremTil = LocalDateTimeTestHelper.nowTruncatedToMillis().minusDays(1),
+                fristUtløpt = null
+            )
             database.dbQuery { createOppgave(expiredOppgave) }
 
             val numberUpdated = database.dbQuery {
