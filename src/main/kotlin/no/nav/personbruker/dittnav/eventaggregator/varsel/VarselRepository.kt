@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.varsel
 
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.setBeskjedInaktiv
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.setBeskjederAktivflagg
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.common.database.list
@@ -37,7 +38,7 @@ class VarselRepository(private val database: Database) {
 
     suspend fun inaktiverBeskjed(done: Done) {
         database.queryWithExceptionTranslation {
-            setBeskjederAktivflagg(listOf(done), false)
+            setBeskjedInaktiv(done.eventId,done.fodselsnummer)
         }
     }
 

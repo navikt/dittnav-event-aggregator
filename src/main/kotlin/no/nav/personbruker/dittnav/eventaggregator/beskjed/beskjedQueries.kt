@@ -53,13 +53,16 @@ fun Connection.setBeskjederAktivflagg(doneEvents: List<Done>, aktiv: Boolean) {
 
 fun Connection.setBeskjedInaktiv(eventId: String, fnr: String): Int {
     requireBeskjedExists(eventId, fnr)
-    return prepareStatement("""UPDATE beskjed SET aktiv = FALSE, sistoppdatert = ? WHERE eventId = ? AND aktiv=TRUE""".trimMargin())
+    return setBeskjedInaktiv(eventId)
+}
+
+fun Connection.setBeskjedInaktiv(eventId: String): Int =
+     prepareStatement("""UPDATE beskjed SET aktiv = FALSE, frist_utløpt= FALSE, sistoppdatert = ? WHERE eventId = ? AND aktiv=TRUE""".trimMargin())
         .use {
             it.setObject(1, nowAtUtc(), Types.TIMESTAMP)
             it.setString(2, eventId)
             it.executeUpdate()
         }
-}
 
 private fun Connection.requireBeskjedExists(eventId: String, fnr: String) {
     prepareStatement("""SELECT * FROM beskjed WHERE eventId=?""".trimMargin())

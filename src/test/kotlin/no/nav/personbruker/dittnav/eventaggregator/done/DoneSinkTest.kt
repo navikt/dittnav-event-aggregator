@@ -10,7 +10,11 @@ import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedSink
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedTestData
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.getBeskjedByEventId
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.setBeskjedInaktiv
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.toBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.list
@@ -62,6 +66,8 @@ class DoneSinkTest {
         aktiveBeskjederFromDb().size shouldBe 0
         aktiveOppgaverFromDb().size shouldBe 0
         aktiveInnboksvarslerFromDb().size shouldBe 0
+        getBeskjedFromDb("11").fristUtløpt shouldBe false
+
 
         verify { varselInaktivertProducer.cancelEksternVarsling("11") }
         verify { varselInaktivertProducer.cancelEksternVarsling("22") }
@@ -82,11 +88,37 @@ class DoneSinkTest {
         doneFromWaitingTable().size shouldBe 0
 
         testRapid.sendTestMessage(doneJson("645"))
+
         testRapid.sendTestMessage(doneJson("645"))
         doneFromWaitingTable().size shouldBe 1
 
         verify { varselInaktivertProducer.cancelEksternVarsling("11") }
         verify(exactly = 0) { varselInaktivertProducer.cancelEksternVarsling("645") }
+    }
+
+    @Test
+    fun `oppdaterer ikke frist_utløpt på duplikat done`(){
+        val testRapid = TestRapid()
+        setupDoneSink(testRapid)
+
+        val firstUtløpt = BeskjedTestData.beskjed(eventId = "22", fristUtløpt = false, aktiv = false)
+        val firstIkkeUtløpt = BeskjedTestData.beskjed(eventId = "23", fristUtløpt = true, aktiv = false)
+        val firstUtløptErNull = BeskjedTestData.beskjed(eventId = "24",fristUtløpt = null, aktiv = false)
+
+        runBlocking {
+            database.dbQuery {
+                createBeskjed(firstUtløpt)
+                createBeskjed(firstIkkeUtløpt)
+                createBeskjed(firstUtløptErNull)
+            }
+        }
+        testRapid.sendTestMessage(doneJson(firstUtløpt.eventId))
+        testRapid.sendTestMessage(doneJson(firstIkkeUtløpt.eventId))
+        testRapid.sendTestMessage(doneJson(firstUtløptErNull.eventId))
+
+        getBeskjedFromDb(firstUtløpt.eventId).fristUtløpt shouldBe true
+        getBeskjedFromDb(firstIkkeUtløpt.eventId).fristUtløpt shouldBe false
+        getBeskjedFromDb(firstUtløpt.eventId).fristUtløpt shouldBe null
     }
 
     @Test
@@ -130,26 +162,30 @@ class DoneSinkTest {
 
     private suspend fun aktiveBeskjederFromDb(): List<Beskjed> {
         return database.dbQuery {
-            this.prepareStatement("select * from beskjed where aktiv = true").executeQuery().list { toBeskjed() }
+            this.prepareStatement("SELECT * FROM beskjed WHERE aktiv = TRUE").executeQuery().list { toBeskjed() }
         }
     }
 
     private suspend fun aktiveOppgaverFromDb(): List<Oppgave> {
         return database.dbQuery {
-            this.prepareStatement("select * from oppgave where aktiv = true").executeQuery().list { toOppgave() }
+            this.prepareStatement("SELECT * FROM oppgave WHERE aktiv = TRUE").executeQuery().list { toOppgave() }
         }
     }
 
     private suspend fun aktiveInnboksvarslerFromDb(): List<Innboks> {
         return database.dbQuery {
-            this.prepareStatement("select * from innboks where aktiv = true").executeQuery().list { toInnboks() }
+            this.prepareStatement("SELECT * FROM innboks WHERE aktiv = TRUE").executeQuery().list { toInnboks() }
         }
     }
 
     private suspend fun doneFromWaitingTable(): List<Done> {
         return database.dbQuery {
-            this.prepareStatement("select * from done").executeQuery().list { toDoneEvent() }
+            this.prepareStatement("SELECT * FROM done").executeQuery().list { toDoneEvent() }
         }
+    }
+
+    private fun getBeskjedFromDb(eventId: String): Beskjed = runBlocking {
+        database.dbQuery { getBeskjedByEventId(eventId) }
     }
 
     private fun doneJson(eventId: String) = """{

@@ -5,7 +5,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.getNullableLo
 import no.nav.personbruker.dittnav.eventaggregator.common.database.getUtcDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.database.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.singleResult
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.toOppgave
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import java.sql.Connection
 import java.sql.ResultSet
 
@@ -57,5 +57,11 @@ fun ResultSet.toBeskjed() = Beskjed(
     aktiv = getBoolean("aktiv"),
     eksternVarsling = getBoolean("eksternVarsling"),
     prefererteKanaler = getListFromSeparatedString("prefererteKanaler", ","),
-    fristUtløpt = getBoolean("frist_utløpt")
+    fristUtløpt = getFristUtløpt()
 )
+
+private fun ResultSet.getFristUtløpt(): Boolean? {
+
+    val result = getBoolean("frist_utløpt")
+    return if (wasNull()) null else result
+}
