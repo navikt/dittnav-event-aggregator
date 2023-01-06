@@ -1,6 +1,5 @@
 package no.nav.personbruker.dittnav.eventaggregator.archive
 
-import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import java.time.LocalDateTime
 
 data class VarselArchiveDTO(

@@ -38,13 +38,13 @@ class VarselRepository(private val database: Database) {
 
     suspend fun inaktiverBeskjed(done: Done) {
         database.queryWithExceptionTranslation {
-            setVarselInaktiv(done.eventId, "beskjed")
+            setVarselInaktiv(done.eventId, VarselType.BESKJED)
         }
     }
 
     suspend fun inaktiverOppgave(done: Done) {
         database.queryWithExceptionTranslation {
-            setVarselInaktiv(done.eventId, "oppgave")
+            setVarselInaktiv(done.eventId, VarselType.OPPGAVE)
         }
     }
 
@@ -70,13 +70,14 @@ fun Connection.getVarsler(eventIds: List<String>): List<VarselIdentifier> =
             }
         }
 
-fun Connection.setVarselInaktiv(eventId: String, tablename: String): Int =
-    prepareStatement("""UPDATE $tablename SET aktiv = FALSE, frist_utløpt= FALSE, sistoppdatert = ? WHERE eventId = ? AND aktiv=TRUE""".trimMargin())
+fun Connection.setVarselInaktiv(eventId: String, varselType: VarselType): Int =
+    prepareStatement("""UPDATE ${VarselTable.fromVarselType(varselType)} SET aktiv = FALSE, frist_utløpt= FALSE, sistoppdatert = ? WHERE eventId = ? AND aktiv=TRUE""".trimMargin())
         .use {
             it.setObject(1, LocalDateTimeHelper.nowAtUtc(), Types.TIMESTAMP)
             it.setString(2, eventId)
             it.executeUpdate()
         }
+
 private fun ResultSet.toVarsel(): VarselIdentifier {
     return VarselIdentifier(
         eventId = getString("eventId"),

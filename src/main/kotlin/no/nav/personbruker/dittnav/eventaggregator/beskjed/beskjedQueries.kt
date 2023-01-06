@@ -6,6 +6,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.executeBatchU
 import no.nav.personbruker.dittnav.eventaggregator.common.database.executePersistQuery
 import no.nav.personbruker.dittnav.eventaggregator.common.database.list
 import no.nav.personbruker.dittnav.eventaggregator.done.Done
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import no.nav.personbruker.dittnav.eventaggregator.varsel.setVarselInaktiv
 import java.sql.Connection
 import java.sql.PreparedStatement
@@ -54,7 +55,7 @@ fun Connection.setBeskjederAktivflagg(doneEvents: List<Done>, aktiv: Boolean) {
 
 fun Connection.setBeskjedInaktiv(eventId: String, fnr: String): Int {
     requireBeskjedExists(eventId, fnr)
-    return setVarselInaktiv(eventId, "beskjed")
+    return setVarselInaktiv(eventId, VarselType.BESKJED)
 }
 
 private fun Connection.requireBeskjedExists(eventId: String, fnr: String) {

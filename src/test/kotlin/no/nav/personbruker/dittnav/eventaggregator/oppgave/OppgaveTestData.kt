@@ -25,7 +25,7 @@ object OppgaveTestData {
         smsVarslingstekst: String = "smsVarslingstekst",
         epostVarslingstekst: String = "epostVarslingstekst",
         epostVarslingstittel: String = "epostVarslingstittel",
-        fristUtløpt: Boolean?
+        fristUtløpt: Boolean? = null
     ) = Oppgave(
         systembruker = systembruker,
         namespace = namespace,

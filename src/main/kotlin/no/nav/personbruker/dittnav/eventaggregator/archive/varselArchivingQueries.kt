@@ -6,27 +6,13 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.getUtcDateTim
 import no.nav.personbruker.dittnav.eventaggregator.common.database.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.toVarcharArray
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusEnum.FERDIGSTILT
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselTable
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
 import java.time.LocalDateTime
-
-internal enum class VarselTable {
-    beskjed, oppgave, innboks;
-
-    companion object {
-        fun fromVarselType(varselType: VarselType): VarselTable {
-            return when (varselType) {
-                VarselType.OPPGAVE -> oppgave
-                VarselType.BESKJED -> beskjed
-                VarselType.INNBOKS -> innboks
-            }
-        }
-    }
-}
-
 
 private fun deleteVarselQuery(varselTable: VarselTable) = """
     DELETE FROM ${varselTable.name} WHERE eventId = ANY(?)
