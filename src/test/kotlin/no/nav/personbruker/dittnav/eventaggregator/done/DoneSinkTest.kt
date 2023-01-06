@@ -101,8 +101,8 @@ class DoneSinkTest {
         val testRapid = TestRapid()
         setupDoneSink(testRapid)
 
-        val firstUtløpt = BeskjedTestData.beskjed(eventId = "22", fristUtløpt = false, aktiv = false)
-        val firstIkkeUtløpt = BeskjedTestData.beskjed(eventId = "23", fristUtløpt = true, aktiv = false)
+        val firstUtløpt = BeskjedTestData.beskjed(eventId = "22", fristUtløpt = true, aktiv = false)
+        val firstIkkeUtløpt = BeskjedTestData.beskjed(eventId = "23", fristUtløpt = false, aktiv = false)
         val firstUtløptErNull = BeskjedTestData.beskjed(eventId = "24",fristUtløpt = null, aktiv = false)
 
         runBlocking {
@@ -118,7 +118,7 @@ class DoneSinkTest {
 
         getBeskjedFromDb(firstUtløpt.eventId).fristUtløpt shouldBe true
         getBeskjedFromDb(firstIkkeUtløpt.eventId).fristUtløpt shouldBe false
-        getBeskjedFromDb(firstUtløpt.eventId).fristUtløpt shouldBe null
+        getBeskjedFromDb(firstUtløptErNull.eventId).fristUtløpt shouldBe null
     }
 
     @Test

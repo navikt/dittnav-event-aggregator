@@ -38,7 +38,7 @@ class VarselRepository(private val database: Database) {
 
     suspend fun inaktiverBeskjed(done: Done) {
         database.queryWithExceptionTranslation {
-            setBeskjedInaktiv(done.eventId,done.fodselsnummer)
+            setBeskjedInaktiv(done.eventId)
         }
     }
 
