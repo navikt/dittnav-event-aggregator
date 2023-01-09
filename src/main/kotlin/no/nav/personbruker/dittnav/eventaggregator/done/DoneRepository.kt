@@ -17,7 +17,7 @@ class DoneRepository(private val database: Database) {
         }
     }
 
-    suspend fun writeDoneEventsForInnboksToCache(doneEvents: List<Done>) {
+    suspend fun updateInnboksTable(doneEvents: List<Done>) {
         if (doneEvents.isEmpty()) {
             return
         }
@@ -26,7 +26,7 @@ class DoneRepository(private val database: Database) {
         }
     }
 
-    suspend fun fetchBrukernotifikasjonerFromViewForEventIds(eventIds: List<String>): List<Brukernotifikasjon> {
+    suspend fun fetchVarslerFromViewForEventIds(eventIds: List<String>): List<Brukernotifikasjon> {
         var resultat = emptyList<Brukernotifikasjon>()
         database.queryWithExceptionTranslation {
             resultat = getBrukernotifikasjonFromViewForEventIds(eventIds)

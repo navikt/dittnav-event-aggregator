@@ -1,7 +1,8 @@
-package no.nav.personbruker.dittnav.eventaggregator.done
+package no.nav.personbruker.dittnav.eventaggregator.done.jobs
 
 import no.nav.personbruker.dittnav.eventaggregator.common.Brukernotifikasjon
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
+import no.nav.personbruker.dittnav.eventaggregator.done.Done
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -22,7 +23,7 @@ class DoneBatchProcessor(private val existingEntitiesInDatabase: List<Brukernoti
                 existingEntity.isRepresentsSameEventAs(entityToLookFor)
             }
             if (foundMatchingEntity != null) {
-                groupEventsByType(foundMatchingEntity, entityToLookFor)
+                groupVarslerByType(foundMatchingEntity, entityToLookFor)
 
             } else {
                 notFoundEvents.add(entityToLookFor)
@@ -30,7 +31,7 @@ class DoneBatchProcessor(private val existingEntitiesInDatabase: List<Brukernoti
         }
     }
 
-    private fun groupEventsByType(matchingEntityInTheCache: Brukernotifikasjon, matchedDoneEntity: Done) {
+    private fun groupVarslerByType(matchingEntityInTheCache: Brukernotifikasjon, matchedDoneEntity: Done) {
         allFoundEvents.add(matchedDoneEntity)
         when (matchingEntityInTheCache.type) {
             EventType.OPPGAVE_INTERN -> {

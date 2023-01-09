@@ -4,7 +4,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.no
 import no.nav.personbruker.dittnav.eventaggregator.common.PeriodicJob
 import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import no.nav.personbruker.dittnav.eventaggregator.done.PeriodicDoneEventWaitingTableProcessor
+import no.nav.personbruker.dittnav.eventaggregator.done.jobs.PeriodicDoneEventWaitingTableProcessor
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
