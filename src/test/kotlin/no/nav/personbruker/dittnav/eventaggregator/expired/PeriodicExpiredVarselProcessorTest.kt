@@ -6,20 +6,26 @@ import io.mockk.clearMocks
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedTestData
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.getAllBeskjedByAktiv
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.toBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
+import no.nav.personbruker.dittnav.eventaggregator.common.database.list
 import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertProducer
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveTestData
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.getAllOppgaveByAktiv
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.toOppgave
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.sql.Connection
 
 internal class PeriodicExpiredVarselProcessorTest {
     private val database = LocalPostgresDatabase.migratedDb()
@@ -27,13 +33,24 @@ internal class PeriodicExpiredVarselProcessorTest {
     private val varselInaktivertProducer = mockk<VarselInaktivertProducer>(relaxed = true)
 
     private val expiredVarselRepository = ExpiredVarselRepository(database)
-    private val expiredVarselProcessor = PeriodicExpiredVarselProcessor(expiredVarselRepository, varselInaktivertProducer)
+    private val expiredVarselProcessor =
+        PeriodicExpiredVarselProcessor(expiredVarselRepository, varselInaktivertProducer)
 
     private val pastDate = nowTruncatedToMillis().minusDays(7)
     private val futureDate = nowTruncatedToMillis().plusDays(7)
 
-    private val activeOppgave = OppgaveTestData.oppgave(eventId = "o1", aktiv = true, synligFremTil = futureDate)
-    private val expiredOppgave = OppgaveTestData.oppgave(eventId = "o2", aktiv = true, synligFremTil = pastDate)
+    private val activeOppgave = OppgaveTestData.oppgave(
+        synligFremTil = futureDate,
+        eventId = "o1",
+        aktiv = true,
+        fristUtløpt = null
+    )
+    private val expiredOppgave = OppgaveTestData.oppgave(
+        synligFremTil = pastDate,
+        eventId = "o2",
+        aktiv = true,
+        fristUtløpt = null
+    )
 
     private val activeBeskjed = BeskjedTestData.beskjed(eventId = "b1", aktiv = true, synligFremTil = futureDate)
     private val expiredBeskjed = BeskjedTestData.beskjed(eventId = "b2", aktiv = true, synligFremTil = pastDate)
@@ -77,6 +94,11 @@ internal class PeriodicExpiredVarselProcessorTest {
         updatedBeskjed.sistOppdatert shouldNotBe expiredBeskjed.sistOppdatert
         updatedBeskjed.aktiv shouldBe false
 
+        database.dbQuery { getAllBeskjedByFristUtløpt() }.apply {
+            size shouldBe 1
+            first().eventId shouldBe expiredBeskjed.eventId
+        }
+
         verify(exactly = 1) { varselInaktivertProducer.cancelEksternVarsling(expiredBeskjed.eventId) }
     }
 
@@ -100,6 +122,28 @@ internal class PeriodicExpiredVarselProcessorTest {
         updatedOppgave.sistOppdatert shouldNotBe expiredOppgave.sistOppdatert
         updatedOppgave.aktiv shouldBe false
 
+        database.dbQuery { getAllOppgaveByFristUtløpt() }.apply {
+            size shouldBe 1
+            first().eventId shouldBe expiredOppgave.eventId
+        }
+
         verify(exactly = 1) { varselInaktivertProducer.cancelEksternVarsling(expiredOppgave.eventId) }
     }
 }
+
+fun Connection.getAllBeskjedByFristUtløpt(): List<Beskjed> =
+    prepareStatement("""SELECT * FROM beskjed WHERE frist_utløpt = TRUE""")
+        .use {
+            it.executeQuery().list {
+                toBeskjed()
+            }
+        }
+
+fun Connection.getAllOppgaveByFristUtløpt(): List<Oppgave> =
+    prepareStatement("""SELECT * FROM oppgave WHERE frist_utløpt = TRUE""")
+        .use {
+            it.executeQuery().list {
+                toOppgave()
+            }
+        }
+

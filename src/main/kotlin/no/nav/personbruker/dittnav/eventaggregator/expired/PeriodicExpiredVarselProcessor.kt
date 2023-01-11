@@ -23,7 +23,7 @@ class PeriodicExpiredVarselProcessor(
         try {
             val expiredEventIds =  expiredVarselRepository.updateAllExpiredOppgave()
 
-            if (expiredEventIds.size > 0) {
+            if (expiredEventIds.isNotEmpty()) {
                 expiredEventIds.forEach { varselInaktivertProducer.cancelEksternVarsling(it) }
                 log.info("Prosesserte ${expiredEventIds.size} utgåtte oppgaver.")
             } else {
@@ -38,7 +38,7 @@ class PeriodicExpiredVarselProcessor(
         try {
             val expiredEventIds = expiredVarselRepository.updateAllExpiredBeskjed()
 
-            if (expiredEventIds.size > 0) {
+            if (expiredEventIds.isNotEmpty()) {
                 expiredEventIds.forEach { varselInaktivertProducer.cancelEksternVarsling(it) }
                 log.info("Prosesserte ${expiredEventIds.size} utgåtte beskjeder.")
             } else {

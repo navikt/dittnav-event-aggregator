@@ -48,6 +48,7 @@ class BeskjedQueriesTest {
             numberUpdated.size shouldBe 1
             numberUpdated.first() shouldBe expiredBeskjed.eventId
             updatedBeskjed.aktiv shouldBe false
+            updatedBeskjed.fristUtløpt shouldBe true
         }
     }
 }

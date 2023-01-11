@@ -23,10 +23,8 @@ import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.getAllOppgave
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.sql.Connection
-import java.time.Duration.ofMillis
 import java.time.Duration.ofMinutes
 
 internal class PeriodicVarselArchiverTest {
@@ -35,19 +33,34 @@ internal class PeriodicVarselArchiverTest {
     private val repository = VarselArchivingRepository(database)
     private val probe: ArchiveMetricsProbe = mockk(relaxed = true)
 
-    private val gammelBeskjed = beskjed(eventId = "b1", forstBehandlet = nowTruncatedToMillis().minusDays(11))
+    private val gammelBeskjed =
+        beskjed(eventId = "b1", forstBehandlet = nowTruncatedToMillis().minusDays(11), fristUtløpt = false)
     private val nyBeskjed = beskjed(eventId = "b2", forstBehandlet = nowTruncatedToMillis().minusDays(9))
-    private val gammelOppgave = oppgave(eventId = "o1", forstBehandlet = nowTruncatedToMillis().minusDays(11))
-    private val nyOppgave = oppgave(eventId = "o2", forstBehandlet = nowTruncatedToMillis().minusDays(9))
+    private val gammelOppgave = oppgave(
+        forstBehandlet = nowTruncatedToMillis().minusDays(11),
+        eventId = "o1",
+        fristUtløpt = null
+    )
+    private val nyOppgave = oppgave(
+        forstBehandlet = nowTruncatedToMillis().minusDays(9),
+        eventId = "o2",
+        fristUtløpt = null
+    )
     private val gammelInnboks = innboks(eventId = "i1", forstBehandlet = nowTruncatedToMillis().minusDays(11))
     private val nyInnboks = innboks(eventId = "i2", forstBehandlet = nowTruncatedToMillis().minusDays(9))
 
-    private val eksternVarslingStatusGammelBeskjed = createDoknotifikasjonStatusDto(gammelBeskjed.eventId, status = "FERDIGSTILT", kanaler = listOf("SMS"))
-    private val eksternVarslingStatusNyBeskjed = createDoknotifikasjonStatusDto(nyBeskjed.eventId, status = "FERDIGSTILT", kanaler = listOf("SMS"))
-    private val eksternVarslingStatusGammelOppgave = createDoknotifikasjonStatusDto(gammelOppgave.eventId, status = "FERDIGSTILT", kanaler = listOf("EPOST"))
-    private val eksternVarslingStatusNyOppgave = createDoknotifikasjonStatusDto(nyOppgave.eventId, status = "FERDIGSTILT", kanaler = listOf("EPOST"))
-    private val eksternVarslingStatusGammelInnboks = createDoknotifikasjonStatusDto(gammelInnboks.eventId, status = "FERDIGSTILT", kanaler = listOf("SMS"))
-    private val eksternVarslingStatusNyInnboks = createDoknotifikasjonStatusDto(nyInnboks.eventId, status = "FERDIGSTILT", kanaler = listOf("SMS"))
+    private val eksternVarslingStatusGammelBeskjed =
+        createDoknotifikasjonStatusDto(gammelBeskjed.eventId, status = "FERDIGSTILT", kanaler = listOf("SMS"))
+    private val eksternVarslingStatusNyBeskjed =
+        createDoknotifikasjonStatusDto(nyBeskjed.eventId, status = "FERDIGSTILT", kanaler = listOf("SMS"))
+    private val eksternVarslingStatusGammelOppgave =
+        createDoknotifikasjonStatusDto(gammelOppgave.eventId, status = "FERDIGSTILT", kanaler = listOf("EPOST"))
+    private val eksternVarslingStatusNyOppgave =
+        createDoknotifikasjonStatusDto(nyOppgave.eventId, status = "FERDIGSTILT", kanaler = listOf("EPOST"))
+    private val eksternVarslingStatusGammelInnboks =
+        createDoknotifikasjonStatusDto(gammelInnboks.eventId, status = "FERDIGSTILT", kanaler = listOf("SMS"))
+    private val eksternVarslingStatusNyInnboks =
+        createDoknotifikasjonStatusDto(nyInnboks.eventId, status = "FERDIGSTILT", kanaler = listOf("SMS"))
 
     @BeforeAll
     fun setup() {
@@ -58,7 +71,7 @@ internal class PeriodicVarselArchiverTest {
                 createBeskjed(beskjed())
                 createOppgave(gammelOppgave)
                 createOppgave(nyOppgave)
-                createOppgave(oppgave())
+                createOppgave(oppgave(fristUtløpt = null))
                 createInnboks(gammelInnboks)
                 createInnboks(nyInnboks)
                 createInnboks(innboks())
@@ -85,13 +98,29 @@ internal class PeriodicVarselArchiverTest {
 
     @Test
     fun `arkiverer alle gamle varsler`() = runBlocking {
-        database.dbQuery { getAllArchivedBeskjed() }.size shouldBe 1
+        val arkiverteBeskjeder = database.dbQuery { getAllArchivedBeskjed() }
+        arkiverteBeskjeder.size shouldBe 1
+        arkiverteBeskjeder.first().apply {
+            fristUtløpt shouldBe false
+            eventId shouldBe gammelBeskjed.eventId
+        }
+
         database.dbQuery { getAllBeskjed() }.size shouldBe 2
 
-        database.dbQuery { getAllArchivedOppgave() }.size shouldBe 1
+        val arkiverteOppgaver = database.dbQuery { getAllArchivedOppgave() }
+        arkiverteOppgaver.size shouldBe 1
+        arkiverteOppgaver.first().apply {
+            fristUtløpt shouldBe null
+            eventId shouldBe gammelOppgave.eventId
+        }
         database.dbQuery { getAllOppgave() }.size shouldBe 2
 
-        database.dbQuery { getAllArchivedInnboks() }.size shouldBe 1
+        val arkiverteInnbokser = database.dbQuery { getAllArchivedInnboks() }
+        arkiverteInnbokser.size shouldBe 1
+        arkiverteInnbokser.first().apply {
+            fristUtløpt shouldBe null
+            eventId shouldBe gammelInnboks.eventId
+        }
         database.dbQuery { getAllInnboks() }.size shouldBe 2
 
         database.dbQuery { getAllDoknotifikasjonStatusBeskjed() }.size shouldBe 1
@@ -162,7 +191,7 @@ internal class PeriodicVarselArchiverTest {
     }
 
     private fun Connection.antallVarsler(): Int =
-        prepareStatement("""SELECT count(*) FROM brukernotifikasjon_view""")
+        prepareStatement("""SELECT COUNT(*) FROM brukernotifikasjon_view""")
             .use {
                 it.executeQuery().use { resultSet ->
                     if (resultSet.next()) resultSet.getInt(1) else 0

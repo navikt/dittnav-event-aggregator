@@ -10,13 +10,14 @@ import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.Types
 
-private const val createQuery = """INSERT INTO oppgave (systembruker, eventTidspunkt, forstBehandlet, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn, synligFremTil) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?)"""
+private const val createQuery =
+    """INSERT INTO oppgave (systembruker, eventTidspunkt, forstBehandlet, fodselsnummer, eventId, grupperingsId, tekst, link, sikkerhetsnivaa, sistOppdatert, aktiv, eksternVarsling, prefererteKanaler, namespace, appnavn, synligFremTil, frist_utløpt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?)"""
 
 fun Connection.createOppgave(oppgave: Oppgave): PersistActionResult =
-        executePersistQuery(createQuery) {
-            buildStatementForSingleRow(oppgave)
-            addBatch()
-        }
+    executePersistQuery(createQuery) {
+        buildStatementForSingleRow(oppgave)
+        addBatch()
+    }
 
 private fun PreparedStatement.buildStatementForSingleRow(oppgave: Oppgave) {
     setString(1, oppgave.systembruker)
@@ -35,6 +36,7 @@ private fun PreparedStatement.buildStatementForSingleRow(oppgave: Oppgave) {
     setString(14, oppgave.namespace)
     setString(15, oppgave.appnavn)
     setObject(16, oppgave.synligFremTil, Types.TIMESTAMP)
+    oppgave.fristUtløpt?.let { setBoolean(17, it) } ?: setNull(17, Types.BOOLEAN)
 }
 
 fun Connection.setOppgaverAktivFlag(doneEvents: List<Done>, aktiv: Boolean) {
@@ -49,7 +51,7 @@ fun Connection.setOppgaverAktivFlag(doneEvents: List<Done>, aktiv: Boolean) {
 }
 
 fun Connection.setExpiredOppgaveAsInactive(): List<String> {
-    return prepareStatement("""UPDATE oppgave set aktiv = false, sistoppdatert = ? WHERE aktiv = true AND synligFremTil < ? RETURNING eventId""")
+    return prepareStatement("""UPDATE oppgave SET aktiv = FALSE, sistoppdatert = ?, frist_utløpt = TRUE WHERE aktiv = TRUE AND synligFremTil < ? RETURNING eventId""")
         .use {
             it.setObject(1, nowAtUtc(), Types.TIMESTAMP)
             it.setObject(2, nowAtUtc(), Types.TIMESTAMP)

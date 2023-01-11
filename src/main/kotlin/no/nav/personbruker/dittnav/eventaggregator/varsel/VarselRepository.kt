@@ -2,8 +2,9 @@ package no.nav.personbruker.dittnav.eventaggregator.varsel
 
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.setBeskjederAktivflagg
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
+import no.nav.personbruker.dittnav.eventaggregator.common.database.executeBatchUpdateQuery
 import no.nav.personbruker.dittnav.eventaggregator.common.database.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.toVarcharArray
 import no.nav.personbruker.dittnav.eventaggregator.done.Done
@@ -16,6 +17,7 @@ import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.setOppgaverAktivFlag
 import java.sql.Connection
 import java.sql.ResultSet
+import java.sql.Types
 
 class VarselRepository(private val database: Database) {
 
@@ -35,18 +37,11 @@ class VarselRepository(private val database: Database) {
         createDoneEvent(done)
     }
 
-    suspend fun inaktiverBeskjed(done: Done) {
+    suspend fun inaktiverVarsel(done: Done, varselType: VarselType) {
         database.queryWithExceptionTranslation {
-            setBeskjederAktivflagg(listOf(done), false)
+            setVarselInaktiv(done.eventId, varselType)
         }
     }
-
-    suspend fun inaktiverOppgave(done: Done) {
-        database.queryWithExceptionTranslation {
-            setOppgaverAktivFlag(listOf(done), false)
-        }
-    }
-
     suspend fun inaktiverInnboks(done: Done) {
         database.queryWithExceptionTranslation {
             setInnboksEventerAktivFlag(listOf(done), false)
@@ -58,22 +53,4 @@ class VarselRepository(private val database: Database) {
             getVarsler(listOf(eventId))
         }
     }
-}
-
-fun Connection.getVarsler(eventIds: List<String>): List<VarselIdentifier> =
-    prepareStatement("""SELECT brukernotifikasjon_view.* FROM brukernotifikasjon_view WHERE eventid = ANY(?)""")
-        .use {
-            it.setArray(1, toVarcharArray(eventIds))
-            it.executeQuery().list {
-                toVarsel()
-            }
-        }
-
-private fun ResultSet.toVarsel(): VarselIdentifier {
-    return VarselIdentifier(
-        eventId = getString("eventId"),
-        systembruker = getString("systembruker"),
-        type = VarselType.valueOf(getString("type").uppercase()),
-        fodselsnummer = getString("fodselsnummer")
-    )
 }

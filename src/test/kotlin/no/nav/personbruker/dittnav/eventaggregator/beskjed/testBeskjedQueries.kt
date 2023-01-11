@@ -5,6 +5,8 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.getNullableLo
 import no.nav.personbruker.dittnav.eventaggregator.common.database.getUtcDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.database.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.singleResult
+import no.nav.personbruker.dittnav.eventaggregator.common.getFristUtløpt
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import java.sql.Connection
 import java.sql.ResultSet
 
@@ -15,6 +17,7 @@ fun Connection.getAllBeskjed(): List<Beskjed> =
                 toBeskjed()
             }
         }
+
 
 fun Connection.getAllBeskjedByAktiv(aktiv: Boolean): List<Beskjed> =
     prepareStatement("""SELECT * FROM beskjed WHERE aktiv = ?""")
@@ -35,8 +38,8 @@ fun Connection.getBeskjedByEventId(eventId: String): Beskjed =
         }
 
 fun Connection.deleteAllBeskjed() =
-        prepareStatement("""DELETE FROM BESKJED""")
-                .use {it.execute()}
+    prepareStatement("""DELETE FROM BESKJED""")
+        .use { it.execute() }
 
 fun ResultSet.toBeskjed() = Beskjed(
     systembruker = getString("systembruker"),
@@ -54,5 +57,6 @@ fun ResultSet.toBeskjed() = Beskjed(
     synligFremTil = getNullableLocalDateTime("synligFremTil"),
     aktiv = getBoolean("aktiv"),
     eksternVarsling = getBoolean("eksternVarsling"),
-    prefererteKanaler = getListFromSeparatedString("prefererteKanaler", ",")
+    prefererteKanaler = getListFromSeparatedString("prefererteKanaler", ","),
+    fristUtløpt = getFristUtløpt()
 )

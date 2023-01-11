@@ -16,10 +16,10 @@ import org.junit.jupiter.api.Test
 class BrukernotifikasjonQueriesTest {
 
     private val database = LocalPostgresDatabase.migratedDb()
-    private val aktivOppgave = OppgaveTestData.oppgave()
+    private val aktivOppgave = OppgaveTestData.oppgave(fristUtløpt = null)
     private val aktivBeskjed = BeskjedTestData.beskjed()
     private val aktivInnboks = InnboksTestData.innboks()
-    private val inaktivOppgave = OppgaveTestData.oppgave(aktiv = false)
+    private val inaktivOppgave = OppgaveTestData.oppgave(aktiv = false, fristUtløpt = null)
     private val inaktivBeskjed = BeskjedTestData.beskjed(aktiv = false)
     private val inaktivInnboks = InnboksTestData.innboks(aktiv = false)
 

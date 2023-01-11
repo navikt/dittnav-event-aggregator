@@ -10,7 +10,10 @@ import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedSink
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedTestData
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.getBeskjedByEventId
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.toBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.list
@@ -20,9 +23,11 @@ import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.toInnboks
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveSink
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveTestData
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
+import no.nav.personbruker.dittnav.eventaggregator.oppgave.getOppgaveByEventId
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.toOppgave
-import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselAktivertProducer
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -62,6 +67,9 @@ class DoneSinkTest {
         aktiveBeskjederFromDb().size shouldBe 0
         aktiveOppgaverFromDb().size shouldBe 0
         aktiveInnboksvarslerFromDb().size shouldBe 0
+        getBeskjedFromDb("11").fristUtløpt shouldBe false
+        getOppgaveFromDb("22").fristUtløpt shouldBe false
+
 
         verify { varselInaktivertProducer.cancelEksternVarsling("11") }
         verify { varselInaktivertProducer.cancelEksternVarsling("22") }
@@ -82,12 +90,49 @@ class DoneSinkTest {
         doneFromWaitingTable().size shouldBe 0
 
         testRapid.sendTestMessage(doneJson("645"))
+
         testRapid.sendTestMessage(doneJson("645"))
         doneFromWaitingTable().size shouldBe 1
 
         verify { varselInaktivertProducer.cancelEksternVarsling("11") }
         verify(exactly = 0) { varselInaktivertProducer.cancelEksternVarsling("645") }
     }
+
+    @Test
+    fun `oppdaterer ikke frist_utløpt på duplikat done`(){
+        val testRapid = TestRapid()
+        setupDoneSink(testRapid)
+
+        val fristUtløpt = BeskjedTestData.beskjed(eventId = "22", fristUtløpt = true, aktiv = false)
+        val fristIkkeUtløpt = BeskjedTestData.beskjed(eventId = "23", fristUtløpt = false, aktiv = false)
+        val fristUtløptErNull = BeskjedTestData.beskjed(eventId = "24",fristUtløpt = null, aktiv = false)
+        val fristUtløptErNullOppgave = OppgaveTestData.oppgave(eventId = "27",fristUtløpt = null, aktiv = false)
+        val fristUtløptOppgave = OppgaveTestData.oppgave(eventId = "28",fristUtløpt = true, aktiv = false)
+
+        runBlocking {
+            database.dbQuery {
+                createBeskjed(fristUtløpt)
+                createBeskjed(fristIkkeUtløpt)
+                createBeskjed(fristUtløptErNull)
+                createOppgave(fristUtløptErNullOppgave)
+                createOppgave(fristUtløptOppgave)
+            }
+        }
+        testRapid.sendTestMessage(doneJson(fristUtløpt.eventId))
+        testRapid.sendTestMessage(doneJson(fristIkkeUtløpt.eventId))
+        testRapid.sendTestMessage(doneJson(fristUtløptErNull.eventId))
+
+        getBeskjedFromDb(fristUtløpt.eventId).fristUtløpt shouldBe true
+        getBeskjedFromDb(fristIkkeUtløpt.eventId).fristUtløpt shouldBe false
+        getBeskjedFromDb(fristUtløptErNull.eventId).fristUtløpt shouldBe null
+
+        testRapid.sendTestMessage(doneJson(fristUtløptErNullOppgave.eventId))
+        testRapid.sendTestMessage(doneJson(fristUtløptOppgave.eventId))
+
+        getOppgaveFromDb(fristUtløptOppgave.eventId).fristUtløpt shouldBe true
+        getOppgaveFromDb(fristUtløptErNullOppgave.eventId).fristUtløpt shouldBe null
+    }
+
 
     @Test
     fun `Legger done-eventet i ventetabell hvis det kommer før varslet`() = runBlocking {
@@ -130,26 +175,34 @@ class DoneSinkTest {
 
     private suspend fun aktiveBeskjederFromDb(): List<Beskjed> {
         return database.dbQuery {
-            this.prepareStatement("select * from beskjed where aktiv = true").executeQuery().list { toBeskjed() }
+            this.prepareStatement("SELECT * FROM beskjed WHERE aktiv = TRUE").executeQuery().list { toBeskjed() }
         }
     }
 
     private suspend fun aktiveOppgaverFromDb(): List<Oppgave> {
         return database.dbQuery {
-            this.prepareStatement("select * from oppgave where aktiv = true").executeQuery().list { toOppgave() }
+            this.prepareStatement("SELECT * FROM oppgave WHERE aktiv = TRUE").executeQuery().list { toOppgave() }
         }
     }
 
     private suspend fun aktiveInnboksvarslerFromDb(): List<Innboks> {
         return database.dbQuery {
-            this.prepareStatement("select * from innboks where aktiv = true").executeQuery().list { toInnboks() }
+            this.prepareStatement("SELECT * FROM innboks WHERE aktiv = TRUE").executeQuery().list { toInnboks() }
         }
     }
 
     private suspend fun doneFromWaitingTable(): List<Done> {
         return database.dbQuery {
-            this.prepareStatement("select * from done").executeQuery().list { toDoneEvent() }
+            this.prepareStatement("SELECT * FROM done").executeQuery().list { toDoneEvent() }
         }
+    }
+
+    private fun getBeskjedFromDb(eventId: String): Beskjed = runBlocking {
+        database.dbQuery { getBeskjedByEventId(eventId) }
+    }
+
+    private fun getOppgaveFromDb(eventId: String): Oppgave = runBlocking {
+        database.dbQuery { getOppgaveByEventId( eventId) }
     }
 
     private fun doneJson(eventId: String) = """{

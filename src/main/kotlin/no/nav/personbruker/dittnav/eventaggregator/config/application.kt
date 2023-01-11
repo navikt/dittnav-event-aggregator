@@ -13,6 +13,7 @@ import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarsli
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingStatusUpdater
 import no.nav.personbruker.dittnav.eventaggregator.done.*
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneSink
+import no.nav.personbruker.dittnav.eventaggregator.done.jobs.PeriodicDoneEventWaitingTableProcessor
 import no.nav.personbruker.dittnav.eventaggregator.expired.ExpiredVarselRepository
 import no.nav.personbruker.dittnav.eventaggregator.expired.PeriodicExpiredVarselProcessor
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksSink
@@ -55,8 +56,7 @@ private fun startRapid(environment: Environment, database: Database, appContext:
 
     val dbMetricsProbe = buildDBMetricsProbe(environment)
     val doneRepository = DoneRepository(database)
-    val donePersistingService = DonePersistingService(doneRepository)
-    val periodicDoneEventWaitingTableProcessor = PeriodicDoneEventWaitingTableProcessor(donePersistingService, varselInaktivertProducer, dbMetricsProbe)
+    val periodicDoneEventWaitingTableProcessor = PeriodicDoneEventWaitingTableProcessor(doneRepository, varselInaktivertProducer, dbMetricsProbe)
 
     val expiredVarselRepository = ExpiredVarselRepository(database)
     val periodicExpiredVarselProcessor = PeriodicExpiredVarselProcessor(expiredVarselRepository, varselInaktivertProducer)

@@ -1,33 +1,23 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
-import no.nav.personbruker.dittnav.eventaggregator.beskjed.setBeskjederAktivflagg
 import no.nav.personbruker.dittnav.eventaggregator.common.Brukernotifikasjon
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.innboks.setInnboksEventerAktivFlag
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.setOppgaverAktivFlag
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
+import no.nav.personbruker.dittnav.eventaggregator.varsel.setVarslerInaktiv
 import java.time.LocalDateTime
 
 class DoneRepository(private val database: Database) {
 
-    suspend fun writeDoneEventsForBeskjedToCache(doneEvents: List<Done>) {
-        if (doneEvents.isEmpty()) {
-            return
-        }
-        database.queryWithExceptionTranslation {
-            setBeskjederAktivflagg(doneEvents, false)
-        }
-    }
-
-    suspend fun writeDoneEventsForOppgaveToCache(doneEvents: List<Done>) {
-        if (doneEvents.isEmpty()) {
-            return
-        }
-        database.queryWithExceptionTranslation {
-            setOppgaverAktivFlag(doneEvents, false)
+    suspend fun updateVarselTables(doneEvents: List<Done>, varselType: VarselType) {
+        if (doneEvents.isNotEmpty()) {
+            database.queryWithExceptionTranslation {
+                setVarslerInaktiv(doneEvents, varselType)
+            }
         }
     }
 
-    suspend fun writeDoneEventsForInnboksToCache(doneEvents: List<Done>) {
+    suspend fun updateInnboksTable(doneEvents: List<Done>) {
         if (doneEvents.isEmpty()) {
             return
         }
@@ -36,7 +26,7 @@ class DoneRepository(private val database: Database) {
         }
     }
 
-    suspend fun fetchBrukernotifikasjonerFromViewForEventIds(eventIds: List<String>): List<Brukernotifikasjon> {
+    suspend fun fetchVarslerFromViewForEventIds(eventIds: List<String>): List<Brukernotifikasjon> {
         var resultat = emptyList<Brukernotifikasjon>()
         database.queryWithExceptionTranslation {
             resultat = getBrukernotifikasjonFromViewForEventIds(eventIds)

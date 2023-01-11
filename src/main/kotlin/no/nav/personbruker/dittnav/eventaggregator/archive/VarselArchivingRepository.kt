@@ -6,20 +6,20 @@ import java.time.LocalDateTime
 
 class VarselArchivingRepository(private val database: Database) {
 
-    suspend fun archiveOldVarsler(varselType: VarselType, dateThreshold: LocalDateTime): List<BrukernotifikasjonArchiveDTO> {
-        val archivableBeskjeder = database.queryWithExceptionTranslation {
+    suspend fun archiveOldVarsler(varselType: VarselType, dateThreshold: LocalDateTime): List<VarselArchiveDTO> {
+        val archivableVarsler = database.queryWithExceptionTranslation {
             getArchivableVarsler(varselType, dateThreshold)
         }
-        if(archivableBeskjeder.isEmpty()) return emptyList()
+        if(archivableVarsler.isEmpty()) return emptyList()
 
-        val eventIds = archivableBeskjeder.map { it.eventId }
+        val eventIds = archivableVarsler.map { it.eventId }
 
         database.queryWithExceptionTranslation {
-            createArchivedVarsler(varselType, archivableBeskjeder)
+            createArchivedVarsler(varselType, archivableVarsler)
             deleteDoknotifikasjonStatus(varselType, eventIds)
             deleteVarsler(varselType, eventIds)
         }
 
-        return archivableBeskjeder
+        return archivableVarsler
     }
 }

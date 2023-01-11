@@ -18,6 +18,7 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedTestData
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
+import no.nav.personbruker.dittnav.eventaggregator.beskjed.getBeskjedByEventId
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.tms.token.support.authentication.installer.mock.installMockedAuthenticators
 import no.nav.tms.token.support.tokenx.validation.mock.SecurityLevel
@@ -94,6 +95,12 @@ class DoneApiTest {
             client.doneRequest(
                 body = """{"eventId": "${aktivBeskjed.eventId}"}"""
             ).status shouldBe HttpStatusCode.OK
+        }
+
+        runBlocking {
+            database.dbQuery {
+                getBeskjedByEventId(aktivBeskjed.eventId)
+            }.fristUtløpt shouldBe false
         }
 
         mockProducer.history().size shouldBe 2

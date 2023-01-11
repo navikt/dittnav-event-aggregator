@@ -12,6 +12,7 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedTestData
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.getBeskjedByEventId
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
+import no.nav.personbruker.dittnav.eventaggregator.done.jobs.PeriodicDoneEventWaitingTableProcessor
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksTestData
 import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.getInnboksByEventId
@@ -27,11 +28,10 @@ class PeriodicDoneEventWaitingTableProcessorTest {
 
     private val database = LocalPostgresDatabase.migratedDb()
     private val doneRepository = DoneRepository(database)
-    private val donePersistingService = DonePersistingService(doneRepository)
     private val dbMetricsProbe = mockk<DBMetricsProbe>(relaxed = true)
     private val metricsSession = mockk<DBMetricsSession>(relaxed = true)
     private val varselInaktivertProducer = mockk<VarselInaktivertProducer>(relaxed = true)
-    private val eventConsumer = PeriodicDoneEventWaitingTableProcessor(donePersistingService, varselInaktivertProducer, dbMetricsProbe)
+    private val eventConsumer = PeriodicDoneEventWaitingTableProcessor(doneRepository, varselInaktivertProducer, dbMetricsProbe)
 
     private val systembruker = "dummySystembruker"
     private val fodselsnummer = "12345"
@@ -61,7 +61,12 @@ class PeriodicDoneEventWaitingTableProcessorTest {
     @Test
     fun `setter Oppgave-event inaktivt hvis Done-event med samme eventId tidligere er mottatt`() {
         val oppgaveWithExistingDoneEvent =
-            OppgaveTestData.oppgave(eventId = done2.eventId, fodselsnummer = fodselsnummer, systembruker = systembruker)
+            OppgaveTestData.oppgave(
+                systembruker = systembruker,
+                fodselsnummer = fodselsnummer,
+                eventId = done2.eventId,
+                fristUtløpt = null
+            )
         runBlocking {
             database.dbQuery { createDoneEvent(done2) }
             database.dbQuery { createOppgave(oppgaveWithExistingDoneEvent) }
@@ -73,7 +78,7 @@ class PeriodicDoneEventWaitingTableProcessorTest {
 
     @Test
     fun `setter Innboks-event inaktivt hvis Done-event med samme eventId tidligere er mottatt`() {
-        val eventConsumer = PeriodicDoneEventWaitingTableProcessor(donePersistingService, varselInaktivertProducer, dbMetricsProbe)
+        val eventConsumer = PeriodicDoneEventWaitingTableProcessor(doneRepository, varselInaktivertProducer, dbMetricsProbe)
         val innboksWithExistingDone = InnboksTestData.innboks(eventId = done3.eventId, fodselsnummer = fodselsnummer)
         runBlocking {
             database.dbQuery { createDoneEvent(done3) }

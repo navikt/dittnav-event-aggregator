@@ -1,0 +1,10 @@
+ALTER TABLE beskjed
+    ADD COLUMN frist_utløpt BOOLEAN DEFAULT NULL;
+ALTER TABLE beskjed_arkiv
+    ADD COLUMN frist_utløpt BOOLEAN DEFAULT NULL;
+
+ALTER TABLE oppgave
+    ADD COLUMN frist_utløpt BOOLEAN DEFAULT NULL;
+ALTER TABLE oppgave_arkiv
+    ADD COLUMN frist_utløpt BOOLEAN DEFAULT NULL;
+
