@@ -2,16 +2,16 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
-import no.nav.personbruker.dittnav.eventaggregator.common.Brukernotifikasjon
-import no.nav.personbruker.dittnav.eventaggregator.common.brukernotifikasjon.BrukernotifikasjonObjectMother
 import no.nav.personbruker.dittnav.eventaggregator.done.jobs.DoneBatchProcessor
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselHeader
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselHeaderObjectMother
 import org.junit.jupiter.api.Test
 
 internal class DoneBatchProcessorTest {
 
     @Test
     fun `skal gruppere done-eventer etter hvilken event-type de tilhorer ut i fra en liste av brukernotifikasjoner`() {
-        val existingEntitiesInDatabase = BrukernotifikasjonObjectMother.giveMeOneOfEachEventType()
+        val existingEntitiesInDatabase = VarselHeaderObjectMother.giveMeOneOfEachEventType()
         val doneEventsToProcess = existingEntitiesInDatabase.createDoneEventsForEach()
         val doneEventWithoutMatchingBeatification = DoneTestData.done(eventId = "4")
         doneEventsToProcess.add(doneEventWithoutMatchingBeatification)
@@ -42,7 +42,7 @@ internal class DoneBatchProcessorTest {
 
     @Test
     fun `skal haandtere at det ikke ble mottatt eventer`() {
-        val existingEntitiesInDatabase = BrukernotifikasjonObjectMother.giveMeOneOfEachEventType()
+        val existingEntitiesInDatabase = VarselHeaderObjectMother.giveMeOneOfEachEventType()
         val processor = DoneBatchProcessor(existingEntitiesInDatabase)
 
         processor.process(emptyList())
@@ -68,7 +68,7 @@ internal class DoneBatchProcessorTest {
 
     @Test
     fun `skal returnere alle eventer som ble funnet samlet i en liste`() {
-        val existingEntitiesInDatabase = BrukernotifikasjonObjectMother.giveMeOneOfEachEventType()
+        val existingEntitiesInDatabase = VarselHeaderObjectMother.giveMeOneOfEachEventType()
         val doneEventsToProcess = existingEntitiesInDatabase.createDoneEventsForEach()
 
         val processor = DoneBatchProcessor(existingEntitiesInDatabase)
@@ -79,16 +79,7 @@ internal class DoneBatchProcessorTest {
 
 }
 
-private fun  List<Brukernotifikasjon>.createDoneEventsForEach(): MutableList<Done> {
-    val doneEvents = mutableListOf<Done>()
-    forEach { brukernotifikasjon ->
-        val associatedDoneEvent = DoneTestData.done(
-            brukernotifikasjon.eventId,
-            brukernotifikasjon.systembruker,
-            brukernotifikasjon.fodselsnummer
-        )
-        doneEvents.add(associatedDoneEvent)
-    }
-    return doneEvents
+private fun  List<VarselHeader>.createDoneEventsForEach(): MutableList<Done> {
+    return map { DoneTestData.matchingDoneEvent(it) }.toMutableList()
 
 }

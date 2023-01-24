@@ -2,7 +2,11 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import kotlinx.coroutines.runBlocking
+import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.metrics.RapidMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.varsel.HendelseType
+import no.nav.personbruker.dittnav.eventaggregator.varsel.HendelseType.Inaktivert
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselHendelse
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.Logger
@@ -16,20 +20,19 @@ class VarselInaktivertProducer(
     val log: Logger = LoggerFactory.getLogger(Producer::class.java)
     private val objectMapper = jacksonObjectMapper()
 
-    fun cancelEksternVarsling(eventId: String) {
-        sendEvent(eventId, "varselInaktivert")
-        sendEvent(eventId, "inaktivert")
+    fun varselInaktivert(hendelse: VarselHendelse) {
+
+        val objectNode = objectMapper.createObjectNode()
+        objectNode.put("@event_name", Inaktivert.lowerCaseName)
+        objectNode.put("eventId", hendelse.eventId)
+        objectNode.put("varselType", hendelse.varselType.eventType)
+        objectNode.put("appnavn", hendelse.appnavn)
+        val producerRecord = ProducerRecord(topicName, hendelse.eventId, objectNode.toString())
+
+        kafkaProducer.send(producerRecord)
         runBlocking {
             rapidMetricsProbe.countVarselInaktivertProduced()
         }
-    }
-
-    private fun sendEvent(eventId: String, eventName: String) {
-        val objectNode = objectMapper.createObjectNode()
-        objectNode.put("@event_name", eventName)
-        objectNode.put("eventId", eventId)
-        val producerRecord = ProducerRecord(topicName, eventId, objectNode.toString())
-        kafkaProducer.send(producerRecord)
     }
 
     fun flushAndClose() {

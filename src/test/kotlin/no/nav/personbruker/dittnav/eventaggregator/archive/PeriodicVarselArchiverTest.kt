@@ -191,7 +191,7 @@ internal class PeriodicVarselArchiverTest {
     }
 
     private fun Connection.antallVarsler(): Int =
-        prepareStatement("""SELECT COUNT(*) FROM brukernotifikasjon_view""")
+        prepareStatement("""SELECT COUNT(*) FROM varsel_header_view""")
             .use {
                 it.executeQuery().use { resultSet ->
                     if (resultSet.next()) resultSet.getInt(1) else 0

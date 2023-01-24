@@ -1,14 +1,13 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
-import no.nav.personbruker.dittnav.eventaggregator.common.Brukernotifikasjon
-import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper
 import no.nav.personbruker.dittnav.eventaggregator.common.database.PersistActionResult
 import no.nav.personbruker.dittnav.eventaggregator.common.database.executeBatchUpdateQuery
 import no.nav.personbruker.dittnav.eventaggregator.common.database.executePersistQuery
 import no.nav.personbruker.dittnav.eventaggregator.common.database.getUtcDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.database.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.toVarcharArray
-import no.nav.personbruker.dittnav.eventaggregator.config.EventType
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselHeader
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
@@ -67,20 +66,21 @@ fun ResultSet.toDoneEvent(): Done {
     )
 }
 
-fun Connection.getBrukernotifikasjonFromViewForEventIds(eventIds: List<String>): List<Brukernotifikasjon> =
-    prepareStatement("""SELECT brukernotifikasjon_view.* FROM brukernotifikasjon_view WHERE eventid = ANY(?)""")
+fun Connection.getBrukernotifikasjonFromViewForEventIds(eventIds: List<String>): List<VarselHeader> =
+    prepareStatement("""SELECT * FROM varsel_header_view WHERE eventid = ANY(?)""")
         .use {
             it.setArray(1, toVarcharArray(eventIds))
             it.executeQuery().list {
-                toBrukernotifikasjon()
+                toVarselHeader()
             }
         }
 
-private fun ResultSet.toBrukernotifikasjon(): Brukernotifikasjon {
-    return Brukernotifikasjon(
+private fun ResultSet.toVarselHeader(): VarselHeader {
+    return VarselHeader(
         eventId = getString("eventId"),
-        systembruker = getString("systembruker"),
-        type = EventType.valueOf("${getString("type")}_intern".uppercase()),
+        appnavn = getString("appnavn"),
+        namespace = getString("namespace"),
+        type = VarselType.valueOf(getString("type").uppercase()),
         fodselsnummer = getString("fodselsnummer")
     )
 }

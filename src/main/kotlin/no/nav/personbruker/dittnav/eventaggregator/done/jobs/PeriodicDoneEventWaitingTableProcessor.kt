@@ -9,6 +9,8 @@ import no.nav.personbruker.dittnav.eventaggregator.done.Done
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
 import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertProducer
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.varsel.HendelseType.Inaktivert
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselHendelse
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -75,8 +77,10 @@ class PeriodicDoneEventWaitingTableProcessor(
     }
 
     private fun sendVarselInaktivert(groupedDoneEvents: DoneBatchProcessor) {
-        groupedDoneEvents.allFoundEvents.forEach { done ->
-            varselInaktivertProducer.cancelEksternVarsling(done.eventId)
+        groupedDoneEvents.allFoundEventsByType.forEach { (type, done) ->
+            varselInaktivertProducer.varselInaktivert(
+                VarselHendelse(Inaktivert, type.toVarselType(), appnavn = done.appnavn, eventId = done.eventId)
+            )
         }
     }
 }

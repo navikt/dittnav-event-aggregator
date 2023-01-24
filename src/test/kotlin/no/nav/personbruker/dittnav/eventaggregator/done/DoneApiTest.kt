@@ -103,10 +103,10 @@ class DoneApiTest {
             }.fristUtløpt shouldBe false
         }
 
-        mockProducer.history().size shouldBe 2
+        mockProducer.history().size shouldBe 1
         jacksonObjectMapper().readTree(mockProducer.history().first().value()).apply {
             this["eventId"].asText() shouldBe aktivBeskjed.eventId
-            this["@event_name"].asText() shouldBe "varselInaktivert"
+            this["@event_name"].asText() shouldBe "inaktivert"
         }
     }
 

@@ -19,7 +19,6 @@ import io.ktor.server.routing.routing
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedDoesNotBelongToUserException
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.common.database.log
-import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertProducer
 import no.nav.tms.token.support.authentication.installer.installAuthenticators
 import no.nav.tms.token.support.azure.validation.AzureAuthenticator
 import no.nav.tms.token.support.tokenx.validation.user.TokenXUserFactory
@@ -72,8 +71,8 @@ fun Application.doneApi(
                     val fnr = TokenXUserFactory.createTokenXUser(call).ident
                     beskjedRepository.setBeskjedInactive(eventId, fnr).also {
                         when (it) {
-                            0 -> log.info("Forsøk på inaktivere beskjed som allerede er innatkivert med eventid $eventId")
-                            1 -> producer.cancelEksternVarsling(eventId)
+                            null -> log.info("Forsøk på inaktivere beskjed som allerede er inaktivert med eventid $eventId")
+                            else -> producer.varselInaktivert(it)
                         }
                     }
                     call.respond(HttpStatusCode.OK)
@@ -91,8 +90,8 @@ fun Application.doneApi(
                         fnr
                     ).also {
                         when (it) {
-                            0 -> log.warn("Forsøk på inaktivere beskjed som allerede er innatkivert med eventid $eventId")
-                            1 -> producer.cancelEksternVarsling(eventId)
+                            null -> log.warn("Forsøk på inaktivere beskjed som allerede er innatkivert med eventid $eventId")
+                            else -> producer.varselInaktivert(it)
                         }
                     }
                     call.respond(HttpStatusCode.OK)

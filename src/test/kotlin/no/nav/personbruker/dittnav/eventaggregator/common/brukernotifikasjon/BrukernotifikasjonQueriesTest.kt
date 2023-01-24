@@ -11,6 +11,7 @@ import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksTestData
 import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveTestData
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselHeaderObjectMother
 import org.junit.jupiter.api.Test
 
 class BrukernotifikasjonQueriesTest {
@@ -39,9 +40,9 @@ class BrukernotifikasjonQueriesTest {
 
     @Test
     fun `Finner alle aggregerte Brukernotifikasjon-eventer fra databaseview for eventId-er`() {
-        val brukernotifikasjon1 = BrukernotifikasjonObjectMother.giveMeFor(aktivBeskjed)
-        val brukernotifikasjon3 = BrukernotifikasjonObjectMother.giveMeFor(aktivOppgave)
-        val brukernotifikasjon2 = BrukernotifikasjonObjectMother.giveMeFor(aktivInnboks)
+        val brukernotifikasjon1 = VarselHeaderObjectMother.giveMeFor(aktivBeskjed)
+        val brukernotifikasjon3 = VarselHeaderObjectMother.giveMeFor(aktivOppgave)
+        val brukernotifikasjon2 = VarselHeaderObjectMother.giveMeFor(aktivInnboks)
         val aktiveBrukernotifikasjonEventer = listOf(brukernotifikasjon1, brukernotifikasjon2, brukernotifikasjon3)
         val eventIds = aktiveBrukernotifikasjonEventer.map { it.eventId }
         runBlocking {

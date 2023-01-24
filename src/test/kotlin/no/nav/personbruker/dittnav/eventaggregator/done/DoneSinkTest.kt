@@ -28,7 +28,11 @@ import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.getOppgaveByEventId
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.toOppgave
+import no.nav.personbruker.dittnav.eventaggregator.varsel.HendelseType.Inaktivert
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselHendelse
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -71,9 +75,9 @@ class DoneSinkTest {
         getOppgaveFromDb("22").fristUtløpt shouldBe false
 
 
-        verify { varselInaktivertProducer.cancelEksternVarsling("11") }
-        verify { varselInaktivertProducer.cancelEksternVarsling("22") }
-        verify { varselInaktivertProducer.cancelEksternVarsling("33") }
+        verify { varselInaktivertProducer.varselInaktivert(inaktivert(BESKJED, "11")) }
+        verify { varselInaktivertProducer.varselInaktivert(inaktivert(OPPGAVE, "22")) }
+        verify { varselInaktivertProducer.varselInaktivert(inaktivert(INNBOKS, "33")) }
     }
 
     @Test
@@ -94,8 +98,8 @@ class DoneSinkTest {
         testRapid.sendTestMessage(doneJson("645"))
         doneFromWaitingTable().size shouldBe 1
 
-        verify { varselInaktivertProducer.cancelEksternVarsling("11") }
-        verify(exactly = 0) { varselInaktivertProducer.cancelEksternVarsling("645") }
+        verify { varselInaktivertProducer.varselInaktivert(inaktivert(BESKJED, "11")) }
+        verify(exactly = 0) { varselInaktivertProducer.varselInaktivert(not(inaktivert(BESKJED, "11"))) }
     }
 
     @Test
@@ -155,7 +159,7 @@ class DoneSinkTest {
         done.forstBehandlet shouldBe doneJsonNode["forstBehandlet"].asLocalDateTime()
         done.fodselsnummer shouldBe doneJsonNode["fodselsnummer"].textValue()
 
-        verify(exactly = 0) { varselInaktivertProducer.cancelEksternVarsling("999") }
+        verify(exactly = 0) { varselInaktivertProducer.varselInaktivert(inaktivert(BESKJED, "999")) }
     }
 
     private fun setupBeskjedSink(testRapid: TestRapid) = BeskjedSink(
@@ -226,4 +230,6 @@ class DoneSinkTest {
         "eksternVarsling": false,
         "prefererteKanaler": ["Sneglepost", "Brevdue"]
     }""".trimIndent()
+
+    fun inaktivert(type: VarselType, eventId: String) = VarselHendelse(Inaktivert, type, eventId, "app")
 }

@@ -1,8 +1,9 @@
 package no.nav.personbruker.dittnav.eventaggregator.varsel
 
-data class VarselIdentifier(
+data class VarselHeader(
         val eventId: String,
-        val systembruker: String,
         val type: VarselType,
-        val fodselsnummer: String
+        val fodselsnummer: String,
+        val namespace: String,
+        val appnavn: String
 )
