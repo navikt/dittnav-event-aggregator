@@ -2,17 +2,18 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselHendelse
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import no.nav.personbruker.dittnav.eventaggregator.varsel.setVarselInaktiv
 import java.sql.Connection
 
 class BeskjedRepository(val database: Database) {
 
-    fun setBeskjedInactive(eventId: String, fnr: String): Int =
+    fun setBeskjedInactive(eventId: String, fnr: String): VarselHendelse? =
         runBlocking {
             database.dbQuery {
                 requireBeskjedExists(eventId, fnr)
-                return@dbQuery setVarselInaktiv(eventId, VarselType.BESKJED)
+                setVarselInaktiv(eventId, VarselType.BESKJED)
             }
         }
 }

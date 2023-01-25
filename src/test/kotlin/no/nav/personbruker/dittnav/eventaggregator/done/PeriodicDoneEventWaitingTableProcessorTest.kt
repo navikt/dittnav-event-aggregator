@@ -93,16 +93,19 @@ class PeriodicDoneEventWaitingTableProcessorTest {
     fun `fjerner done-eventer fra ventetabellen hvis tilhorende event blir funnet og satt aktivt`() {
         val expectedEventId = "50"
         val expectedFodselsnr = "45678"
-        val expectedSystembruker = "dummySystembruker"
+        val expectedNamespace = "namespace"
+        val expectedAppnavn = "appnavn"
         val doneEvent = DoneTestData.done(
             eventId = expectedEventId,
-            systembruker = expectedSystembruker,
-            fodselsnummer = expectedFodselsnr
+            fodselsnummer = expectedFodselsnr,
+            namespace = expectedNamespace,
+            appnavn = expectedAppnavn
         )
         val associatedBeskjed = BeskjedTestData.beskjed(
             eventId = expectedEventId,
             fodselsnummer = expectedFodselsnr,
-            systembruker = expectedSystembruker
+            namespace = expectedNamespace,
+            appnavn = expectedAppnavn
         )
 
         runBlocking {

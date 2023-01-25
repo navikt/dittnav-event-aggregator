@@ -22,6 +22,10 @@ import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.getAllOppgaveByAktiv
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.toOppgave
+import no.nav.personbruker.dittnav.eventaggregator.varsel.HendelseType
+import no.nav.personbruker.dittnav.eventaggregator.varsel.HendelseType.Inaktivert
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselHendelse
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -99,7 +103,7 @@ internal class PeriodicExpiredVarselProcessorTest {
             first().eventId shouldBe expiredBeskjed.eventId
         }
 
-        verify(exactly = 1) { varselInaktivertProducer.cancelEksternVarsling(expiredBeskjed.eventId) }
+        verify(exactly = 1) { varselInaktivertProducer.varselInaktivert(expiredBeskjed.hendelse(Inaktivert)) }
     }
 
     @Test
@@ -127,9 +131,12 @@ internal class PeriodicExpiredVarselProcessorTest {
             first().eventId shouldBe expiredOppgave.eventId
         }
 
-        verify(exactly = 1) { varselInaktivertProducer.cancelEksternVarsling(expiredOppgave.eventId) }
+        verify(exactly = 1) { varselInaktivertProducer.varselInaktivert(expiredOppgave.hendelse(Inaktivert)) }
     }
 }
+
+private fun Beskjed.hendelse(type: HendelseType) = VarselHendelse(type, VarselType.BESKJED, eventId, appnavn)
+private fun Oppgave.hendelse(type: HendelseType) = VarselHendelse(type, VarselType.OPPGAVE, eventId, appnavn)
 
 fun Connection.getAllBeskjedByFristUtløpt(): List<Beskjed> =
     prepareStatement("""SELECT * FROM beskjed WHERE frist_utløpt = TRUE""")

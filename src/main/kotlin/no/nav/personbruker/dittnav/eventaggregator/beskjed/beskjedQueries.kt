@@ -6,7 +6,11 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.executeBatchU
 import no.nav.personbruker.dittnav.eventaggregator.common.database.executePersistQuery
 import no.nav.personbruker.dittnav.eventaggregator.common.database.list
 import no.nav.personbruker.dittnav.eventaggregator.done.Done
+import no.nav.personbruker.dittnav.eventaggregator.varsel.HendelseType
+import no.nav.personbruker.dittnav.eventaggregator.varsel.HendelseType.Inaktivert
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselHendelse
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType.BESKJED
 import no.nav.personbruker.dittnav.eventaggregator.varsel.setVarselInaktiv
 import java.sql.Connection
 import java.sql.PreparedStatement
@@ -43,13 +47,18 @@ private fun PreparedStatement.setParametersForSingleRow(beskjed: Beskjed) {
 }
 
 
-fun Connection.setExpiredBeskjedAsInactive(): List<String> {
-    return prepareStatement("""UPDATE beskjed SET aktiv = FALSE, sistoppdatert = ?, frist_utløpt = TRUE WHERE aktiv = TRUE AND synligFremTil < ? RETURNING eventId""")
+fun Connection.setExpiredBeskjedAsInactive(): List<VarselHendelse> {
+    return prepareStatement("""UPDATE beskjed SET aktiv = FALSE, sistoppdatert = ?, frist_utløpt = TRUE WHERE aktiv = TRUE AND synligFremTil < ? RETURNING eventId, appnavn""")
         .use {
             it.setObject(1, nowAtUtc(), Types.TIMESTAMP)
             it.setObject(2, nowAtUtc(), Types.TIMESTAMP)
             it.executeQuery().list {
-                getString("eventId")
+                VarselHendelse(
+                    Inaktivert,
+                    BESKJED,
+                    eventId = getString("eventId"),
+                    appnavn = getString("appnavn"),
+                )
             }
         }
 }

@@ -1,8 +1,8 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
-import no.nav.personbruker.dittnav.eventaggregator.common.Brukernotifikasjon
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.innboks.setInnboksEventerAktivFlag
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselHeader
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import no.nav.personbruker.dittnav.eventaggregator.varsel.setVarslerInaktiv
 import java.time.LocalDateTime
@@ -26,12 +26,10 @@ class DoneRepository(private val database: Database) {
         }
     }
 
-    suspend fun fetchVarslerFromViewForEventIds(eventIds: List<String>): List<Brukernotifikasjon> {
-        var resultat = emptyList<Brukernotifikasjon>()
-        database.queryWithExceptionTranslation {
-            resultat = getBrukernotifikasjonFromViewForEventIds(eventIds)
+    suspend fun fetchVarslerFromViewForEventIds(eventIds: List<String>): List<VarselHeader> {
+        return database.queryWithExceptionTranslation {
+            getBrukernotifikasjonFromViewForEventIds(eventIds)
         }
-        return resultat
     }
 
     suspend fun fetchAllDoneEventsWithLimit(): List<Done> {

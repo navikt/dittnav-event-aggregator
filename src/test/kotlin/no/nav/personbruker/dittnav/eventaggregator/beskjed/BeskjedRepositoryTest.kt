@@ -3,6 +3,9 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
+import no.nav.personbruker.dittnav.eventaggregator.varsel.HendelseType.Inaktivert
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselHendelse
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType.BESKJED
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -39,7 +42,8 @@ internal class BeskjedRepositoryTest {
 
     @Test
     fun `inaktiverer aktivt beskjedvarsel`() {
-        beskjedRepository.setBeskjedInactive(aktivBeskjed.eventId, fnr) shouldBe 1
+        val result = beskjedRepository.setBeskjedInactive(aktivBeskjed.eventId, fnr)
+        result shouldBe VarselHendelse(Inaktivert, BESKJED, aktivBeskjed.eventId, aktivBeskjed.appnavn)
         runBlocking {
             database.dbQuery {
                 getAllBeskjedByAktiv(false).apply {
@@ -53,7 +57,7 @@ internal class BeskjedRepositoryTest {
 
     @Test
     fun `gjør ingenting om varselet allerede en innaktivert`() {
-        beskjedRepository.setBeskjedInactive(inaktivBeskjed.eventId, fnr) shouldBe 0
+        beskjedRepository.setBeskjedInactive(inaktivBeskjed.eventId, fnr) shouldBe null
         runBlocking {
             database.dbQuery {
                 getAllBeskjedByAktiv(false).apply {

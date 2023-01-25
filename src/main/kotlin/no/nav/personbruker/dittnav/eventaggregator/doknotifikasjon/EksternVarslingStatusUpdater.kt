@@ -8,17 +8,19 @@ class EksternVarslingStatusUpdater(
 ) {
 
     suspend fun insertOrUpdateStatus(newStatus: DoknotifikasjonStatusDto) {
-        val varsler = varselRepository.getVarsel(newStatus.eventId)
-        if (varsler.isEmpty()) return
+        val varsel = varselRepository.getVarsel(newStatus.eventId)
 
-        val varselType = varsler.first().type
-        val existingStatus = eksternVarslingStatusRepository.getStatusIfExists(newStatus.eventId, varselType)
+        if (varsel == null) {
+            return
+        }
+
+        val existingStatus = eksternVarslingStatusRepository.getStatusIfExists(newStatus.eventId, varsel.type)
 
         val statusToPersist = existingStatus?.let {
             mergeStatuses(it, newStatus)
         } ?: newStatus
 
-        eksternVarslingStatusRepository.updateStatus(statusToPersist, varselType)
+        eksternVarslingStatusRepository.updateStatus(statusToPersist, varsel.type)
     }
 
     private fun mergeStatuses(oldStatus: DoknotifikasjonStatusDto, newStatus: DoknotifikasjonStatusDto): DoknotifikasjonStatusDto {

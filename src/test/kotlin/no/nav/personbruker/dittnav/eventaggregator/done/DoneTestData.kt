@@ -1,14 +1,14 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
-import no.nav.personbruker.dittnav.eventaggregator.common.Brukernotifikasjon
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselHeader
 
 object DoneTestData {
-    fun done(eventId: String, systembruker: String = "dummySystembruker", fodselsnummer: String= "123"): Done {
+    fun done(eventId: String, fodselsnummer: String= "123", namespace: String = "dummyNamespace", appnavn: String = "dummyAppnavn"): Done {
         return Done(
-            systembruker = systembruker,
-            namespace = "dummyNamespace",
-            appnavn = "dummyAppnavn",
+            systembruker = "dummySystembruker",
+            namespace = namespace,
+            appnavn = appnavn,
             eventId = eventId,
             eventTidspunkt = nowTruncatedToMillis(),
             forstBehandlet = nowTruncatedToMillis(),
@@ -18,11 +18,12 @@ object DoneTestData {
         )
     }
 
-    fun matchingDoneEvent(brukernotifikasjonToMatch: Brukernotifikasjon): Done {
+    fun matchingDoneEvent(varsel: VarselHeader): Done {
         return done(
-                brukernotifikasjonToMatch.eventId,
-                brukernotifikasjonToMatch.systembruker,
-                brukernotifikasjonToMatch.fodselsnummer
+            varsel.eventId,
+            varsel.fodselsnummer,
+            varsel.namespace,
+            varsel.appnavn
         )
     }
 

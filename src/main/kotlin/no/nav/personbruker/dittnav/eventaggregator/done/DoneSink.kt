@@ -10,6 +10,8 @@ import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.metrics.RapidMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.varsel.HendelseType.Inaktivert
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselHendelse
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import org.slf4j.Logger
@@ -50,18 +52,20 @@ internal class DoneSink(
         )
 
         runBlocking {
-            val varsler = varselRepository.getVarsel(done.eventId)
+            val varsel = varselRepository.getVarsel(done.eventId)
 
-            if (varsler.isEmpty()) {
+            if (varsel == null) {
                 // lagre i ventetabell hvis ikke varsel finnes
                 varselRepository.persistWaitingDone(done)
             } else {
-                when (varsler.first().type) {
+                when (varsel.type) {
                     VarselType.BESKJED -> varselRepository.inaktiverVarsel(done, VarselType.BESKJED)
                     VarselType.OPPGAVE -> varselRepository.inaktiverVarsel(done, VarselType.OPPGAVE)
                     VarselType.INNBOKS -> varselRepository.inaktiverInnboks(done)
                 }
-                varselInaktivertProducer.cancelEksternVarsling(done.eventId)
+                varselInaktivertProducer.varselInaktivert(
+                    VarselHendelse(Inaktivert, varsel.type, eventId = varsel.eventId, appnavn = varsel.appnavn)
+                )
             }
 
             log.info("Behandlet done fra rapid med eventid ${done.eventId}")

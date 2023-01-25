@@ -21,11 +21,11 @@ class PeriodicExpiredVarselProcessor(
 
     suspend fun updateExpiredOppgave() {
         try {
-            val expiredEventIds =  expiredVarselRepository.updateAllExpiredOppgave()
+            val varselHendelser = expiredVarselRepository.updateAllExpiredOppgave()
 
-            if (expiredEventIds.isNotEmpty()) {
-                expiredEventIds.forEach { varselInaktivertProducer.cancelEksternVarsling(it) }
-                log.info("Prosesserte ${expiredEventIds.size} utgåtte oppgaver.")
+            if (varselHendelser.isNotEmpty()) {
+                varselHendelser.forEach { varselInaktivertProducer.varselInaktivert(it) }
+                log.info("Prosesserte ${varselHendelser.size} utgåtte oppgaver.")
             } else {
                 log.info("Ingen oppgaver har utgått siden forrige sjekk.")
             }
@@ -36,11 +36,11 @@ class PeriodicExpiredVarselProcessor(
 
     suspend fun updateExpiredBeskjed() {
         try {
-            val expiredEventIds = expiredVarselRepository.updateAllExpiredBeskjed()
+            val varselHendelser = expiredVarselRepository.updateAllExpiredBeskjed()
 
-            if (expiredEventIds.isNotEmpty()) {
-                expiredEventIds.forEach { varselInaktivertProducer.cancelEksternVarsling(it) }
-                log.info("Prosesserte ${expiredEventIds.size} utgåtte beskjeder.")
+            if (varselHendelser.isNotEmpty()) {
+                varselHendelser.forEach { varselInaktivertProducer.varselInaktivert(it) }
+                log.info("Prosesserte ${varselHendelser.size} utgåtte beskjeder.")
             } else {
                 log.info("Ingen beskjeder har utgått siden forrige sjekk.")
             }

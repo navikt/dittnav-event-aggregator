@@ -1,50 +1,49 @@
 package no.nav.personbruker.dittnav.eventaggregator.done.jobs
 
-import no.nav.personbruker.dittnav.eventaggregator.common.Brukernotifikasjon
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.done.Done
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselHeader
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType.*
 
-class DoneBatchProcessor(private val existingEntitiesInDatabase: List<Brukernotifikasjon>) {
-
-    private val log: Logger = LoggerFactory.getLogger(DoneBatchProcessor::class.java)
+class DoneBatchProcessor(private val existingEntitiesInDatabase: List<VarselHeader>) {
 
     private val maxPossibleRequiredCapacity = existingEntitiesInDatabase.size
     val foundBeskjed = ArrayList<Done>(maxPossibleRequiredCapacity)
     val foundOppgave = ArrayList<Done>(maxPossibleRequiredCapacity)
     val foundInnboks = ArrayList<Done>(maxPossibleRequiredCapacity)
-    val allFoundEvents = ArrayList<Done>(maxPossibleRequiredCapacity)
     val notFoundEvents = ArrayList<Done>(maxPossibleRequiredCapacity)
+
+    val allFoundEvents: List<Done> get() = foundBeskjed + foundOppgave + foundInnboks
+
+    val allFoundEventsByType: List<Pair<EventType, Done>> get() =
+        foundBeskjed.map { EventType.BESKJED_INTERN to it } +
+        foundOppgave.map { EventType.OPPGAVE_INTERN to it } +
+        foundInnboks.map { EventType.INNBOKS_INTERN to it }
 
     fun process(batchOfEntities: List<Done>) {
         batchOfEntities.forEach { entityToLookFor ->
-            val foundMatchingEntity: Brukernotifikasjon? = existingEntitiesInDatabase.find { existingEntity ->
-                existingEntity.isRepresentsSameEventAs(entityToLookFor)
+            val foundMatchingEntity = existingEntitiesInDatabase.find { existingEntity ->
+                existingEntity.representsSameVarsel(entityToLookFor)
             }
+
             if (foundMatchingEntity != null) {
                 groupVarslerByType(foundMatchingEntity, entityToLookFor)
-
             } else {
                 notFoundEvents.add(entityToLookFor)
             }
         }
     }
 
-    private fun groupVarslerByType(matchingEntityInTheCache: Brukernotifikasjon, matchedDoneEntity: Done) {
-        allFoundEvents.add(matchedDoneEntity)
+    private fun groupVarslerByType(matchingEntityInTheCache: VarselHeader, matchedDoneEntity: Done) {
         when (matchingEntityInTheCache.type) {
-            EventType.OPPGAVE_INTERN -> {
+            OPPGAVE -> {
                 foundOppgave.add(matchedDoneEntity)
             }
-            EventType.BESKJED_INTERN -> {
+            BESKJED -> {
                 foundBeskjed.add(matchedDoneEntity)
             }
-            EventType.INNBOKS_INTERN -> {
+            INNBOKS -> {
                 foundInnboks.add(matchedDoneEntity)
-            }
-            else -> {
-                log.warn("Fant ukjent eventtype ved behandling av done-events: $matchingEntityInTheCache")
             }
         }
     }
@@ -60,5 +59,7 @@ class DoneBatchProcessor(private val existingEntitiesInDatabase: List<Brukernoti
             Det er ${notFoundEvents.size} done-eventer det ikke ble funnet et tilhørende event for nå.
         """.trimIndent()
     }
+
+    private fun VarselHeader.representsSameVarsel(done: Done) = eventId == done.eventId
 
 }

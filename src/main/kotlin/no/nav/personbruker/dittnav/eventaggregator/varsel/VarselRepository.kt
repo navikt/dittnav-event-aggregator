@@ -2,11 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.varsel
 
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
-import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
-import no.nav.personbruker.dittnav.eventaggregator.common.database.executeBatchUpdateQuery
-import no.nav.personbruker.dittnav.eventaggregator.common.database.list
-import no.nav.personbruker.dittnav.eventaggregator.common.database.toVarcharArray
 import no.nav.personbruker.dittnav.eventaggregator.done.Done
 import no.nav.personbruker.dittnav.eventaggregator.done.createDoneEvent
 import no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks
@@ -14,10 +10,6 @@ import no.nav.personbruker.dittnav.eventaggregator.innboks.createInnboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.setInnboksEventerAktivFlag
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
-import no.nav.personbruker.dittnav.eventaggregator.oppgave.setOppgaverAktivFlag
-import java.sql.Connection
-import java.sql.ResultSet
-import java.sql.Types
 
 class VarselRepository(private val database: Database) {
 
@@ -48,9 +40,9 @@ class VarselRepository(private val database: Database) {
         }
     }
 
-    suspend fun getVarsel(eventId: String): List<VarselIdentifier> {
+    suspend fun getVarsel(eventId: String): VarselHeader? {
         return database.queryWithExceptionTranslation {
-            getVarsler(listOf(eventId))
+            getVarsel(eventId)
         }
     }
 }

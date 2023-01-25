@@ -22,7 +22,7 @@ class OppgaveQueriesTest {
     }
 
     @Test
-    fun `Finner utgåtte oppgaver`() {
+    fun `Finner utgåtte oppgaver og setter inaktiv`() {
         runBlocking {
             val expiredOppgave = OppgaveTestData.oppgave(
                 synligFremTil = LocalDateTimeTestHelper.nowTruncatedToMillis().minusDays(1),
@@ -38,10 +38,11 @@ class OppgaveQueriesTest {
                 getOppgaveByEventId(expiredOppgave.eventId)
             }
 
-            numberUpdated.size shouldBe 1
-            numberUpdated.first() shouldBe expiredOppgave.eventId
             updatedOppgave.aktiv shouldBe false
             updatedOppgave.fristUtløpt shouldBe true
+
+            numberUpdated.size shouldBe 1
+            numberUpdated.first().eventId shouldBe expiredOppgave.eventId
         }
     }
 }

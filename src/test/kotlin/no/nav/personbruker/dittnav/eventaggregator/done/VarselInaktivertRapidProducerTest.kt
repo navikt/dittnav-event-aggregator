@@ -3,6 +3,9 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
+import no.nav.personbruker.dittnav.eventaggregator.varsel.HendelseType.Inaktivert
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselHendelse
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType.BESKJED
 import org.apache.kafka.clients.producer.MockProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
@@ -25,28 +28,21 @@ internal class VarselInaktivertRapidProducerTest{
     }
 
     @Test
-    fun `produserer inaktivert og varselInaktivert event`(){
+    fun `produserer inaktivert event`(){
         val expectedEventId = "sghj1654"
-        rapidProducer.cancelEksternVarsling(expectedEventId)
-        mockProducer.history().size shouldBe 2
+        val expectedAppnavn = "appnavn"
+        val hendelse = VarselHendelse(Inaktivert, BESKJED, expectedEventId, expectedAppnavn)
+        rapidProducer.varselInaktivert(hendelse)
+        mockProducer.history().size shouldBe 1
 
-        val legacyEvent = mockProducer.history().find { it.valueToJson()["@event_name"].textValue() == "varselInaktivert" }
-        requireNotNull(legacyEvent)
-        legacyEvent.apply {
+        val event = mockProducer.history().find { it.valueToJson()["@event_name"].textValue() == "inaktivert" }
+        requireNotNull(event)
+        event.apply {
             this.topic() shouldBe "testtopic"
             this.key() shouldBe expectedEventId
             val msg = jacksonObjectMapper().readTree(this.value())
             msg["eventId"].textValue() shouldBe expectedEventId
-            msg["@event_name"].textValue() shouldBe "varselInaktivert"
-        }
-
-        val inaktivertEvent = mockProducer.history().find { it.valueToJson()["@event_name"].textValue() == "inaktivert" }
-        requireNotNull(inaktivertEvent)
-        inaktivertEvent.apply {
-            this.topic() shouldBe "testtopic"
-            this.key() shouldBe expectedEventId
-            val msg = jacksonObjectMapper().readTree(this.value())
-            msg["eventId"].textValue() shouldBe expectedEventId
+            msg["appnavn"].textValue() shouldBe expectedAppnavn
             msg["@event_name"].textValue() shouldBe "inaktivert"
         }
     }

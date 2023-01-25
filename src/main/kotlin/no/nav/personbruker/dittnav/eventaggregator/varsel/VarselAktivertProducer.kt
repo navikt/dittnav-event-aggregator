@@ -4,13 +4,12 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks
 import no.nav.personbruker.dittnav.eventaggregator.metrics.RapidMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
+import no.nav.personbruker.dittnav.eventaggregator.varsel.HendelseType.Aktivert
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType.*
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -45,7 +44,7 @@ class VarselAktivertProducer(
     }
 
     private fun varselAktivert(varsel: ObjectNode, varselType: VarselType, eventId: String) {
-        varsel.put("@event_name", "aktivert")
+        varsel.put("@event_name", Aktivert.lowerCaseName)
         varsel.put("varselType", varselType.eventType)
         val producerRecord = ProducerRecord(topicName, eventId, varsel.toString())
         kafkaProducer.send(producerRecord)

@@ -15,6 +15,13 @@ fun <T> ResultSet.singleResult(result: ResultSet.() -> T): T =
             throw SQLException("Found no rows")
         }
 
+fun <T> ResultSet.singleResultOrNull(result: ResultSet.() -> T): T? =
+        if (next()) {
+            result()
+        } else {
+            null
+        }
+
 fun <T> ResultSet.list(result: ResultSet.() -> T): List<T> =
         mutableListOf<T>().apply {
             while (next()) {
