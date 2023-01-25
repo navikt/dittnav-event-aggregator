@@ -27,13 +27,13 @@ repositories {
 
 dependencies {
     implementation("com.github.navikt:doknotifikasjon-schemas:1.2022.06.07-10.21-210529ac5c88")
-    implementation(DittNAV.Common.utils)
-    implementation(DittNAV.Common.influxdb)
+    implementation(DittNAVCommonLib.utils)
+    implementation(DittNAVCommonLib.influxdb)
     implementation(Flyway.core)
     implementation(Hikari.cp)
     implementation(Influxdb.java)
-    implementation(Kafka.Apache.clients)
-    implementation(Kafka.Confluent.avroSerializer)
+    implementation(Kafka.clients)
+    implementation(Avro.avroSerializer)
     implementation(Logback.classic)
     implementation(Logstash.logbackEncoder)
     implementation(NAV.vaultJdbc)
@@ -41,38 +41,37 @@ dependencies {
     implementation(Prometheus.common)
     implementation(Prometheus.hotspot)
     implementation(Prometheus.logback)
-    implementation(RapidsAndRivers)
+    implementation(RapidsAndRivers.rapidsAndRivers)
     implementation(Ktor2.Server.core)
     implementation(Ktor2.Server.netty)
     implementation(Ktor2.Server.contentNegotiation)
     implementation(Ktor2.Server.auth)
     implementation(Ktor2.Server.authJwt)
-    implementation(Ktor2.jackson)
-    implementation(Ktor2.TmsTokenSupport.azureExchange)
-    implementation(Ktor2.TmsTokenSupport.azureValidation)
-    implementation(Ktor2.TmsTokenSupport.tokenXValidation)
-    implementation(Ktor2.TmsTokenSupport.authenticationInstaller)
+    implementation(Ktor2.Serialization.jackson)
+    implementation(TmsKtorTokenSupport.azureExchange)
+    implementation(TmsKtorTokenSupport.azureValidation)
+    implementation(TmsKtorTokenSupport.tokenXValidation)
+    implementation(TmsKtorTokenSupport.authenticationInstaller)
     implementation(Ktor2.Server.statusPages)
 
     testImplementation(Junit.api)
     testImplementation(Junit.engine)
-    testImplementation(Kafka.Apache.kafka_2_12)
-    testImplementation(Kafka.Apache.streams)
-    testImplementation(Kafka.Confluent.schemaRegistry)
+    testImplementation(Kafka.kafka_2_12)
+    testImplementation(Kafka.streams)
+    testImplementation(Avro.schemaRegistry)
     testImplementation(Mockk.mockk)
     testImplementation(NAV.kafkaEmbedded)
     testImplementation(TestContainers.postgresql)
     testImplementation(Kotest.runnerJunit5)
     testImplementation(Kotest.assertionsCore)
     testImplementation(Ktor2.Test.serverTestHost)
-    testImplementation(Ktor2.TmsTokenSupport.authenticationInstallerMock)
-    testImplementation(Ktor2.TmsTokenSupport.tokenXValidationMock)
-    testImplementation(Ktor2.TmsTokenSupport.azureValidationMock)
+    testImplementation(TmsKtorTokenSupport.authenticationInstallerMock)
+    testImplementation(TmsKtorTokenSupport.tokenXValidationMock)
+    testImplementation(TmsKtorTokenSupport.azureValidationMock)
 }
 
 application {
     mainClass.set("no.nav.personbruker.dittnav.eventaggregator.config.ApplicationKt")
-
 }
 
 tasks {
@@ -82,17 +81,6 @@ tasks {
             exceptionFormat = TestExceptionFormat.FULL
             events("passed", "skipped", "failed")
         }
-    }
-
-    register("runServer", JavaExec::class) {
-        println("Setting default environment variables for running with DittNAV docker-compose")
-        DockerComposeDefaults.environomentVariables.forEach { (name, value) ->
-            println("Setting the environment variable $name")
-            environment(name, value)
-        }
-
-        main = application.mainClass.get()
-        classpath = sourceSets["main"].runtimeClasspath
     }
 }
 
