@@ -1,9 +1,10 @@
 package no.nav.personbruker.dittnav.eventaggregator.varsel
 
-data class VarselHendelse (
+data class VarselHendelse(
     val hendelseType: HendelseType,
     val varselType: VarselType,
     val eventId: String,
+    val namespace: String,
     val appnavn: String
 )
 

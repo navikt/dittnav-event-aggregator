@@ -135,8 +135,8 @@ internal class PeriodicExpiredVarselProcessorTest {
     }
 }
 
-private fun Beskjed.hendelse(type: HendelseType) = VarselHendelse(type, VarselType.BESKJED, eventId, appnavn)
-private fun Oppgave.hendelse(type: HendelseType) = VarselHendelse(type, VarselType.OPPGAVE, eventId, appnavn)
+private fun Beskjed.hendelse(type: HendelseType) = VarselHendelse(type, VarselType.BESKJED, eventId, namespace, appnavn)
+private fun Oppgave.hendelse(type: HendelseType) = VarselHendelse(type, VarselType.OPPGAVE, eventId, namespace, appnavn)
 
 fun Connection.getAllBeskjedByFristUtløpt(): List<Beskjed> =
     prepareStatement("""SELECT * FROM beskjed WHERE frist_utløpt = TRUE""")

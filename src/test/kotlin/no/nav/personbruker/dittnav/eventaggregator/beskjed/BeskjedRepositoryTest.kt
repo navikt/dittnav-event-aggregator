@@ -43,7 +43,7 @@ internal class BeskjedRepositoryTest {
     @Test
     fun `inaktiverer aktivt beskjedvarsel`() {
         val result = beskjedRepository.setBeskjedInactive(aktivBeskjed.eventId, fnr)
-        result shouldBe VarselHendelse(Inaktivert, BESKJED, aktivBeskjed.eventId, aktivBeskjed.appnavn)
+        result shouldBe VarselHendelse(Inaktivert, BESKJED, aktivBeskjed.eventId, aktivBeskjed.namespace, aktivBeskjed.appnavn)
         runBlocking {
             database.dbQuery {
                 getAllBeskjedByAktiv(false).apply {

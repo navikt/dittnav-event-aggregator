@@ -44,19 +44,8 @@ private fun PreparedStatement.buildStatementForSingleRow(oppgave: Oppgave) {
     oppgave.fristUtløpt?.let { setBoolean(17, it) } ?: setNull(17, Types.BOOLEAN)
 }
 
-fun Connection.setOppgaverAktivFlag(doneEvents: List<Done>, aktiv: Boolean) {
-    executeBatchUpdateQuery("""UPDATE oppgave SET aktiv = ?, sistoppdatert = ? WHERE eventId = ?""") {
-        doneEvents.forEach { done ->
-            setBoolean(1, aktiv)
-            setObject(2, nowAtUtc(), Types.TIMESTAMP)
-            setString(3, done.eventId)
-            addBatch()
-        }
-    }
-}
-
 fun Connection.setExpiredOppgaveAsInactive(): List<VarselHendelse> {
-    return prepareStatement("""UPDATE oppgave SET aktiv = FALSE, sistoppdatert = ?, frist_utløpt = TRUE WHERE aktiv = TRUE AND synligFremTil < ? RETURNING eventId, appnavn""")
+    return prepareStatement("""UPDATE oppgave SET aktiv = FALSE, sistoppdatert = ?, frist_utløpt = TRUE WHERE aktiv = TRUE AND synligFremTil < ? RETURNING eventId, namespace, appnavn""")
         .use {
             it.setObject(1, nowAtUtc(), Types.TIMESTAMP)
             it.setObject(2, nowAtUtc(), Types.TIMESTAMP)
@@ -64,8 +53,9 @@ fun Connection.setExpiredOppgaveAsInactive(): List<VarselHendelse> {
                 VarselHendelse(
                     Inaktivert,
                     OPPGAVE,
-                    appnavn = getString("appnavn"),
-                    eventId = getString("eventId")
+                    eventId = getString("eventId"),
+                    namespace = getString("namespace"),
+                    appnavn = getString("appnavn")
                 )
             }
         }

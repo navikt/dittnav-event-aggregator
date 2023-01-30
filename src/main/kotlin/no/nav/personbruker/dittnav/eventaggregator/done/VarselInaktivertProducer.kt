@@ -26,6 +26,7 @@ class VarselInaktivertProducer(
         objectNode.put("@event_name", Inaktivert.lowerCaseName)
         objectNode.put("eventId", hendelse.eventId)
         objectNode.put("varselType", hendelse.varselType.eventType)
+        objectNode.put("namespace", hendelse.namespace)
         objectNode.put("appnavn", hendelse.appnavn)
         val producerRecord = ProducerRecord(topicName, hendelse.eventId, objectNode.toString())
 

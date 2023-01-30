@@ -231,5 +231,5 @@ class DoneSinkTest {
         "prefererteKanaler": ["Sneglepost", "Brevdue"]
     }""".trimIndent()
 
-    fun inaktivert(type: VarselType, eventId: String) = VarselHendelse(Inaktivert, type, eventId, "app")
+    fun inaktivert(type: VarselType, eventId: String) = VarselHendelse(Inaktivert, type, eventId, "ns", "app")
 }

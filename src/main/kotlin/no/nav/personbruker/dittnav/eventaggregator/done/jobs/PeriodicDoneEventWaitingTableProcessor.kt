@@ -79,7 +79,7 @@ class PeriodicDoneEventWaitingTableProcessor(
     private fun sendVarselInaktivert(groupedDoneEvents: DoneBatchProcessor) {
         groupedDoneEvents.allFoundEventsByType.forEach { (type, done) ->
             varselInaktivertProducer.varselInaktivert(
-                VarselHendelse(Inaktivert, type.toVarselType(), appnavn = done.appnavn, eventId = done.eventId)
+                VarselHendelse(Inaktivert, type.toVarselType(), eventId = done.eventId, namespace = done.namespace, appnavn = done.appnavn)
             )
         }
     }
