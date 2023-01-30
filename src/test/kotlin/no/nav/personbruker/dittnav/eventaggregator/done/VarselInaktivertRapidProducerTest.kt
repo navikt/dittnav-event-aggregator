@@ -30,8 +30,9 @@ internal class VarselInaktivertRapidProducerTest{
     @Test
     fun `produserer inaktivert event`(){
         val expectedEventId = "sghj1654"
+        val expectedNamespace = "namespace"
         val expectedAppnavn = "appnavn"
-        val hendelse = VarselHendelse(Inaktivert, BESKJED, expectedEventId, expectedAppnavn)
+        val hendelse = VarselHendelse(Inaktivert, BESKJED, expectedEventId, expectedNamespace, expectedAppnavn)
         rapidProducer.varselInaktivert(hendelse)
         mockProducer.history().size shouldBe 1
 
@@ -42,6 +43,7 @@ internal class VarselInaktivertRapidProducerTest{
             this.key() shouldBe expectedEventId
             val msg = jacksonObjectMapper().readTree(this.value())
             msg["eventId"].textValue() shouldBe expectedEventId
+            msg["namespace"].textValue() shouldBe expectedNamespace
             msg["appnavn"].textValue() shouldBe expectedAppnavn
             msg["@event_name"].textValue() shouldBe "inaktivert"
         }

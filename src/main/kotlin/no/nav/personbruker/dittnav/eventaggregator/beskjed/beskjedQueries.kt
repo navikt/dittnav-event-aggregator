@@ -48,7 +48,7 @@ private fun PreparedStatement.setParametersForSingleRow(beskjed: Beskjed) {
 
 
 fun Connection.setExpiredBeskjedAsInactive(): List<VarselHendelse> {
-    return prepareStatement("""UPDATE beskjed SET aktiv = FALSE, sistoppdatert = ?, frist_utløpt = TRUE WHERE aktiv = TRUE AND synligFremTil < ? RETURNING eventId, appnavn""")
+    return prepareStatement("""UPDATE beskjed SET aktiv = FALSE, sistoppdatert = ?, frist_utløpt = TRUE WHERE aktiv = TRUE AND synligFremTil < ? RETURNING eventId, namespace, appnavn""")
         .use {
             it.setObject(1, nowAtUtc(), Types.TIMESTAMP)
             it.setObject(2, nowAtUtc(), Types.TIMESTAMP)
@@ -57,7 +57,8 @@ fun Connection.setExpiredBeskjedAsInactive(): List<VarselHendelse> {
                     Inaktivert,
                     BESKJED,
                     eventId = getString("eventId"),
-                    appnavn = getString("appnavn"),
+                    namespace = getString("namespace"),
+                    appnavn = getString("appnavn")
                 )
             }
         }

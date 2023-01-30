@@ -64,7 +64,13 @@ internal class DoneSink(
                     VarselType.INNBOKS -> varselRepository.inaktiverInnboks(done)
                 }
                 varselInaktivertProducer.varselInaktivert(
-                    VarselHendelse(Inaktivert, varsel.type, eventId = varsel.eventId, appnavn = varsel.appnavn)
+                    VarselHendelse(
+                        Inaktivert,
+                        varsel.type,
+                        eventId = varsel.eventId,
+                        namespace = varsel.namespace,
+                        appnavn = varsel.appnavn
+                    )
                 )
             }
 

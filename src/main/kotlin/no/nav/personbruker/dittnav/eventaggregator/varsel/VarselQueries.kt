@@ -23,14 +23,14 @@ fun Connection.setVarselInaktiv(eventId: String, varselType: VarselType): Varsel
         """
             UPDATE ${VarselTable.fromVarselType(varselType)} SET aktiv = FALSE, frist_utløpt= FALSE, sistoppdatert = ? 
               WHERE eventId = ? AND aktiv=TRUE
-            RETURNING appnavn
+            RETURNING namespace, appnavn
         """
             .trimMargin())
         .use {
             it.setObject(1, LocalDateTimeHelper.nowAtUtc(), Types.TIMESTAMP)
             it.setString(2, eventId)
             it.executeQuery().singleResultOrNull {
-                VarselHendelse(Inaktivert, varselType, appnavn = getString("appnavn"), eventId = eventId)
+                VarselHendelse(Inaktivert, varselType, eventId = eventId, namespace = getString("namespace"), appnavn = getString("appnavn"))
             }
         }
 
