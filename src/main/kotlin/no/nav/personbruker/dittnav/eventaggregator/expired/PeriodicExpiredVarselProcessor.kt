@@ -9,6 +9,7 @@ import java.time.Duration
 class PeriodicExpiredVarselProcessor(
     private val expiredVarselRepository: ExpiredVarselRepository,
     private val varselInaktivertProducer: VarselInaktivertProducer,
+    private val expiredMetricProbe: ExpiredMetricsProbe,
     interval: Duration = Duration.ofMinutes(10)
 ) : PeriodicJob(interval) {
 
@@ -26,6 +27,7 @@ class PeriodicExpiredVarselProcessor(
             if (varselHendelser.isNotEmpty()) {
                 varselHendelser.forEach { varselInaktivertProducer.varselInaktivert(it) }
                 log.info("Prosesserte ${varselHendelser.size} utgåtte oppgaver.")
+                expiredMetricProbe.countOppgaveExpired(varselHendelser)
             } else {
                 log.info("Ingen oppgaver har utgått siden forrige sjekk.")
             }
@@ -41,6 +43,7 @@ class PeriodicExpiredVarselProcessor(
             if (varselHendelser.isNotEmpty()) {
                 varselHendelser.forEach { varselInaktivertProducer.varselInaktivert(it) }
                 log.info("Prosesserte ${varselHendelser.size} utgåtte beskjeder.")
+                expiredMetricProbe.countBeskjedExpired(varselHendelser)
             } else {
                 log.info("Ingen beskjeder har utgått siden forrige sjekk.")
             }

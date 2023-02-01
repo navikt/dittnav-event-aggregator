@@ -14,3 +14,4 @@ const val KAFKA_DOKNOT_STATUS_IGNORED = "$METRIC_NAMESPACE.doknot.status.ignored
 const val KAFKA_DOKNOT_STATUS_BATCH = "$METRIC_NAMESPACE.doknot.status.batch"
 
 const val DB_EVENTS_ARCHIVED = "$METRIC_NAMESPACE.db.events.archived"
+const val DB_EVENTS_EXPIRED = "$METRIC_NAMESPACE.db.events.expired"

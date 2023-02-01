@@ -11,13 +11,16 @@ import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingStatusRepository
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingStatusSink
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingStatusUpdater
-import no.nav.personbruker.dittnav.eventaggregator.done.*
+import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneSink
+import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertProducer
+import no.nav.personbruker.dittnav.eventaggregator.done.doneApi
 import no.nav.personbruker.dittnav.eventaggregator.done.jobs.PeriodicDoneEventWaitingTableProcessor
 import no.nav.personbruker.dittnav.eventaggregator.expired.ExpiredVarselRepository
 import no.nav.personbruker.dittnav.eventaggregator.expired.PeriodicExpiredVarselProcessor
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksSink
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildDBMetricsProbe
+import no.nav.personbruker.dittnav.eventaggregator.metrics.buildExpiredMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.buildRapidMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveSink
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselAktivertProducer
@@ -28,7 +31,7 @@ import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.config.SaslConfigs
 import org.apache.kafka.common.config.SslConfigs
 import org.apache.kafka.common.serialization.StringSerializer
-import java.util.Properties
+import java.util.*
 
 fun main() {
     val appContext = ApplicationContext()
@@ -56,10 +59,13 @@ private fun startRapid(environment: Environment, database: Database, appContext:
 
     val dbMetricsProbe = buildDBMetricsProbe(environment)
     val doneRepository = DoneRepository(database)
-    val periodicDoneEventWaitingTableProcessor = PeriodicDoneEventWaitingTableProcessor(doneRepository, varselInaktivertProducer, dbMetricsProbe)
+    val periodicDoneEventWaitingTableProcessor =
+        PeriodicDoneEventWaitingTableProcessor(doneRepository, varselInaktivertProducer, dbMetricsProbe)
 
+    val expiredMetricsProbe = buildExpiredMetricsProbe(environment)
     val expiredVarselRepository = ExpiredVarselRepository(database)
-    val periodicExpiredVarselProcessor = PeriodicExpiredVarselProcessor(expiredVarselRepository, varselInaktivertProducer)
+    val periodicExpiredVarselProcessor =
+        PeriodicExpiredVarselProcessor(expiredVarselRepository, varselInaktivertProducer, expiredMetricsProbe)
 
     RapidApplication.Builder(fromEnv(environment.rapidConfig())).withKtorModule {
         doneApi(

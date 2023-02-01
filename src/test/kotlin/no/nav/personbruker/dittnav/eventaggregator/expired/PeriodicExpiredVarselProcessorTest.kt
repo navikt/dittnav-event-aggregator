@@ -3,9 +3,11 @@ package no.nav.personbruker.dittnav.eventaggregator.expired
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.clearMocks
+import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
+import no.nav.personbruker.dittnav.common.metrics.MetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedTestData
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
@@ -16,6 +18,7 @@ import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelpe
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.list
 import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertProducer
+import no.nav.personbruker.dittnav.eventaggregator.metrics.DB_EVENTS_EXPIRED
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveTestData
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.createOppgave
@@ -35,10 +38,15 @@ internal class PeriodicExpiredVarselProcessorTest {
     private val database = LocalPostgresDatabase.migratedDb()
 
     private val varselInaktivertProducer = mockk<VarselInaktivertProducer>(relaxed = true)
+    private val metricsReporter = mockk<MetricsReporter>()
 
     private val expiredVarselRepository = ExpiredVarselRepository(database)
     private val expiredVarselProcessor =
-        PeriodicExpiredVarselProcessor(expiredVarselRepository, varselInaktivertProducer)
+        PeriodicExpiredVarselProcessor(
+            expiredVarselRepository,
+            varselInaktivertProducer,
+            ExpiredMetricsProbe(metricsReporter)
+        )
 
     private val pastDate = nowTruncatedToMillis().minusDays(7)
     private val futureDate = nowTruncatedToMillis().plusDays(7)
@@ -104,6 +112,13 @@ internal class PeriodicExpiredVarselProcessorTest {
         }
 
         verify(exactly = 1) { varselInaktivertProducer.varselInaktivert(expiredBeskjed.hendelse(Inaktivert)) }
+        coVerify(exactly = 1) {
+            metricsReporter.registerDataPoint(
+                DB_EVENTS_EXPIRED,
+                mapOf("counter" to 1),
+                mapOf("eventType" to VarselType.BESKJED.name, "producer" to expiredBeskjed.appnavn)
+            )
+        }
     }
 
     @Test
@@ -132,6 +147,14 @@ internal class PeriodicExpiredVarselProcessorTest {
         }
 
         verify(exactly = 1) { varselInaktivertProducer.varselInaktivert(expiredOppgave.hendelse(Inaktivert)) }
+        coVerify(exactly = 1) {
+            metricsReporter.registerDataPoint(
+                DB_EVENTS_EXPIRED,
+                mapOf("counter" to 1),
+                mapOf("eventType" to VarselType.OPPGAVE.name, "producer" to expiredOppgave.appnavn)
+            )
+        }
+
     }
 }
 

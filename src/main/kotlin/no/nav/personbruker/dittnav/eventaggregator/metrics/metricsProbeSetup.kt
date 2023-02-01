@@ -6,6 +6,7 @@ import no.nav.personbruker.dittnav.common.metrics.influxdb.InfluxConfig
 import no.nav.personbruker.dittnav.common.metrics.influxdb.InfluxMetricsReporter
 import no.nav.personbruker.dittnav.eventaggregator.archive.ArchiveMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.config.Environment
+import no.nav.personbruker.dittnav.eventaggregator.expired.ExpiredMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
 import java.util.concurrent.TimeUnit
 
@@ -16,8 +17,11 @@ fun buildDBMetricsProbe(environment: Environment): DBMetricsProbe {
 
 fun buildArchivingMetricsProbe(environment: Environment): ArchiveMetricsProbe {
     val metricsReporter = resolveMetricsReporter(environment)
-
     return ArchiveMetricsProbe(metricsReporter)
+}
+
+fun buildExpiredMetricsProbe(environment: Environment): ExpiredMetricsProbe {
+    return ExpiredMetricsProbe(resolveMetricsReporter(environment))
 }
 
 fun buildRapidMetricsProbe(environment: Environment) = RapidMetricsProbe(resolveMetricsReporter(environment))
