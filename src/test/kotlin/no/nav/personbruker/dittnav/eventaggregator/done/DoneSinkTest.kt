@@ -17,6 +17,7 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.getBeskjedByEventId
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.toBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.list
+import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertKilde.Produsent
 import no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks
 import no.nav.personbruker.dittnav.eventaggregator.innboks.InnboksSink
 import no.nav.personbruker.dittnav.eventaggregator.innboks.deleteAllInnboks
@@ -75,9 +76,9 @@ class DoneSinkTest {
         getOppgaveFromDb("22").fristUtløpt shouldBe false
 
 
-        verify { varselInaktivertProducer.varselInaktivert(inaktivert(BESKJED, "11")) }
-        verify { varselInaktivertProducer.varselInaktivert(inaktivert(OPPGAVE, "22")) }
-        verify { varselInaktivertProducer.varselInaktivert(inaktivert(INNBOKS, "33")) }
+        verify { varselInaktivertProducer.varselInaktivert(inaktivert(BESKJED, "11"), Produsent) }
+        verify { varselInaktivertProducer.varselInaktivert(inaktivert(OPPGAVE, "22"), Produsent) }
+        verify { varselInaktivertProducer.varselInaktivert(inaktivert(INNBOKS, "33"), Produsent) }
     }
 
     @Test
@@ -98,8 +99,8 @@ class DoneSinkTest {
         testRapid.sendTestMessage(doneJson("645"))
         doneFromWaitingTable().size shouldBe 1
 
-        verify { varselInaktivertProducer.varselInaktivert(inaktivert(BESKJED, "11")) }
-        verify(exactly = 0) { varselInaktivertProducer.varselInaktivert(not(inaktivert(BESKJED, "11"))) }
+        verify { varselInaktivertProducer.varselInaktivert(inaktivert(BESKJED, "11"), Produsent) }
+        verify(exactly = 0) { varselInaktivertProducer.varselInaktivert(not(inaktivert(BESKJED, "11")), Produsent) }
     }
 
     @Test
@@ -159,7 +160,7 @@ class DoneSinkTest {
         done.forstBehandlet shouldBe doneJsonNode["forstBehandlet"].asLocalDateTime()
         done.fodselsnummer shouldBe doneJsonNode["fodselsnummer"].textValue()
 
-        verify(exactly = 0) { varselInaktivertProducer.varselInaktivert(inaktivert(BESKJED, "999")) }
+        verify(exactly = 0) { varselInaktivertProducer.varselInaktivert(inaktivert(BESKJED, "999"), Produsent) }
     }
 
     private fun setupBeskjedSink(testRapid: TestRapid) = BeskjedSink(

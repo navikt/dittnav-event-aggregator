@@ -9,6 +9,7 @@ import no.nav.helse.rapids_rivers.River
 import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
+import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertKilde.Produsent
 import no.nav.personbruker.dittnav.eventaggregator.metrics.RapidMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.varsel.HendelseType.Inaktivert
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselHendelse
@@ -70,7 +71,8 @@ internal class DoneSink(
                         eventId = varsel.eventId,
                         namespace = varsel.namespace,
                         appnavn = varsel.appnavn
-                    )
+                    ),
+                    kilde = Produsent
                 )
             }
 

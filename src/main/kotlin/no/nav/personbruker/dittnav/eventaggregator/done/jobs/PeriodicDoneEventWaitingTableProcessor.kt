@@ -7,6 +7,8 @@ import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.Unretriable
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.done.Done
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
+import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertKilde
+import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertKilde.Produsent
 import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertProducer
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.varsel.HendelseType.Inaktivert
@@ -79,7 +81,8 @@ class PeriodicDoneEventWaitingTableProcessor(
     private fun sendVarselInaktivert(groupedDoneEvents: DoneBatchProcessor) {
         groupedDoneEvents.allFoundEventsByType.forEach { (type, done) ->
             varselInaktivertProducer.varselInaktivert(
-                VarselHendelse(Inaktivert, type.toVarselType(), eventId = done.eventId, namespace = done.namespace, appnavn = done.appnavn)
+                VarselHendelse(Inaktivert, type.toVarselType(), eventId = done.eventId, namespace = done.namespace, appnavn = done.appnavn),
+                kilde = Produsent
             )
         }
     }

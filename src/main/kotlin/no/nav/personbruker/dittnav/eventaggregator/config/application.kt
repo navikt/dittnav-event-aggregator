@@ -8,6 +8,7 @@ import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedSink
 import no.nav.personbruker.dittnav.eventaggregator.common.database.Database
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingOppdatertProducer
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingStatusRepository
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingStatusSink
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingStatusUpdater
@@ -43,7 +44,12 @@ private fun startRapid(environment: Environment, database: Database, appContext:
     val rapidMetricsProbe = buildRapidMetricsProbe(environment)
     val varselRepository = VarselRepository(database)
     val eksternVarslingStatusRepository = EksternVarslingStatusRepository(database)
-    val eksternVarslingStatusUpdater = EksternVarslingStatusUpdater(eksternVarslingStatusRepository, varselRepository)
+    val eksternVarslingOppdatertProducer = EksternVarslingOppdatertProducer(
+        kafkaProducer = initializeRapidKafkaProducer(environment),
+        topicName = environment.rapidTopic,
+    )
+
+    val eksternVarslingStatusUpdater = EksternVarslingStatusUpdater(eksternVarslingStatusRepository, varselRepository, eksternVarslingOppdatertProducer)
 
     val varselAktivertProducer = VarselAktivertProducer(
         kafkaProducer = initializeRapidKafkaProducer(environment),

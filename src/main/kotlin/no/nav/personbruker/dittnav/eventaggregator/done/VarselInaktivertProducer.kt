@@ -20,7 +20,7 @@ class VarselInaktivertProducer(
     val log: Logger = LoggerFactory.getLogger(Producer::class.java)
     private val objectMapper = jacksonObjectMapper()
 
-    fun varselInaktivert(hendelse: VarselHendelse) {
+    fun varselInaktivert(hendelse: VarselHendelse, kilde: VarselInaktivertKilde) {
 
         val objectNode = objectMapper.createObjectNode()
         objectNode.put("@event_name", Inaktivert.lowerCaseName)
@@ -28,6 +28,7 @@ class VarselInaktivertProducer(
         objectNode.put("varselType", hendelse.varselType.eventType)
         objectNode.put("namespace", hendelse.namespace)
         objectNode.put("appnavn", hendelse.appnavn)
+        objectNode.put("kilde", kilde.name)
         val producerRecord = ProducerRecord(topicName, hendelse.eventId, objectNode.toString())
 
         kafkaProducer.send(producerRecord)
