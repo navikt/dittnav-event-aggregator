@@ -28,7 +28,7 @@ class VarselInaktivertProducer(
         objectNode.put("varselType", hendelse.varselType.eventType)
         objectNode.put("namespace", hendelse.namespace)
         objectNode.put("appnavn", hendelse.appnavn)
-        objectNode.put("kilde", kilde.name)
+        objectNode.put("kilde", kilde.lowercaseName)
         val producerRecord = ProducerRecord(topicName, hendelse.eventId, objectNode.toString())
 
         kafkaProducer.send(producerRecord)

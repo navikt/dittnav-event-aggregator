@@ -47,7 +47,7 @@ internal class VarselInaktivertRapidProducerTest{
             msg["namespace"].textValue() shouldBe expectedNamespace
             msg["appnavn"].textValue() shouldBe expectedAppnavn
             msg["@event_name"].textValue() shouldBe "inaktivert"
-            msg["kilde"].textValue() shouldBe "Produsent"
+            msg["kilde"].textValue() shouldBe "produsent"
         }
     }
 
