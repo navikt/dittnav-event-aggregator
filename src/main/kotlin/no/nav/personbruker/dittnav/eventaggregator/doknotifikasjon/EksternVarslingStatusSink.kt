@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon
 
+import com.fasterxml.jackson.databind.JsonNode
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.MessageContext
@@ -25,7 +26,8 @@ internal class EksternVarslingStatusSink(
                     "eventId",
                     "status",
                     "melding",
-                    "kanaler"
+                    "kanaler",
+                    "bestillerAppnavn"
                 )
             }
             validate { it.interestedIn("distribusjonsId") }
@@ -35,11 +37,11 @@ internal class EksternVarslingStatusSink(
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val eksternVarslingStatus = DoknotifikasjonStatusDto(
             eventId = packet["eventId"].asText(),
-            bestillerAppnavn = "", //Ubrukt, burde fjernes fra klasse
+            bestillerAppnavn = packet["bestillerAppnavn"].asText(),
             status = packet["status"].asText(),
             melding = packet["melding"].asText(),
-            distribusjonsId = packet["distribusjonsId"].asLong(),
-            kanaler = packet["kanaler"].map { it.asText() },
+            distribusjonsId = packet["distribusjonsId"].asLongOrNull(),
+            kanaler = packet["kanaler"].map { it.asText() }
         )
 
         runBlocking {
@@ -53,4 +55,6 @@ internal class EksternVarslingStatusSink(
     override fun onError(problems: MessageProblems, context: MessageContext) {
         log.error(problems.toString())
     }
+
+    private fun JsonNode.asLongOrNull() = if (isNull) null else asLong()
 }

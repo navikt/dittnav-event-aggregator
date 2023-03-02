@@ -79,9 +79,19 @@ private fun ResultSet.toDoknotifikasjonStatusDto(): DoknotifikasjonStatusDto {
             eventId = getString("eventId"),
             status = getString("status"),
             melding = getString("melding"),
-            distribusjonsId = getLong("distribusjonsId"),
+            distribusjonsId = getLongOrNull("distribusjonsId"),
             kanaler = getListFromSeparatedString("kanaler", ","),
             antallOppdateringer = getInt("antall_oppdateringer"),
             bestillerAppnavn = ""
         )
+}
+
+private fun ResultSet.getLongOrNull(colName: String): Long? {
+    val result = getLong(colName)
+
+    return if (wasNull()) {
+        null
+    } else {
+        result
+    }
 }

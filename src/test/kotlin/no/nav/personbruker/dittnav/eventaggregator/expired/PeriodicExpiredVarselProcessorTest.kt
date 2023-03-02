@@ -17,6 +17,8 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.toBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.list
+import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertKilde
+import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertKilde.Frist
 import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertProducer
 import no.nav.personbruker.dittnav.eventaggregator.metrics.DB_EVENTS_EXPIRED
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
@@ -111,7 +113,7 @@ internal class PeriodicExpiredVarselProcessorTest {
             first().eventId shouldBe expiredBeskjed.eventId
         }
 
-        verify(exactly = 1) { varselInaktivertProducer.varselInaktivert(expiredBeskjed.hendelse(Inaktivert)) }
+        verify(exactly = 1) { varselInaktivertProducer.varselInaktivert(expiredBeskjed.hendelse(Inaktivert), Frist) }
         coVerify(exactly = 1) {
             metricsReporter.registerDataPoint(
                 DB_EVENTS_EXPIRED,
@@ -146,7 +148,7 @@ internal class PeriodicExpiredVarselProcessorTest {
             first().eventId shouldBe expiredOppgave.eventId
         }
 
-        verify(exactly = 1) { varselInaktivertProducer.varselInaktivert(expiredOppgave.hendelse(Inaktivert)) }
+        verify(exactly = 1) { varselInaktivertProducer.varselInaktivert(expiredOppgave.hendelse(Inaktivert), Frist) }
         coVerify(exactly = 1) {
             metricsReporter.registerDataPoint(
                 DB_EVENTS_EXPIRED,

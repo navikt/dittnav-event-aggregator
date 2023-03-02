@@ -1,10 +1,14 @@
 package no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon
 
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusEnum.*
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternStatus.*
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselHeader
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
 
 class EksternVarslingStatusUpdater(
     private val eksternVarslingStatusRepository: EksternVarslingStatusRepository,
     private val varselRepository: VarselRepository,
+    private val eksternVarslingOppdatertProducer: EksternVarslingOppdatertProducer
 ) {
 
     suspend fun insertOrUpdateStatus(newStatus: DoknotifikasjonStatusDto) {
@@ -21,6 +25,8 @@ class EksternVarslingStatusUpdater(
         } ?: newStatus
 
         eksternVarslingStatusRepository.updateStatus(statusToPersist, varsel.type)
+
+        eksternVarslingOppdatertProducer.eksternStatusOppdatert(mergeOppdatering(varsel, newStatus))
     }
 
     private fun mergeStatuses(oldStatus: DoknotifikasjonStatusDto, newStatus: DoknotifikasjonStatusDto): DoknotifikasjonStatusDto {
@@ -30,5 +36,24 @@ class EksternVarslingStatusUpdater(
             kanaler = kanaler,
             antallOppdateringer = oldStatus.antallOppdateringer + 1
         )
+    }
+
+    private fun mergeOppdatering(varsel: VarselHeader, statusDto: DoknotifikasjonStatusDto) = EksternStatusOppdatering(
+        status = determineStatus(statusDto),
+        kanal = statusDto.kanaler.firstOrNull(),
+        varselType = varsel.type,
+        eventId = varsel.eventId,
+        namespace = varsel.namespace,
+        appnavn = varsel.appnavn
+    )
+
+    private fun determineStatus(statusDto: DoknotifikasjonStatusDto): EksternStatus {
+        return when(statusDto.status) {
+            FERDIGSTILT.name -> if (statusDto.kanaler.isNotEmpty()) Sendt else Ferdigstilt
+            INFO.name -> Info
+            FEILET.name -> Feilet
+            OVERSENDT.name -> Bestilt
+            else -> throw IllegalArgumentException("Kjente ikke igjen doknotifikasjon status ${statusDto.status}.")
+        }
     }
 }

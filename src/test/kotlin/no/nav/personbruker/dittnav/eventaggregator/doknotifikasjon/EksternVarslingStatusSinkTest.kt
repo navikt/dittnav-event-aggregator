@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
@@ -16,6 +17,8 @@ import no.nav.personbruker.dittnav.eventaggregator.oppgave.OppgaveSink
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.deleteAllOppgave
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
+import org.apache.kafka.clients.producer.MockProducer
+import org.apache.kafka.common.serialization.StringSerializer
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -23,9 +26,16 @@ class EksternVarslingStatusSinkTest {
     private val database = LocalPostgresDatabase.migratedDb()
     private val varselRepository = VarselRepository(database)
 
+    private val mockProducer = MockProducer(
+        false,
+        StringSerializer(),
+        StringSerializer()
+    )
+
+    private val eksternVarslingOppdatertProducer = EksternVarslingOppdatertProducer(mockProducer, "testtopic")
     private val eksternVarslingStatusRepository = EksternVarslingStatusRepository(database)
     private val eksternVarslingStatusUpdater =
-        EksternVarslingStatusUpdater(eksternVarslingStatusRepository, varselRepository)
+        EksternVarslingStatusUpdater(eksternVarslingStatusRepository, varselRepository, eksternVarslingOppdatertProducer)
 
     @BeforeEach
     fun resetDb() {
@@ -37,6 +47,7 @@ class EksternVarslingStatusSinkTest {
             database.dbQuery { deleteAllOppgave() }
             database.dbQuery { deleteAllInnboks() }
         }
+        mockProducer.clear()
     }
 
     @Test
@@ -70,6 +81,10 @@ class EksternVarslingStatusSinkTest {
                 it.kanaler shouldBe eksternVarslingJsonNode["kanaler"].map { it.textValue() }
             }
         }
+
+        mockProducer.verifyOutput { output ->
+            output.size shouldBe 3
+        }
     }
 
     @Test
@@ -79,15 +94,20 @@ class EksternVarslingStatusSinkTest {
         setupBeskjedSink(testRapid)
 
         testRapid.sendTestMessage(varselJson("beskjed", "111"))
-        testRapid.sendTestMessage(eksternVarslingStatusJson("111", status = "status1", kanaler = listOf("SMS")))
-        testRapid.sendTestMessage(eksternVarslingStatusJson("111", status = "status2", kanaler = listOf("EPOST")))
+        testRapid.sendTestMessage(eksternVarslingStatusJson("111", status = "INFO", kanaler = emptyList()))
+        testRapid.sendTestMessage(eksternVarslingStatusJson("111", status = "FERDIGSTILT", kanaler = listOf("EPOST")))
+        testRapid.sendTestMessage(eksternVarslingStatusJson("111", status = "FERDIGSTILT", kanaler = listOf("SMS")))
 
         runBlocking {
             val status = eksternVarslingStatusRepository.getStatusIfExists("111", VarselType.BESKJED)
             status shouldNotBe null
-            status!!.status shouldBe "status2"
+            status!!.status shouldBe "FERDIGSTILT"
             status.kanaler shouldContainExactlyInAnyOrder setOf("EPOST", "SMS")
-            status.antallOppdateringer shouldBe 2
+            status.antallOppdateringer shouldBe 3
+        }
+
+        mockProducer.verifyOutput { output ->
+            output.size shouldBe 3
         }
     }
 
@@ -101,6 +121,58 @@ class EksternVarslingStatusSinkTest {
             eksternVarslingStatusRepository.getStatusIfExists("111", VarselType.BESKJED) shouldBe null
             eksternVarslingStatusRepository.getStatusIfExists("111", VarselType.OPPGAVE) shouldBe null
             eksternVarslingStatusRepository.getStatusIfExists("111", VarselType.INNBOKS) shouldBe null
+        }
+
+        mockProducer.verifyOutput { output ->
+            output.size shouldBe 0
+        }
+    }
+
+    @Test
+    fun `takler at distribusjonsId er null`() {
+        val testRapid = TestRapid()
+        setupEksternVarslingStatusSink(testRapid)
+        setupBeskjedSink(testRapid)
+
+        testRapid.sendTestMessage(varselJson("beskjed", "111"))
+        testRapid.sendTestMessage(eksternVarslingStatusJson("111", distribusjonsId = null))
+
+        runBlocking {
+            val status = eksternVarslingStatusRepository.getStatusIfExists("111", VarselType.BESKJED)
+            status shouldNotBe null
+            status!!.distribusjonsId shouldBe null
+            status.antallOppdateringer shouldBe 1
+        }
+
+        mockProducer.verifyOutput { output ->
+            output.size shouldBe 1
+        }
+    }
+
+    @Test
+    fun `varsler om oppdaterte varsler`() {
+        val testRapid = TestRapid()
+        setupEksternVarslingStatusSink(testRapid)
+        setupBeskjedSink(testRapid)
+
+        testRapid.sendTestMessage(varselJson("beskjed", "111"))
+        testRapid.sendTestMessage(eksternVarslingStatusJson("111", "OVERSENDT"))
+        testRapid.sendTestMessage(eksternVarslingStatusJson("111", "INFO"))
+        testRapid.sendTestMessage(eksternVarslingStatusJson("111", "FEILET"))
+        testRapid.sendTestMessage(eksternVarslingStatusJson("111", "FERDIGSTILT", kanaler = listOf("SMS")))
+        testRapid.sendTestMessage(eksternVarslingStatusJson("111", "FERDIGSTILT", kanaler = emptyList()))
+
+        mockProducer.verifyOutput { output ->
+            output.find { it["status"].textValue() == "bestilt" } shouldNotBe null
+            output.find { it["status"].textValue() == "info" } shouldNotBe null
+            output.find { it["status"].textValue() == "feilet" } shouldNotBe null
+            output.find { it["status"].textValue() == "sendt" } shouldNotBe null
+            output.find { it["status"].textValue() == "ferdigstilt" } shouldNotBe null
+
+            val ferdigstilt = output.find { it["status"].textValue() == "sendt" }!!
+            ferdigstilt["@event_name"].textValue() shouldBe "eksternStatusOppdatert"
+            ferdigstilt["eventId"].textValue() shouldBe "111"
+            ferdigstilt["kanal"].textValue() shouldBe "SMS"
         }
     }
 
@@ -134,14 +206,17 @@ class EksternVarslingStatusSinkTest {
     private fun eksternVarslingStatusJson(
         eventId: String,
         status: String = "FERDIGSTILT",
-        kanaler: List<String> = listOf("EPOST")
+        kanaler: List<String> = listOf("EPOST"),
+        bestiller: String = "appnavn",
+        distribusjonsId: Long? = 123L
     ) = """{
         "@event_name": "eksternVarslingStatus",
         "eventId": "$eventId",
         "status": "$status",
         "melding": "notifikasjon sendt via epost",
-        "distribusjonsId": 12345,
-        "kanaler": ${kanaler.joinToString("\", \"", "[\"", "\"]")}
+        "distribusjonsId": $distribusjonsId,
+        "bestillerAppnavn": "$bestiller",
+        "kanaler": ${if (kanaler.isEmpty()) "[]" else kanaler.joinToString("\", \"", "[\"", "\"]")}
     }""".trimIndent()
 
     private fun varselJson(type: String, eventId: String) = """{
@@ -158,4 +233,9 @@ class EksternVarslingStatusSinkTest {
         "eksternVarsling": false,
         "prefererteKanaler": ["Sneglepost", "Brevdue"]
     }""".trimIndent()
+}
+
+private fun MockProducer<String, String>.verifyOutput(verifier: (List<JsonNode>) -> Unit) {
+    val objectMapper = ObjectMapper()
+    history().map { it.value() }.map { objectMapper.readTree(it) }.let(verifier)
 }

@@ -1,6 +1,8 @@
 package no.nav.personbruker.dittnav.eventaggregator.expired
 
 import no.nav.personbruker.dittnav.eventaggregator.common.PeriodicJob
+import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertKilde
+import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertKilde.Frist
 import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertProducer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -25,7 +27,7 @@ class PeriodicExpiredVarselProcessor(
             val varselHendelser = expiredVarselRepository.updateAllExpiredOppgave()
 
             if (varselHendelser.isNotEmpty()) {
-                varselHendelser.forEach { varselInaktivertProducer.varselInaktivert(it) }
+                varselHendelser.forEach { varselInaktivertProducer.varselInaktivert(it, Frist) }
                 log.info("Prosesserte ${varselHendelser.size} utgåtte oppgaver.")
                 expiredMetricProbe.countOppgaveExpired(varselHendelser)
             } else {
@@ -41,7 +43,7 @@ class PeriodicExpiredVarselProcessor(
             val varselHendelser = expiredVarselRepository.updateAllExpiredBeskjed()
 
             if (varselHendelser.isNotEmpty()) {
-                varselHendelser.forEach { varselInaktivertProducer.varselInaktivert(it) }
+                varselHendelser.forEach { varselInaktivertProducer.varselInaktivert(it, Frist) }
                 log.info("Prosesserte ${varselHendelser.size} utgåtte beskjeder.")
                 expiredMetricProbe.countBeskjedExpired(varselHendelser)
             } else {
