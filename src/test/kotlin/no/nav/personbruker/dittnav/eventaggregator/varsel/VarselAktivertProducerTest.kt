@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.varsel
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.mockk
 import no.nav.helse.rapids_rivers.asLocalDateTime
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedTestData
@@ -12,6 +13,7 @@ import org.apache.kafka.clients.producer.MockProducer
 import org.apache.kafka.common.serialization.StringSerializer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import java.time.LocalDateTime
 
 internal class VarselAktivertProducerTest {
 
@@ -62,6 +64,8 @@ internal class VarselAktivertProducerTest {
         outputJson["smsVarslingstekst"].textValue() shouldBe beskjed.smsVarslingstekst
         outputJson["epostVarslingstekst"].textValue() shouldBe beskjed.epostVarslingstekst
         outputJson["epostVarslingstittel"].textValue() shouldBe beskjed.epostVarslingstittel
+        outputJson["tidspunkt"].textValue().let { LocalDateTime.parse(it) } shouldNotBe null
+
     }
 
     @Test
@@ -97,6 +101,7 @@ internal class VarselAktivertProducerTest {
         outputJson["smsVarslingstekst"].textValue() shouldBe oppgave.smsVarslingstekst
         outputJson["epostVarslingstekst"].textValue() shouldBe oppgave.epostVarslingstekst
         outputJson["epostVarslingstittel"].textValue() shouldBe oppgave.epostVarslingstittel
+        outputJson["tidspunkt"].textValue().let { LocalDateTime.parse(it) } shouldNotBe null
     }
 
     @Test
@@ -131,5 +136,6 @@ internal class VarselAktivertProducerTest {
         outputJson["smsVarslingstekst"].textValue() shouldBe innboks.smsVarslingstekst
         outputJson["epostVarslingstekst"].textValue() shouldBe innboks.epostVarslingstekst
         outputJson["epostVarslingstittel"].textValue() shouldBe innboks.epostVarslingstittel
+        outputJson["tidspunkt"].textValue().let { LocalDateTime.parse(it) } shouldNotBe null
     }
 }

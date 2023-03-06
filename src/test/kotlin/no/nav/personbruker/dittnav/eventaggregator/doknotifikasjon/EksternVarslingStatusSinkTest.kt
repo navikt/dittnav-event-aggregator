@@ -21,6 +21,7 @@ import org.apache.kafka.clients.producer.MockProducer
 import org.apache.kafka.common.serialization.StringSerializer
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.LocalDateTime
 
 class EksternVarslingStatusSinkTest {
     private val database = LocalPostgresDatabase.migratedDb()
@@ -173,6 +174,7 @@ class EksternVarslingStatusSinkTest {
             ferdigstilt["@event_name"].textValue() shouldBe "eksternStatusOppdatert"
             ferdigstilt["eventId"].textValue() shouldBe "111"
             ferdigstilt["kanal"].textValue() shouldBe "SMS"
+            ferdigstilt["tidspunkt"].textValue().let { LocalDateTime.parse(it) } shouldNotBe null
         }
     }
 

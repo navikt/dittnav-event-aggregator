@@ -2,9 +2,8 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.config.EventType
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.metrics.RapidMetricsProbe
-import no.nav.personbruker.dittnav.eventaggregator.varsel.HendelseType
 import no.nav.personbruker.dittnav.eventaggregator.varsel.HendelseType.Inaktivert
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselHendelse
 import org.apache.kafka.clients.producer.Producer
@@ -29,6 +28,7 @@ class VarselInaktivertProducer(
         objectNode.put("namespace", hendelse.namespace)
         objectNode.put("appnavn", hendelse.appnavn)
         objectNode.put("kilde", kilde.lowercaseName)
+        objectNode.put("tidspunkt", nowAtUtc().toString())
         val producerRecord = ProducerRecord(topicName, hendelse.eventId, objectNode.toString())
 
         kafkaProducer.send(producerRecord)

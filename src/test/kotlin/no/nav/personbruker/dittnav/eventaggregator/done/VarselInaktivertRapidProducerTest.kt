@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.done
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.mockk
 import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertKilde.Produsent
 import no.nav.personbruker.dittnav.eventaggregator.varsel.HendelseType.Inaktivert
@@ -12,6 +13,7 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
+import java.time.LocalDateTime
 
 internal class VarselInaktivertRapidProducerTest{
 
@@ -48,6 +50,7 @@ internal class VarselInaktivertRapidProducerTest{
             msg["appnavn"].textValue() shouldBe expectedAppnavn
             msg["@event_name"].textValue() shouldBe "inaktivert"
             msg["kilde"].textValue() shouldBe "produsent"
+            msg["tidspunkt"].textValue().let { LocalDateTime.parse(it) } shouldNotBe null
         }
     }
 
