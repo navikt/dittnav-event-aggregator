@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import kotlinx.coroutines.runBlocking
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks
 import no.nav.personbruker.dittnav.eventaggregator.metrics.RapidMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.oppgave.Oppgave
@@ -46,6 +47,7 @@ class VarselAktivertProducer(
     private fun varselAktivert(varsel: ObjectNode, varselType: VarselType, eventId: String) {
         varsel.put("@event_name", Aktivert.lowerCaseName)
         varsel.put("varselType", varselType.eventType)
+        varsel.put("tidspunkt", nowAtUtc().toString())
         val producerRecord = ProducerRecord(topicName, eventId, varsel.toString())
         kafkaProducer.send(producerRecord)
         runBlocking {
