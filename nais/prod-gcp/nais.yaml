@@ -66,3 +66,4 @@ spec:
       rules:
         - application: dittnav-api
         - application: tms-varselbjelle-api
+        - application: tms-min-side-proxy
