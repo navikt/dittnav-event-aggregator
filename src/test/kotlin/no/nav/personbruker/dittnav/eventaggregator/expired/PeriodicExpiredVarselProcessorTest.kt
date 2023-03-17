@@ -14,10 +14,9 @@ import no.nav.personbruker.dittnav.eventaggregator.beskjed.createBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.deleteAllBeskjed
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.getAllBeskjedByAktiv
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.toBeskjed
-import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowAtUtcTruncated
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import no.nav.personbruker.dittnav.eventaggregator.common.database.list
-import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertKilde
 import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertKilde.Frist
 import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertProducer
 import no.nav.personbruker.dittnav.eventaggregator.metrics.DB_EVENTS_EXPIRED
@@ -50,8 +49,8 @@ internal class PeriodicExpiredVarselProcessorTest {
             ExpiredMetricsProbe(metricsReporter)
         )
 
-    private val pastDate = nowTruncatedToMillis().minusDays(7)
-    private val futureDate = nowTruncatedToMillis().plusDays(7)
+    private val pastDate = nowAtUtcTruncated().minusDays(7)
+    private val futureDate = nowAtUtcTruncated().plusDays(7)
 
     private val activeOppgave = OppgaveTestData.oppgave(
         synligFremTil = futureDate,

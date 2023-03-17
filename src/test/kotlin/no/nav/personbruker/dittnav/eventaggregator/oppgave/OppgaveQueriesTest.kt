@@ -25,7 +25,7 @@ class OppgaveQueriesTest {
     fun `Finner utgåtte oppgaver og setter inaktiv`() {
         runBlocking {
             val expiredOppgave = OppgaveTestData.oppgave(
-                synligFremTil = LocalDateTimeTestHelper.nowTruncatedToMillis().minusDays(1),
+                synligFremTil = LocalDateTimeTestHelper.nowAtUtcTruncated().minusDays(1),
                 fristUtløpt = null
             )
             database.dbQuery { createOppgave(expiredOppgave) }

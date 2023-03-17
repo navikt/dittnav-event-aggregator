@@ -61,7 +61,7 @@ fun Connection.executePersistQuery(sql: String, paramInit: PreparedStatement.() 
             }
         }
 
-fun ResultSet.getListFromSeparatedString(columnLabel: String, separator: String): List<String> {
+fun ResultSet.getListFromString(columnLabel: String, separator: String = ","): List<String> {
     val stringValue = getString(columnLabel)
     return if(stringValue.isNullOrEmpty()) {
         emptyList()

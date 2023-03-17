@@ -6,53 +6,47 @@ import java.sql.Connection
 import java.sql.ResultSet
 
 fun Connection.deleteAllDoknotifikasjonStatusBeskjed() {
-    prepareStatement("""DELETE FROM doknotifikasjon_status_beskjed""")
+    prepareStatement("""DELETE FROM ekstern_varsling_status_beskjed""")
         .use {it.execute()}
 }
 
 fun Connection.deleteAllDoknotifikasjonStatusOppgave() {
-    prepareStatement("""DELETE FROM doknotifikasjon_status_oppgave""")
+    prepareStatement("""DELETE FROM ekstern_varsling_status_oppgave""")
         .use {it.execute()}
 }
 
 
 fun Connection.deleteAllDoknotifikasjonStatusInnboks() {
-    prepareStatement("""DELETE FROM doknotifikasjon_status_innboks""")
+    prepareStatement("""DELETE FROM ekstern_varsling_status_innboks""")
         .use {it.execute()}
 }
 
-fun Connection.getAllDoknotifikasjonStatusBeskjed(): List<DoknotStatusDTO> {
-    return prepareStatement("""SELECT * FROM doknotifikasjon_status_beskjed""")
+fun Connection.countEksternVarslingStatusBeskjed(): Int {
+    return prepareStatement("""SELECT count(*) as antall FROM ekstern_varsling_status_beskjed""")
         .use {
-            it.executeQuery().list {
-                toDoknotStatusDTO()
+            it.executeQuery().run {
+                next()
+                getInt("antall")
             }
         }
 }
 
-fun Connection.getAllDoknotifikasjonStatusOppgave(): List<DoknotStatusDTO> {
-    return prepareStatement("""SELECT * FROM doknotifikasjon_status_oppgave""")
+fun Connection.countEksternVarslingStatusOppgave(): Int {
+    return prepareStatement("""SELECT count(*) as antall FROM ekstern_varsling_status_oppgave""")
         .use {
-            it.executeQuery().list {
-                toDoknotStatusDTO()
+            it.executeQuery().run {
+                next()
+                getInt("antall")
             }
         }
 }
 
-fun Connection.getAllDoknotifikasjonStatusInnboks(): List<DoknotStatusDTO> {
-    return prepareStatement("""SELECT * FROM doknotifikasjon_status_innboks""")
+fun Connection.countEksternVarslingStatusInnboks(): Int {
+    return prepareStatement("""SELECT count(*) as antall FROM ekstern_varsling_status_innboks""")
         .use {
-            it.executeQuery().list {
-                toDoknotStatusDTO()
+            it.executeQuery().run {
+                next()
+                getInt("antall")
             }
         }
 }
-
-private fun ResultSet.toDoknotStatusDTO() = DoknotStatusDTO(
-    eventId = getString("eventId"),
-    status = getString("status"),
-    melding = getString("melding"),
-    distribusjonsId = getLong("distribusjonsId"),
-    antallOppdateringer = getInt("antall_oppdateringer"),
-    tidspunkt = getUtcDateTime("tidspunkt"),
-)

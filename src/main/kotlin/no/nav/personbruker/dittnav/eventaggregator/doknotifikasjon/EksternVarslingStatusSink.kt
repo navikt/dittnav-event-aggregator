@@ -2,11 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon
 
 import com.fasterxml.jackson.databind.JsonNode
 import kotlinx.coroutines.runBlocking
-import no.nav.helse.rapids_rivers.JsonMessage
-import no.nav.helse.rapids_rivers.MessageContext
-import no.nav.helse.rapids_rivers.MessageProblems
-import no.nav.helse.rapids_rivers.RapidsConnection
-import no.nav.helse.rapids_rivers.River
+import no.nav.helse.rapids_rivers.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -26,11 +22,11 @@ internal class EksternVarslingStatusSink(
                     "eventId",
                     "status",
                     "melding",
-                    "kanaler",
-                    "bestillerAppnavn"
+                    "bestillerAppnavn",
+                    "tidspunkt"
                 )
             }
-            validate { it.interestedIn("distribusjonsId") }
+            validate { it.interestedIn("distribusjonsId", "kanal") }
         }.register(this)
     }
 
@@ -41,14 +37,13 @@ internal class EksternVarslingStatusSink(
             status = packet["status"].asText(),
             melding = packet["melding"].asText(),
             distribusjonsId = packet["distribusjonsId"].asLongOrNull(),
-            kanaler = packet["kanaler"].map { it.asText() }
+            kanal = packet["kanal"].asTextOrNull(),
+            tidspunkt = packet["tidspunkt"].asLocalDateTime()
         )
 
         runBlocking {
             eksternVarslingStatusUpdater.insertOrUpdateStatus(eksternVarslingStatus)
             log.info("Behandlet eksternVarslingStatus fra rapid med eventid ${eksternVarslingStatus.eventId}")
-
-            //TODO metricsProbe.countProcessed()
         }
     }
 
@@ -57,4 +52,6 @@ internal class EksternVarslingStatusSink(
     }
 
     private fun JsonNode.asLongOrNull() = if (isNull) null else asLong()
+
+    private fun JsonNode.asTextOrNull() = if (isNull) null else asText()
 }
