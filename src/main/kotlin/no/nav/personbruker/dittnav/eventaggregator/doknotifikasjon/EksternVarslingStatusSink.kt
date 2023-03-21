@@ -31,7 +31,7 @@ internal class EksternVarslingStatusSink(
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
-        val eksternVarslingStatus = DoknotifikasjonStatusDto(
+        val eksternVarslingStatus = DoknotifikasjonStatusEvent(
             eventId = packet["eventId"].asText(),
             bestillerAppnavn = packet["bestillerAppnavn"].asText(),
             status = packet["status"].asText(),

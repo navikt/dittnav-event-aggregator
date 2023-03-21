@@ -1,13 +1,13 @@
 package no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.metrics
 
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusDto
+import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.DoknotifikasjonStatusEvent
 
 class DoknotifikasjonStatusMetricsSession {
 
     private var allStatusesByProducer = emptyMap<String, Int>()
-    private val statusesSuccessfullyUpdatedByType = HashMap<EventType, List<DoknotifikasjonStatusDto>>()
-    private val statusesWithoutMatch = HashMap<EventType, List<DoknotifikasjonStatusDto>>()
+    private val statusesSuccessfullyUpdatedByType = HashMap<EventType, List<DoknotifikasjonStatusEvent>>()
+    private val statusesWithoutMatch = HashMap<EventType, List<DoknotifikasjonStatusEvent>>()
 
     private val startTime = System.nanoTime()
 
@@ -35,7 +35,7 @@ class DoknotifikasjonStatusMetricsSession {
         }
     }
 
-    private fun countForEachTagPermutation(eventType: String, statuses: List<DoknotifikasjonStatusDto>): List<TagPermutationWithCount> {
+    private fun countForEachTagPermutation(eventType: String, statuses: List<DoknotifikasjonStatusEvent>): List<TagPermutationWithCount> {
         return statuses.groupingBy { doknotStatus ->
             doknotStatus.bestillerAppnavn to doknotStatus.status
         }.eachCount().map { (bestillerStatus, count) ->

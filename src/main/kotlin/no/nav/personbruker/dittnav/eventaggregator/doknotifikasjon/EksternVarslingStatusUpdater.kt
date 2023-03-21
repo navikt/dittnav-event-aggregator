@@ -14,7 +14,7 @@ class EksternVarslingStatusUpdater(
     private val eksternVarslingOppdatertProducer: EksternVarslingOppdatertProducer
 ) {
 
-    suspend fun insertOrUpdateStatus(statusEvent: DoknotifikasjonStatusDto) {
+    suspend fun insertOrUpdateStatus(statusEvent: DoknotifikasjonStatusEvent) {
         val varsel = varselRepository.getVarsel(statusEvent.eventId)
 
         if (varsel == null) {
@@ -30,7 +30,7 @@ class EksternVarslingStatusUpdater(
         }
     }
 
-    private suspend fun insertNewStatus(statusEvent: DoknotifikasjonStatusDto, varsel: VarselHeader) {
+    private suspend fun insertNewStatus(statusEvent: DoknotifikasjonStatusEvent, varsel: VarselHeader) {
         val newEntry = EksternVarslingHistorikkEntry(
             melding = statusEvent.melding,
             status = determineInternalStatus(statusEvent),
@@ -55,7 +55,7 @@ class EksternVarslingStatusUpdater(
         eksternVarslingOppdatertProducer.eksternStatusOppdatert(buildOppdatering(newEntry, varsel))
     }
 
-    private suspend fun updateExistingStatus(statusEvent: DoknotifikasjonStatusDto, currentStatus: EksternVarslingStatus, varsel: VarselHeader) {
+    private suspend fun updateExistingStatus(statusEvent: DoknotifikasjonStatusEvent, currentStatus: EksternVarslingStatus, varsel: VarselHeader) {
         val newEntry = EksternVarslingHistorikkEntry(
             melding = statusEvent.melding,
             status = determineInternalStatus(statusEvent),
@@ -80,7 +80,7 @@ class EksternVarslingStatusUpdater(
         eksternVarslingOppdatertProducer.eksternStatusOppdatert(buildOppdatering(newEntry, varsel))
     }
 
-    private fun determineIfRenotifikasjon(currentStatus: EksternVarslingStatus, statusEvent: DoknotifikasjonStatusDto): Boolean {
+    private fun determineIfRenotifikasjon(currentStatus: EksternVarslingStatus, statusEvent: DoknotifikasjonStatusEvent): Boolean {
         return when {
             determineInternalStatus(statusEvent) != Sendt -> false
             isFirstAttempt(currentStatus) -> false
@@ -93,7 +93,7 @@ class EksternVarslingStatusUpdater(
         return currentStatus.historikk.none { it.status == Sendt || it.status == Feilet }
     }
 
-    private fun hasNotReceivedSameStatus(currentStatus: EksternVarslingStatus, statusEvent: DoknotifikasjonStatusDto): Boolean {
+    private fun hasNotReceivedSameStatus(currentStatus: EksternVarslingStatus, statusEvent: DoknotifikasjonStatusEvent): Boolean {
         return currentStatus.historikk
             .filter { it.status == determineInternalStatus(statusEvent) }
             .filter { it.distribusjonsId == statusEvent.distribusjonsId }
@@ -101,7 +101,7 @@ class EksternVarslingStatusUpdater(
             .none()
     }
 
-    private fun intervalSinceFirstAttempt(currentStatus: EksternVarslingStatus, statusEvent: DoknotifikasjonStatusDto): Duration {
+    private fun intervalSinceFirstAttempt(currentStatus: EksternVarslingStatus, statusEvent: DoknotifikasjonStatusEvent): Duration {
         val previous = currentStatus.historikk
             .filter { it.status == Sendt || it.status == Feilet }
             .minOf { it.tidspunkt }
@@ -119,7 +119,7 @@ class EksternVarslingStatusUpdater(
         renotifikasjon = newEntry.renotifikasjon
     )
 
-    private fun determineInternalStatus(statusEvent: DoknotifikasjonStatusDto): EksternStatus {
+    private fun determineInternalStatus(statusEvent: DoknotifikasjonStatusEvent): EksternStatus {
         return when(statusEvent.status) {
             FERDIGSTILT.name -> if (statusEvent.kanal.isNullOrBlank()) Ferdigstilt else Sendt
             INFO.name -> Info

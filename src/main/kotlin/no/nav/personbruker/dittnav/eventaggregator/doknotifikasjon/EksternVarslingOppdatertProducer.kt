@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
+import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.Logger
@@ -44,3 +45,13 @@ class EksternVarslingOppdatertProducer(private val kafkaProducer: Producer<Strin
         }
     }
 }
+
+data class EksternStatusOppdatering(
+    val status: EksternStatus,
+    val eventId: String,
+    val varselType: VarselType,
+    val namespace: String,
+    val appnavn: String,
+    val kanal: String?,
+    val renotifikasjon: Boolean?
+)

@@ -13,8 +13,8 @@ object DoknotifikasjonStatusDtoTestData {
         distribusjonsId: Long = 1L,
         kanal: String? = null,
         tidspunkt: LocalDateTime = nowAtUtcTruncated()
-    ): DoknotifikasjonStatusDto {
-        return DoknotifikasjonStatusDto(
+    ): DoknotifikasjonStatusEvent {
+        return DoknotifikasjonStatusEvent(
             eventId = eventId,
             bestillerAppnavn = bestillerAppnavn,
             status = status,
