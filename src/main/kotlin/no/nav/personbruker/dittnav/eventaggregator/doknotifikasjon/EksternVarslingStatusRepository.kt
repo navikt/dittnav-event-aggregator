@@ -5,15 +5,15 @@ import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 
 class EksternVarslingStatusRepository(private val database: Database) {
 
-    suspend fun getStatusIfExists(eventId: String, varselType: VarselType): DoknotifikasjonStatusDto? {
+    suspend fun getStatusIfExists(eventId: String, varselType: VarselType): EksternVarslingStatus? {
         return database.queryWithExceptionTranslation {
-            getStatusIfExists(eventId, varselType)
+            getEksternVarslingStatusIfExists(eventId, varselType)
         }
     }
 
-    suspend fun updateStatus(dokStatus: DoknotifikasjonStatusDto, varselType: VarselType) {
+    suspend fun updateStatus(dokStatus: EksternVarslingStatus, varselType: VarselType) {
         database.queryWithExceptionTranslation {
-            upsertDoknotifikasjonStatus(dokStatus, varselType)
+            upsertEksternVarslingStatus(dokStatus, varselType)
         }
     }
 }

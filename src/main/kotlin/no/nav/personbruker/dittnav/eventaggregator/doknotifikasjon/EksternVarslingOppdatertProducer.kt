@@ -26,6 +26,7 @@ class EksternVarslingOppdatertProducer(private val kafkaProducer: Producer<Strin
 
         if (oppdatering.status == EksternStatus.Sendt) {
             objectNode.put("kanal", oppdatering.kanal)
+            objectNode.put("renotifikasjon", oppdatering.renotifikasjon)
         }
 
         val producerRecord = ProducerRecord(topicName, oppdatering.eventId, objectNode.toString())

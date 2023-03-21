@@ -1,6 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
-import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowAtUtcTruncated
 import java.time.LocalDateTime
 
 object BeskjedTestData {
@@ -9,15 +9,15 @@ object BeskjedTestData {
         systembruker: String = "systembruker",
         namespace: String = "namespace",
         appnavn: String = "appnavn",
-        eventTidspunkt: LocalDateTime = nowTruncatedToMillis(),
-        forstBehandlet: LocalDateTime = nowTruncatedToMillis(),
-        synligFremTil: LocalDateTime = nowTruncatedToMillis().plusDays(1),
+        eventTidspunkt: LocalDateTime = nowAtUtcTruncated(),
+        forstBehandlet: LocalDateTime = nowAtUtcTruncated(),
+        synligFremTil: LocalDateTime = nowAtUtcTruncated().plusDays(1),
         fodselsnummer: String = "123",
         eventId: String = "12345",
         grupperingsId: String = "grupperingsId",
         tekst: String = "tekst",
         link: String = "http://link",
-        sistOppdatert: LocalDateTime = nowTruncatedToMillis(),
+        sistOppdatert: LocalDateTime = nowAtUtcTruncated(),
         sikkerhetsnivaa: Int = 4,
         aktiv: Boolean = true,
         eksternVarsling: Boolean = false,

@@ -1,6 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
-import no.nav.personbruker.dittnav.eventaggregator.common.database.getListFromSeparatedString
+import no.nav.personbruker.dittnav.eventaggregator.common.database.getListFromString
 import no.nav.personbruker.dittnav.eventaggregator.common.database.getNullableLocalDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.database.getUtcDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.database.list
@@ -54,7 +54,7 @@ fun ResultSet.toOppgave() = Oppgave(
     sistOppdatert = getUtcDateTime("sistOppdatert"),
     aktiv = getBoolean("aktiv"),
     eksternVarsling = getBoolean("eksternVarsling"),
-    prefererteKanaler = getListFromSeparatedString("prefererteKanaler", ","),
+    prefererteKanaler = getListFromString("prefererteKanaler", ","),
     synligFremTil = getNullableLocalDateTime("synligFremTil"),
     fristUtløpt = getFristUtløpt()
 )

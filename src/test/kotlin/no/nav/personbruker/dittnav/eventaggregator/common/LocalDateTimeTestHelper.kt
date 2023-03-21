@@ -4,6 +4,6 @@ import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
 object LocalDateTimeTestHelper {
-    fun nowTruncatedToMillis(): LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS)
+    fun nowAtUtcTruncated(): LocalDateTime = LocalDateTimeHelper.nowAtUtc().truncatedTo(ChronoUnit.MILLIS)
 }
 

@@ -8,10 +8,8 @@ data class EksternStatusOppdatering(
     val varselType: VarselType,
     val namespace: String,
     val appnavn: String,
-    val kanal: String?
+    val kanal: String?,
+    val renotifikasjon: Boolean?
 )
-enum class EksternStatus {
-    Feilet, Info, Bestilt, Sendt, Ferdigstilt;
 
-    val lowercaseName = name.lowercase()
-}
+

@@ -1,6 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
-import no.nav.personbruker.dittnav.eventaggregator.common.database.getListFromSeparatedString
+import no.nav.personbruker.dittnav.eventaggregator.common.database.getListFromString
 import no.nav.personbruker.dittnav.eventaggregator.common.database.getUtcDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.database.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.singleResult
@@ -43,6 +43,6 @@ fun ResultSet.toInnboks() = Innboks(
     sistOppdatert = getUtcDateTime("sistOppdatert"),
     aktiv = getBoolean("aktiv"),
     eksternVarsling = getBoolean("eksternVarsling"),
-    prefererteKanaler = getListFromSeparatedString("prefererteKanaler", ",")
+    prefererteKanaler = getListFromString("prefererteKanaler", ",")
 )
 

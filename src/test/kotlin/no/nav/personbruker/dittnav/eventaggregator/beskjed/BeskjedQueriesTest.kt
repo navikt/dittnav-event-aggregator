@@ -3,7 +3,7 @@ package no.nav.personbruker.dittnav.eventaggregator.beskjed
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.runBlocking
-import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowAtUtcTruncated
 import no.nav.personbruker.dittnav.eventaggregator.common.database.LocalPostgresDatabase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -34,7 +34,7 @@ class BeskjedQueriesTest {
     @Test
     fun `Finner utgåtte beskjeder`() {
         runBlocking {
-            val expiredBeskjed = BeskjedTestData.beskjed(synligFremTil = nowTruncatedToMillis().minusDays(1))
+            val expiredBeskjed = BeskjedTestData.beskjed(synligFremTil = nowAtUtcTruncated().minusDays(1))
             database.dbQuery { createBeskjed(expiredBeskjed) }
 
             val numberUpdated = database.dbQuery {

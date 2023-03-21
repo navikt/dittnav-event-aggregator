@@ -1,5 +1,8 @@
 package no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon
 
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowAtUtcTruncated
+import java.time.LocalDateTime
+
 object DoknotifikasjonStatusDtoTestData {
 
     fun createDoknotifikasjonStatusDto(
@@ -8,8 +11,8 @@ object DoknotifikasjonStatusDtoTestData {
         status: String =  "INFO",
         melding: String = "dummyMelding",
         distribusjonsId: Long = 1L,
-        kanaler: List<String> = emptyList(),
-        antallOppdateringer: Int =  1
+        kanal: String? = null,
+        tidspunkt: LocalDateTime = nowAtUtcTruncated()
     ): DoknotifikasjonStatusDto {
         return DoknotifikasjonStatusDto(
             eventId = eventId,
@@ -17,8 +20,8 @@ object DoknotifikasjonStatusDtoTestData {
             status = status,
             melding = melding,
             distribusjonsId = distribusjonsId,
-            kanaler = kanaler,
-            antallOppdateringer = antallOppdateringer,
+            kanal = kanal,
+            tidspunkt = tidspunkt
         )
     }
 }

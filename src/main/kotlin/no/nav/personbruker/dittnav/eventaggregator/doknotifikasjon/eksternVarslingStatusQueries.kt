@@ -1,27 +1,35 @@
 package no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon
 
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper
-import no.nav.personbruker.dittnav.eventaggregator.common.database.getListFromSeparatedString
+import no.nav.personbruker.dittnav.eventaggregator.common.database.getListFromString
+import no.nav.personbruker.dittnav.eventaggregator.common.database.getUtcDateTime
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
+import org.postgresql.util.PGobject
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
 
 private fun getQuery(eventType: String) = """
-    SELECT * FROM doknotifikasjon_status_${eventType} WHERE eventId = ?
+    SELECT * FROM ekstern_varsling_status_${eventType} WHERE eventId = ?
 """
 
 private fun upsertQuery(eventType: String) = """
-    INSERT INTO doknotifikasjon_status_${eventType}(eventId, status, melding, distribusjonsId, kanaler, tidspunkt, antall_oppdateringer) VALUES(?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO ekstern_varsling_status_${eventType}(eventId, kanaler, eksternVarslingSendt, renotifikasjonSendt, sistMottattStatus, historikk, sistOppdatert) VALUES(?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT (eventId) DO 
         UPDATE SET 
-            status = excluded.status,
-            melding = excluded.melding,
-            distribusjonsId = excluded.distribusjonsId,
             kanaler = excluded.kanaler,
-            tidspunkt = excluded.tidspunkt,
-            antall_oppdateringer = excluded.antall_oppdateringer
+            eksternVarslingSendt = excluded.eksternVarslingSendt,
+            renotifikasjonSendt = excluded.renotifikasjonSendt,
+            sistMottattStatus = excluded.sistMottattStatus,
+            historikk = excluded.historikk,
+            sistOppdatert = excluded.sistOppdatert
 """
 
 private val getQueryBeskjed = getQuery("beskjed")
@@ -32,7 +40,13 @@ private val upsertQueryBeskjed = upsertQuery("beskjed")
 private val upsertQueryOppgave = upsertQuery("oppgave")
 private val upsertQueryInnboks = upsertQuery("innboks")
 
-fun Connection.getStatusIfExists(eventId: String, varselType: VarselType): DoknotifikasjonStatusDto? {
+private val objectMapper = jacksonMapperBuilder()
+    .addModule(JavaTimeModule())
+    .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+    .build()
+    .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+
+fun Connection.getEksternVarslingStatusIfExists(eventId: String, varselType: VarselType): EksternVarslingStatus? {
     return when(varselType) {
         VarselType.BESKJED -> getStatusIfExists(eventId, getQueryBeskjed)
         VarselType.OPPGAVE -> getStatusIfExists(eventId, getQueryOppgave)
@@ -40,23 +54,24 @@ fun Connection.getStatusIfExists(eventId: String, varselType: VarselType): Dokno
     }
 }
 
-fun Connection.upsertDoknotifikasjonStatus(status: DoknotifikasjonStatusDto, varselType: VarselType) =
+fun Connection.upsertEksternVarslingStatus(status: EksternVarslingStatus, varselType: VarselType) =
     when(varselType) {
-        VarselType.BESKJED -> upsertDoknotifikasjonStatus(upsertQueryBeskjed) { buildStatementForSingleRow(status) }
-        VarselType.OPPGAVE -> upsertDoknotifikasjonStatus(upsertQueryOppgave) { buildStatementForSingleRow(status) }
-        VarselType.INNBOKS -> upsertDoknotifikasjonStatus(upsertQueryInnboks) { buildStatementForSingleRow(status) }
+        VarselType.BESKJED -> upsertEksternVarslingStatus(upsertQueryBeskjed) { buildStatement(status) }
+        VarselType.OPPGAVE -> upsertEksternVarslingStatus(upsertQueryOppgave) { buildStatement(status) }
+        VarselType.INNBOKS -> upsertEksternVarslingStatus(upsertQueryInnboks) { buildStatement(status) }
     }
 
-private fun Connection.getStatusIfExists(eventId: String, query: String): DoknotifikasjonStatusDto? =
+private fun Connection.getStatusIfExists(eventId: String, query: String): EksternVarslingStatus? =
     prepareStatement(query)
         .use {
             it.setString(1, eventId)
             it.executeQuery().use {
-                    resultSet -> if(resultSet.next()) resultSet.toDoknotifikasjonStatusDto() else null
+                    resultSet -> if(resultSet.next()) resultSet.toEksternVarslingStatus() else null
             }
         }
 
-private fun Connection.upsertDoknotifikasjonStatus(query: String, paramInit: PreparedStatement.() -> Unit) {
+
+private fun Connection.upsertEksternVarslingStatus(query: String, paramInit: PreparedStatement.() -> Unit) {
     return prepareStatement(query)
         .use {
             it.paramInit()
@@ -64,34 +79,37 @@ private fun Connection.upsertDoknotifikasjonStatus(query: String, paramInit: Pre
         }
 }
 
-private fun PreparedStatement.buildStatementForSingleRow(dokStatus: DoknotifikasjonStatusDto) {
-    setString(1, dokStatus.eventId)
-    setString(2, dokStatus.status)
-    setString(3, dokStatus.melding)
-    setObject(4, dokStatus.distribusjonsId, Types.BIGINT)
-    setString(5, dokStatus.kanaler.joinToString(","))
-    setObject(6, LocalDateTimeHelper.nowAtUtc(), Types.TIMESTAMP)
-    setInt(7, dokStatus.antallOppdateringer)
-}
-
-private fun ResultSet.toDoknotifikasjonStatusDto(): DoknotifikasjonStatusDto {
-    return DoknotifikasjonStatusDto(
-            eventId = getString("eventId"),
-            status = getString("status"),
-            melding = getString("melding"),
-            distribusjonsId = getLongOrNull("distribusjonsId"),
-            kanaler = getListFromSeparatedString("kanaler", ","),
-            antallOppdateringer = getInt("antall_oppdateringer"),
-            bestillerAppnavn = ""
-        )
-}
-
-private fun ResultSet.getLongOrNull(colName: String): Long? {
-    val result = getLong(colName)
-
-    return if (wasNull()) {
-        null
-    } else {
-        result
+private fun PreparedStatement.buildStatement(status: EksternVarslingStatus) {
+    val historikkBlob = PGobject().apply {
+        type = "json"
+        value = objectMapper.writeValueAsString(status.historikk)
     }
+
+    setString(1, status.eventId)
+    setString(2, status.kanaler.joinToString(","))
+    setBoolean(3, status.eksternVarslingSendt)
+    setBoolean(4, status.renotifikasjonSendt)
+    setString(5, status.sistMottattStatus)
+    setObject(6, historikkBlob)
+    setObject(7, LocalDateTimeHelper.nowAtUtc(), Types.TIMESTAMP)
+}
+
+private fun ResultSet.toEksternVarslingStatus(): EksternVarslingStatus {
+    val historikkJson = getString("historikk")
+
+    val historikk: List<EksternVarslingHistorikkEntry> = if (historikkJson == null) {
+        emptyList()
+    } else {
+        objectMapper.readValue(historikkJson)
+    }
+
+    return EksternVarslingStatus(
+        eventId = getString("eventId"),
+        eksternVarslingSendt = getBoolean("eksternVarslingSendt"),
+        renotifikasjonSendt = getBoolean("renotifikasjonSendt"),
+        kanaler = getListFromString("kanaler"),
+        sistOppdatert = getUtcDateTime("sistOppdatert"),
+        sistMottattStatus = getString("sistMottattStatus"),
+        historikk = historikk
+    )
 }

@@ -1,6 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
-import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowTruncatedToMillis
+import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeTestHelper.nowAtUtcTruncated
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselHeader
 
 object DoneTestData {
@@ -10,11 +10,11 @@ object DoneTestData {
             namespace = namespace,
             appnavn = appnavn,
             eventId = eventId,
-            eventTidspunkt = nowTruncatedToMillis(),
-            forstBehandlet = nowTruncatedToMillis(),
+            eventTidspunkt = nowAtUtcTruncated(),
+            forstBehandlet = nowAtUtcTruncated(),
             fodselsnummer = fodselsnummer,
             grupperingsId = "100${eventId}",
-            sistBehandlet = nowTruncatedToMillis()
+            sistBehandlet = nowAtUtcTruncated()
         )
     }
 

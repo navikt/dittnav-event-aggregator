@@ -1,12 +1,11 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
-import no.nav.personbruker.dittnav.eventaggregator.common.database.getListFromSeparatedString
+import no.nav.personbruker.dittnav.eventaggregator.common.database.getListFromString
 import no.nav.personbruker.dittnav.eventaggregator.common.database.getNullableLocalDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.database.getUtcDateTime
 import no.nav.personbruker.dittnav.eventaggregator.common.database.list
 import no.nav.personbruker.dittnav.eventaggregator.common.database.singleResult
 import no.nav.personbruker.dittnav.eventaggregator.common.getFristUtløpt
-import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import java.sql.Connection
 import java.sql.ResultSet
 
@@ -57,6 +56,6 @@ fun ResultSet.toBeskjed() = Beskjed(
     synligFremTil = getNullableLocalDateTime("synligFremTil"),
     aktiv = getBoolean("aktiv"),
     eksternVarsling = getBoolean("eksternVarsling"),
-    prefererteKanaler = getListFromSeparatedString("prefererteKanaler", ","),
+    prefererteKanaler = getListFromString("prefererteKanaler", ","),
     fristUtløpt = getFristUtløpt()
 )
