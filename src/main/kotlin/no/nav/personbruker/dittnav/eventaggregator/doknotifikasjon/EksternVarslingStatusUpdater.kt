@@ -80,9 +80,9 @@ class EksternVarslingStatusUpdater(
         eksternVarslingOppdatertProducer.eksternStatusOppdatert(buildOppdatering(newEntry, varsel))
     }
 
-    private fun determineIfRenotifikasjon(currentStatus: EksternVarslingStatus, statusEvent: DoknotifikasjonStatusEvent): Boolean {
+    private fun determineIfRenotifikasjon(currentStatus: EksternVarslingStatus, statusEvent: DoknotifikasjonStatusEvent): Boolean? {
         return when {
-            determineInternalStatus(statusEvent) != Sendt -> false
+            determineInternalStatus(statusEvent) != Sendt -> null
             isFirstAttempt(currentStatus) -> false
             intervalSinceFirstAttempt(currentStatus, statusEvent) > Duration.ofHours(23) -> true
             else -> false
