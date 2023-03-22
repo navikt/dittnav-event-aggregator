@@ -2,12 +2,11 @@ package no.nav.personbruker.dittnav.eventaggregator.done.jobs
 
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper
 import no.nav.personbruker.dittnav.eventaggregator.common.PeriodicJob
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
+import no.nav.personbruker.dittnav.eventaggregator.common.database.RetriableDatabaseException
+import no.nav.personbruker.dittnav.eventaggregator.common.database.UnretriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.done.Done
 import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
-import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertKilde
 import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertKilde.Produsent
 import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertProducer
 import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe

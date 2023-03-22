@@ -2,6 +2,7 @@ package no.nav.personbruker.dittnav.eventaggregator.common.exceptions
 
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
+import no.nav.personbruker.dittnav.eventaggregator.common.database.RetriableDatabaseException
 import org.junit.jupiter.api.Test
 
 class AbstractPersonbrukerExceptionTest {
