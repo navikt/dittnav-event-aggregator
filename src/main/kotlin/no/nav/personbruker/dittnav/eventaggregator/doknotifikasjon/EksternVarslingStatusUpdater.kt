@@ -31,12 +31,14 @@ class EksternVarslingStatusUpdater(
     }
 
     private suspend fun insertNewStatus(statusEvent: DoknotifikasjonStatusEvent, varsel: VarselHeader) {
+        val internalStatus = determineInternalStatus(statusEvent)
+
         val newEntry = EksternVarslingHistorikkEntry(
             melding = statusEvent.melding,
-            status = determineInternalStatus(statusEvent),
+            status = internalStatus,
             distribusjonsId = statusEvent.distribusjonsId,
             kanal = statusEvent.kanal,
-            renotifikasjon = false,
+            renotifikasjon = if(internalStatus == Sendt) false else null,
             tidspunkt = statusEvent.tidspunkt
         )
 
