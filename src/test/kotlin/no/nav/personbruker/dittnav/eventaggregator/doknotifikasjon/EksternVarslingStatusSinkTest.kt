@@ -159,7 +159,7 @@ class EksternVarslingStatusSinkTest {
         setupEksternVarslingStatusSink(testRapid)
         setupBeskjedSink(testRapid)
 
-        testRapid.sendTestMessage(varselJson("beskjed", "111"))
+        testRapid.sendTestMessage(varselJson("beskjed", "111", ident = "147"))
         testRapid.sendTestMessage(eksternVarslingStatusJson("111", "OVERSENDT"))
         testRapid.sendTestMessage(eksternVarslingStatusJson("111", "INFO"))
         testRapid.sendTestMessage(eksternVarslingStatusJson("111", "FEILET"))
@@ -176,6 +176,7 @@ class EksternVarslingStatusSinkTest {
             val ferdigstilt = output.find { it["status"].textValue() == "sendt" }!!
             ferdigstilt["@event_name"].textValue() shouldBe "eksternStatusOppdatert"
             ferdigstilt["eventId"].textValue() shouldBe "111"
+            ferdigstilt["ident"].textValue() shouldBe "147"
             ferdigstilt["kanal"].textValue() shouldBe "SMS"
             ferdigstilt["renotifikasjon"].booleanValue() shouldBe false
             ferdigstilt["tidspunkt"].textValue().let { LocalDateTime.parse(it) } shouldNotBe null
@@ -286,13 +287,13 @@ class EksternVarslingStatusSinkTest {
         "tidspunkt": "$tidspunkt"
     }""".trimIndent()
 
-    private fun varselJson(type: String, eventId: String) = """{
+    private fun varselJson(type: String, eventId: String, ident: String = "12345678910") = """{
         "@event_name": "$type",
         "namespace": "ns",
         "appnavn": "app",
         "eventId": "$eventId",
         "forstBehandlet": "2022-02-01T00:00:00",
-        "fodselsnummer": "12345678910",
+        "fodselsnummer": "$ident",
         "tekst": "Tekst",
         "link": "url",
         "sikkerhetsnivaa": 4,

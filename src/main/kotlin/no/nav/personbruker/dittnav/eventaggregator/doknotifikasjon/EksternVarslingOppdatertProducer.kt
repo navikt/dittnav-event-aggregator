@@ -20,6 +20,7 @@ class EksternVarslingOppdatertProducer(private val kafkaProducer: Producer<Strin
         objectNode.put("@event_name", "eksternStatusOppdatert")
         objectNode.put("status", oppdatering.status.lowercaseName)
         objectNode.put("eventId", oppdatering.eventId)
+        objectNode.put("ident", oppdatering.ident)
         objectNode.put("varselType", oppdatering.varselType.eventType)
         objectNode.put("namespace", oppdatering.namespace)
         objectNode.put("appnavn", oppdatering.appnavn)
@@ -49,6 +50,7 @@ class EksternVarslingOppdatertProducer(private val kafkaProducer: Producer<Strin
 data class EksternStatusOppdatering(
     val status: EksternStatus,
     val eventId: String,
+    val ident: String,
     val varselType: VarselType,
     val namespace: String,
     val appnavn: String,

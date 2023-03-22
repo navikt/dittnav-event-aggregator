@@ -114,6 +114,7 @@ class EksternVarslingStatusUpdater(
         kanal = newEntry.kanal,
         varselType = varsel.type,
         eventId = varsel.eventId,
+        ident = varsel.fodselsnummer,
         namespace = varsel.namespace,
         appnavn = varsel.appnavn,
         renotifikasjon = newEntry.renotifikasjon
