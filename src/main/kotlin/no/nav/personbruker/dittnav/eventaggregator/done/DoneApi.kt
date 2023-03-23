@@ -1,21 +1,18 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
 import com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES
-import io.ktor.http.HttpStatusCode
-import io.ktor.serialization.jackson.jackson
+import io.ktor.http.*
+import io.ktor.serialization.jackson.*
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.application.install
-import io.ktor.server.auth.authenticate
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.server.plugins.statuspages.StatusPages
-import io.ktor.server.request.receive
-import io.ktor.server.response.respond
-import io.ktor.server.response.respondText
-import io.ktor.server.routing.post
-import io.ktor.server.routing.route
-import io.ktor.server.routing.routing
+import io.ktor.server.auth.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedDoesNotBelongToUserException
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
 import no.nav.personbruker.dittnav.eventaggregator.common.database.log
@@ -56,7 +53,13 @@ fun Application.doneApi(
                     log.warn(cause.message, cause.stackTrace)
                 }
 
-                else -> call.respond(HttpStatusCode.InternalServerError)
+                else -> {
+                    log.error("""Feil i kall til done-api: ${cause.message}
+                       stacktrace: 
+                       ${cause.stackTrace} 
+                    """)
+                    call.respond(HttpStatusCode.InternalServerError)
+                }
             }
 
         }
