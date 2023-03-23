@@ -36,6 +36,7 @@ dependencies {
     implementation(Avro.avroSerializer)
     implementation(Logback.classic)
     implementation(Logstash.logbackEncoder)
+    implementation(KotlinLogging.logging)
     implementation(NAV.vaultJdbc)
     implementation(Postgresql.postgresql)
     implementation(Prometheus.common)
