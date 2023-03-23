@@ -1,13 +1,11 @@
 package no.nav.personbruker.dittnav.eventaggregator.archive
 
+import mu.KotlinLogging
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.common.PeriodicJob
 import no.nav.personbruker.dittnav.eventaggregator.common.database.RetriableDatabaseException
 import no.nav.personbruker.dittnav.eventaggregator.config.EventType
-import no.nav.personbruker.dittnav.eventaggregator.done.jobs.PeriodicDoneEventWaitingTableProcessor
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.time.Duration
 
 class PeriodicVarselArchiver(
@@ -15,9 +13,9 @@ class PeriodicVarselArchiver(
     private val archiveMetricsProbe: ArchiveMetricsProbe,
     private val ageThresholdDays: Int,
     interval: Duration = Duration.ofSeconds(10)
-): PeriodicJob(interval) {
+) : PeriodicJob(interval) {
 
-    private val log: Logger = LoggerFactory.getLogger(PeriodicDoneEventWaitingTableProcessor::class.java)
+    private val log = KotlinLogging.logger { }
 
     override val job = initializeJob {
         archiveOldVarsler()

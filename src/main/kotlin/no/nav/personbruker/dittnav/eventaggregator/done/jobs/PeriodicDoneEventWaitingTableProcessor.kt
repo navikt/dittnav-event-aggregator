@@ -1,5 +1,6 @@
 package no.nav.personbruker.dittnav.eventaggregator.done.jobs
 
+import mu.KotlinLogging
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper
 import no.nav.personbruker.dittnav.eventaggregator.common.PeriodicJob
 import no.nav.personbruker.dittnav.eventaggregator.common.database.RetriableDatabaseException
@@ -13,8 +14,6 @@ import no.nav.personbruker.dittnav.eventaggregator.metrics.db.DBMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.varsel.HendelseType.Inaktivert
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselHendelse
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.time.Duration
 
 class PeriodicDoneEventWaitingTableProcessor(
@@ -23,7 +22,7 @@ class PeriodicDoneEventWaitingTableProcessor(
     private val dbMetricsProbe: DBMetricsProbe,
 ) : PeriodicJob(interval = Duration.ofSeconds(30)) {
 
-    private val log: Logger = LoggerFactory.getLogger(PeriodicDoneEventWaitingTableProcessor::class.java)
+    private val log = KotlinLogging.logger { }
 
     override val job = initializeJob {
         processDoneEvents()
@@ -80,7 +79,13 @@ class PeriodicDoneEventWaitingTableProcessor(
     private fun sendVarselInaktivert(groupedDoneEvents: DoneBatchProcessor) {
         groupedDoneEvents.allFoundEventsByType.forEach { (type, done) ->
             varselInaktivertProducer.varselInaktivert(
-                VarselHendelse(Inaktivert, type.toVarselType(), eventId = done.eventId, namespace = done.namespace, appnavn = done.appnavn),
+                VarselHendelse(
+                    Inaktivert,
+                    type.toVarselType(),
+                    eventId = done.eventId,
+                    namespace = done.namespace,
+                    appnavn = done.appnavn
+                ),
                 kilde = Produsent
             )
         }

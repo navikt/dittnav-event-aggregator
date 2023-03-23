@@ -1,11 +1,9 @@
 package no.nav.personbruker.dittnav.eventaggregator.expired
 
+import mu.KotlinLogging
 import no.nav.personbruker.dittnav.eventaggregator.common.PeriodicJob
-import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertKilde
 import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertKilde.Frist
 import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertProducer
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.time.Duration
 
 class PeriodicExpiredVarselProcessor(
@@ -15,7 +13,7 @@ class PeriodicExpiredVarselProcessor(
     interval: Duration = Duration.ofMinutes(10)
 ) : PeriodicJob(interval) {
 
-    private val log: Logger = LoggerFactory.getLogger(PeriodicExpiredVarselProcessor::class.java)
+    private val log = KotlinLogging.logger { }
 
     override val job = initializeJob {
         updateExpiredBeskjed()

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonMapperBuilder
 import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.Beskjed
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.innboks.Innboks
@@ -23,7 +24,7 @@ class VarselAktivertProducer(
     private val rapidMetricsProbe: RapidMetricsProbe
 ) {
 
-    private val log: Logger = LoggerFactory.getLogger(Producer::class.java)
+    private val log = KotlinLogging.logger {  }
     private val objectMapper = jacksonMapperBuilder()
         .addModule(JavaTimeModule())
         .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)

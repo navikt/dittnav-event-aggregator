@@ -1,6 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import mu.KotlinLogging
 import no.nav.personbruker.dittnav.eventaggregator.common.LocalDateTimeHelper.nowAtUtc
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 import org.apache.kafka.clients.producer.Producer
@@ -11,7 +12,7 @@ import org.slf4j.LoggerFactory
 class EksternVarslingOppdatertProducer(private val kafkaProducer: Producer<String, String>,
                                        private val topicName: String
 ) {
-    val log: Logger = LoggerFactory.getLogger(Producer::class.java)
+    val log: Logger = KotlinLogging.logger {  }
     private val objectMapper = jacksonObjectMapper()
 
     fun eksternStatusOppdatert(oppdatering: EksternStatusOppdatering) {
