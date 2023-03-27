@@ -1,7 +1,12 @@
 package no.nav.personbruker.dittnav.eventaggregator.common
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart.LAZY
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.time.Duration
 
 abstract class PeriodicJob(private val interval: Duration) {
@@ -17,14 +22,8 @@ abstract class PeriodicJob(private val interval: Duration) {
         }
     }
 
-    private fun className() = this::class.simpleName!!
-
     fun start() {
         job.start()
-    }
-
-    fun isCompleted(): Boolean {
-        return job.isCompleted
     }
 
     suspend fun stop() {

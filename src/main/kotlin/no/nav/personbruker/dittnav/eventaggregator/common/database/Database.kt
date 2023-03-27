@@ -3,15 +3,9 @@ package no.nav.personbruker.dittnav.eventaggregator.common.database
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.AggregatorBatchUpdateException
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
 import org.postgresql.util.PSQLException
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.sql.*
 
-val log: Logger = LoggerFactory.getLogger(Database::class.java)
 
 interface Database {
 

@@ -1,29 +1,30 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
 import com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES
-import io.ktor.http.HttpStatusCode
-import io.ktor.serialization.jackson.jackson
+import io.ktor.http.*
+import io.ktor.serialization.jackson.*
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.application.install
-import io.ktor.server.auth.authenticate
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.server.plugins.statuspages.StatusPages
-import io.ktor.server.request.receive
-import io.ktor.server.response.respond
-import io.ktor.server.response.respondText
-import io.ktor.server.routing.post
-import io.ktor.server.routing.route
-import io.ktor.server.routing.routing
+import io.ktor.server.auth.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import mu.KotlinLogging
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedDoesNotBelongToUserException
 import no.nav.personbruker.dittnav.eventaggregator.beskjed.BeskjedRepository
-import no.nav.personbruker.dittnav.eventaggregator.common.database.log
 import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertKilde.Bruker
 import no.nav.tms.token.support.authentication.installer.installAuthenticators
 import no.nav.tms.token.support.azure.validation.AzureAuthenticator
 import no.nav.tms.token.support.tokenx.validation.user.TokenXUserFactory
 
+
+
+internal val log = KotlinLogging.logger {  }
+internal val sikkerlog = KotlinLogging.logger ("secureLog" )
 
 fun Application.doneApi(
     beskjedRepository: BeskjedRepository,
@@ -43,20 +44,26 @@ fun Application.doneApi(
         exception<Throwable> { call, cause ->
             when (cause) {
                 is BeskjedDoesNotBelongToUserException -> {
-                    call.respond(HttpStatusCode.Unauthorized)
                     log.warn("Forsøk på å inaktivere beskjed ${cause.eventId} med feil personnummer")
+                    call.respond(HttpStatusCode.Unauthorized)
+
                 }
 
                 is IllegalArgumentException -> {
-                    call.respondText(
-                        status = HttpStatusCode.BadRequest,
-                        text = cause.message ?: "Feil i parametre"
-                    )
+                    log.warn ("Illegal argument exception i kall til done-api ")
+                    sikkerlog.warn(cause.message, cause.stackTrace)
+                    call.respond(HttpStatusCode.BadRequest)
 
-                    log.warn(cause.message, cause.stackTrace)
                 }
 
-                else -> call.respond(HttpStatusCode.InternalServerError)
+                else -> {
+                    log.error { "Feil i kall til done-api: ${cause.message}" }
+                    sikkerlog.error("""Feil i kall til done-api: ${cause.message}
+                       stacktrace: 
+                       ${cause.stackTrace} 
+                    """)
+                    call.respond(HttpStatusCode.InternalServerError)
+                }
             }
 
         }

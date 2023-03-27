@@ -1,6 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.done
 
 import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.MessageProblems
@@ -15,8 +16,6 @@ import no.nav.personbruker.dittnav.eventaggregator.varsel.HendelseType.Inaktiver
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselHendelse
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 internal class DoneSink(
     rapidsConnection: RapidsConnection,
@@ -26,16 +25,18 @@ internal class DoneSink(
 ) :
     River.PacketListener {
 
-    private val log: Logger = LoggerFactory.getLogger(DoneSink::class.java)
+    private val log = KotlinLogging.logger { }
 
     init {
         River(rapidsConnection).apply {
             validate { it.demandValue("@event_name", "done") }
-            validate { it.requireKey(
-                "eventId",
-                "forstBehandlet",
-                "fodselsnummer"
-            ) }
+            validate {
+                it.requireKey(
+                    "eventId",
+                    "forstBehandlet",
+                    "fodselsnummer"
+                )
+            }
         }.register(this)
     }
 

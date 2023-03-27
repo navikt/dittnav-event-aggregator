@@ -2,9 +2,6 @@ package no.nav.personbruker.dittnav.eventaggregator.common.database
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.AggregatorBatchUpdateException
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.RetriableDatabaseException
-import no.nav.personbruker.dittnav.eventaggregator.common.exceptions.UnretriableDatabaseException
 import org.junit.jupiter.api.Test
 import org.postgresql.util.PSQLException
 import org.postgresql.util.PSQLState
@@ -70,7 +67,7 @@ class DatabaseTest {
 
     @Test
     fun `Skal haandtere BatchUpdateException, og mappe til intern exceptiontype`() {
-        shouldThrow<AggregatorBatchUpdateException > {
+        shouldThrow<AggregatorBatchUpdateException> {
             translateExternalExceptionsToInternalOnes {
                 throw BatchUpdateException("Simulert exception", IntArray(1))
             }

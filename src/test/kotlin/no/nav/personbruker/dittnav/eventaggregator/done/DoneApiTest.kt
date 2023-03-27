@@ -130,7 +130,6 @@ class DoneApiTest {
             val response = client.doneRequest(body = """{"eventId": "7777777777"}""")
 
             response.status shouldBe HttpStatusCode.BadRequest
-            response.bodyAsText() shouldBe "beskjed med eventId 7777777777 ikke funnet"
             mockProducer.history().size shouldBe 0
         }
     }
@@ -142,7 +141,6 @@ class DoneApiTest {
             mockDoneApi()
             val response = client.doneRequest(body = """{"event": "12398634581111"}""")
             response.status shouldBe HttpStatusCode.BadRequest
-            response.bodyAsText() shouldBe "eventid parameter mangler"
             mockProducer.history().size shouldBe 0
         }
     }

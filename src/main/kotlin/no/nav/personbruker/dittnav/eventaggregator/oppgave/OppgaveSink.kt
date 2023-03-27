@@ -1,6 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.oppgave
 
 import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.MessageProblems
@@ -24,7 +25,7 @@ internal class OppgaveSink(
 ) :
     River.PacketListener {
 
-    private val log: Logger = LoggerFactory.getLogger(OppgaveSink::class.java)
+    private val log = KotlinLogging.logger {  }
 
     init {
         River(rapidsConnection).apply {

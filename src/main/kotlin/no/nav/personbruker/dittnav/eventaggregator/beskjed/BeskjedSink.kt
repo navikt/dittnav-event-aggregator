@@ -1,6 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.beskjed
 
 import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.MessageProblems
@@ -13,8 +14,6 @@ import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.metrics.RapidMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselAktivertProducer
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 internal class BeskjedSink(
     rapidsConnection: RapidsConnection,
@@ -24,7 +23,7 @@ internal class BeskjedSink(
 ) :
     River.PacketListener {
 
-    private val log: Logger = LoggerFactory.getLogger(BeskjedSink::class.java)
+    private val log = KotlinLogging.logger {  }
 
     init {
         River(rapidsConnection).apply {

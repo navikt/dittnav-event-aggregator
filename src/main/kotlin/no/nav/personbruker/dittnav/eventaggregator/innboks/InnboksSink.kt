@@ -1,6 +1,7 @@
 package no.nav.personbruker.dittnav.eventaggregator.innboks
 
 import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.MessageProblems
@@ -12,8 +13,6 @@ import no.nav.personbruker.dittnav.eventaggregator.config.EventType
 import no.nav.personbruker.dittnav.eventaggregator.metrics.RapidMetricsProbe
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselAktivertProducer
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 internal class InnboksSink(
     rapidsConnection: RapidsConnection,
@@ -23,29 +22,33 @@ internal class InnboksSink(
 ) :
     River.PacketListener {
 
-    private val log: Logger = LoggerFactory.getLogger(InnboksSink::class.java)
+    private val log = KotlinLogging.logger { }
 
     init {
         River(rapidsConnection).apply {
             validate { it.demandValue("@event_name", "innboks") }
             validate { it.demandValue("aktiv", true) }
-            validate { it.requireKey(
-                "namespace",
-                "appnavn",
-                "eventId",
-                "forstBehandlet",
-                "fodselsnummer",
-                "tekst",
-                "link",
-                "sikkerhetsnivaa",
-                "eksternVarsling"
-            ) }
-            validate { it.interestedIn(
-                "prefererteKanaler",
-                "smsVarslingstekst",
-                "epostVarslingstekst",
-                "epostVarslingstittel"
-            ) }
+            validate {
+                it.requireKey(
+                    "namespace",
+                    "appnavn",
+                    "eventId",
+                    "forstBehandlet",
+                    "fodselsnummer",
+                    "tekst",
+                    "link",
+                    "sikkerhetsnivaa",
+                    "eksternVarsling"
+                )
+            }
+            validate {
+                it.interestedIn(
+                    "prefererteKanaler",
+                    "smsVarslingstekst",
+                    "epostVarslingstekst",
+                    "epostVarslingstittel"
+                )
+            }
         }.register(this)
     }
 
