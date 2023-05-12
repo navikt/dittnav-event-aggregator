@@ -19,6 +19,7 @@ class EksternVarslingOppdatertProducer(private val kafkaProducer: Producer<Strin
 
         val objectNode = objectMapper.createObjectNode()
         objectNode.put("@event_name", "eksternStatusOppdatert")
+        objectNode.put("@source", "aggregator")
         objectNode.put("status", oppdatering.status.lowercaseName)
         objectNode.put("eventId", oppdatering.eventId)
         objectNode.put("ident", oppdatering.ident)

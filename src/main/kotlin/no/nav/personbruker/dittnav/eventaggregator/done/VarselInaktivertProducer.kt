@@ -23,6 +23,7 @@ class VarselInaktivertProducer(
 
         val objectNode = objectMapper.createObjectNode()
         objectNode.put("@event_name", Inaktivert.lowerCaseName)
+        objectNode.put("@source", "aggregator")
         objectNode.put("eventId", hendelse.eventId)
         objectNode.put("varselType", hendelse.varselType.eventType)
         objectNode.put("namespace", hendelse.namespace)

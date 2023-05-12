@@ -47,6 +47,7 @@ class VarselAktivertProducer(
 
     private fun varselAktivert(varsel: ObjectNode, varselType: VarselType, eventId: String) {
         varsel.put("@event_name", Aktivert.lowerCaseName)
+        varsel.put("@source", "aggregator")
         varsel.put("varselType", varselType.eventType)
         varsel.put("tidspunkt", nowAtUtc().toString())
         val producerRecord = ProducerRecord(topicName, eventId, varsel.toString())
