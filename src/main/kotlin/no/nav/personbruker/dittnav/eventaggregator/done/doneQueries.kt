@@ -79,6 +79,7 @@ private fun ResultSet.toVarselHeader(): VarselHeader {
     return VarselHeader(
         eventId = getString("eventId"),
         appnavn = getString("appnavn"),
+        aktiv = getBoolean("aktiv"),
         namespace = getString("namespace"),
         type = VarselType.valueOf(getString("type").uppercase()),
         fodselsnummer = getString("fodselsnummer")

@@ -12,10 +12,7 @@ import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarsli
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingStatusRepository
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingStatusSink
 import no.nav.personbruker.dittnav.eventaggregator.doknotifikasjon.EksternVarslingStatusUpdater
-import no.nav.personbruker.dittnav.eventaggregator.done.DoneRepository
-import no.nav.personbruker.dittnav.eventaggregator.done.DoneSink
-import no.nav.personbruker.dittnav.eventaggregator.done.VarselInaktivertProducer
-import no.nav.personbruker.dittnav.eventaggregator.done.doneApi
+import no.nav.personbruker.dittnav.eventaggregator.done.*
 import no.nav.personbruker.dittnav.eventaggregator.done.jobs.PeriodicDoneEventWaitingTableProcessor
 import no.nav.personbruker.dittnav.eventaggregator.expired.ExpiredVarselRepository
 import no.nav.personbruker.dittnav.eventaggregator.expired.PeriodicExpiredVarselProcessor
@@ -103,6 +100,11 @@ private fun startRapid(environment: Environment, database: Database, appContext:
             varselRepository = varselRepository,
             varselInaktivertProducer = varselInaktivertProducer,
             rapidMetricsProbe = rapidMetricsProbe
+        )
+        BeskjedInaktivertAvBrukerSink(
+            rapidsConnection = this,
+            varselRepository = varselRepository,
+            varselInaktivertProducer = varselInaktivertProducer
         )
         EksternVarslingStatusSink(
             rapidsConnection = this,

@@ -29,11 +29,16 @@ class VarselRepository(private val database: Database) {
         createDoneEvent(done)
     }
 
-    suspend fun inaktiverVarsel(done: Done, varselType: VarselType) {
+    suspend fun inaktiverVarsel(done: Done, varselType: VarselType) = inaktiverVarsel(done.eventId, varselType)
+
+    suspend fun inaktiverVarsel(eventId: String, varselType: VarselType) {
         database.queryWithExceptionTranslation {
-            setVarselInaktiv(done.eventId, varselType)
+            setVarselInaktiv(eventId, varselType)
         }
     }
+
+
+
     suspend fun inaktiverInnboks(done: Done) {
         database.queryWithExceptionTranslation {
             setInnboksEventerAktivFlag(listOf(done), false)
