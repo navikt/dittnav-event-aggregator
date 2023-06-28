@@ -17,7 +17,7 @@ import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselHendelse
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselRepository
 import no.nav.personbruker.dittnav.eventaggregator.varsel.VarselType
 
-internal class DoneSink(
+class DoneSink(
     rapidsConnection: RapidsConnection,
     private val varselRepository: VarselRepository,
     private val varselInaktivertProducer: VarselInaktivertProducer,
