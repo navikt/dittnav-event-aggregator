@@ -39,6 +39,8 @@ internal class BeskjedInaktivertAvBrukerSink(
             } else if (!varsel.aktiv) {
                 log.info("Hopper over allerede inaktiv beskjed med id [${varsel.eventId}].")
             } else {
+                log.info("Speiler bruker-initiert inaktivering av beskjed hos authority med varselId $eventId")
+
                 varselRepository.inaktiverVarsel(eventId, VarselType.BESKJED)
 
                 varselInaktivertProducer.varselInaktivert(
@@ -52,8 +54,6 @@ internal class BeskjedInaktivertAvBrukerSink(
                     kilde = VarselInaktivertKilde.Bruker
                 )
             }
-
-            log.info("Behandlet inaktivert-event fra rapid med eventid $eventId")
         }
     }
 
